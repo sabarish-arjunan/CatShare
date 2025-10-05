@@ -242,7 +242,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   return (
     <div
       className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
 
       {tab === "products" && (
@@ -627,7 +626,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         )}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-30 flex justify-around text-sm font-medium">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 flex justify-around text-sm font-medium pb-[env(safe-area-inset-bottom,0px)]">
         {[
           { key: "products", label: "Products", color: "bg-blue-500 text-white" },
           { key: "wholesale", label: "Wholesale", color: "bg-blue-500 text-white" },
@@ -656,7 +655,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           await Haptics.impact({ style: ImpactStyle.Medium });
           navigate("/create");
         }}
-        className="fixed bottom-16 right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
+        className="fixed right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
       >
         <FiPlus size={24} />
       </button>
