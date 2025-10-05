@@ -30,11 +30,34 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [previewProduct, setPreviewProduct] = useState(null);
   const [previewList, setPreviewList] = useState([]);
   const [imageMap, setImageMap] = useState({});
-  const searchInputRef = useRef(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [showShelfConfirm, setShowShelfConfirm] = useState(false);
   const [shelfTarget, setShelfTarget] = useState(null);
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
+
+  // Logo fullscreen state
+  const [showLogoFullscreen, setShowLogoFullscreen] = useState(false);
+  const logoFsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (showLogoFullscreen && logoFsRef.current && !document.fullscreenElement) {
+      const el = logoFsRef.current as any;
+      if (el && el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {});
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setShowLogoFullscreen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showLogoFullscreen]);
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
@@ -243,7 +266,17 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               }}
             >
               <span className="inline-flex items-center justify-center gap-2">
-                <img src="/catshare-logo.svg" alt="CatShare" className="w-6 h-6 rounded" />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowLogoFullscreen(true);
+                  }}
+                  className="p-0 m-0 inline-flex items-center justify-center"
+                  aria-label="Open CatShare logo fullscreen"
+                >
+                  <img src="/catshare-logo.svg" alt="CatShare" className="w-6 h-6 rounded pointer-events-none" />
+                </button>
                 <span>CatShare</span>
               </span>
             </h1>
@@ -533,6 +566,25 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {showLogoFullscreen && (
+          <div
+            ref={logoFsRef}
+            className="fixed inset-0 z-[60] bg-black flex items-center justify-center"
+            onClick={() => {
+              if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+              }
+              setShowLogoFullscreen(false);
+            }}
+          >
+            <img
+              src="/catshare-logo.svg"
+              alt="CatShare logo fullscreen"
+              className="max-w-[92vw] max-h-[92vh] w-auto h-auto"
+            />
           </div>
         )}
 
