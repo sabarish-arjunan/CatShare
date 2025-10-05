@@ -271,8 +271,8 @@ const exportProductsToCSV = (products) => {
         <div
           className="absolute left-0 w-64 bg-white shadow-lg p-4 overflow-y-auto"
           style={{
-            top: "env(safe-area-inset-top, 0px)",
-            height: "calc(100% - env(safe-area-inset-top, 0px))",
+            top: 0,
+            height: "100%",
           }}
           onClick={(e) => e.stopPropagation()}
         >
