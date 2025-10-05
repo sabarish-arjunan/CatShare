@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 import { FiX, FiShare2 } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
@@ -147,87 +148,85 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
 
   // Share functionality
   const handleShare = async () => {
+    const productName = product?.name || 'Product Image';
+
+    const blobFromUrl = async (url) => {
+      const res = await fetch(url, { mode: 'cors' });
+      return await res.blob();
+    };
+
+    const blobToBase64 = (blob) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+
     try {
-      // First, check if we can share files
+      // Try Web Share API first (modern browsers)
       if (navigator.share) {
-        // Try to fetch the image as blob directly
-        if (imageUrl.startsWith('data:')) {
-          // Handle base64 data URLs
-          const response = await fetch(imageUrl);
-          const blob = await response.blob();
-          const file = new File([blob], `${productName || 'product'}.png`, { type: 'image/png' });
-          
-          // Check if file sharing is supported
+        try {
+          let blob;
+          if (imageUrl.startsWith('data:')) {
+            const res = await fetch(imageUrl);
+            blob = await res.blob();
+          } else {
+            blob = await blobFromUrl(imageUrl);
+          }
+
+          const file = new File([blob], `${productName}.png`, { type: 'image/png' });
+
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: productName || 'Product Image',
-              files: [file]
-            });
+            await navigator.share({ title: productName, files: [file] });
             return;
           }
-        } else {
-          // Handle regular URLs - convert to blob
-          try {
-            const response = await fetch(imageUrl, { mode: 'cors' });
-            const blob = await response.blob();
-            const file = new File([blob], `${productName || 'product'}.png`, { type: 'image/png' });
-            
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                title: productName || 'Product Image',
-                files: [file]
-              });
-              return;
-            }
-          } catch (fetchError) {
-            console.log('Fetch failed, trying canvas method');
-          }
+        } catch (webShareErr) {
+          console.log('Web share with files failed:', webShareErr);
         }
-        
-        // If file sharing isn't supported, try text sharing
+
         try {
-          await navigator.share({
-            title: productName || 'Product Image',
-            text: `Check out this product: ${productName || 'Product Image'}`,
-            url: window.location.href
-          });
+          await navigator.share({ title: productName, text: productName, url: window.location.href });
           return;
-        } catch (shareError) {
-          console.log('Text sharing failed, falling back to download');
+        } catch (err) {
+          console.log('Web text share failed:', err);
         }
       }
-      
-      // Fallback: Download the image
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        
-        canvas.toBlob((blob) => {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `${productName || 'product'}.png`;
-          link.style.display = 'none';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }, 'image/png');
-      };
-      
-      img.onerror = () => {
-        console.error('Failed to load image for sharing');
-        alert('Unable to share image. Please try again.');
-      };
-      
-      img.src = imageUrl;
-      
+
+      // Fallback to Capacitor Share (native) if available
+      try {
+        // Convert image to base64 if needed
+        let base64Data;
+        if (imageUrl.startsWith('data:')) {
+          base64Data = imageUrl.split(',')[1];
+        } else {
+          const blob = await blobFromUrl(imageUrl);
+          base64Data = await blobToBase64(blob);
+        }
+
+        const filename = `share_${Date.now()}.png`;
+
+        await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.External });
+        const fileUriResult = await Filesystem.getUri({ path: filename, directory: Directory.External });
+        const uri = fileUriResult.uri;
+
+        await Share.share({
+          title: productName,
+          text: productName,
+          files: [uri],
+        });
+
+        return;
+      } catch (nativeErr) {
+        console.log('Capacitor native share failed:', nativeErr);
+      }
+
+      // Final fallback: download the image
+      const a = document.createElement('a');
+      a.href = imageUrl;
+      a.download = `${productName}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     } catch (error) {
       console.error('Error sharing image:', error);
       alert('Unable to share image. Please try again.');
