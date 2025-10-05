@@ -6,10 +6,14 @@ import sharp from "sharp";
 const SRC = process.argv[2] || "https://cdn.builder.io/api/v1/image/assets%2F26f6b390b6b24d1f855eb0c2e3d0fae9%2Facd1b8640f454da3abea98b8f7347a2f?format=webp&width=1024";
 const OUT = path.resolve(process.cwd(), "public", "icons");
 
-async function downloadBuffer(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to download image: ${res.status}`);
-  return Buffer.from(await res.arrayBuffer());
+async function downloadBuffer(urlOrPath) {
+  if (/^https?:\/\//i.test(urlOrPath)) {
+    const res = await fetch(urlOrPath);
+    if (!res.ok) throw new Error(`Failed to download image: ${res.status}`);
+    return Buffer.from(await res.arrayBuffer());
+  }
+  const p = path.resolve(process.cwd(), urlOrPath);
+  return await fs.promises.readFile(p);
 }
 
 async function ensureDir(p) {
