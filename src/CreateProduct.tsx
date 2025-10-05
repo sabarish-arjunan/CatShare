@@ -285,7 +285,7 @@ setTimeout(async () => {
       <header 
   className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 py-3 text-center font-bold text-lg"
   style={{ paddingTop: "env(safe-area-inset-top, 12px)" }}
-> <div style={{ height: "35px", backgroundColor: "white" }} />
+>
   {editingId ? "Edit Product" : "Create Product"}
 </header>
 
