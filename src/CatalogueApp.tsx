@@ -241,11 +241,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   return (
     <div
-      className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative pt-[env(safe-area-inset-top,0px)]"
+      className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
     >
 
       {tab === "products" && (
-        <header className="sticky z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative" style={{ top: 'env(safe-area-inset-top, 0px)' }} >
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative">
         
           {/* Menu Button */}
           <button
