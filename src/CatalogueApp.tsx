@@ -246,7 +246,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     >
 
       {tab === "products" && (
-        <header className="sticky z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative" style={{ top: 'env(safe-area-inset-top, 0px)' }} >
+        <header className="sticky z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative" style={{ top: '0px' }} >
         
           {/* Menu Button */}
           <button
