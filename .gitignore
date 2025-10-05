@@ -1,0 +1,29 @@
+# Node
+node_modules/
+.npm/
+.npm-cache/
+
+# Build
+dist/
+build/
+out/
+
+# Capacitor / Android / iOS build artifacts
+android/.gradle/
+android/.idea/
+android/.cxx/
+android/.npm-cache/
+android/local.properties
+android/app/build/
+ios/Pods/
+ios/build/
+
+# Env files
+.env
+.env.*.local
+
+# Misc
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
