@@ -14,15 +14,11 @@ public void onCreate(Bundle savedInstanceState) {
   registerPlugin(FileSharerPlugin.class);
 
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-    // For Android 11 and above
-    getWindow().setDecorFitsSystemWindows(true);
+    // For Android 11 and above: draw under system bars
+    getWindow().setDecorFitsSystemWindows(false);
   } else {
-    // For Android 10 and below
-    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-    getWindow().setFlags(
-      WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-      WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN
-    );
+    // For Android 10 and below: allow layout under status bar
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
   }
 }
 }

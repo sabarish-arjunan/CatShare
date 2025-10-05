@@ -29,9 +29,8 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     if (isNative) {
-      StatusBar.setOverlaysWebView({ overlay: false });
-      StatusBar.setBackgroundColor({ color: '#ffffff' });
-      StatusBar.setStyle({ style: Style.Dark });
+      StatusBar.setOverlaysWebView({ overlay: true });
+            StatusBar.setStyle({ style: Style.Dark });
     }
   }, [isNative]);
 
@@ -77,8 +76,7 @@ function AppWithBackHandler() {
         boxSizing: "border-box",
         minHeight: "100%",
         backgroundColor: "#fff",
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 35px)",
-      }}
+              }}
     >
       <Routes>
         <Route

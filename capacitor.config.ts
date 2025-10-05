@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     StatusBar: {
-      overlay: false, // ✅ Ensures content is below the status bar
+      overlay: true, // Keep webview under the status bar (edge-to-edge)
     },
   },
 };
