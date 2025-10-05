@@ -276,7 +276,6 @@ const exportProductsToCSV = (products) => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div style={{ height: "35px", backgroundColor: "white" }} />
           <h2 className="text-lg font-semibold mb-4">Menu</h2>
 
           <button
@@ -694,4 +693,3 @@ function CategoryModal({ onClose }) {
     </div>
   );
 }
-

@@ -149,7 +149,6 @@ useEffect(() => {
   console.log("imageMap", imageMap);
   return (
   <div className="fixed inset-0 bg-white z-50 flex flex-col pt-[env(safe-area-inset-top,0px)]">
-    <div style={{ height: "35px", backgroundColor: "white" }} />
     <header className="shrink-0 bg-white shadow-sm border-b z-10 px-4 py-2 flex items-center justify-between">
   <h1 className="text-lg sm:text-xl font-semibold text-gray-800 tracking-tight">
     🛠️ Bulk Editor

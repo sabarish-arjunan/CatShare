@@ -59,8 +59,7 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
 
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-      <div style={{ height: "35px", backgroundColor: "white" }} />
-      <header className="sticky top-[env(safe-area-inset-top)] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative">
+        <header className="sticky top-[env(safe-area-inset-top)] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative">
         <button
           onClick={() => setMenuOpen(true)}
           className="text-2xl font-bold text-gray-700"
