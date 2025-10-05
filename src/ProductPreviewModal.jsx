@@ -150,7 +150,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
   const handleShare = async () => {
     const productName = product?.name || 'Product Image';
 
-    const blobFromUrl = async (url) => {
+    const fetchBlob = async (url) => {
       const res = await fetch(url, { mode: 'cors' });
       return await res.blob();
     };
@@ -163,64 +163,57 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
     });
 
     try {
-      // Try Web Share API first (modern browsers)
+      // Prefer Web Share API when available
       if (navigator.share) {
         try {
           let blob;
           if (imageUrl.startsWith('data:')) {
+            // data URLs can be fetched to get a blob
             const res = await fetch(imageUrl);
             blob = await res.blob();
           } else {
-            blob = await blobFromUrl(imageUrl);
+            blob = await fetchBlob(imageUrl);
           }
 
-          const file = new File([blob], `${productName}.png`, { type: 'image/png' });
+          const file = new File([blob], `${productName}.png`, { type: blob.type || 'image/png' });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ title: productName, files: [file] });
+            await navigator.share({ files: [file], title: productName, text: productName });
             return;
           }
-        } catch (webShareErr) {
-          console.log('Web share with files failed:', webShareErr);
-        }
 
-        try {
+          // If file sharing is not supported, fallback to sharing the page URL (still user gesture)
           await navigator.share({ title: productName, text: productName, url: window.location.href });
           return;
-        } catch (err) {
-          console.log('Web text share failed:', err);
+        } catch (webShareErr) {
+          console.warn('navigator.share failed or not supported for files:', webShareErr);
+          // continue to native fallback
         }
       }
 
-      // Fallback to Capacitor Share (native) if available
+      // Capacitor native fallback (Android / iOS)
       try {
-        // Convert image to base64 if needed
         let base64Data;
         if (imageUrl.startsWith('data:')) {
           base64Data = imageUrl.split(',')[1];
         } else {
-          const blob = await blobFromUrl(imageUrl);
+          const blob = await fetchBlob(imageUrl);
           base64Data = await blobToBase64(blob);
         }
 
         const filename = `share_${Date.now()}.png`;
+        // Use cache directory for temporary sharing files
+        await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.Cache });
+        const fileUriResult = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
+        const uri = fileUriResult.uri || fileUriResult.uri;
 
-        await Filesystem.writeFile({ path: filename, data: base64Data, directory: Directory.External });
-        const fileUriResult = await Filesystem.getUri({ path: filename, directory: Directory.External });
-        const uri = fileUriResult.uri;
-
-        await Share.share({
-          title: productName,
-          text: productName,
-          files: [uri],
-        });
-
+        await Share.share({ title: productName, text: productName, files: [uri] });
         return;
       } catch (nativeErr) {
-        console.log('Capacitor native share failed:', nativeErr);
+        console.warn('Capacitor Share fallback failed:', nativeErr);
       }
 
-      // Final fallback: download the image
+      // Final fallback: force download
       const a = document.createElement('a');
       a.href = imageUrl;
       a.download = `${productName}.png`;
