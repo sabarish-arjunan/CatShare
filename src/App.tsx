@@ -77,6 +77,7 @@ function AppWithBackHandler() {
         boxSizing: "border-box",
         minHeight: "100%",
         backgroundColor: "#fff",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 35px)",
       }}
     >
       <Routes>
