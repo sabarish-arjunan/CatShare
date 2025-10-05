@@ -213,7 +213,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <header className="sticky z-40 bg-white/100 backdrop-blur-sm border-b border-gray-200 px-1 py-2 flex items-center gap-3 relative" style={{ top: 'env(safe-area-inset-top, 0px)' }} >
+    <header className="sticky top-0 z-40 bg-white/100 backdrop-blur-sm border-b border-gray-200 px-1 py-2 flex items-center gap-3 relative">
   {/* Menu Button */}
   <AnimatePresence mode="wait" initial={false}>
   {!showSearch && (
