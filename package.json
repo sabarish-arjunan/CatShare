@@ -70,7 +70,7 @@
     "tailwindcss": "3.4.16",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
-    "sharp": "^0.32.1",
+    "sharp": "^0.33.4",
     "node-fetch": "^3.3.2"
   },
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules. One top of the standard Vite setup, [tailwindcss](https://tailwindcss.com/) is installed and ready to be used in React components.",
