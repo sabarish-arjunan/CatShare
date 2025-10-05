@@ -275,7 +275,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                   className="p-0 m-0 inline-flex items-center justify-center"
                   aria-label="Open CatShare logo fullscreen"
                 >
-                  <img src="/catshare-logo.svg" alt="CatShare" className="w-6 h-6 rounded pointer-events-none" />
+                  <img src="https://cdn.builder.io/api/v1/image/assets%2F26f6b390b6b24d1f855eb0c2e3d0fae9%2Facd1b8640f454da3abea98b8f7347a2f?format=webp&width=800" alt="CatShare" className="w-6 h-6 rounded pointer-events-none" />
                 </button>
                 <span>CatShare</span>
               </span>
@@ -581,7 +581,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
           >
             <img
-              src="/catshare-logo.svg"
+              src="https://cdn.builder.io/api/v1/image/assets%2F26f6b390b6b24d1f855eb0c2e3d0fae9%2Facd1b8640f454da3abea98b8f7347a2f?format=webp&width=800"
               alt="CatShare logo fullscreen"
               className="max-w-[92vw] max-h-[92vh] w-auto h-auto"
             />
