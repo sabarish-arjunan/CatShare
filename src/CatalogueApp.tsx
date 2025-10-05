@@ -242,7 +242,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 setTab("products");
               }}
             >
-              CatShare
+              <span className="inline-flex items-center justify-center gap-2">
+                <img src="/catshare-logo.svg" alt="CatShare" className="w-6 h-6 rounded" />
+                <span>CatShare</span>
+              </span>
             </h1>
           )}
 
