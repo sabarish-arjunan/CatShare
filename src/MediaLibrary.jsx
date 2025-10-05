@@ -109,7 +109,7 @@ export default function MediaLibrary({ onSelect, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-white pt-[env(safe-area-inset-top)] overflow-y-auto">
-      <div className="sticky top-0 bg-white p-4 border-b z-10 flex items-center justify-between shadow">
+      <div className="sticky bg-white p-4 border-b z-10 flex items-center justify-between shadow" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
         <h2 className="text-xl font-semibold">Media Library</h2>
         <div className="flex gap-4 items-center text-xl">
           {selectMode ? (
