@@ -282,8 +282,8 @@ setTimeout(async () => {
   return (
     <div className="px-4 max-w-lg mx-auto text-sm"
     >
-      <header 
-  className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 py-3 text-center font-bold text-lg"
+      <header
+  className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 pt-[env(safe-area-inset-top,0px)] pb-3 text-center font-bold text-lg"
 >
   {editingId ? "Edit Product" : "Create Product"}
 </header>
