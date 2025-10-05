@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global safe-area fallback: ensure app content never goes under the native status bar */
+html, body, #root {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
