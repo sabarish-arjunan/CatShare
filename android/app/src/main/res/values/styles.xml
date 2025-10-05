@@ -18,7 +18,7 @@
         <!-- ✅ Fix for system status bar overlay -->
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">#000000</item> <!-- Change to your brand color if needed -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <!-- Splash screen theme -->
