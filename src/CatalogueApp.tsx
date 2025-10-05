@@ -36,78 +36,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
 
-  // Add state for safe area inset
-  const [safeAreaTop, setSafeAreaTop] = useState(0);
-
-  // Calculate safe area inset on mount and resize
-  useEffect(() => {
-    const calculateSafeArea = () => {
-      // Method 1: Try to get CSS environment variable
-      try {
-        const computedStyle = getComputedStyle(document.documentElement);
-        const envSafeArea = computedStyle.getPropertyValue('--sat') || 
-                            computedStyle.getPropertyValue('env(safe-area-inset-top)');
-        
-        if (envSafeArea && envSafeArea !== '0px') {
-          const parsedValue = parseInt(envSafeArea) || 0;
-          if (parsedValue > 0) {
-            setSafeAreaTop(parsedValue);
-            return;
-          }
-        }
-      } catch (e) {
-        // Continue to fallback method
-      }
-
-      // Method 2: Device-based calculation (simplified)
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isAndroid = /Android/.test(navigator.userAgent);
-      
-      if (isIOS) {
-        // iPhone detection based on user agent and device pixel ratio
-        const ratio = window.devicePixelRatio || 1;
-        const windowHeight = window.innerHeight;
-        
-        // Modern iPhones with notch/dynamic island
-        if (ratio >= 3 && windowHeight < 700) {
-          setSafeAreaTop(47); // iPhone 14 Pro, 15 Pro, etc.
-        } else if (ratio >= 3) {
-          setSafeAreaTop(44); // iPhone X, 11, 12, 13, etc.
-        } else {
-          setSafeAreaTop(20); // Older iPhones
-        }
-      } else if (isAndroid) {
-        setSafeAreaTop(24); // Standard Android status bar
-      } else {
-        setSafeAreaTop(0); // Desktop or unknown devices
-      }
-    };
-
-    // Initial calculation
-    calculateSafeArea();
-
-    // Recalculate on resize or orientation change
-    const handleResize = () => {
-      setTimeout(calculateSafeArea, 100); // Small delay for stable calculation
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-    
-    // Also listen for visualViewport changes (keyboard, etc.)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-    }
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize);
-      }
-    };
-  }, []);
-
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -291,7 +219,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   return (
     <div
       className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
-      style={{ paddingTop: `${safeAreaTop}px` }}
     >
 
       {tab === "products" && (
