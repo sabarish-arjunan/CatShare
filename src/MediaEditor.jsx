@@ -178,7 +178,7 @@ export default function MediaEditor({ image, onClose, onSave }) {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700 bg-black pt-[env(safe-area-inset-top)]">
+      <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700 bg-black">
         <button onClick={onClose} className="text-blue-400">Cancel</button>
         <div className="text-xs uppercase text-gray-400">{tab}</div>
         <button onClick={handleSave} className="text-blue-400">Done</button>

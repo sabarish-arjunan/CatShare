@@ -74,7 +74,6 @@ function AppWithBackHandler() {
   return (
     <div
       style={{
-        paddingTop: "env(safe-area-inset-top, 0px)", // respect safe area inset, no extra gap
         boxSizing: "border-box",
         minHeight: "100%",
         backgroundColor: "#fff",
