@@ -29,8 +29,8 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     if (isNative) {
-      // Ensure app content starts below status bar
       StatusBar.setOverlaysWebView({ overlay: false });
+      StatusBar.setBackgroundColor({ color: '#ffffff' });
       StatusBar.setStyle({ style: Style.Dark });
     }
   }, [isNative]);

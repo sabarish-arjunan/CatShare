@@ -241,11 +241,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   return (
     <div
-      className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
+      className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative pt-[env(safe-area-inset-top,0px)]"
     >
 
       {tab === "products" && (
-        <header className="sticky z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative" style={{ top: '0px' }} >
+        <header className="sticky z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-3 relative" style={{ top: 'env(safe-area-inset-top, 0px)' }} >
         
           {/* Menu Button */}
           <button
@@ -275,7 +275,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                   className="p-0 m-0 inline-flex items-center justify-center"
                   aria-label="Open CatShare logo fullscreen"
                 >
-                  <img src="https://cdn.builder.io/api/v1/image/assets%2F26f6b390b6b24d1f855eb0c2e3d0fae9%2Facd1b8640f454da3abea98b8f7347a2f?format=webp&width=800" alt="CatShare" className="w-6 h-6 rounded pointer-events-none" />
+                  <img src="/logo-catalogue-share.svg" alt="Catalogue Share" className="w-6 h-6 rounded pointer-events-none" />
                 </button>
                 <span>CatShare</span>
               </span>
@@ -581,7 +581,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
           >
             <img
-              src="https://cdn.builder.io/api/v1/image/assets%2F26f6b390b6b24d1f855eb0c2e3d0fae9%2Facd1b8640f454da3abea98b8f7347a2f?format=webp&width=800"
+              src="/logo-catalogue-share.svg"
               alt="CatShare logo fullscreen"
               className="max-w-[92vw] max-h-[92vh] w-auto h-auto"
             />
