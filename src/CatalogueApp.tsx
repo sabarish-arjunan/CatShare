@@ -242,6 +242,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   return (
     <div
       className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
 
       {tab === "products" && (
