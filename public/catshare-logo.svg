@@ -1,30 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="CatShare logo">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#2563eb"/>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#46a6ff"/>
+      <stop offset="100%" stop-color="#8b45ff"/>
     </linearGradient>
   </defs>
-  <!-- Background -->
-  <rect x="8" y="8" width="112" height="112" rx="24" fill="url(#bg)"/>
 
-  <!-- Catalogue (simple grid) -->
-  <g transform="translate(28,28)">
-    <rect x="0" y="0" width="56" height="72" rx="8" fill="#ffffff" opacity="0.98"/>
-    <g fill="#e5e7eb">
-      <rect x="8" y="8" width="16" height="16" rx="3"/>
-      <rect x="32" y="8" width="16" height="16" rx="3"/>
-      <rect x="8" y="32" width="16" height="16" rx="3"/>
-      <rect x="32" y="32" width="16" height="16" rx="3"/>
+  <!-- Rounded gradient background (no white outside) -->
+  <rect x="0" y="0" width="128" height="128" rx="24" ry="24" fill="url(#grad)"/>
+
+  <!-- Tag shape -->
+  <g transform="translate(22,22)">
+    <path d="M76 10 L46 10 L18 38 L18 70 L50 70 L78 42 Z" fill="#ffffff" opacity="0.98" transform="translate(-4,-6) scale(0.98)" />
+
+    <!-- Share nodes and connector -->
+    <g transform="translate(18,10)">
+      <circle cx="18" cy="14" r="6" fill="#6b7280" opacity="0.95"/>
+      <circle cx="38" cy="6" r="5" fill="#6b7280" opacity="0.95"/>
+      <circle cx="54" cy="26" r="6" fill="#6b7280" opacity="0.95"/>
+      <path d="M30 12 L46 6" stroke="#6b7280" stroke-width="4" stroke-linecap="round"/>
+      <path d="M30 20 L46 30" stroke="#6b7280" stroke-width="4" stroke-linecap="round"/>
     </g>
-    <rect x="8" y="56" width="40" height="8" rx="4" fill="#d1d5db"/>
-  </g>
-
-  <!-- Share arrow -->
-  <g transform="translate(64,40)">
-    <circle cx="28" cy="12" r="10" fill="#ffffff22"/>
-    <path d="M38 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z" fill="#ffffff" opacity="0.95"/>
-    <path d="M12 28 L28 18" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
-    <path d="M12 44 L28 34" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
   </g>
 </svg>
