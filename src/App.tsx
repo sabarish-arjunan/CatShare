@@ -32,7 +32,8 @@ function AppWithBackHandler() {
     const ensure = async () => {
       try {
         await StatusBar.setOverlaysWebView({ overlay: false });
-        await StatusBar.setStyle({ style: Style.Dark });
+        await StatusBar.setBackgroundColor({ color: '#3b82f6' });
+        await StatusBar.setStyle({ style: Style.Light });
       } catch (e) {
         console.warn("StatusBar set failed:", e);
       }

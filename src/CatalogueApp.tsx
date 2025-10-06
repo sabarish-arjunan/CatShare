@@ -260,7 +260,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           {/* Center Title */}
           {!showSearch && (
             <h1
-              className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200"
+              className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200 flex items-center justify-center leading-none"
               onClick={() => {
                 setTab("products");
               }}
@@ -272,10 +272,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                     e.stopPropagation();
                     setShowLogoFullscreen(true);
                   }}
-                  className="p-0 m-0 inline-flex items-center justify-center"
+                  className="p-1 m-0 inline-flex items-center justify-center shrink-0"
                   aria-label="Open CatShare logo fullscreen"
                 >
-                  <img src="/logo-catalogue-share.svg" alt="Catalogue Share" className="w-8 h-8 rounded pointer-events-none" />
+                  <img src="/logo-catalogue-share.svg" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded pointer-events-none object-contain shrink-0" />
                 </button>
                 <span>CatShare</span>
               </span>
