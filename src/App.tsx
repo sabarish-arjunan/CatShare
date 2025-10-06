@@ -28,10 +28,35 @@ function AppWithBackHandler() {
   const isNative = Capacitor.getPlatform() !== "web";
 
   useEffect(() => {
-    if (isNative) {
-      StatusBar.setOverlaysWebView({ overlay: true });
-            StatusBar.setStyle({ style: Style.Dark });
-    }
+    if (!isNative) return;
+    const ensure = async () => {
+      try {
+        await StatusBar.setOverlaysWebView({ overlay: false });
+        await StatusBar.setStyle({ style: Style.Dark });
+      } catch (e) {
+        console.warn("StatusBar set failed:", e);
+      }
+    };
+
+    // run once
+    ensure();
+
+    // re-apply on app resume
+    let removeResume: any;
+    CapacitorApp.addListener("resume", ensure).then((listener) => {
+      removeResume = listener.remove;
+    });
+
+    // re-apply when page becomes visible
+    const onVis = () => {
+      if (!document.hidden) ensure();
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      if (removeResume) removeResume();
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, [isNative]);
 
   useEffect(() => {
@@ -76,7 +101,8 @@ function AppWithBackHandler() {
         boxSizing: "border-box",
         minHeight: "100%",
         backgroundColor: "#fff",
-              }}
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+      }}
     >
       <Routes>
         <Route
