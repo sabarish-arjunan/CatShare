@@ -28,6 +28,8 @@ async function generate() {
   await ensureDir(OUT);
   await sharp(buf).resize(192, 192).png().toFile(path.join(OUT, "icon-192.png"));
   await sharp(buf).resize(512, 512).png().toFile(path.join(OUT, "icon-512.png"));
+  // Create a maskable variant (same PNG but flagged for manifest as maskable)
+  await sharp(buf).resize(512, 512).png().toFile(path.join(OUT, "icon-512-maskable.png"));
 
   // Android mipmap densities
   const android = [
