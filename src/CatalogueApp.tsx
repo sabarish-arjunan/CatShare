@@ -260,7 +260,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           {/* Center Title */}
           {!showSearch && (
             <h1
-              className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200"
+              className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200 flex items-center justify-center leading-none"
               onClick={() => {
                 setTab("products");
               }}
