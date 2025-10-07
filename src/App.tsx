@@ -100,7 +100,7 @@ function AppWithBackHandler() {
     <div
       style={{
         boxSizing: "border-box",
-        minHeight: "100%",
+        height: "100%",
         backgroundColor: "#fff",
       }}
     >
