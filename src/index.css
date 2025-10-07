@@ -2,4 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Root sizing to avoid overlaps and ensure full height across devices */
+html, body, #root {
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #fff;
+}
+
 /* Keep global styles minimal. Components handle safe-area insets themselves. */
