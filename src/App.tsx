@@ -13,6 +13,7 @@ import { Capacitor } from "@capacitor/core";
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
 import Shelf from "./Shelf";
+import Retail from "./Retail";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
