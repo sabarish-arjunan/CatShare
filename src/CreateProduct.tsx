@@ -291,13 +291,9 @@ setTimeout(async () => {
       <div className="mb-3">
         <button
           onClick={handleSelectImage}
-          className="relative bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg overflow-hidden group border-2 border-blue-600"
+          className="bg-white hover:bg-slate-50 text-slate-800 font-semibold px-6 py-4 rounded-2xl shadow-xl hover:shadow-2xl border border-slate-200 transition-all duration-300 hover:-translate-y-1"
         >
-          <span className="relative z-10">Choose Image</span>
-          <span className="absolute inset-0 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-          <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            Choose Image
-          </span>
+          Choose Image
         </button>
 
         <input
