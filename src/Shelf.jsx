@@ -59,7 +59,8 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
 
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+        <div className="sticky top-0 h-[35px] bg-white z-50"></div>
+        <header className="sticky top-[35px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         <button
           onClick={() => setMenuOpen(true)}
           className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700"
