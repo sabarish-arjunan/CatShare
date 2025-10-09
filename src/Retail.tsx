@@ -25,6 +25,7 @@ export default function Retail({ products = [] }) {
   const [selectedToPull, setSelectedToPull] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [previewProductRetail, setPreviewProductRetail] = useState(null);
 
   // image / crop states
   const [imagePreview, setImagePreview] = useState(null);
