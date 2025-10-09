@@ -565,8 +565,11 @@ export default function Retail({ products = [] }) {
                       } catch (err) {
                         console.warn('Could not write external share copy:', err);
                       }
+                      const dataUrl = `data:image/png;base64,${base64}`;
+                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: dataUrl, imagePath } : p));
+                    } else {
+                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath, imagePath } : p));
                     }
-                    setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath } : p));
                     setEditingId(null);
                     setEditingProduct(null);
                     setImagePreview(null);
