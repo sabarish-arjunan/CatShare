@@ -100,6 +100,10 @@ export default function Retail({ products = [] }) {
   }, [selectMode]);
 
   useEffect(() => {
+    if (selected.length === 0) setSelectMode(false);
+  }, [selected]);
+
+  useEffect(() => {
     // Push a fake entry to trap back
     window.history.pushState({ tab: "retail" }, "");
   }, []);
