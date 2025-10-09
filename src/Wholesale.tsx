@@ -214,7 +214,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   return (
     <>
     <div className="fixed top-0 left-0 right-0 h-[35px] bg-black z-50" />
-    <header className="fixed top-[35px] left-0 right-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <header className="fixed left-0 right-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Menu Button */}
   <AnimatePresence mode="wait" initial={false}>
   {!showSearch && (
