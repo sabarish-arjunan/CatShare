@@ -22,6 +22,85 @@ export default function Retail({ products = [] }) {
   const [editingId, setEditingId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
 
+  // image / crop states
+  const [imagePreview, setImagePreview] = useState(null);
+  const [originalBase64, setOriginalBase64] = useState(null);
+  const [cropping, setCropping] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [overrideColor, setOverrideColor] = useState("#d1b3c4");
+  const [fontColor, setFontColor] = useState("white");
+  const [imageBgOverride, setImageBgOverride] = useState("white");
+  const [suggestedColors, setSuggestedColors] = useState([]);
+
+  const onCropComplete = useCallback((_, areaPixels) => setCroppedAreaPixels(areaPixels), []);
+
+  const handleSelectImage = async () => {
+    const defaultFolder = "Phone/Pictures/Photoroom";
+    const folder = localStorage.getItem("lastUsedFolder") || defaultFolder;
+
+    try {
+      const res = await Filesystem.readdir({ path: folder, directory: Directory.External });
+      const imageFile = res.files.find((f) => f.name.match(/\.(jpg|jpeg|png|webp)$/i));
+      if (!imageFile) throw new Error("No image files found in folder");
+
+      const fullPath = `${folder}/${imageFile.name}`;
+      const fileData = await Filesystem.readFile({ path: fullPath, directory: Directory.External });
+      const base64 = `data:image/png;base64,${fileData.data}`;
+      setOriginalBase64(base64);
+      setImagePreview(base64);
+      setCropping(true);
+      localStorage.setItem("lastUsedFolder", folder);
+    } catch (err) {
+      console.warn("Fallback to system file picker:", err.message);
+      document.getElementById("retail-fallback-file-input").click();
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64Data = reader.result;
+        if (file.webkitRelativePath || file.name) {
+          const fakePath = file.webkitRelativePath || file.name;
+          const folderPath = fakePath.substring(0, fakePath.lastIndexOf("/"));
+          localStorage.setItem("lastUsedFolder", folderPath);
+        }
+        setOriginalBase64(base64Data);
+        setImagePreview(base64Data);
+        setCropping(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const applyCrop = async () => {
+    if (!imagePreview || !croppedAreaPixels) return;
+    try {
+      const croppedBase64 = await getCroppedImg(imagePreview, croppedAreaPixels);
+      setImagePreview(croppedBase64);
+      setCropping(false);
+      setZoom(1);
+      setCrop({ x: 0, y: 0 });
+    } catch (error) {
+      console.error("Crop failed:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (imagePreview) {
+      const img = new Image();
+      img.src = imagePreview;
+      img.onload = () => {
+        const palette = getPalette(img, 12);
+        setSuggestedColors(palette);
+      };
+    }
+  }, [imagePreview]);
+
   useEffect(() => {
     localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
   }, [retailProducts]);
