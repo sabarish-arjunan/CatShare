@@ -415,9 +415,17 @@ export default function Retail({ products = [] }) {
                 if (selectMode) {
                   toggleSelection(p.id);
                 } else {
-                  const idToOpen = p.sourceId || p.id;
-                  const listToPass = p.sourceId ? products : retailProducts;
-                  openPreviewHtml(idToOpen, 'retail', listToPass);
+                  if (p.sourceId) {
+                    // open original product in CatalogueApp: navigate to root then dispatch event
+                    navigate("/");
+                    setTimeout(() => {
+                      const evt = new CustomEvent("open-preview", { detail: { id: p.sourceId, tab: "products", filtered: products } });
+                      window.dispatchEvent(evt);
+                    }, 80);
+                  } else {
+                    // preview retail-only product locally
+                    setPreviewProductRetail(p);
+                  }
                 }
               }}
               onTouchStart={(e) => handleTouchStart(e, p.id)}
