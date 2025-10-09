@@ -321,135 +321,136 @@ export default function Retail({ products = [] }) {
       )}
 
       {editingId && editingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg">
-            <h3 className="text-lg font-semibold mb-3">Edit product</h3>
-
-            {/* Image picker */}
-            <div className="mb-3">
-              <button
-                onClick={handleSelectImage}
-                className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Choose Image
-              </button>
-
-              <input
-                type="file"
-                id="retail-fallback-file-input"
-                accept="image/*"
-                onChange={handleImageUpload}
-                style={{ display: "none" }}
-              />
-            </div>
-
-            {cropping && imagePreview && (
-              <div className="mb-4">
-                <div style={{ height: 300, position: "relative" }}>
-                  <Cropper
-                    image={imagePreview}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={1}
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={onCropComplete}
-                  />
-                </div>
-                <div className="flex gap-4 mt-2 justify-center">
-                  <button onClick={applyCrop} className="bg-blue-500 text-white px-4 py-1 rounded">Apply Crop</button>
-                  <button onClick={() => setCropping(false)} className="bg-gray-300 px-4 py-1 rounded">Cancel</button>
-                </div>
+        <div className="fixed inset-0 z-50 bg-black/40">
+          <div className="h-full w-full max-w-4xl mx-auto bg-white overflow-auto" style={{ paddingTop: '96px' }}>
+            <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50" />
+            <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-between px-4">
+              <div className="flex items-center gap-3">
+                <button onClick={() => { setEditingId(null); setEditingProduct(null); setImagePreview(null); setCropping(false); }} className="w-8 h-8 flex items-center justify-center">←</button>
+                <h1 className="text-lg font-semibold">{editingProduct.name || 'Edit Product'}</h1>
               </div>
-            )}
-
-            {!cropping && (
-              <div className="grid grid-cols-1 gap-3">
-                <label>
-                  <div className="text-sm text-gray-700">Name</div>
-                  <input className="w-full px-3 py-2 border rounded" value={editingProduct.name} onChange={(e) => setEditingProduct((s) => ({ ...s, name: e.target.value }))} />
-                </label>
-
-                <label>
-                  <div className="text-sm text-gray-700">Subtitle</div>
-                  <input className="w-full px-3 py-2 border rounded" value={editingProduct.subtitle} onChange={(e) => setEditingProduct((s) => ({ ...s, subtitle: e.target.value }))} />
-                </label>
-
-                <div className="flex gap-2">
-                  <label className="flex-1">
-                    <div className="text-sm text-gray-700">Wholesale (₹)</div>
-                    <input type="number" className="w-full px-3 py-2 border rounded" value={editingProduct.wholesale} onChange={(e) => setEditingProduct((s) => ({ ...s, wholesale: Number(e.target.value) }))} />
-                  </label>
-
-                  <label className="flex-1">
-                    <div className="text-sm text-gray-700">Retail (₹)</div>
-                    <input type="number" className="w-full px-3 py-2 border rounded" value={editingProduct.retail} onChange={(e) => setEditingProduct((s) => ({ ...s, retail: Number(e.target.value) }))} />
-                  </label>
-                </div>
-
-                <div className="flex gap-2 items-center">
-                  <div className="text-sm text-gray-700">Badge</div>
-                  <input className="px-3 py-2 border rounded flex-1" value={editingProduct.badge || ""} onChange={(e) => setEditingProduct((s) => ({ ...s, badge: e.target.value }))} />
-                </div>
-
-                <div className="my-2">
-                  <label className="block mb-1 font-semibold">Categories</label>
-                  <input className="w-full px-3 py-2 border rounded" placeholder="comma separated" value={(editingProduct.category || []).join(', ')} onChange={(e) => setEditingProduct((s) => ({ ...s, category: e.target.value.split(',').map(x=>x.trim()).filter(Boolean) }))} />
-                </div>
-
-                <div className="my-3">
-                  <label className="block mb-1 font-semibold">Override BG:</label>
-                  <input type="color" value={overrideColor} onChange={(e) => setOverrideColor(e.target.value)} />
-                </div>
-
-                <div className="flex gap-4">
-                  <div>
-                    <label className="block text-sm font-medium">Font Color</label>
-                    <div className="flex gap-2 mt-1">
-                      {['white','black'].map(color=> (
-                        <div key={color} onClick={() => setFontColor(color)} style={{ width:28, height:28, backgroundColor: color, border: fontColor===color ? '3px solid black' : '1px solid #ccc', borderRadius: '100%', cursor: 'pointer' }} />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium">Image BG</label>
-                    <div className="flex gap-2 mt-1">
-                      {['white','black'].map(color=> (
-                        <div key={color} onClick={() => setImageBgOverride(color)} style={{ width:28, height:28, backgroundColor: color, border: imageBgOverride===color ? '3px solid black' : '1px solid #ccc', borderRadius: '100%', cursor: 'pointer' }} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex justify-end gap-2">
-                  <button onClick={() => { setEditingId(null); setEditingProduct(null); setImagePreview(null); setCropping(false); }} className="px-3 py-2 rounded bg-gray-200">Cancel</button>
-                  <button onClick={async () => {
-                    // save image if any
-                    try {
-                      const id = editingId;
-                      let imagePath = editingProduct.image || '';
-                      if (imagePreview && imagePreview.startsWith('data:image')) {
-                        const base64 = imagePreview.split(',')[1];
-                        imagePath = `retail/product-${id}.png`;
-                        await Filesystem.writeFile({ path: imagePath, data: base64, directory: Directory.Data, recursive: true });
-                      }
-                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath } : p));
-                      setEditingId(null);
-                      setEditingProduct(null);
-                      setImagePreview(null);
-                    } catch (err) {
-                      alert('Image save failed: ' + err.message);
+              <div className="flex items-center gap-2">
+                <button onClick={handleSelectImage} className="text-sm px-3 py-1 bg-gray-100 rounded">Choose Image</button>
+                <button onClick={async () => {
+                  try {
+                    const id = editingId;
+                    let imagePath = editingProduct.image || '';
+                    if (imagePreview && imagePreview.startsWith('data:image')) {
+                      const base64 = imagePreview.split(',')[1];
+                      imagePath = `retail/product-${id}.png`;
+                      await Filesystem.writeFile({ path: imagePath, data: base64, directory: Directory.Data, recursive: true });
                     }
-                  }} className="px-3 py-2 rounded bg-blue-600 text-white">Save</button>
-                </div>
-
+                    setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath } : p));
+                    setEditingId(null);
+                    setEditingProduct(null);
+                    setImagePreview(null);
+                  } catch (err) {
+                    alert('Image save failed: ' + err.message);
+                  }
+                }} className="px-3 py-2 rounded bg-blue-600 text-white">Save</button>
               </div>
-            )}
+            </header>
 
+            <div className="px-4 pb-10">
+              <div className="mb-4">
+                <input type="file" id="retail-fallback-file-input" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+              </div>
+
+              {cropping && imagePreview && (
+                <div className="mb-4">
+                  <div style={{ height: 360, position: 'relative' }}>
+                    <Cropper image={imagePreview} crop={crop} zoom={zoom} aspect={1} onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onCropComplete} />
+                  </div>
+                  <div className="flex gap-4 mt-2 justify-center">
+                    <button onClick={applyCrop} className="bg-blue-500 text-white px-4 py-1 rounded">Apply Crop</button>
+                    <button onClick={() => setCropping(false)} className="bg-gray-300 px-4 py-1 rounded">Cancel</button>
+                  </div>
+                </div>
+              )}
+
+              {!cropping && (
+                <>
+                  <div className="max-w-2xl mx-auto">
+                    <div className="mb-3">
+                      <input className="border p-2 rounded w-full mb-2" placeholder="Model Name" value={editingProduct.name} onChange={(e) => setEditingProduct((s) => ({ ...s, name: e.target.value }))} />
+                      <input className="border p-2 rounded w-full mb-2" placeholder="Subtitle" value={editingProduct.subtitle} onChange={(e) => setEditingProduct((s) => ({ ...s, subtitle: e.target.value }))} />
+                      <div className="flex gap-2 mb-2">
+                        <input name="wholesale" value={editingProduct.wholesale} onChange={(e) => setEditingProduct((s) => ({ ...s, wholesale: Number(e.target.value) }))} placeholder="Wholesale Price" className="border p-2 w-full rounded" />
+                        <input name="retail" value={editingProduct.retail} onChange={(e) => setEditingProduct((s) => ({ ...s, retail: Number(e.target.value) }))} placeholder="Retail Price" className="border p-2 w-full rounded" />
+                      </div>
+
+                      <div className="flex gap-2 mb-2">
+                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, package: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, age: e.target.value }))} />
+                      </div>
+
+                      <label className="block text-sm font-medium mb-1">Product Badge</label>
+                      <div className="flex gap-2 mb-3">
+                        <input className="border p-2 rounded text-sm" value={editingProduct.badge || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, badge: e.target.value }))} />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="block mb-1 font-semibold">Categories</label>
+                        <input className="w-full px-3 py-2 border rounded" placeholder="comma separated" value={(editingProduct.category || []).join(', ')} onChange={(e) => setEditingProduct((s) => ({ ...s, category: e.target.value.split(',').map(x=>x.trim()).filter(Boolean) }))} />
+                      </div>
+
+                      <div className="my-3">
+                        <label className="block mb-1 font-semibold">Override BG:</label>
+                        <input type="color" value={overrideColor} onChange={(e) => setOverrideColor(e.target.value)} />
+                      </div>
+
+                      <div className="flex gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium">Font Color</label>
+                          <div className="flex gap-2 mt-1">
+                            {['white','black'].map(color=> (
+                              <div key={color} onClick={() => setFontColor(color)} style={{ width:28, height:28, backgroundColor: color, border: fontColor===color ? '3px solid black' : '1px solid #ccc', borderRadius: '100%', cursor: 'pointer' }} />
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium">Image BG</label>
+                          <div className="flex gap-2 mt-1">
+                            {['white','black'].map(color=> (
+                              <div key={color} onClick={() => setImageBgOverride(color)} style={{ width:28, height:28, backgroundColor: color, border: imageBgOverride===color ? '3px solid black' : '1px solid #ccc', borderRadius: '100%', cursor: 'pointer' }} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Preview */}
+                      <div id="catalogue-preview" className="mt-6 border rounded shadow overflow-hidden" style={{ maxWidth: 330, width: '100%' }}>
+                        <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.wholesale} / piece
+                        </div>
+
+                        {imagePreview && (
+                          <div style={{ position: 'relative', backgroundColor: imageBgOverride, textAlign: 'center', padding: 10, boxShadow: '0 12px 15px -6px rgba(0, 0, 0, 0.4)' }}>
+                            <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain', margin: '0 auto' }} />
+                          </div>
+                        )}
+
+                        <div style={{ backgroundColor: getLighterColor ? getLighterColor(overrideColor) : overrideColor, color: fontColor, padding: 10 }}>
+                          <h2 className="text-lg font-semibold text-center">{editingProduct.name}</h2>
+                          {editingProduct.subtitle && <p className="text-center italic text-sm">({editingProduct.subtitle})</p>}
+                          <div className="text-sm mt-2 space-y-1">
+                            <p>Colour&nbsp;&nbsp;: {editingProduct.color || ''}</p>
+                            <p>Package&nbsp;: {editingProduct.package || ''}</p>
+                            <p>Age Group&nbsp;: {editingProduct.age || ''}</p>
+                          </div>
+                        </div>
+
+                        <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.retail} / piece
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
