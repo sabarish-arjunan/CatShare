@@ -33,6 +33,7 @@ export default function Retail({ products = [] }) {
   const [fontColor, setFontColor] = useState("white");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
+  const [showInfo, setShowInfo] = useState(false);
 
   const onCropComplete = useCallback((_, areaPixels) => setCroppedAreaPixels(areaPixels), []);
 
