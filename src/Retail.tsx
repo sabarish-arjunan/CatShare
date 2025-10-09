@@ -433,13 +433,12 @@ export default function Retail({ products = [] }) {
                 </div>
               </div>
 
-              {showInfo && (
-                <div className="absolute top-1.5 right-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10">
-                  ₹{p.retail}
+              <div className="px-1 py-1 flex items-center justify-between text-[11px]">
+                <div className="truncate text-left font-medium">{p.name}</div>
+                <div className="ml-2">
+                  <span className="bg-red-800 text-white text-[11px] font-medium px-2 py-0.5 rounded-full shadow-md">₹{p.retail}</span>
                 </div>
-              )}
-
-              <div className="px-1 py-1 text-center font-medium text-[11px] truncate">{p.name}</div>
+              </div>
 
             </div>
           ))}
