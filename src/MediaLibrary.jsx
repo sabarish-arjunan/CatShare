@@ -103,13 +103,14 @@ export default function MediaLibrary({ onSelect, onClose }) {
       await loadMedia();
       alert("✅ Image reverted to original.");
     } catch {
-      alert("❌ No original backup found.");
+      alert("�� No original backup found.");
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
-      <div className="sticky top-0 bg-white p-4 border-b z-10 flex items-center justify-between shadow">
+      <div className="sticky top-0 h-[35px] bg-black z-50"></div>
+      <div className="sticky top-[35px] bg-white p-4 border-b z-10 flex items-center justify-between shadow">
         <h2 className="text-xl font-semibold">Media Library</h2>
         <div className="flex gap-4 items-center text-xl">
           {selectMode ? (

@@ -213,7 +213,8 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <div className="fixed top-0 left-0 right-0 h-[35px] bg-black z-50" />
+    <header className="fixed  left-0 right-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Menu Button */}
   <AnimatePresence mode="wait" initial={false}>
   {!showSearch && (
@@ -557,7 +558,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="fixed inset-x-0 top-14 bottom-0 overflow-y-auto px-0 pb-28">
+<div className="fixed inset-x-0 bottom-0 overflow-y-auto px-0 pb-28" style={{ top: "calc(35px + 56px)" }}>
       {/* Grid */}
       <div
         id="capture-area"
