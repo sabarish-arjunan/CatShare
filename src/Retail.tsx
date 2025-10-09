@@ -344,11 +344,29 @@ export default function Retail({ products = [] }) {
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-screen h-[40px] bg-black z-50" />
       <header className="fixed top-[40px] left-1/2 -translate-x-1/2 w-screen z-40 bg-white/90 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         <button
-          onClick={() => navigate(-1)}
-          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700"
-          title="Back"
+          onClick={() => {
+            if (selectMode) {
+              setSelectMode(false);
+              setSelected([]);
+            } else {
+              window.dispatchEvent(new Event("toggle-menu"));
+            }
+          }}
+          className="relative w-8 h-8 shrink-0 flex items-center justify-center"
+          title={selectMode ? "Exit Selection" : "Menu"}
         >
-          ←
+          <span
+            className="absolute w-6 h-0.5 bg-gray-700"
+            style={{ transform: selectMode ? "rotate(45deg)" : "translateY(-8px)" }}
+          />
+          <span
+            className="absolute w-6 h-0.5 bg-gray-700"
+            style={{ opacity: selectMode ? 0 : 1 }}
+          />
+          <span
+            className="absolute w-6 h-0.5 bg-gray-700"
+            style={{ transform: selectMode ? "rotate(-45deg)" : "translateY(8px)" }}
+          />
         </button>
         <h1 className="text-xl font-bold truncate">Retail</h1>
         <div className="flex-1" />
