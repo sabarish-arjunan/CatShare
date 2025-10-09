@@ -82,7 +82,7 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
           className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-200 transition"
           title="Go to Home"
         >
-          <MdOutlineHome />
+          <MdOutlineHome size={24} />
         </button>
       </header>
 
