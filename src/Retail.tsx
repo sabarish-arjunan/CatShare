@@ -109,13 +109,7 @@ export default function Retail({ products = [] }) {
     if (!container) return;
     container.innerHTML = "";
 
-    const filterBtn = document.createElement("button");
-    filterBtn.className = "text-gray-600 hover:text-black";
-    filterBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M3 4h18M3 10h18M6 16h12' /></svg>`;
-    filterBtn.onclick = () => {
-      /* optional filters */
-    };
-    container.appendChild(filterBtn);
+    // Only show selection-related icons when in selectMode
 
     if (selectMode) {
       const count = document.createElement("span");
