@@ -129,6 +129,7 @@ function AppWithBackHandler() {
             />
           }
         />
+        <Route path="/retail" element={<Retail products={products} />} />
       </Routes>
     </div>
   );
