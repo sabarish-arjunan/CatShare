@@ -276,7 +276,7 @@ const exportProductsToCSV = (products) => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="h-[35px] w-full bg-white"></div>
+          <div className="h-[35px] w-full bg-black"></div>
           <h2 className="text-lg font-semibold mb-4">Menu</h2>
 
           <button
