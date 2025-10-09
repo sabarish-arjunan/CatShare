@@ -378,7 +378,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
       {tab !== "products" && (
-        <div className="sticky top-0 h-[35px] bg-black z-50"></div>
+        <div className="sticky top-0 h-[40px] bg-black z-50"></div>
       )}
 
       <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
