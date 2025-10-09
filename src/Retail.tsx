@@ -355,7 +355,8 @@ export default function Retail({ products = [] }) {
               setSelectMode(false);
               setSelected([]);
             } else {
-              window.dispatchEvent(new Event("toggle-menu"));
+              navigate("/");
+              setTimeout(() => window.dispatchEvent(new Event("toggle-menu")), 120);
             }
           }}
           className="relative w-8 h-8 shrink-0 flex items-center justify-center"
