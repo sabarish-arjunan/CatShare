@@ -27,6 +27,122 @@ export default function Retail({ products = [] }) {
 
   // image / crop states
   const [imagePreview, setImagePreview] = useState(null);
+
+  // selection & share
+  const [selected, setSelected] = useState([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [processingIndex, setProcessingIndex] = useState(0);
+  const [processingTotal, setProcessingTotal] = useState(0);
+
+  // touch selection helpers
+  let touchTimer = null;
+  let startX = 0;
+  let startY = 0;
+  let moved = false;
+
+  const handleTouchStart = (e, id) => {
+    moved = false;
+    const touch = e.touches?.[0] || e;
+    startX = touch.clientX;
+    startY = touch.clientY;
+
+    touchTimer = setTimeout(() => {
+      if (!moved) {
+        if (!selectMode) {
+          window.history.pushState({ select: true }, "");
+        }
+        setSelectMode(true);
+        setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      }
+    }, 300);
+  };
+
+  const handleTouchMove = (e) => {
+    const touch = e.touches?.[0] || e;
+    const dx = Math.abs(touch.clientX - startX);
+    const dy = Math.abs(touch.clientY - startY);
+    if (dx > 10 || dy > 10) {
+      moved = true;
+      clearTimeout(touchTimer);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(touchTimer);
+  };
+
+  const toggleSelection = (id) => {
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const openPreviewHtml = (id, tab = null, filteredList = []) => {
+    const evt = new CustomEvent("open-preview", { detail: { id, tab, filtered: filteredList } });
+    window.dispatchEvent(evt);
+  };
+
+  useEffect(() => {
+    const handlePopState = async () => {
+      if (selectMode) {
+        setSelectMode(false);
+        setSelected([]);
+        try {
+          await Haptics.impact({ style: ImpactStyle.Light });
+        } catch (err) {
+          console.warn("Haptics not supported:", err);
+        }
+        window.history.pushState({ select: true }, "");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [selectMode]);
+
+  useEffect(() => {
+    // Push a fake entry to trap back
+    window.history.pushState({ tab: "retail" }, "");
+  }, []);
+
+  useEffect(() => {
+    const container = document.getElementById("retail-header-icons");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const filterBtn = document.createElement("button");
+    filterBtn.className = "text-gray-600 hover:text-black";
+    filterBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M3 4h18M3 10h18M6 16h12' /></svg>`;
+    filterBtn.onclick = () => {
+      /* optional filters */
+    };
+    container.appendChild(filterBtn);
+
+    if (selectMode) {
+      const count = document.createElement("span");
+      count.className = "text-xs bg-red-500 text-white rounded-full px-1";
+      count.innerText = selected.length;
+      container.appendChild(count);
+
+      const shareBtn = document.createElement("button");
+      shareBtn.className = "text-green-600 hover:text-green-800 ml-2";
+      shareBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M16.5 12a4.5 4.5 0 01-9 0m9 0A4.5 4.5 0 007.5 12m9 0V5.25M7.5 12V5.25m0 0h9' /></svg>`;
+      shareBtn.onclick = async () => {
+        await handleShare({ selected, setProcessing, setProcessingIndex, setProcessingTotal, mode: "retail" });
+      };
+      container.appendChild(shareBtn);
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "ml-2 text-sm text-gray-600 hover:text-black";
+      toggleBtn.innerHTML =
+        selected.length === retailProducts.length
+          ? `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M4 6h16M4 12h16M4 18h16' /></svg>`
+          : `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7' /></svg>`;
+      toggleBtn.title = selected.length === retailProducts.length ? "Deselect All" : "Select All";
+      toggleBtn.onclick = () =>
+        setSelected(selected.length === retailProducts.length ? [] : retailProducts.map((p) => p.id));
+      container.appendChild(toggleBtn);
+    }
+  }, [selectMode, selected, retailProducts]);
   const [originalBase64, setOriginalBase64] = useState(null);
   const [cropping, setCropping] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
