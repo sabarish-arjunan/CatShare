@@ -374,7 +374,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         </header>
       )}
 
-      <main ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-24">
+      <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && (
           <DragDropContext onDragEnd={({ source, destination }) => {
             if (!destination) return;
