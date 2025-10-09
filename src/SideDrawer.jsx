@@ -368,7 +368,7 @@ const exportProductsToCSV = (products) => {
         {/* Restore */}
         <label className="flex flex-col items-center justify-center cursor-pointer hover:text-gray-700 transition">
           <div className="w-12 h-12 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center text-2xl shadow-md">
-            ��
+            📂
           </div>
           <span className="text-xs font-medium text-gray-700 mt-2">Restore</span>
           <input
