@@ -7,7 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { App as CapacitorApp } from "@capacitor/app";
-import { StatusBar, Style } from "@capacitor/status-bar";
+import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 
 import CatalogueApp from "./CatalogueApp";
@@ -29,28 +29,27 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     if (!isNative) return;
-    const ensure = async () => {
+    const applyFullscreen = async () => {
       try {
-        await StatusBar.setOverlaysWebView({ overlay: false });
-        await StatusBar.setBackgroundColor({ color: '#3b82f6' });
-        await StatusBar.setStyle({ style: Style.Light });
+        await StatusBar.setOverlaysWebView({ overlay: true });
+        await StatusBar.hide();
       } catch (e) {
-        console.warn("StatusBar set failed:", e);
+        console.warn("StatusBar hide failed:", e);
       }
     };
 
     // run once
-    ensure();
+    applyFullscreen();
 
     // re-apply on app resume
     let removeResume: any;
-    CapacitorApp.addListener("resume", ensure).then((listener) => {
+    CapacitorApp.addListener("resume", applyFullscreen).then((listener) => {
       removeResume = listener.remove;
     });
 
     // re-apply when page becomes visible
     const onVis = () => {
-      if (!document.hidden) ensure();
+      if (!document.hidden) applyFullscreen();
     };
     document.addEventListener("visibilitychange", onVis);
 
