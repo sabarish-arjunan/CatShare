@@ -16,7 +16,7 @@ export async function handleShare({
   setProcessing(true);
   setProcessingTotal(selected.length);
 
-  const folder = mode === "wholesale" ? "Wholesale" : "Resell";
+  const folder = mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell";
   const fileUris = [];
   let processedCount = 0;
 
