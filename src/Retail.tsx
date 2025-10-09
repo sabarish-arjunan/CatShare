@@ -238,9 +238,23 @@ export default function Retail({ products = [] }) {
 
               <div className="mt-3 flex gap-2">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setEditingId(p.id);
                     setEditingProduct({ ...p });
+                    // load image if stored in filesystem
+                    try {
+                      if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) {
+                        const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data });
+                        setImagePreview(`data:image/png;base64,${res.data}`);
+                      } else if (p.image && p.image.startsWith('data:image')) {
+                        setImagePreview(p.image);
+                      } else {
+                        setImagePreview(null);
+                      }
+                    } catch (err) {
+                      console.warn('Failed to read image for edit:', err);
+                      setImagePreview(null);
+                    }
                   }}
                   className="px-2 py-1 text-sm bg-gray-100 rounded"
                 >
