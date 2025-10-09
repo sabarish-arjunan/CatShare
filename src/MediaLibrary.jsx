@@ -103,7 +103,7 @@ export default function MediaLibrary({ onSelect, onClose }) {
       await loadMedia();
       alert("✅ Image reverted to original.");
     } catch {
-      alert("�� No original backup found.");
+      alert("❌ No original backup found.");
     }
   };
 
