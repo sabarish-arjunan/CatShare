@@ -345,9 +345,9 @@ export default function Retail({ products = [] }) {
 
       {editingId && editingProduct && (
         <div className="fixed inset-0 z-50 bg-black/40">
-          <div className="h-full w-full max-w-4xl mx-auto bg-white overflow-auto" style={{ paddingTop: '96px' }}>
+          <div className="h-full w-full max-w-4xl mx-auto bg-white overflow-auto" style={{ paddingTop: '56px' }}>
             <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50" />
-            <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-between px-4">
+            <header className="fixed top-[40px] left-1/2 -translate-x-1/2 w-full max-w-4xl z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-between px-4">
               <div className="flex items-center gap-3">
                 <button onClick={() => { setEditingId(null); setEditingProduct(null); setImagePreview(null); setCropping(false); }} className="w-8 h-8 flex items-center justify-center">←</button>
                 <h1 className="text-lg font-semibold">{editingProduct.name || 'Edit Product'}</h1>
