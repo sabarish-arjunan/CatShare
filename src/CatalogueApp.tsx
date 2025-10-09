@@ -245,16 +245,26 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     >
 
       {tab === "products" && (
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 pb-2 pt-[env(safe-area-inset-top,0px)] flex items-center gap-3 relative">
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         
           {/* Menu Button */}
           <button
             onClick={() => setMenuOpen(true)}
-            className={`text-2xl font-bold text-gray-700 shrink-0 transition-opacity duration-200 ${
+            className={`relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 transition-opacity duration-200 ${
               showSearch ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
+            aria-label="Menu"
+            title="Menu"
           >
-            ☰
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M3 12h18M3 18h18" />
+            </svg>
           </button>
 
           {/* Center Title */}

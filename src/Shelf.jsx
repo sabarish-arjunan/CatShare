@@ -59,20 +59,30 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
 
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 pt-[env(safe-area-inset-top,0px)] pb-2 flex items-center gap-3 relative">
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         <button
           onClick={() => setMenuOpen(true)}
-          className="text-2xl font-bold text-gray-700"
+          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700"
+          aria-label="Menu"
+          title="Menu"
         >
-          ☰
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
         </button>
-        <h1 className="text-xl font-bold flex-1 text-center">Shelf</h1>
+        <h1 className="text-xl font-bold flex-1 text-center truncate whitespace-nowrap">Shelf</h1>
         <button
           onClick={() => navigate("/")}
-          className="text-[24px] text-gray-600 hover:text-blue-600 transition rounded-full p-1 hover:bg-gray-200"
+          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-200 transition"
           title="Go to Home"
         >
-          <MdOutlineHome />
+          <MdOutlineHome size={24} />
         </button>
       </header>
 

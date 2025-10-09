@@ -31,7 +31,7 @@ function AppWithBackHandler() {
     if (!isNative) return;
     const applyFullscreen = async () => {
       try {
-        await StatusBar.setOverlaysWebView({ overlay: true });
+        await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.hide();
       } catch (e) {
         console.warn("StatusBar hide failed:", e);
