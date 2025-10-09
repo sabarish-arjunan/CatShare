@@ -282,7 +282,7 @@ setTimeout(async () => {
   return (
     <div className="px-4 max-w-lg mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       <div className="fixed top-0 left-0 right-0 h-[35px] bg-black z-50"></div>
-      <div className="h-[40px]"></div>
+      <div className="h-[35px]"></div>
       <header className="sticky top-[35px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-center px-4 relative">
         <h1 className="text-xl font-bold leading-none">{editingId ? "Edit Product" : "Create Product"}</h1>
       </header>
@@ -291,8 +291,11 @@ setTimeout(async () => {
       <div className="mb-3">
         <button
           onClick={handleSelectImage}
-          className="bg-blue-500 text-white px-4 py-2 rounded mb-2"
+          className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
         >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
           Choose Image
         </button>
 
