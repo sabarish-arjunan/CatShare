@@ -6,6 +6,9 @@ import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
+import { handleShare } from "./Share";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { App } from "@capacitor/app";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
