@@ -276,6 +276,7 @@ const exportProductsToCSV = (products) => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4"></div>
           <h2 className="text-lg font-semibold mb-4">Menu</h2>
 
           <button
@@ -367,7 +368,7 @@ const exportProductsToCSV = (products) => {
         {/* Restore */}
         <label className="flex flex-col items-center justify-center cursor-pointer hover:text-gray-700 transition">
           <div className="w-12 h-12 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center text-2xl shadow-md">
-            📂
+            ��
           </div>
           <span className="text-xs font-medium text-gray-700 mt-2">Restore</span>
           <input
