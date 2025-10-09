@@ -276,6 +276,7 @@ export default function Retail({ products = [] }) {
         wholesale: wholesale,
         retail: retailPrice,
         image: p.image || p.imagePath || "",
+        imagePath: p.imagePath || (p.image && typeof p.image === 'string' && (p.image.startsWith('retail/') || p.image.startsWith('catalogue/')) ? p.image : undefined),
         category: p.category || [],
         note: p.note || "",
       };
