@@ -389,7 +389,25 @@ export default function Retail({ products = [] }) {
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none" id="retail-capture-area">
           {retailProducts.map((p) => (
-            <div key={p.id} className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200`}>
+            <div
+              key={p.id}
+              data-id={p.id}
+              className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200`}
+              onClick={() => {
+                if (selectMode) {
+                  toggleSelection(p.id);
+                } else {
+                  openPreviewHtml(p.sourceId || p.id, 'retail', retailProducts);
+                }
+              }}
+              onTouchStart={(e) => handleTouchStart(e, p.id)}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={(e) => handleTouchStart(e, p.id)}
+              onMouseMove={handleTouchMove}
+              onMouseUp={handleTouchEnd}
+              onMouseLeave={handleTouchEnd}
+            >
               <div className="relative aspect-square overflow-hidden bg-gray-100">
                 {imageMap[p.id] ? (
                   <img src={imageMap[p.id]} alt={p.name} className="w-full h-full object-cover" />
