@@ -413,7 +413,9 @@ export default function Retail({ products = [] }) {
                 if (selectMode) {
                   toggleSelection(p.id);
                 } else {
-                  openPreviewHtml(p.sourceId || p.id, 'retail', retailProducts);
+                  const idToOpen = p.sourceId || p.id;
+                  const listToPass = p.sourceId ? products : retailProducts;
+                  openPreviewHtml(idToOpen, 'retail', listToPass);
                 }
               }}
               onTouchStart={(e) => handleTouchStart(e, p.id)}
