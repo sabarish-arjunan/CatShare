@@ -67,7 +67,7 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
           title="Menu"
         >
           <svg
-            className="w-15 h-15"
+            className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.8"
