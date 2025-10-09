@@ -559,7 +559,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="flex-1 overflow-y-auto px-0 pb-28 pt-1">
+<div className="px-0 pb-28 pt-1">
       {/* Grid */}
       <div
         id="capture-area"
