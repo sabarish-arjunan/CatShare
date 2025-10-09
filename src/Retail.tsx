@@ -358,6 +358,7 @@ export default function Retail({ products = [] }) {
         </button>
         <h1 className="text-xl font-bold truncate">Retail</h1>
         <div className="flex-1" />
+        <div id="retail-header-icons" className="relative flex items-center gap-2 shrink-0 ml-2" />
         <button
           onClick={() => setShowSettings(true)}
           className="text-xl text-gray-600 hover:text-black"
