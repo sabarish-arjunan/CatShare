@@ -9,6 +9,7 @@ import { getPalette } from "./colorUtils";
 import { handleShare } from "./Share";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
+import ProductPreviewModal from "./ProductPreviewModal";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
