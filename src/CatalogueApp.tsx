@@ -245,7 +245,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     >
 
       {tab === "products" && (
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+        <>
+          <div className="sticky top-0 h-[35px] bg-white z-50"></div>
+          <header className="sticky top-[35px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         
           {/* Menu Button */}
           <button
@@ -372,6 +374,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             </button>
           </div>
         </header>
+        </>
       )}
 
       <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
