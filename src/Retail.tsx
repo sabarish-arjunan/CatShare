@@ -193,6 +193,38 @@ export default function Retail({ products = [] }) {
     setMarkupPercent(n);
   };
 
+  const [imageMap, setImageMap] = useState({});
+
+  useEffect(() => {
+    // preload images for retailProducts
+    (async () => {
+      const map = {};
+      for (const p of retailProducts) {
+        try {
+          if (p.image && typeof p.image === "string") {
+            if (p.image.startsWith("data:image")) {
+              map[p.id] = p.image;
+            } else if (p.image.startsWith("retail/") || p.image.startsWith("catalogue/")) {
+              try {
+                const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data });
+                map[p.id] = `data:image/png;base64,${res.data}`;
+              } catch (err) {
+                // cannot read file (web), try to use as-is
+                map[p.id] = p.image;
+              }
+            } else {
+              // unknown string, try as URL
+              map[p.id] = p.image;
+            }
+          }
+        } catch (err) {
+          console.warn("Retail image preload failed:", err);
+        }
+      }
+      setImageMap(map);
+    })();
+  }, [retailProducts]);
+
   return (
     <div className="w-full min-h-[100dvh] bg-gradient-to-b from-white to-gray-100 relative">
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-screen h-[40px] bg-black z-50" />
