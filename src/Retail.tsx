@@ -101,6 +101,29 @@ export default function Retail({ products = [] }) {
     }
   }, [imagePreview]);
 
+  const getLighterColor = (color) => {
+    try {
+      if (typeof color === 'string' && color.startsWith('#') && color.length === 7) {
+        const r = parseInt(color.slice(1, 3), 16);
+        const g = parseInt(color.slice(3, 5), 16);
+        const b = parseInt(color.slice(5, 7), 16);
+        const lighten = (c) => Math.min(255, c + 40);
+        return `rgb(${lighten(r)}, ${lighten(g)}, ${lighten(b)})`;
+      }
+      const rgbMatch = String(color).match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1], 10);
+        const g = parseInt(rgbMatch[2], 10);
+        const b = parseInt(rgbMatch[3], 10);
+        const lighten = (c) => Math.min(255, c + 40);
+        return `rgb(${lighten(r)}, ${lighten(g)}, ${lighten(b)})`;
+      }
+    } catch (err) {
+      return color;
+    }
+    return color;
+  };
+
   useEffect(() => {
     localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
   }, [retailProducts]);
