@@ -148,8 +148,8 @@ useEffect(() => {
   }
   console.log("imageMap", imageMap);
   return (
-  <div className="fixed inset-0 bg-white z-50 flex flex-col pt-[calc(env(safe-area-inset-top,0px)+35px)]">
-    <header className="shrink-0 bg-white shadow-sm border-b z-10 px-4 py-2 flex items-center justify-between">
+  <div className="fixed inset-0 bg-white z-50 flex flex-col">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-between gap-3 px-4 relative">
   <h1 className="text-lg sm:text-xl font-semibold text-gray-800 tracking-tight">
     🛠️ Bulk Editor
   </h1>
