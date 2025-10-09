@@ -531,6 +531,23 @@ export default function Retail({ products = [] }) {
   </div>
 )}
 
+      {previewProductRetail && (
+        <ProductPreviewModal
+          product={previewProductRetail}
+          tab="retail"
+          filteredProducts={retailProducts}
+          onClose={() => setPreviewProductRetail(null)}
+          onEdit={() => {
+            setEditingId(previewProductRetail.id);
+            setEditingProduct(previewProductRetail);
+            setPreviewProductRetail(null);
+          }}
+          onToggleStock={() => {}}
+          onSwipeLeft={(next) => setPreviewProductRetail(next)}
+          onSwipeRight={(prev) => setPreviewProductRetail(prev)}
+        />
+      )}
+
       {editingId && editingProduct && (
         <div className="fixed inset-0 z-50 bg-black/40">
           <div className="h-full w-full max-w-4xl mx-auto bg-white overflow-auto" style={{ paddingTop: '56px' }}>
