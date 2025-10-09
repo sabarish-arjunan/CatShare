@@ -234,65 +234,35 @@ export default function Retail({ products = [] }) {
           <div className="text-sm text-gray-600">Default markup: {markupPercent}%</div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none" id="retail-capture-area">
           {retailProducts.map((p) => (
-            <div key={p.id} className="bg-white rounded-lg shadow p-3">
-              <div className="relative aspect-square overflow-hidden bg-gray-100 mb-2 flex items-center justify-center">
-                {p.image ? (
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+            <div key={p.id} className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200`}>
+              <div className="relative aspect-square overflow-hidden bg-gray-100">
+                {imageMap[p.id] ? (
+                  <img src={imageMap[p.id]} alt={p.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="text-gray-400">No Image</div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
                 )}
-              </div>
-              <div className="font-semibold truncate">{p.name}</div>
-              <div className="text-xs text-gray-500 truncate mb-2">{p.subtitle}</div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-gray-500">Wholesale</div>
-                  <div className="font-medium">₹{p.wholesale}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-gray-500">Retail</div>
-                  <div className="font-medium">₹{p.retail}</div>
+                <div className="absolute top-1 right-1 flex gap-1 z-10">
+                  <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm">✎</button>
+                  <button onClick={(e) => { e.stopPropagation(); setRetailProducts((prev) => prev.filter((x) => x.id !== p.id)); }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm text-red-600">🗑️</button>
                 </div>
               </div>
 
-              <div className="mt-3 flex gap-2">
-                <button
-                  onClick={async () => {
-                    setEditingId(p.id);
-                    setEditingProduct({ ...p });
-                    // load image if stored in filesystem
-                    try {
-                      if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) {
-                        const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data });
-                        setImagePreview(`data:image/png;base64,${res.data}`);
-                      } else if (p.image && p.image.startsWith('data:image')) {
-                        setImagePreview(p.image);
-                      } else {
-                        setImagePreview(null);
-                      }
-                    } catch (err) {
-                      console.warn('Failed to read image for edit:', err);
-                      setImagePreview(null);
-                    }
-                  }}
-                  className="px-2 py-1 text-sm bg-gray-100 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => setRetailProducts((prev) => prev.filter((x) => x.id !== p.id))}
-                  className="px-2 py-1 text-sm bg-red-100 text-red-700 rounded"
-                >
-                  Remove
-                </button>
-              </div>
+              {showInfo && (
+                <div className="absolute top-1.5 right-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10">
+                  ₹{p.retail}
+                </div>
+              )}
+
+              <div className="px-1 py-1 text-center font-medium text-[11px] truncate">{p.name}</div>
+
             </div>
           ))}
         </div>
+
+        {/* preload images for retail products */}
       </main>
 
       {showPullModal && (
