@@ -245,7 +245,24 @@ export default function Retail({ products = [] }) {
   };
 
   useEffect(() => {
-    localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
+    try {
+      localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
+    } catch (err) {
+      console.warn("localStorage quota exceeded while saving retailProducts, stripping large data URLs and retrying", err);
+      try {
+        const sanitized = retailProducts.map((p) => {
+          const copy = { ...p };
+          if (copy.image && typeof copy.image === "string" && copy.image.startsWith("data:image")) {
+            // Remove large base64 image payloads before saving
+            copy.image = "";
+          }
+          return copy;
+        });
+        localStorage.setItem("retailProducts", JSON.stringify(sanitized));
+      } catch (err2) {
+        console.warn("Failed to save sanitized retailProducts to localStorage", err2);
+      }
+    }
   }, [retailProducts]);
 
   useEffect(() => {
@@ -567,7 +584,8 @@ export default function Retail({ products = [] }) {
                         console.warn('Could not write external share copy:', err);
                       }
                       const dataUrl = `data:image/png;base64,${base64}`;
-                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: dataUrl, imagePath } : p));
+                      // Store only the imagePath in state to avoid persisting large base64 strings in localStorage
+                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath, imagePath } : p));
                     } else {
                       setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath, imagePath } : p));
                     }
