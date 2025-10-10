@@ -120,7 +120,7 @@ export default function Retail({ products = [] }) {
     if (selectMode) {
       const count = document.createElement("span");
       count.className = "text-xs bg-red-500 text-white rounded-full px-1";
-      count.innerText = selected.length;
+      count.innerText = String(selected.length);
       container.appendChild(count);
 
       const shareBtn = document.createElement("button");
