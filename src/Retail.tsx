@@ -244,6 +244,34 @@ export default function Retail({ products = [] }) {
     return color;
   };
 
+  // Sync a retail product into the global products list stored under localStorage 'products'
+  const syncUpsertProductToGlobal = (prod) => {
+    try {
+      const all = JSON.parse(localStorage.getItem("products") || "[]");
+      const idx = all.findIndex((p) => p.id === prod.id);
+      const entry = {
+        id: prod.id,
+        name: prod.name || "",
+        subtitle: prod.subtitle || "",
+        wholesale: prod.wholesale || 0,
+        resell: prod.resell || prod.retail || 0,
+        image: prod.image || prod.imagePath || "",
+        imagePath: prod.imagePath || prod.image || "",
+        category: prod.category || [],
+        note: prod.note || "",
+      };
+      if (idx > -1) {
+        all[idx] = { ...all[idx], ...entry };
+      } else {
+        all.unshift(entry);
+      }
+      localStorage.setItem("products", JSON.stringify(all));
+      window.dispatchEvent(new CustomEvent("product-added"));
+    } catch (err) {
+      console.warn("Failed to sync product to global products", err);
+    }
+  };
+
   useEffect(() => {
     try {
       localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
@@ -301,10 +329,18 @@ export default function Retail({ products = [] }) {
 
     setRetailProducts((prev) => [...copies, ...prev]);
     setShowPullModal(false);
+
+    // Imported copies come from the global products list already, so no need to sync.
   };
 
   const saveEditedProduct = () => {
     setRetailProducts((prev) => prev.map((p) => (p.id === editingId ? editingProduct : p)));
+    // Also update global products if this item exists there (created from Retail)
+    try {
+      syncUpsertProductToGlobal(editingProduct);
+    } catch (err) {
+      console.warn('Failed to sync edited product to global products', err);
+    }
     setEditingId(null);
     setEditingProduct(null);
   };
@@ -321,6 +357,12 @@ export default function Retail({ products = [] }) {
       note: "",
     };
     setRetailProducts((prev) => [p, ...prev]);
+    // Also create a corresponding entry in global products so it's available in Wholesale
+    try {
+      syncUpsertProductToGlobal(p);
+    } catch (err) {
+      console.warn('Failed to add new retail product to global products', err);
+    }
     setEditingId(p.id);
     setEditingProduct(p);
   };
@@ -455,7 +497,22 @@ export default function Retail({ products = [] }) {
 
                 <div className="absolute top-1 right-1 flex gap-1 z-10">
                   <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm">✎</button>
-                  <button onClick={(e) => { e.stopPropagation(); setRetailProducts((prev) => prev.filter((x) => x.id !== p.id)); }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm text-red-600">🗑️</button>
+                  <button onClick={(e) => {
+                    e.stopPropagation();
+                    // remove from retail list
+                    setRetailProducts((prev) => prev.filter((x) => x.id !== p.id));
+                    // If this retail product was created locally (no sourceId), remove from global products as well
+                    try {
+                      if (!p.sourceId) {
+                        const all = JSON.parse(localStorage.getItem('products') || '[]');
+                        const updated = all.filter((x) => x.id !== p.id);
+                        localStorage.setItem('products', JSON.stringify(updated));
+                        window.dispatchEvent(new CustomEvent('product-added'));
+                      }
+                    } catch (err) {
+                      console.warn('Failed to remove product from global products', err);
+                    }
+                  }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm text-red-600">🗑️</button>
                 </div>
               </div>
 
@@ -585,7 +642,14 @@ export default function Retail({ products = [] }) {
                       }
                       const dataUrl = `data:image/png;base64,${base64}`;
                       // Store only the imagePath in state to avoid persisting large base64 strings in localStorage
-                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath, imagePath } : p));
+                      const updatedProduct = { ...editingProduct, image: imagePath, imagePath };
+                      setRetailProducts(prev => prev.map(p => p.id===id ? updatedProduct : p));
+                      // Sync the saved retail product to global products (wholesale/resell)
+                      try {
+                        syncUpsertProductToGlobal(updatedProduct);
+                      } catch (err) {
+                        console.warn('Failed to sync saved retail product to global products', err);
+                      }
                     } else {
                       setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath, imagePath } : p));
                     }
