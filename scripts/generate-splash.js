@@ -1,43 +1,18 @@
 import fs from "fs";
 import path from "path";
-import fetch from "node-fetch";
 import sharp from "sharp";
 
 const SRC = process.argv[2] || "public/logo-catalogue-share.svg";
 const OUT = path.resolve(process.cwd(), "android", "app", "src", "main", "res");
 
-async function downloadBuffer(urlOrPath) {
-  if (/^https?:\/\//i.test(urlOrPath)) {
-    const res = await fetch(urlOrPath);
-    if (!res.ok) throw new Error(`Failed to download image: ${res.status}`);
-    return Buffer.from(await res.arrayBuffer());
-  }
-  const p = path.resolve(process.cwd(), urlOrPath);
-  return await fs.promises.readFile(p);
-}
-
 async function ensureDir(p) {
   await fs.promises.mkdir(p, { recursive: true });
 }
 
-async function createSplashScreen(width, height, logoBuffer, outputPath) {
-  // Create white background and place logo in center
-  const svg = Buffer.from(`
-    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${width}" height="${height}" fill="#ffffff"/>
-      <g transform="translate(${width / 2}, ${height / 2})">
-        <image href="data:image/svg+xml;base64,${logoBuffer.toString('base64')}" width="200" height="200" x="-100" y="-100"/>
-      </g>
-    </svg>
-  `);
-
-  await sharp(svg).png().toFile(outputPath);
-  console.log(`Wrote ${outputPath}`);
-}
-
 async function generate() {
   console.log("Generating splash screens from:", SRC);
-  const buf = await downloadBuffer(SRC);
+  const srcPath = path.resolve(process.cwd(), SRC);
+  const svgBuffer = await fs.promises.readFile(srcPath);
 
   // Portrait splash screens
   const portraitSplashes = [
@@ -64,17 +39,20 @@ async function generate() {
     const dir = path.join(OUT, splash.folder);
     await ensureDir(dir);
     const outPath = path.join(dir, splash.name);
-    
-    // Create a white background with the logo in center
-    await sharp(buf)
-      .resize(Math.min(200, splash.width * 0.4), Math.min(200, splash.height * 0.4), {
-        fit: 'inside',
-        withoutEnlargement: true
+
+    // Calculate logo size (40% of the smaller dimension)
+    const logoSize = Math.min(splash.width, splash.height) * 0.4;
+
+    // Create splash with white background and centered logo
+    await sharp(svgBuffer)
+      .resize(Math.round(logoSize), Math.round(logoSize), {
+        fit: 'contain',
+        background: { r: 255, g: 255, b: 255, alpha: 0 }
       })
       .png()
       .toBuffer()
       .then(async (logoImg) => {
-        const canvas = await sharp({
+        await sharp({
           create: {
             width: splash.width,
             height: splash.height,
@@ -82,14 +60,15 @@ async function generate() {
             background: { r: 255, g: 255, b: 255 }
           }
         })
-        .composite([{
-          input: logoImg,
-          left: Math.floor((splash.width - logoImg.width) / 2),
-          top: Math.floor((splash.height - logoImg.width) / 2),
-          gravity: 'center'
-        }])
-        .png()
-        .toFile(outPath);
+          .composite([
+            {
+              input: logoImg,
+              left: Math.floor((splash.width - Math.round(logoSize)) / 2),
+              top: Math.floor((splash.height - Math.round(logoSize)) / 2)
+            }
+          ])
+          .png()
+          .toFile(outPath);
       });
 
     console.log(`Wrote ${outPath}`);
