@@ -592,7 +592,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
           >
             <img
-              src="/logo-catalogue-share.svg"
+              src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
               alt="CatShare logo fullscreen"
               className="max-w-[92vw] max-h-[92vh] w-auto h-auto"
             />
