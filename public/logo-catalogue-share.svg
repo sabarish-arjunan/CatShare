@@ -1,42 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Catalogue Share</title>
-  <desc id="desc">A shopping bag with a share arrow to represent sharing a catalogue</desc>
+  <title id="title">CatShare Logo</title>
+  <desc id="desc">A geometric logo with blue and red triangular shapes</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#2563eb"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ec4899"/>
-      <stop offset="100%" stop-color="#f472b6"/>
-    </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity="0.2"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.15"/>
     </filter>
   </defs>
 
-  <rect x="64" y="128" width="896" height="832" rx="120" fill="url(#bg)"/>
+  <!-- White background -->
+  <rect width="1024" height="1024" fill="#ffffff"/>
 
-  <!-- Bag body -->
-  <g filter="url(#shadow)">
-    <path d="M240 360h544c26.5 0 48 21.5 48 48v384c0 44.2-35.8 80-80 80H272c-44.2 0-80-35.8-80-80V408c0-26.5 21.5-48 48-48z" fill="#ffffff"/>
-    <!-- Handles -->
-    <path d="M352 360c0-88 72-160 160-160s160 72 160 160" fill="none" stroke="#3b82f6" stroke-width="40" stroke-linecap="round"/>
-  </g>
+  <!-- Blue triangle top-left -->
+  <path d="M 150 850 L 450 200 L 650 400 Z" fill="#0084D4" filter="url(#shadow)"/>
+  
+  <!-- Gray/white edge/separator -->
+  <path d="M 450 200 L 650 400 L 500 550 Z" fill="#E8E8E8" filter="url(#shadow)"/>
+  
+  <!-- Dark outline/edge -->
+  <path d="M 100 900 L 450 200 L 650 400 Z" fill="none" stroke="#1a1a1a" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Share arrow -->
-  <g transform="translate(0,20)">
-    <circle cx="700" cy="540" r="120" fill="url(#accent)"/>
-    <path d="M700 468l0 72" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
-    <path d="M628 540l72-72 72 72" fill="none" stroke="#fff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
+  <!-- Red triangle bottom-right -->
+  <path d="M 500 550 L 700 400 L 850 850 Z" fill="#FF4444" filter="url(#shadow)"/>
+  
+  <!-- Dark outline for red triangle -->
+  <path d="M 500 550 L 700 400 L 850 850 Z" fill="none" stroke="#1a1a1a" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Catalogue list lines on the bag -->
-  <g transform="translate(0,40)" stroke="#cbd5e1" stroke-linecap="round">
-    <line x1="320" y1="520" x2="560" y2="520" stroke-width="22"/>
-    <line x1="320" y1="572" x2="520" y2="572" stroke-width="22"/>
-    <line x1="320" y1="624" x2="560" y2="624" stroke-width="22"/>
-    <line x1="320" y1="676" x2="500" y2="676" stroke-width="22"/>
-  </g>
+  <!-- Left vertical line element -->
+  <path d="M 250 650 L 350 850" stroke="#2a2a2a" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
