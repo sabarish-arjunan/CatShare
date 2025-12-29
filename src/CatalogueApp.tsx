@@ -281,7 +281,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                   className="p-1 m-0 inline-flex items-center justify-center shrink-0"
                   aria-label="Open CatShare logo fullscreen"
                 >
-                  <img src="/logo-catalogue-share.svg" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded pointer-events-none object-contain shrink-0" />
+                  <img src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff1a251e485c446de9109dd5aee15384e?format=webp&width=800" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded pointer-events-none object-contain shrink-0" />
                 </button>
                 <span>CatShare</span>
               </span>
