@@ -1,9 +1,20 @@
 import fs from "fs";
 import path from "path";
+import fetch from "node-fetch";
 import sharp from "sharp";
 
 const SRC = process.argv[2] || "public/logo-catalogue-share.svg";
 const OUT = path.resolve(process.cwd(), "android", "app", "src", "main", "res");
+
+async function downloadBuffer(urlOrPath) {
+  if (/^https?:\/\//i.test(urlOrPath)) {
+    const res = await fetch(urlOrPath);
+    if (!res.ok) throw new Error(`Failed to download image: ${res.status}`);
+    return Buffer.from(await res.arrayBuffer());
+  }
+  const p = path.resolve(process.cwd(), urlOrPath);
+  return await fs.promises.readFile(p);
+}
 
 async function ensureDir(p) {
   await fs.promises.mkdir(p, { recursive: true });
@@ -11,8 +22,7 @@ async function ensureDir(p) {
 
 async function generate() {
   console.log("Generating splash screens from:", SRC);
-  const srcPath = path.resolve(process.cwd(), SRC);
-  const svgBuffer = await fs.promises.readFile(srcPath);
+  const svgBuffer = await downloadBuffer(SRC);
 
   // Portrait splash screens
   const portraitSplashes = [
