@@ -22,6 +22,33 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     }
 }
 
+// ✅ Force Java 17 for all modules (overrides capacitor-android's Java 21)
+subprojects {
+    afterEvaluate {
+        // Override compileOptions
+        if (project.android) {
+            project.android.compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+        }
+        
+        // Override java toolchain
+        if (project.plugins.hasPlugin('java')) {
+            project.java.toolchain {
+                languageVersion = JavaLanguageVersion.of(17)
+            }
+        }
+    }
+    
+    // Force JavaCompile tasks
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        options.release = 17
+    }
+}
+
 apply from: "variables.gradle"
 
 allprojects {
@@ -35,7 +62,7 @@ allprojects {
             force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
             force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
             force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-            force "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3" // ✅ Move this here
+            force "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
             force "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3"
         }
     }
