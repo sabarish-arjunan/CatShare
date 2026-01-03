@@ -336,6 +336,18 @@ const exportProductsToCSV = (products) => {
   <span className="text-gray-500">✏️</span>
   <span className="text-sm font-medium">Bulk Editor</span>
 </button>
+
+<button
+  onClick={() => {
+    setShowTutorial(true);
+    onClose();
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+>
+  <span className="text-gray-500">🎓</span>
+  <span className="text-sm font-medium">Tutorial</span>
+</button>
+
 <div>
 <button
   onClick={() => setShowRenderConfirm(true)}
