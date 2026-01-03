@@ -341,7 +341,6 @@ setTimeout(async () => {
       {!cropping && (
         <>
           <input
-            data-tutorial="form-product-name"
             name="name"
             value={formData.name}
             onChange={handleChange}
@@ -349,7 +348,6 @@ setTimeout(async () => {
             className="border p-2 rounded w-full mb-2"
           />
           <input
-            data-tutorial="form-product-subtitle"
             name="subtitle"
             value={formData.subtitle}
             onChange={handleChange}
