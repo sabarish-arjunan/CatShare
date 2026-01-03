@@ -141,7 +141,11 @@ function AppWithBackHandler() {
 export default function App() {
   return (
     <Router>
-      <AppWithBackHandler />
+      <TutorialProvider>
+        <TutorialOverlay />
+        <TutorialHint />
+        <AppWithBackHandler />
+      </TutorialProvider>
     </Router>
   );
 }
