@@ -12,14 +12,6 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
-  const { isTutorialActive, markActionComplete, currentStepIndex } = useContext(TutorialContext);
-
-  // Mark the create button click as complete when we reach this page
-  useEffect(() => {
-    if (isTutorialActive && currentStepIndex === 0) {
-      markActionComplete("click");
-    }
-  }, [isTutorialActive, currentStepIndex, markActionComplete]);
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
