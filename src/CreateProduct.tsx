@@ -504,6 +504,7 @@ setTimeout(async () => {
                           ? prev.category.filter((c) => c !== cat)
                           : [...prev.category, cat],
                       }));
+                      if (isTutorialActive) markActionComplete("select");
                     }}
                     className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
                       isSelected
