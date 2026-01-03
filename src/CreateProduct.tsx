@@ -13,6 +13,7 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const { isTutorialActive, markActionComplete } = useContext(TutorialContext);
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
