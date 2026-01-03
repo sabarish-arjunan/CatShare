@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { TutorialContext } from "./TutorialContext";
 
 export default function TutorialHint() {
-  const { isTutorialActive, currentStep, nextStep, prevStep, currentStepIndex, totalSteps, completeTutorial, checkActionComplete } = useContext(TutorialContext);
+  const { isTutorialActive, currentStep, nextStep, prevStep, currentStepIndex, totalSteps, completeTutorial } = useContext(TutorialContext);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const hintRef = useRef(null);
 
@@ -15,37 +15,9 @@ export default function TutorialHint() {
     return () => window.removeEventListener("skip-tutorial", handleSkipTutorial);
   }, [completeTutorial]);
 
-  // Auto-advance to next step when action is complete
-  useEffect(() => {
-    if (!isTutorialActive || !currentStep || !currentStep.requiresAction) return;
-
-    const checkComplete = () => {
-      if (checkActionComplete()) {
-        const timer = setTimeout(() => {
-          if (currentStepIndex < totalSteps - 1) {
-            nextStep();
-          }
-        }, 500);
-        return () => clearTimeout(timer);
-      }
-    };
-
-    const cleanup = checkComplete();
-    const interval = setInterval(() => {
-      if (checkActionComplete()) {
-        clearInterval(interval);
-        if (cleanup) cleanup();
-      }
-    }, 300);
-
-    return () => {
-      clearInterval(interval);
-      if (cleanup) cleanup();
-    };
-  }, [isTutorialActive, currentStep, currentStepIndex, checkActionComplete, nextStep, totalSteps]);
-
   useEffect(() => {
     if (!isTutorialActive || !currentStep || !currentStep.target) {
+      setPosition({ top: 0, left: 0 });
       return;
     }
 
@@ -54,8 +26,8 @@ export default function TutorialHint() {
       if (!targetElement) return;
 
       const rect = targetElement.getBoundingClientRect();
-      const hintWidth = hintRef.current?.offsetWidth || 280;
-      const hintHeight = hintRef.current?.offsetHeight || 200;
+      const hintWidth = hintRef.current?.offsetWidth || 300;
+      const hintHeight = hintRef.current?.offsetHeight || 220;
 
       let top = rect.bottom + 16;
       let left = rect.left + rect.width / 2 - hintWidth / 2;
@@ -74,10 +46,12 @@ export default function TutorialHint() {
     };
 
     updatePosition();
+    const timer = setTimeout(updatePosition, 100);
     window.addEventListener("scroll", updatePosition);
     window.addEventListener("resize", updatePosition);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("scroll", updatePosition);
       window.removeEventListener("resize", updatePosition);
     };
@@ -93,7 +67,7 @@ export default function TutorialHint() {
       {/* Tutorial hint bubble */}
       <div
         ref={hintRef}
-        className="fixed z-[300] bg-white rounded-2xl shadow-2xl p-6 max-w-sm border border-blue-200"
+        className="fixed z-[300] bg-white rounded-2xl shadow-2xl p-6 max-w-sm border-2 border-blue-400"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -102,18 +76,18 @@ export default function TutorialHint() {
       >
         {/* Close button */}
         <button
-          onClick={() => window.dispatchEvent(new Event("skip-tutorial"))}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
+          onClick={completeTutorial}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl font-bold"
         >
-          ×
+          ✕
         </button>
 
         {/* Step indicator */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
             {currentStepIndex + 1}
           </div>
-          <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-600 transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -125,7 +99,7 @@ export default function TutorialHint() {
         <h3 className="text-lg font-bold text-gray-800 mb-2">{currentStep.title}</h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 mb-3">{currentStep.description}</p>
+        <p className="text-sm text-gray-600 mb-3 leading-relaxed">{currentStep.description}</p>
 
         {/* Action hint */}
         <div className="bg-blue-50 border-l-4 border-blue-600 p-3 rounded mb-4">
@@ -146,10 +120,10 @@ export default function TutorialHint() {
             Back
           </button>
           <button
-            onClick={() => window.dispatchEvent(new Event("skip-tutorial"))}
+            onClick={completeTutorial}
             className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
           >
-            Skip
+            Exit
           </button>
           <button
             onClick={nextStep}
@@ -165,11 +139,11 @@ export default function TutorialHint() {
         <div
           className="fixed w-0 h-0 z-[299] pointer-events-none"
           style={{
-            top: `${position.top - 12}px`,
-            left: `${position.left + 120}px`,
+            top: `${position.top - 14}px`,
+            left: `${position.left + (hintRef.current?.offsetWidth || 300) / 2}px`,
             borderLeft: "12px solid transparent",
             borderRight: "12px solid transparent",
-            borderTop: "12px solid white",
+            borderTop: "14px solid rgb(191 219 254)", // blue-200
           }}
         />
       )}
