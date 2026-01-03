@@ -203,6 +203,16 @@ export default function CreateProduct() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Mark tutorial actions as complete
+    if (isTutorialActive && value.trim()) {
+      if (name === "name") markActionComplete("input");
+      if (name === "subtitle") markActionComplete("input");
+      if (name === "package") markActionComplete("input");
+      if (name === "age") markActionComplete("input");
+      if (name === "wholesale") markActionComplete("input");
+      if (name === "resell") markActionComplete("input");
+    }
   };
 
   const saveAndNavigate = async () => {
