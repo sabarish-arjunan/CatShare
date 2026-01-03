@@ -24,10 +24,10 @@ export default function SideDrawer({
   setDeletedProducts,
   selected,
 }) {
+  const { startTutorial } = useContext(TutorialContext);
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
    const [showBulkEdit, setShowBulkEdit] = useState(false);
-   const [showTutorial, setShowTutorial] = useState(false);
    const [renderProgress, setRenderProgress] = useState(0);
 const [isRendering, setIsRendering] = useState(false);
 const shouldRender = useRef(false);
