@@ -165,6 +165,9 @@ export default function CreateProduct() {
         setOriginalBase64(base64Data);
         setImagePreview(base64Data);
         setCropping(true);
+
+        // Mark tutorial action as complete
+        if (isTutorialActive) markActionComplete("upload");
       };
       reader.readAsDataURL(file);
     }
