@@ -469,7 +469,7 @@ setTimeout(async () => {
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4" data-tutorial="form-product-category">
             <label className="block mb-1 font-semibold">Categories</label>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => {
