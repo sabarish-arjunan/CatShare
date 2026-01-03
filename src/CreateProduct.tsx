@@ -1,12 +1,13 @@
 // Final full CreateProduct.jsx with Save.jsx integration
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
+import { TutorialContext } from "./TutorialContext";
 
 export default function CreateProduct() {
   const navigate = useNavigate();
