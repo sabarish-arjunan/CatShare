@@ -2,9 +2,47 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { TutorialContext } from "./TutorialContext";
 
 export default function TutorialHint() {
-  const { isTutorialActive, currentStep, nextStep, prevStep, currentStepIndex, totalSteps } = useContext(TutorialContext);
+  const { isTutorialActive, currentStep, nextStep, prevStep, currentStepIndex, totalSteps, completeTutorial, checkActionComplete } = useContext(TutorialContext);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const hintRef = useRef(null);
+
+  useEffect(() => {
+    const handleSkipTutorial = () => {
+      completeTutorial();
+    };
+
+    window.addEventListener("skip-tutorial", handleSkipTutorial);
+    return () => window.removeEventListener("skip-tutorial", handleSkipTutorial);
+  }, [completeTutorial]);
+
+  // Auto-advance to next step when action is complete
+  useEffect(() => {
+    if (!isTutorialActive || !currentStep || !currentStep.requiresAction) return;
+
+    const checkComplete = () => {
+      if (checkActionComplete()) {
+        const timer = setTimeout(() => {
+          if (currentStepIndex < totalSteps - 1) {
+            nextStep();
+          }
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    };
+
+    const cleanup = checkComplete();
+    const interval = setInterval(() => {
+      if (checkActionComplete()) {
+        clearInterval(interval);
+        if (cleanup) cleanup();
+      }
+    }, 300);
+
+    return () => {
+      clearInterval(interval);
+      if (cleanup) cleanup();
+    };
+  }, [isTutorialActive, currentStep, currentStepIndex, checkActionComplete, nextStep, totalSteps]);
 
   useEffect(() => {
     if (!isTutorialActive || !currentStep || !currentStep.target) {
