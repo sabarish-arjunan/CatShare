@@ -663,6 +663,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       </nav>
 
       <button
+        data-tutorial="create-product-button"
         onClick={async () => {
           await Haptics.impact({ style: ImpactStyle.Medium });
           navigate("/create");
