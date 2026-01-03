@@ -301,7 +301,7 @@ setTimeout(async () => {
       </header>
 
 
-      <div className="mb-3" data-tutorial="form-product-image">
+      <div className="mb-3">
         <button
           onClick={handleSelectImage}
           className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
