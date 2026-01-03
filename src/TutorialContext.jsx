@@ -5,151 +5,161 @@ export const TutorialContext = createContext();
 const TUTORIAL_STEPS = [
   {
     id: "welcome",
-    title: "Welcome to Catalogue Manager!",
-    description: "Let's create your first product together. I'll guide you through each step.",
-    action: "Click the '+' button below to start creating a product",
+    title: "Welcome to Catalogue Manager! 👋",
+    description: "Let me show you the key features that will help you manage your product catalogue effectively.",
+    action: "Next to begin the tour",
+    target: null,
+    requiresAction: "auto",
+  },
+  {
+    id: "create-product",
+    title: "Create Products 📝",
+    description: "Click the '+' button at the bottom right to add a new product to your catalogue. Set name, pricing, stock status, and more.",
+    action: "Notice the blue + button",
     target: "create-product-button",
-    requiresAction: "click",
+    requiresAction: "auto",
   },
   {
-    id: "product-name",
-    title: "Product Name",
-    description: "Enter your product name here. This is what customers will see.",
-    action: "Type a product name",
-    target: "form-product-name",
-    requiresAction: "input",
+    id: "products-tab",
+    title: "Products Tab 📋",
+    description: "This tab shows all your products in a list view. You can search, sort, drag to reorder, and see edit/delete/stock buttons for each product.",
+    action: "Look at the Products tab",
+    target: "tab-products",
+    requiresAction: "auto",
   },
   {
-    id: "product-subtitle",
-    title: "Product Subtitle",
-    description: "Add a subtitle or short description of your product.",
-    action: "Type a subtitle (optional)",
-    target: "form-product-subtitle",
-    requiresAction: "input",
+    id: "edit-product",
+    title: "Edit Products ✏️",
+    description: "Each product has an edit icon. Click it to modify the product details, pricing, images, and categories.",
+    action: "See the edit icon on each product",
+    target: "product-edit-icon",
+    requiresAction: "auto",
   },
   {
-    id: "product-image",
-    title: "Upload Product Image",
-    description: "Upload a clear image of your product. You'll be able to crop and adjust it.",
-    action: "Click to upload an image",
-    target: "form-product-image",
-    requiresAction: "upload",
+    id: "wholesale-tab",
+    title: "Wholesale Tab 🏢",
+    description: "Switch to Wholesale to see your products with wholesale pricing. This is for bulk buyers. You can filter by stock status and category here.",
+    action: "See the Wholesale tab at the bottom",
+    target: "tab-wholesale",
+    requiresAction: "auto",
   },
   {
-    id: "product-category",
-    title: "Product Category",
-    description: "Select one or more categories to organize your product. These help customers find your items.",
-    action: "Select at least one category",
-    target: "form-product-category",
-    requiresAction: "select",
+    id: "filter-search",
+    title: "Filter & Search 🔍",
+    description: "Use the search icon to find products by name. Use the filter icon to show/hide products by stock status (In/Out) and category.",
+    action: "Look for the filter and search icons",
+    target: "wholesale-filter-icon",
+    requiresAction: "auto",
   },
   {
-    id: "product-package",
-    title: "Package Info",
-    description: "Describe how your product is packaged (e.g., '10 pieces per box', 'Single item').",
-    action: "Enter package information",
-    target: "form-product-package",
-    requiresAction: "input",
-  },
-  {
-    id: "product-age",
-    title: "Age Group",
-    description: "Specify the age group this product is suitable for, if applicable.",
-    action: "Enter age group info",
-    target: "form-product-age",
-    requiresAction: "input",
-  },
-  {
-    id: "wholesale-price",
-    title: "Wholesale Price",
-    description: "Set the wholesale price for bulk buyers. This is the cost per unit for larger orders.",
-    action: "Enter the wholesale price",
-    target: "form-wholesale-price",
-    requiresAction: "input",
-  },
-  {
-    id: "wholesale-unit",
-    title: "Wholesale Unit",
-    description: "Specify the unit (e.g., '/ piece', '/ dozen', '/ carton') for wholesale pricing.",
-    action: "Select or type the unit",
-    target: "form-wholesale-unit",
-    requiresAction: "input",
-  },
-  {
-    id: "resell-price",
-    title: "Resell Price",
-    description: "Set the retail price for individual customers. This is usually higher than wholesale.",
-    action: "Enter the resell price",
-    target: "form-resell-price",
-    requiresAction: "input",
-  },
-  {
-    id: "resell-unit",
-    title: "Resell Unit",
-    description: "Specify the unit for retail pricing (e.g., '/ piece', '/ set').",
-    action: "Select or type the unit",
-    target: "form-resell-unit",
-    requiresAction: "input",
+    id: "resell-tab",
+    title: "Resell Tab 🛍️",
+    description: "This tab shows the same products with retail pricing. Useful to show individual customers different prices than wholesale buyers.",
+    action: "See the Resell tab",
+    target: "tab-resell",
+    requiresAction: "auto",
   },
   {
     id: "stock-status",
-    title: "Stock Status",
-    description: "Mark whether this product is in stock or out of stock for both wholesale and retail.",
-    action: "Set stock status for both channels",
-    target: "form-stock-status",
-    requiresAction: "toggle",
+    title: "Stock In/Out Buttons 📦",
+    description: "Below each product in Products tab, you see 'WS In/Out' and 'RS In/Out' buttons. WS = Wholesale, RS = Resell. Toggle these to mark inventory status.",
+    action: "Look at the stock buttons",
+    target: "stock-buttons",
+    requiresAction: "auto",
   },
   {
-    id: "finish",
-    title: "Product Created!",
-    description: "Great! Your product has been saved. You can now create more products or manage your catalogue.",
-    action: "Click 'Back' to see your new product in the list",
+    id: "shelf-explained",
+    title: "The Shelf 🗑️",
+    description: "When you delete a product, it doesn't disappear - it goes to the Shelf. This is like a trash bin where you can restore products or permanently delete them. It's a safety feature!",
+    action: "See Shelf in the side menu",
+    target: "shelf-menu-item",
+    requiresAction: "auto",
+  },
+  {
+    id: "rearrange",
+    title: "Rearrange Products 🔄",
+    description: "In the Products tab, you can drag products to rearrange their order. This affects how they appear in Wholesale and Resell views.",
+    action: "Notice you can drag products",
+    target: "product-list",
+    requiresAction: "auto",
+  },
+  {
+    id: "rendering-intro",
+    title: "Rendering - The Powerful Feature ⭐",
+    description: "This is the MOST IMPORTANT feature! Use 'Render PNGs' to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing with customers!",
+    action: "This feature is in the side menu",
+    target: "render-png-button",
+    requiresAction: "auto",
+  },
+  {
+    id: "rendering-details",
+    title: "How Rendering Works 🎯",
+    description: "When you click 'Render PNGs', the app processes ALL products at once and creates beautiful PNG images with your pricing, product info, and custom colors. Use these for presentations, emails, and catalogs!",
+    action: "This saves hours of manual work",
     target: null,
-    requiresAction: "navigate",
+    requiresAction: "auto",
+  },
+  {
+    id: "bulk-editor",
+    title: "Bulk Editor ⚡",
+    description: "Need to update many products at once? Use Bulk Editor from the menu. Change prices, stock status, categories, and more for multiple products in one go. Saves tons of time!",
+    action: "Great for large-scale updates",
+    target: "bulk-editor-menu-item",
+    requiresAction: "auto",
+  },
+  {
+    id: "manage-categories",
+    title: "Manage Categories 🏷️",
+    description: "Create and organize your product categories. You can add, edit, delete, and reorder categories. Assign multiple categories to products for better organization.",
+    action: "Available in the side menu",
+    target: "manage-categories-menu-item",
+    requiresAction: "auto",
+  },
+  {
+    id: "backup-restore",
+    title: "Backup & Restore 💾",
+    description: "Back up your entire catalogue including all products and images as a ZIP file. Restore anytime to recover your data. Do this regularly to protect your work!",
+    action: "Found in the side menu",
+    target: "backup-menu-item",
+    requiresAction: "auto",
+  },
+  {
+    id: "complete",
+    title: "You're Ready! 🎉",
+    description: "You now understand the main features: Products, Wholesale/Resell pricing, Stock management, Rendering, Bulk editing, and Data protection. Start exploring!",
+    action: "Click Done to exit the tour",
+    target: null,
+    requiresAction: "auto",
   },
 ];
 
 export function TutorialProvider({ children }) {
   const [isTutorialActive, setIsTutorialActive] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [completedActions, setCompletedActions] = useState(new Set());
 
   const currentStep = TUTORIAL_STEPS[currentStepIndex];
 
   const startTutorial = useCallback(() => {
     setIsTutorialActive(true);
     setCurrentStepIndex(0);
-    setCompletedActions(new Set());
   }, []);
 
   const nextStep = useCallback(() => {
     if (currentStepIndex < TUTORIAL_STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
-      setCompletedActions(new Set());
     }
   }, [currentStepIndex]);
 
   const prevStep = useCallback(() => {
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
-      setCompletedActions(new Set());
     }
   }, [currentStepIndex]);
 
   const completeTutorial = useCallback(() => {
     setIsTutorialActive(false);
     setCurrentStepIndex(0);
-    setCompletedActions(new Set());
   }, []);
-
-  const markActionComplete = useCallback((actionId) => {
-    setCompletedActions((prev) => new Set([...prev, actionId]));
-  }, []);
-
-  const checkActionComplete = useCallback(() => {
-    if (!currentStep || !currentStep.requiresAction) return true;
-    return completedActions.has(currentStep.requiresAction);
-  }, [currentStep, completedActions]);
 
   return (
     <TutorialContext.Provider
@@ -163,8 +173,6 @@ export function TutorialProvider({ children }) {
         nextStep,
         prevStep,
         completeTutorial,
-        markActionComplete,
-        checkActionComplete,
       }}
     >
       {children}
