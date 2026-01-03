@@ -427,7 +427,10 @@ setTimeout(async () => {
             />
             <select
               value={wholesaleUnit}
-              onChange={(e) => setWholesaleUnit(e.target.value)}
+              onChange={(e) => {
+                setWholesaleUnit(e.target.value);
+                if (isTutorialActive) markActionComplete("input");
+              }}
               className="border p-2 rounded"
               data-tutorial="form-wholesale-unit"
             >
@@ -446,7 +449,10 @@ setTimeout(async () => {
             />
             <select
               value={resellUnit}
-              onChange={(e) => setResellUnit(e.target.value)}
+              onChange={(e) => {
+                setResellUnit(e.target.value);
+                if (isTutorialActive) markActionComplete("input");
+              }}
               className="border p-2 rounded"
               data-tutorial="form-resell-unit"
             >
