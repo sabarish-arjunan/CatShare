@@ -464,7 +464,7 @@ setTimeout(async () => {
             />
           </div>
 
-          <div className="mb-4" data-tutorial="form-product-category">
+          <div className="mb-4">
             <label className="block mb-1 font-semibold">Categories</label>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => {
@@ -479,7 +479,6 @@ setTimeout(async () => {
                           ? prev.category.filter((c) => c !== cat)
                           : [...prev.category, cat],
                       }));
-                      if (isTutorialActive) markActionComplete("select");
                     }}
                     className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
                       isSelected
