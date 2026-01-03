@@ -365,7 +365,7 @@ setTimeout(async () => {
             className="border p-2 rounded w-full mb-2"
           />
 
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-2" data-tutorial="form-product-package">
             <input
               name="package"
               value={formData.package}
@@ -384,7 +384,7 @@ setTimeout(async () => {
             </select>
           </div>
 
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-2" data-tutorial="form-product-age">
             <input
               name="age"
               value={formData.age}
@@ -403,7 +403,7 @@ setTimeout(async () => {
             </select>
           </div>
 
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-2" data-tutorial="form-wholesale-price">
             <input
               name="wholesale"
               value={formData.wholesale}
@@ -415,13 +415,14 @@ setTimeout(async () => {
               value={wholesaleUnit}
               onChange={(e) => setWholesaleUnit(e.target.value)}
               className="border p-2 rounded"
+              data-tutorial="form-wholesale-unit"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
             </select>
           </div>
 
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-2" data-tutorial="form-resell-price">
             <input
               name="resell"
               value={formData.resell}
@@ -433,6 +434,7 @@ setTimeout(async () => {
               value={resellUnit}
               onChange={(e) => setResellUnit(e.target.value)}
               className="border p-2 rounded"
+              data-tutorial="form-resell-unit"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
