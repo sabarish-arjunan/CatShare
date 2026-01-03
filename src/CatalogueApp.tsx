@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -9,6 +9,7 @@ import ProductPreviewModal from "./ProductPreviewModal";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
+import { TutorialContext } from "./TutorialContext";
 
 export function openPreviewHtml(id, tab = null) {
   const evt = new CustomEvent("open-preview", { detail: { id, tab } });
