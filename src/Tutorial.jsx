@@ -63,25 +63,28 @@ export default function Tutorial({ onClose }) {
             <div className="p-2 bg-white border border-gray-300 rounded text-xs">
               <span className="font-semibold">Shelf (📦)</span> - Move to trash (can restore)
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              <div className="text-xs font-semibold text-gray-700 mb-2">Stock Status Toggles (Try clicking):</div>
-              <div className="flex gap-2">
+            <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setWsStock(!wsStock)}
-                  className={`flex-1 text-xs font-semibold px-2 py-1 rounded cursor-pointer transition ${
+                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
                     wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
                   }`}
                 >
                   {wsStock ? "WS In" : "WS Out"}
                 </button>
+                <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+              </div>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setRsStock(!rsStock)}
-                  className={`flex-1 text-xs font-semibold px-2 py-1 rounded cursor-pointer transition ${
+                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
                     rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
                   }`}
                 >
                   {rsStock ? "RS In" : "RS Out"}
                 </button>
+                <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
               </div>
             </div>
             <div className="p-2 bg-white border border-gray-300 rounded text-xs">
