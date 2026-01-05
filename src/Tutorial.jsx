@@ -369,13 +369,13 @@ export default function Tutorial({ onClose }) {
     {
       title: "Forge Images ⭐",
       description:
-        "Render PNGs are required to share product images. After adding/editing products, renders happen automatically. But after Restore or Bulk Edit, you MUST manually render all PNGs!",
+        "Build Images are required to share product images. After adding/editing products, builds happen automatically. But after Restore or Bulk Edit, you MUST manually build all images!",
       icon: "🎯",
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
           {/* How It Works */}
           <div className="bg-white rounded-lg p-3 border-l-4 border-yellow-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">💾 What Render PNGs Does:</p>
+            <p className="font-semibold text-sm text-gray-800 mb-2">💾 What Build Images Does:</p>
             <p className="text-xs text-gray-700 mb-2">
               Generates professional product images with pricing, names, and details overlaid on each product image.
             </p>
@@ -387,33 +387,33 @@ export default function Tutorial({ onClose }) {
             </ul>
           </div>
 
-          {/* Auto Render Info */}
+          {/* Auto Build Info */}
           <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">✅ Auto-Render (Automatic):</p>
+            <p className="font-semibold text-sm text-gray-800 mb-2">✅ Auto-Build (Automatic):</p>
             <p className="text-xs text-gray-700">
-              When you <span className="font-medium">Add or Edit</span> a single product, PNGs render automatically.
+              When you <span className="font-medium">Add or Edit</span> a single product, images build automatically.
             </p>
           </div>
 
-          {/* Manual Render Required */}
+          {/* Manual Build Required */}
           <div className="bg-red-50 rounded-lg p-3 border-l-4 border-red-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">⚠️ Manual Render Required:</p>
+            <p className="font-semibold text-sm text-gray-800 mb-2">⚠️ Manual Build Required:</p>
             <p className="text-xs text-gray-700 mb-2">
-              You <span className="font-medium">MUST click Render PNGs</span> from the side menu after:
+              You <span className="font-medium">MUST click Build Images</span> from the side menu after:
             </p>
             <ul className="text-xs text-gray-700 space-y-1 ml-3">
               <li>🔄 Restoring from a backup</li>
               <li>📝 Using Bulk Editor to edit products</li>
             </ul>
             <p className="text-xs text-gray-700 mt-2">
-              <span className="font-medium">Otherwise:</span> Non-rendered images cannot be shared, and you'd need to manually edit and save each product.
+              <span className="font-medium">Otherwise:</span> Non-built images cannot be shared, and you'd need to manually edit and save each product.
             </p>
           </div>
 
           {/* Bottom Note */}
           <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
             <p className="text-xs text-gray-700">
-              💡 <span className="font-medium">Pro tip:</span> Always render PNGs after bulk operations - it takes minutes to render everything at once instead of hours editing individually!
+              💡 <span className="font-medium">Pro tip:</span> Always build images after bulk operations - it takes minutes to build everything at once instead of hours editing individually!
             </p>
           </div>
         </div>
@@ -422,7 +422,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "You're All Set! 🎉",
       description:
-        "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render PNGs to create professional catalogs!",
+        "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Build Images to create professional catalogs!",
       icon: "✨",
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
@@ -432,7 +432,7 @@ export default function Tutorial({ onClose }) {
               1️⃣ Create products with +button<br/>
               2️⃣ Manage stock with In/Out buttons<br/>
               3️⃣ View Wholesale & Resell pricing<br/>
-              4️⃣ Use Render PNGs for catalogs<br/>
+              4️⃣ Use Build Images for catalogs<br/>
               5️⃣ Backup your data regularly
             </p>
           </div>
