@@ -253,12 +253,11 @@ const exportProductsToCSV = (products) => {
         localStorage.setItem("deletedProducts", JSON.stringify(parsed.deleted));
       }
 
-      alert("✅ Restore complete");
+      setShowRenderAfterRestore(true);
     } catch (err) {
       alert("❌ Restore failed: " + err.message);
+      onClose();
     }
-
-    onClose();
   };
 
   reader.readAsArrayBuffer(file);
