@@ -9,48 +9,197 @@ export default function Tutorial({ onClose }) {
       description:
         "Learn about the key features that help you manage your product catalogue effectively.",
       icon: "👋",
+      visualElements: null,
     },
     {
       title: "Add & Edit Products ✏️",
       description:
-        "Click the '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. To edit an existing product, click the edit icon on any product card.",
+        "Click the blue '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. Click the edit icon on any product to modify it.",
       icon: "📝",
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full text-3xl">
+              ➕
+            </div>
+            <p className="text-xs text-gray-600 mt-2">Blue '+' button to create product</p>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <div className="flex-1 p-2 bg-white border border-gray-300 rounded text-center text-sm">
+              ✏️ Edit Icon
+            </div>
+            <div className="flex-1 p-2 bg-white border border-gray-300 rounded text-center text-sm">
+              🗑️ Delete Icon
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
-      title: "Products Tab - Edit & Manage 🛠️",
+      title: "Products Tab - Manage & Organize 🛠️",
       description:
-        "In the Products tab, you can:\n• Edit: Click the edit icon to modify product details\n• Shelf: Click to move a product to trash (can be restored later)\n• Reorder: Drag products to arrange them\n• WS/RS In/Out: Toggle wholesale and resell stock status",
+        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle WS/RS (Wholesale/Resell) In/Out stock status for each product.",
       icon: "📋",
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="text-sm font-semibold text-gray-700 mb-2">Product Controls:</div>
+          <div className="space-y-2">
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">Edit (✏️)</span> - Modify product details
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">Shelf (📦)</span> - Move to trash (can restore)
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">WS In/Out</span> - Wholesale stock status
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">RS In/Out</span> - Resell stock status
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">Drag</span> - Reorder products
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
-      title: "Wholesale & Resell Tabs - Filter & Share 🏪",
+      title: "Wholesale Tab - Filter, Info & Share 🏢",
       description:
-        "Switch between Wholesale and Resell tabs to see products with different pricing:\n• Filter: Use the filter icon to show/hide by stock status and category\n• Show Info: Click the info icon to see product details\n• Share: Click share to export product images and information",
+        "Switch to Wholesale tab to see your products with wholesale pricing. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export.",
       icon: "🔀",
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="text-sm font-semibold text-gray-700 mb-2">Wholesale Tab Features:</div>
+          <div className="space-y-2">
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">🔍 Search</span> - Find products by name
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">🔗 Filter</span> - Filter by stock & category
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">ℹ️ Info</span> - Show product information
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+              <span className="font-semibold">📤 Share</span> - Export product images
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Resell Tab - Same Features, Different Pricing 🛍️",
+      description:
+        "Switch to Resell tab to see products with retail pricing. Same filter, info, and share features as Wholesale tab. Great for showing individual customers different prices.",
+      icon: "💰",
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="text-center">
+            <div className="inline-block px-4 py-2 bg-white border-2 border-blue-500 rounded text-sm font-semibold text-blue-600">
+              Wholesale Tab
+            </div>
+            <div className="my-2 text-xl">⬌</div>
+            <div className="inline-block px-4 py-2 bg-white border-2 border-blue-500 rounded text-sm font-semibold text-blue-600">
+              Resell Tab
+            </div>
+            <p className="text-xs text-gray-600 mt-3">Same products, different pricing!</p>
+          </div>
+        </div>
+      ),
     },
     {
       title: "Side Menu - Backup & Restore 💾",
       description:
-        "Click the menu icon to access:\n• Backup & Restore: Create ZIP backups of your entire catalogue including all images. Restore anytime to recover your data.",
+        "Click the menu icon to open the side menu. Use 'Backup & Restore' to create ZIP backups of your entire catalogue including all images. Restore anytime!",
       icon: "🛡️",
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="text-sm font-semibold text-gray-700 mb-2">Menu Options:</div>
+          <div className="space-y-1 text-xs">
+            <div className="p-2 bg-white border border-gray-300 rounded">
+              🛠️ <span className="font-semibold">Backup & Restore</span>
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded">
+              📦 <span className="font-semibold">Shelf</span> (Deleted Products)
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded">
+              🗂️ <span className="font-semibold">Manage Categories</span>
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded">
+              ✏️ <span className="font-semibold">Bulk Editor</span>
+            </div>
+            <div className="p-2 bg-white border border-gray-300 rounded">
+              🔁 <span className="font-semibold">Render PNGs</span>
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
-      title: "Shelf, Categories & Bulk Editor 🗂️",
+      title: "Shelf, Categories & Bulk Editor ⚙️",
       description:
-        "From the side menu:\n• Shelf: View deleted products and restore them or permanently delete\n• Manage Categories: Create and organize product categories\n• Bulk Editor: Edit multiple products at once - change prices, stock, categories in bulk",
-      icon: "⚙️",
+        "From the side menu:\n• Shelf: View deleted products and restore them\n• Manage Categories: Create and organize product categories\n• Bulk Editor: Edit multiple products at once for efficient updates",
+      icon: "🗂️",
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="space-y-2">
+            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
+              <p className="font-semibold text-sm">📦 Shelf</p>
+              <p className="text-xs text-gray-600">Recover deleted products</p>
+            </div>
+            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
+              <p className="font-semibold text-sm">🏷️ Manage Categories</p>
+              <p className="text-xs text-gray-600">Organize products</p>
+            </div>
+            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
+              <p className="font-semibold text-sm">⚡ Bulk Editor</p>
+              <p className="text-xs text-gray-600">Update many at once</p>
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: "Render PNGs - Most Important Feature ⭐",
       description:
-        "Click 'Render PNGs' from the side menu to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing catalogs with customers, creating presentations, and bulk exports. This is a powerful feature that saves hours of manual work!",
+        "Click 'Render PNGs' from the side menu to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing with customers and creating presentations!",
       icon: "🎯",
+      visualElements: (
+        <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400">
+          <div className="text-center">
+            <div className="text-3xl mb-2">🔁</div>
+            <p className="font-bold text-sm text-gray-800">Render PNGs</p>
+            <p className="text-xs text-gray-600 mt-2">Generate professional product images with pricing automatically!</p>
+            <div className="mt-3 p-2 bg-white rounded text-xs text-gray-700">
+              ✓ Add product details overlaid on image<br/>
+              ✓ Include pricing information<br/>
+              ✓ Process all products at once<br/>
+              ✓ Perfect for catalogs & presentations
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: "You're All Set! 🎉",
       description:
-        "You now know all the main features. Start creating products, organizing them, and use Render PNGs to generate professional images for your customers!",
+        "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render PNGs to create professional catalogs!",
       icon: "✨",
+      visualElements: (
+        <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
+          <div className="text-center text-sm">
+            <p className="font-semibold text-gray-800 mb-2">Quick Summary:</p>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              1️⃣ Create products with +button<br/>
+              2️⃣ Manage stock with In/Out buttons<br/>
+              3️⃣ View Wholesale & Resell pricing<br/>
+              4️⃣ Use Render PNGs for catalogs<br/>
+              5️⃣ Backup your data regularly
+            </p>
+          </div>
+        </div>
+      ),
     },
   ];
 
@@ -92,7 +241,7 @@ export default function Tutorial({ onClose }) {
 
         {/* Step icon and title */}
         <div className="text-center mb-6">
-          <div className="text-6xl mb-4">{step.icon}</div>
+          <div className="text-5xl mb-3">{step.icon}</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             {step.title}
           </h2>
@@ -100,6 +249,13 @@ export default function Tutorial({ onClose }) {
             {step.description}
           </p>
         </div>
+
+        {/* Visual elements */}
+        {step.visualElements && (
+          <div className="mb-4">
+            {step.visualElements}
+          </div>
+        )}
 
         {/* Step counter */}
         <div className="text-center text-xs text-gray-400 mb-6">
