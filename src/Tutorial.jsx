@@ -232,26 +232,57 @@ export default function Tutorial({ onClose }) {
     {
       title: "Side Menu - Backup & Restore 💾",
       description:
-        "Click the menu icon to open the side menu. Use 'Backup & Restore' to create ZIP backups of your entire catalogue including all images. Restore anytime!",
+        "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products and images, then restore them whenever needed.",
       icon: "🛡️",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Menu Options:</div>
-          <div className="space-y-1 text-xs">
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              🛠️ <span className="font-semibold">Backup & Restore</span>
+          <div className="space-y-4">
+            {/* Backup Section */}
+            <div className="p-3 bg-white rounded-lg border-l-4 border-blue-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🛠️</span>
+                <p className="font-semibold text-sm text-gray-800">Backup</p>
+              </div>
+              <div className="space-y-2 text-xs text-gray-700">
+                <p>
+                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
+                </p>
+                <p>
+                  <span className="font-medium">File format:</span> Saves as <code className="bg-gray-100 px-1 rounded text-[11px]">catalogue-backup-[timestamp].zip</code>
+                </p>
+                <p>
+                  <span className="font-medium">Backup contents:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ All product data (names, prices, details)</li>
+                  <li>✓ All product images in images/ folder</li>
+                  <li>✓ Deleted products list</li>
+                </ul>
+              </div>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              📦 <span className="font-semibold">Shelf</span> (Deleted Products)
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              🗂️ <span className="font-semibold">Manage Categories</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              ✏️ <span className="font-semibold">Bulk Editor</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              🔁 <span className="font-semibold">Render PNGs</span>
+
+            {/* Restore Section */}
+            <div className="p-3 bg-white rounded-lg border-l-4 border-green-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🛠️</span>
+                <p className="font-semibold text-sm text-gray-800">Restore</p>
+              </div>
+              <div className="space-y-2 text-xs text-gray-700">
+                <p>
+                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
+                </p>
+                <p>
+                  <span className="font-medium">What restores:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ All products with original details</li>
+                  <li>✓ All product images</li>
+                  <li>✓ Categories and deleted products</li>
+                </ul>
+                <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
+                  💡 Restore replaces your current catalogue with the backed-up data.
+                </p>
+              </div>
             </div>
           </div>
         </div>
