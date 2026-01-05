@@ -491,6 +491,10 @@ const exportProductsToCSV = (products) => {
   }
 })()}
 
+      {showTutorial && (
+        <Tutorial onClose={() => setShowTutorial(false)} />
+      )}
+
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />
       )}
