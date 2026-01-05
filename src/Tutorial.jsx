@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { FiEdit } from "react-icons/fi";
+import { MdInventory2 } from "react-icons/md";
 
 export default function Tutorial({ onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [wsStock, setWsStock] = useState(true);
+  const [rsStock, setRsStock] = useState(false);
+  const [dragItems, setDragItems] = useState(["Item 1", "Item 2", "Item 3"]);
+  const [draggingIndex, setDraggingIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [activeTab, setActiveTab] = useState("wholesale");
 
   // Handle escape key to close tutorial
   useEffect(() => {
@@ -13,6 +21,26 @@ export default function Tutorial({ onClose }) {
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [onClose]);
+
+  const handleDragStart = (index) => {
+    setDraggingIndex(index);
+  };
+
+  const handleDragOver = (index) => {
+    if (draggingIndex !== null && draggingIndex !== index) {
+      const newItems = [...dragItems];
+      const draggedItem = newItems[draggingIndex];
+      newItems.splice(draggingIndex, 1);
+      newItems.splice(index, 0, draggedItem);
+      setDragItems(newItems);
+      setDraggingIndex(index);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null);
+    setDragOverIndex(null);
+  };
 
   const steps = [
     {
@@ -35,14 +63,6 @@ export default function Tutorial({ onClose }) {
             </div>
             <p className="text-xs text-gray-600 mt-2">Blue '+' button to create product</p>
           </div>
-          <div className="mt-4 flex gap-2">
-            <div className="flex-1 p-2 bg-white border border-gray-300 rounded text-center text-sm">
-              ✏️ Edit Icon
-            </div>
-            <div className="flex-1 p-2 bg-white border border-gray-300 rounded text-center text-sm">
-              🗑️ Delete Icon
-            </div>
-          </div>
         </div>
       ),
     },
@@ -55,66 +75,156 @@ export default function Tutorial({ onClose }) {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-sm font-semibold text-gray-700 mb-2">Product Controls:</div>
           <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">Edit (✏️)</span> - Modify product details
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <FiEdit className="text-blue-600" size={16} />
+              <span>Modify product details</span>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">Shelf (📦)</span> - Move to trash (can restore)
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <MdInventory2 className="text-red-500 text-[18px]" />
+              <span>Move to trash (can restore)</span>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">WS In/Out</span> - Wholesale stock status
+            <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setWsStock(!wsStock)}
+                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
+                    wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  {wsStock ? "WS In" : "WS Out"}
+                </button>
+                <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setRsStock(!rsStock)}
+                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
+                    rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  {rsStock ? "RS In" : "RS Out"}
+                </button>
+                <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
+              </div>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">RS In/Out</span> - Resell stock status
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">Drag</span> - Reorder products
+            <div className="p-3 bg-white border border-gray-300 rounded">
+              <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
+              <div className="space-y-1">
+                {dragItems.map((item, index) => (
+                  <div
+                    key={index}
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      handleDragOver(index);
+                    }}
+                    onDragEnd={handleDragEnd}
+                    onDragLeave={() => setDragOverIndex(null)}
+                    className={`flex items-center gap-2 p-2 bg-gray-50 rounded cursor-move transition ${
+                      draggingIndex === index ? "opacity-50 bg-blue-100" : ""
+                    } ${dragOverIndex === index && draggingIndex !== index ? "border-t-2 border-blue-500" : ""}`}
+                  >
+                    <span className="text-gray-400 text-lg">☰</span>
+                    <span className="text-xs text-gray-700">{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "Wholesale Tab - Filter, Info & Share 🏢",
+      title: "Tab Actions - Filter, View & Share 🔍",
       description:
-        "Switch to Wholesale tab to see your products with wholesale pricing. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export.",
+        "Use these action buttons available in both Wholesale and Resell tabs. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export product images.",
       icon: "🔀",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-sm font-semibold text-gray-700 mb-2">Wholesale Tab Features:</div>
           <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">🔍 Search</span> - Find products by name
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
+              </svg>
+              <span>Find products by name</span>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">🔗 Filter</span> - Filter by stock & category
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
+              </svg>
+              <span>Filter by stock & category</span>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">ℹ️ Info</span> - Show product information
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span>Show product information</span>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">📤 Share</span> - Export product images
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
+              </svg>
+              <span>Export product images</span>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "Resell Tab - Same Features, Different Pricing 🛍️",
+      title: "Switch Between Wholesale & Resell 🔀",
       description:
-        "Switch to Resell tab to see products with retail pricing. Same filter, info, and share features as Wholesale tab. Great for showing individual customers different prices.",
+        "Toggle between Wholesale and Resell tabs to view products with different pricing models. Each tab shows the same products but with prices tailored for different customer types.",
       icon: "💰",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-center">
-            <div className="inline-block px-4 py-2 bg-white border-2 border-blue-500 rounded text-sm font-semibold text-blue-600">
-              Wholesale Tab
-            </div>
-            <div className="my-2 text-xl">⬌</div>
-            <div className="inline-block px-4 py-2 bg-white border-2 border-blue-500 rounded text-sm font-semibold text-blue-600">
-              Resell Tab
-            </div>
-            <p className="text-xs text-gray-600 mt-3">Same products, different pricing!</p>
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setActiveTab("wholesale")}
+              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+                activeTab === "wholesale"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-300"
+              }`}
+            >
+              Wholesale
+            </button>
+            <button
+              onClick={() => setActiveTab("resell")}
+              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+                activeTab === "resell"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-300"
+              }`}
+            >
+              Resell
+            </button>
+          </div>
+          <div className="bg-white rounded border border-gray-300 p-3">
+            {activeTab === "wholesale" ? (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-700">Wholesale Tab Features:</div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>✓ View products with <span className="font-semibold">wholesale pricing</span></p>
+                  <p>✓ Filter by stock status and categories</p>
+                  <p>✓ Bulk operations for business sales</p>
+                  <p>✓ Export product images for catalogs</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>✓ View products with <span className="font-semibold">retail pricing</span></p>
+                  <p>✓ Filter by stock status and categories</p>
+                  <p>✓ Show individual customer prices</p>
+                  <p>✓ Export product images with retail prices</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ),
