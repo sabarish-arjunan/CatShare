@@ -135,9 +135,9 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Wholesale Tab - Filter, Info & Share 🏢",
+      title: "Tab Actions - Filter, View & Share 🔍",
       description:
-        "Switch to Wholesale tab to see your products with wholesale pricing. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export.",
+        "Use these action buttons available in both Wholesale and Resell tabs. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export product images.",
       icon: "🔀",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
