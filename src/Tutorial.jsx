@@ -9,6 +9,7 @@ export default function Tutorial({ onClose }) {
   const [dragItems, setDragItems] = useState(["Item 1", "Item 2", "Item 3"]);
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [activeTab, setActiveTab] = useState("wholesale");
 
   // Handle escape key to close tutorial
   useEffect(() => {
