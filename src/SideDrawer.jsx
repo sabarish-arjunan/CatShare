@@ -5,7 +5,6 @@ import { FileSharer } from "@byteowls/capacitor-filesharer";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import MediaLibrary from "./MediaLibrary";
 import BulkEdit from "./BulkEdit";
-import Tutorial from "./Tutorial";
 import { App } from "@capacitor/app";
 import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
