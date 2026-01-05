@@ -92,9 +92,9 @@ const TUTORIAL_STEPS = [
     requiresAction: "auto",
   },
   {
-    id: "rendering-details",
-    title: "How Rendering Works 🎯",
-    description: "When you click 'Render PNGs', the app processes ALL products at once and creates beautiful PNG images with your pricing, product info, and custom colors. Use these for presentations, emails, and catalogs!",
+    id: "build-images-details",
+    title: "How Building Images Works 🎯",
+    description: "When you click 'Build Images', the app processes ALL products at once and creates beautiful PNG images with your pricing, product info, and custom colors. Use these for presentations, emails, and catalogs!",
     action: "This saves hours of manual work",
     target: null,
     requiresAction: "auto",
