@@ -682,7 +682,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         setProducts={setProducts}
         setDeletedProducts={setDeletedProducts}
         selected={selected}
+        onShowTutorial={() => {
+          setShowTutorial(true);
+          setMenuOpen(false);
+        }}
       />
+
+      {showTutorial && (
+        <Tutorial onClose={() => setShowTutorial(false)} />
+      )}
     </div>
   );
 }
