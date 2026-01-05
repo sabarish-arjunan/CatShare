@@ -6,6 +6,7 @@ import SideDrawer from "./SideDrawer";
 import WholesaleTab from "./Wholesale";
 import ResellTab from "./Resell";
 import ProductPreviewModal from "./ProductPreviewModal";
+import Tutorial from "./Tutorial";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
@@ -27,6 +28,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [previewProduct, setPreviewProduct] = useState(null);
   const [previewList, setPreviewList] = useState([]);
   const [imageMap, setImageMap] = useState({});
@@ -680,7 +682,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         setProducts={setProducts}
         setDeletedProducts={setDeletedProducts}
         selected={selected}
+        onShowTutorial={() => {
+          setShowTutorial(true);
+          setMenuOpen(false);
+        }}
       />
+
+      {showTutorial && (
+        <Tutorial onClose={() => setShowTutorial(false)} />
+      )}
     </div>
   );
 }
