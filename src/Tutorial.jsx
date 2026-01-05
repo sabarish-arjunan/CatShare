@@ -62,14 +62,6 @@ export default function Tutorial({ onClose }) {
             </div>
             <p className="text-xs text-gray-600 mt-2">Blue '+' button to create product</p>
           </div>
-          <div className="mt-4 flex gap-2">
-            <div className="flex-1 p-2 bg-white border border-gray-300 rounded text-center text-sm">
-              ✏️ Edit Icon
-            </div>
-            <div className="flex-1 p-2 bg-white border border-gray-300 rounded text-center text-sm">
-              🗑️ Delete Icon
-            </div>
-          </div>
         </div>
       ),
     },
