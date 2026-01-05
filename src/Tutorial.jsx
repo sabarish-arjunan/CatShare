@@ -175,21 +175,56 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Resell Tab - Same Features, Different Pricing 🛍️",
+      title: "Switch Between Wholesale & Resell 🔀",
       description:
-        "Switch to Resell tab to see products with retail pricing. Same filter, info, and share features as Wholesale tab. Great for showing individual customers different prices.",
+        "Toggle between Wholesale and Resell tabs to view products with different pricing models. Each tab shows the same products but with prices tailored for different customer types.",
       icon: "💰",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-center">
-            <div className="inline-block px-4 py-2 bg-white border-2 border-blue-500 rounded text-sm font-semibold text-blue-600">
-              Wholesale Tab
-            </div>
-            <div className="my-2 text-xl">⬌</div>
-            <div className="inline-block px-4 py-2 bg-white border-2 border-blue-500 rounded text-sm font-semibold text-blue-600">
-              Resell Tab
-            </div>
-            <p className="text-xs text-gray-600 mt-3">Same products, different pricing!</p>
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setActiveTab("wholesale")}
+              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+                activeTab === "wholesale"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-300"
+              }`}
+            >
+              Wholesale
+            </button>
+            <button
+              onClick={() => setActiveTab("resell")}
+              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+                activeTab === "resell"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-300"
+              }`}
+            >
+              Resell
+            </button>
+          </div>
+          <div className="bg-white rounded border border-gray-300 p-3">
+            {activeTab === "wholesale" ? (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-700">Wholesale Tab Features:</div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>✓ View products with <span className="font-semibold">wholesale pricing</span></p>
+                  <p>✓ Filter by stock status and categories</p>
+                  <p>✓ Bulk operations for business sales</p>
+                  <p>✓ Export product images for catalogs</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>✓ View products with <span className="font-semibold">retail pricing</span></p>
+                  <p>✓ Filter by stock status and categories</p>
+                  <p>✓ Show individual customer prices</p>
+                  <p>✓ Export product images with retail prices</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ),
