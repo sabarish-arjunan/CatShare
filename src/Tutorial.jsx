@@ -114,8 +114,29 @@ export default function Tutorial({ onClose }) {
                 <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
               </div>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">Drag</span> - Reorder products
+            <div className="p-3 bg-white border border-gray-300 rounded">
+              <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
+              <div className="space-y-1">
+                {dragItems.map((item, index) => (
+                  <div
+                    key={index}
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      handleDragOver(index);
+                    }}
+                    onDragEnd={handleDragEnd}
+                    onDragLeave={() => setDragOverIndex(null)}
+                    className={`flex items-center gap-2 p-2 bg-gray-50 rounded cursor-move transition ${
+                      draggingIndex === index ? "opacity-50 bg-blue-100" : ""
+                    } ${dragOverIndex === index && draggingIndex !== index ? "border-t-2 border-blue-500" : ""}`}
+                  >
+                    <span className="text-gray-400 text-lg">☰</span>
+                    <span className="text-xs text-gray-700">{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
