@@ -21,6 +21,26 @@ export default function Tutorial({ onClose }) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [onClose]);
 
+  const handleDragStart = (index) => {
+    setDraggingIndex(index);
+  };
+
+  const handleDragOver = (index) => {
+    if (draggingIndex !== null && draggingIndex !== index) {
+      const newItems = [...dragItems];
+      const draggedItem = newItems[draggingIndex];
+      newItems.splice(draggingIndex, 1);
+      newItems.splice(index, 0, draggedItem);
+      setDragItems(newItems);
+      setDraggingIndex(index);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null);
+    setDragOverIndex(null);
+  };
+
   const steps = [
     {
       title: "Welcome to Catalogue Manager 📦",
