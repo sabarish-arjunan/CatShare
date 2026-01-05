@@ -339,8 +339,7 @@ const exportProductsToCSV = (products) => {
 
 <button
   onClick={() => {
-    setShowTutorial(true);
-    onClose();
+    onShowTutorial();
   }}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
