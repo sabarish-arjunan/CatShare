@@ -44,14 +44,14 @@ export default function Tutorial({ onClose }) {
 
   const steps = [
     {
-      title: "Welcome to Catalogue Manager 📦",
+      title: "Welcome to CatShare 📦",
       description:
         "Learn about the key features that help you manage your product catalogue effectively.",
       icon: "👋",
       visualElements: null,
     },
     {
-      title: "Add & Edit Products ✏️",
+      title: "Create Products ✏️",
       description:
         "Click the blue '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. Click the edit icon on any product to modify it.",
       icon: "📝",
@@ -67,7 +67,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Products Tab - Manage & Organize 🛠️",
+      title: "Manage Products 🛠️",
       description:
         "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle WS/RS (Wholesale/Resell) In/Out stock status for each product.",
       icon: "📋",
@@ -136,7 +136,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Tab Actions - Filter, View & Share 🔍",
+      title: "Tab Actions 🔍",
       description:
         "Use these action buttons available in both Wholesale and Resell tabs. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export product images.",
       icon: "🔀",
@@ -175,16 +175,16 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Switch Between Wholesale & Resell 🔀",
+      title: "Wholesale vs Resell 🔀",
       description:
         "Toggle between Wholesale and Resell tabs to view products with different pricing models. Each tab shows the same products but with prices tailored for different customer types.",
       icon: "💰",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 min-w-0">
             <button
               onClick={() => setActiveTab("wholesale")}
-              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+              className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
                 activeTab === "wholesale"
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-600 border border-gray-300"
@@ -194,7 +194,7 @@ export default function Tutorial({ onClose }) {
             </button>
             <button
               onClick={() => setActiveTab("resell")}
-              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+              className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
                 activeTab === "resell"
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-600 border border-gray-300"
@@ -230,74 +230,191 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Side Menu - Backup & Restore 💾",
+      title: "Backup & Restore 💾",
       description:
-        "Click the menu icon to open the side menu. Use 'Backup & Restore' to create ZIP backups of your entire catalogue including all images. Restore anytime!",
+        "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products and images, then restore them whenever needed.",
       icon: "🛡️",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Menu Options:</div>
-          <div className="space-y-1 text-xs">
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              🛠️ <span className="font-semibold">Backup & Restore</span>
+          <div className="space-y-4">
+            {/* Backup Section */}
+            <div className="p-3 bg-white rounded-lg border-l-4 border-blue-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🛠️</span>
+                <p className="font-semibold text-sm text-gray-800">Backup</p>
+              </div>
+              <div className="space-y-2 text-xs text-gray-700">
+                <p>
+                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
+                </p>
+                <p>
+                  <span className="font-medium">File format:</span> Saves as <code className="bg-gray-100 px-1 rounded text-[11px]">catalogue-backup-[timestamp].zip</code>
+                </p>
+                <p>
+                  <span className="font-medium">Backup contents:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ All product data (names, prices, details)</li>
+                  <li>✓ All product images in images/ folder</li>
+                  <li>✓ Deleted products list</li>
+                </ul>
+              </div>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              📦 <span className="font-semibold">Shelf</span> (Deleted Products)
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              🗂️ <span className="font-semibold">Manage Categories</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              ✏️ <span className="font-semibold">Bulk Editor</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded">
-              🔁 <span className="font-semibold">Render PNGs</span>
+
+            {/* Restore Section */}
+            <div className="p-3 bg-white rounded-lg border-l-4 border-green-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🛠️</span>
+                <p className="font-semibold text-sm text-gray-800">Restore</p>
+              </div>
+              <div className="space-y-2 text-xs text-gray-700">
+                <p>
+                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
+                </p>
+                <p>
+                  <span className="font-medium">What restores:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ All products with original details</li>
+                  <li>✓ All product images</li>
+                  <li>✓ Categories and deleted products</li>
+                </ul>
+                <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
+                  💡 Restore replaces your current catalogue with the backed-up data.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "Shelf, Categories & Bulk Editor ⚙️",
+      title: "Extra Features ⚙️",
       description:
-        "From the side menu:\n• Shelf: View deleted products and restore them\n• Manage Categories: Create and organize product categories\n• Bulk Editor: Edit multiple products at once for efficient updates",
-      icon: "🗂️",
+        "Access additional tools from the side menu to manage deleted products, organize categories, and edit multiple products at once.",
+      icon: "⚙️",
       visualElements: (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="space-y-2">
-            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
-              <p className="font-semibold text-sm">📦 Shelf</p>
-              <p className="text-xs text-gray-600">Recover deleted products</p>
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
+          {/* Shelf Section */}
+          <div className="p-3 bg-white rounded-lg border-l-4 border-red-500">
+            <div className="flex items-center gap-2 mb-2">
+              <MdInventory2 className="text-red-500 text-[18px]" />
+              <p className="font-semibold text-sm text-gray-800">Shelf</p>
             </div>
-            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
-              <p className="font-semibold text-sm">🏷️ Manage Categories</p>
-              <p className="text-xs text-gray-600">Organize products</p>
+            <div className="space-y-2 text-xs text-gray-700">
+              <p>
+                <span className="font-medium">What it is:</span> A recovery area for your deleted products.
+              </p>
+              <p>
+                <span className="font-medium">What you can do:</span>
+              </p>
+              <ul className="ml-3 space-y-1">
+                <li>✓ View all deleted products in one place</li>
+                <li>✓ Restore any deleted product back to your catalogue</li>
+                <li>✓ Permanently delete products if needed</li>
+              </ul>
+              <p className="text-blue-700 bg-blue-50 p-2 rounded mt-2">
+                💡 Deletion is temporary - check Shelf before moving on!
+              </p>
             </div>
-            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
-              <p className="font-semibold text-sm">⚡ Bulk Editor</p>
-              <p className="text-xs text-gray-600">Update many at once</p>
+          </div>
+
+          {/* Manage Categories Section */}
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">🗂️</span>
+              <p className="font-semibold text-sm text-gray-800">Manage Categories</p>
+            </div>
+            <div className="space-y-2 text-xs text-gray-700">
+              <p>
+                <span className="font-medium">What it is:</span> Organize products by creating custom categories.
+              </p>
+              <p>
+                <span className="font-medium">What you can do:</span>
+              </p>
+              <ul className="ml-3 space-y-1">
+                <li>✓ Create new categories for different product types</li>
+                <li>✓ Assign products to multiple categories</li>
+                <li>✓ Filter products by category in all tabs</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bulk Editor Section */}
+          <div className="p-3 bg-white rounded-lg border-l-4 border-purple-500">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">✏️</span>
+              <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
+            </div>
+            <div className="space-y-2 text-xs text-gray-700">
+              <p>
+                <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
+              </p>
+              <p>
+                <span className="font-medium">What you can do:</span>
+              </p>
+              <ul className="ml-3 space-y-1">
+                <li>✓ Update pricing for many products together</li>
+                <li>✓ Change categories in bulk</li>
+                <li>✓ Modify other product details en masse</li>
+              </ul>
+              <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
+                ⚡ Save time - update 50 products in seconds instead of one by one!
+              </p>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: "Render PNGs - Most Important Feature ⭐",
+      title: "Forge Images ⭐",
       description:
-        "Click 'Render PNGs' from the side menu to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing with customers and creating presentations!",
+        "Render images are required to share product images. After adding/editing products, renders happen automatically. But after Restore or Bulk Edit, you MUST manually render all images!",
       icon: "🎯",
       visualElements: (
-        <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400">
-          <div className="text-center">
-            <div className="text-3xl mb-2">🔁</div>
-            <p className="font-bold text-sm text-gray-800">Render PNGs</p>
-            <p className="text-xs text-gray-600 mt-2">Generate professional product images with pricing automatically!</p>
-            <div className="mt-3 p-2 bg-white rounded text-xs text-gray-700">
-              ✓ Add product details overlaid on image<br/>
-              ✓ Include pricing information<br/>
-              ✓ Process all products at once<br/>
-              ✓ Perfect for catalogs & presentations
-            </div>
+        <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
+          {/* How It Works */}
+          <div className="bg-white rounded-lg p-3 border-l-4 border-yellow-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">💾 What Render images Does:</p>
+            <p className="text-xs text-gray-700 mb-2">
+              Generates professional product images with pricing, names, and details overlaid on each product image.
+            </p>
+            <ul className="text-xs text-gray-700 space-y-1 ml-3">
+              <li>✓ Product name overlaid on image</li>
+              <li>✓ Pricing information included</li>
+              <li>✓ Product details displayed</li>
+              <li>✓ Shareable with customers</li>
+            </ul>
+          </div>
+
+          {/* Auto Render Info */}
+          <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">✅ Auto-Render (Automatic):</p>
+            <p className="text-xs text-gray-700">
+              When you <span className="font-medium">Add or Edit</span> a single product, images render automatically.
+            </p>
+          </div>
+
+          {/* Manual Render Required */}
+          <div className="bg-red-50 rounded-lg p-3 border-l-4 border-red-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">⚠️ Manual Render Required:</p>
+            <p className="text-xs text-gray-700 mb-2">
+              You <span className="font-medium">MUST click Render images</span> from the side menu after:
+            </p>
+            <ul className="text-xs text-gray-700 space-y-1 ml-3">
+              <li>🔄 Restoring from a backup</li>
+              <li>📝 Using Bulk Editor to edit products</li>
+            </ul>
+            <p className="text-xs text-gray-700 mt-2">
+              <span className="font-medium">Otherwise:</span> Non-rendered images cannot be shared, and you'd need to manually edit and save each product.
+            </p>
+          </div>
+
+          {/* Bottom Note */}
+          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+            <p className="text-xs text-gray-700">
+              💡 <span className="font-medium">Pro tip:</span> Always render images after bulk operations - it takes minutes to render everything at once instead of hours editing individually!
+            </p>
           </div>
         </div>
       ),
@@ -305,7 +422,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "You're All Set! 🎉",
       description:
-        "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render PNGs to create professional catalogs!",
+        "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render images to create professional catalogs!",
       icon: "✨",
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
@@ -315,7 +432,7 @@ export default function Tutorial({ onClose }) {
               1️⃣ Create products with +button<br/>
               2️⃣ Manage stock with In/Out buttons<br/>
               3️⃣ View Wholesale & Resell pricing<br/>
-              4️⃣ Use Render PNGs for catalogs<br/>
+              4️⃣ Use Render images for catalogs<br/>
               5️⃣ Backup your data regularly
             </p>
           </div>

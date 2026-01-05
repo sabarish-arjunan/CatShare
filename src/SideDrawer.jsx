@@ -35,6 +35,7 @@ const allproducts = JSON.parse(localStorage.getItem("products") || "[]");
 const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
 const [showBackupPopup, setShowBackupPopup] = useState(false);
+const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const navigate = useNavigate();
 
 
@@ -138,7 +139,7 @@ const handleRenderAllPNGs = async () => {
 
       console.log(`✅ Rendered PNGs for ${product.name}`);
     } catch (err) {
-      console.warn(`❌ Failed to render PNGs for ${product.name}`, err);
+      console.warn(`❌ Failed to render images for ${product.name}`, err);
     }
 
     setRenderProgress(Math.round(((i + 1) / all.length) * 100));
@@ -252,12 +253,11 @@ const exportProductsToCSV = (products) => {
         localStorage.setItem("deletedProducts", JSON.stringify(parsed.deleted));
       }
 
-      alert("✅ Restore complete");
+      setShowRenderAfterRestore(true);
     } catch (err) {
       alert("❌ Restore failed: " + err.message);
+      onClose();
     }
-
-    onClose();
   };
 
   reader.readAsArrayBuffer(file);
@@ -357,7 +357,7 @@ const exportProductsToCSV = (products) => {
   }`}
 >
   <span>🔁</span>
-  <span>{isRendering ? "Rendering PNGs..." : "Render PNGs"}</span>
+  <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
 <div className="pt-4 mt-5 border-t text-center text-xs text-gray-400">
@@ -412,6 +412,53 @@ const exportProductsToCSV = (products) => {
       >
         Cancel
       </button>
+    </div>
+  </div>
+)}
+
+{showRenderAfterRestore && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs">
+      <h2 className="text-lg font-bold text-gray-800 mb-3 text-center">Render images?</h2>
+
+      <div className="space-y-3 mb-4">
+        <p className="text-sm text-gray-600">
+          Your catalogue has been restored. Would you like to render images now?
+        </p>
+
+        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+          <p className="text-xs text-red-800">
+            <span className="font-semibold">⚠️ Important:</span> Rendering images is <span className="font-semibold">must to share</span> the images. Without rendering, you cannot share product images with customers.
+          </p>
+        </div>
+
+        <p className="text-sm text-gray-600">
+          Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
+        </p>
+      </div>
+
+      <div className="flex justify-center gap-4 pb-[env(safe-area-inset-bottom)]">
+        <button
+          className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
+          onClick={() => {
+            setShowRenderAfterRestore(false);
+            handleRenderAllPNGs();
+            setTimeout(onClose, 100);
+          }}
+        >
+          Continue
+        </button>
+
+        <button
+          className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition text-sm"
+          onClick={() => {
+            setShowRenderAfterRestore(false);
+            onClose();
+          }}
+        >
+          Maybe later
+        </button>
+      </div>
     </div>
   </div>
 )}
