@@ -426,8 +426,8 @@ const exportProductsToCSV = (products) => {
           Your catalogue has been restored. Would you like to render PNGs now?
         </p>
 
-        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
-          <p className="text-xs text-yellow-800">
+        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+          <p className="text-xs text-red-800">
             <span className="font-semibold">⚠️ Important:</span> Rendering PNGs is <span className="font-semibold">must to share</span> the images. Without rendering, you cannot share product images with customers.
           </p>
         </div>
