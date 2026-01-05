@@ -28,6 +28,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [previewProduct, setPreviewProduct] = useState(null);
   const [previewList, setPreviewList] = useState([]);
   const [imageMap, setImageMap] = useState({});
