@@ -145,7 +145,7 @@ export default function Tutorial({ onClose }) {
           <div className="space-y-2">
             <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 10..." />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
               </svg>
               <span>Find products by name</span>
             </div>
