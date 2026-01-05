@@ -1,111 +1,55 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function Tutorial({ onClose }) {
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
     {
       title: "Welcome to Catalogue Manager 📦",
       description:
-        "This app helps you manage your product catalogue with pricing for wholesale and resell channels. Learn how to create products, manage stock, and generate professional pricing displays!",
+        "Learn about the key features that help you manage your product catalogue effectively.",
       icon: "👋",
     },
     {
-      title: "What is This App? 🎯",
+      title: "Add & Edit Products ✏️",
       description:
-        "This is a product catalogue management tool for businesses that sell through multiple channels. You'll manage products, set different prices for wholesale and resell customers, control stock status (in/out), and generate professional images with pricing.",
-      icon: "📊",
+        "Click the '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. To edit an existing product, click the edit icon on any product card.",
+      icon: "📝",
     },
     {
-      title: "Creating Your First Product ✨",
+      title: "Products Tab - Edit & Manage 🛠️",
       description:
-        "Click the '+' button (bottom right) to create a new product. You'll set: Product name, subtitle, image, color scheme, packaging info, age group, wholesale price, resell price, categories, and stock status for each channel.",
-      icon: "➕",
+        "In the Products tab, you can:\n• Edit: Click the edit icon to modify product details\n• Shelf: Click to move a product to trash (can be restored later)\n• Reorder: Drag products to arrange them\n• WS/RS In/Out: Toggle wholesale and resell stock status",
+      icon: "📋",
     },
     {
-      title: "Product Images & Colors 🎨",
+      title: "Wholesale & Resell Tabs - Filter & Share 🏪",
       description:
-        "When creating a product, upload an image and crop it. The app suggests colors from your image for the background. You can customize the background color, text color, and image background separately to match your brand.",
-      icon: "🖼️",
+        "Switch between Wholesale and Resell tabs to see products with different pricing:\n• Filter: Use the filter icon to show/hide by stock status and category\n• Show Info: Click the info icon to see product details\n• Share: Click share to export product images and information",
+      icon: "🔀",
     },
     {
-      title: "Pricing Structure 💰",
+      title: "Side Menu - Backup & Restore 💾",
       description:
-        "Each product has two pricing tiers: Wholesale (for bulk buyers) and Resell (for individual customers). You also set units like '/ piece', '/ dozen', 'per set' to show customers how products are sold.",
-      icon: "💵",
-    },
-    {
-      title: "Stock Status: In vs Out 📦",
-      description:
-        "For each product, you can mark it as 'In Stock' or 'Out of Stock' separately for wholesale and resell channels. This means you can sell wholesale only while resell is out of stock, or vice versa.",
-      icon: "✅",
-    },
-    {
-      title: "Managing Your Catalogue 📋",
-      description:
-        "Your main view shows all products. Click on a product to view/edit it. You can search by name, sort by name or category, and drag to reorder products. The buttons below each product toggle stock status.",
-      icon: "🏪",
-    },
-    {
-      title: "Wholesale vs Resell Tabs 🔀",
-      description:
-        "Switch between the 'Wholesale' and 'Resell' tabs to see your products with their respective pricing. This helps you preview how each pricing tier looks and verify stock availability for each channel.",
-      icon: "🔄",
-    },
-    {
-      title: "Bulk Editing 📝",
-      description:
-        "Need to update many products at once? Use Bulk Editor from the menu. Select which fields to change (price, stock, category, etc.), then edit all products together. Saves time when managing large catalogues!",
-      icon: "✏️",
-    },
-    {
-      title: "Rendering Product Images 🔁",
-      description:
-        "Use 'Render PNGs' to generate professional product images with all pricing, names, and details overlaid. Perfect for sharing with customers or using in presentations. The app processes all products in batch.",
-      icon: "🎯",
-    },
-    {
-      title: "Media Library 🖼️",
-      description:
-        "Upload and store all your product images in the Media Library. Organize images here before using them in products. You can upload, delete, and manage all your visual assets in one place.",
-      icon: "📸",
-    },
-    {
-      title: "Organizing with Categories 🏷️",
-      description:
-        "Create categories to organize your products (e.g., 'Toys', 'Clothes', 'Games'). You can assign multiple categories to a product. Use the Manage Categories option to add, edit, delete, or reorder categories.",
-      icon: "🗂️",
-    },
-    {
-      title: "The Shelf (Deleted Products) 🗑️",
-      description:
-        "When you delete a product, it goes to the Shelf instead of disappearing. From the Shelf view, you can restore deleted products back to your main catalogue or permanently delete them.",
-      icon: "📦",
-    },
-    {
-      title: "Backing Up Your Data 💾",
-      description:
-        "Use 'Backup & Restore' to create a ZIP file of your entire catalogue including all products and images. Keep regular backups to protect your work. You can restore from any backup anytime.",
+        "Click the menu icon to access:\n• Backup & Restore: Create ZIP backups of your entire catalogue including all images. Restore anytime to recover your data.",
       icon: "🛡️",
     },
     {
-      title: "Typical Workflow 🔄",
+      title: "Shelf, Categories & Bulk Editor 🗂️",
       description:
-        "1. Create products with images and pricing → 2. Organize with categories → 3. Switch to Wholesale/Resell to verify pricing → 4. Use Bulk Editor to make bulk updates → 5. Render PNGs for presentations → 6. Backup regularly",
-      icon: "📈",
+        "From the side menu:\n• Shelf: View deleted products and restore them or permanently delete\n• Manage Categories: Create and organize product categories\n• Bulk Editor: Edit multiple products at once - change prices, stock, categories in bulk",
+      icon: "⚙️",
     },
     {
-      title: "Pro Tips 💡",
+      title: "Render PNGs - Most Important Feature ⭐",
       description:
-        "• Create categories first, then assign them while creating products\n• Use consistent naming for easier searching\n• Check both Wholesale & Resell tabs to ensure pricing is correct\n• Render PNGs regularly for sharing with customers\n• Backup after making major changes",
-      icon: "⭐",
+        "Click 'Render PNGs' from the side menu to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing catalogs with customers, creating presentations, and bulk exports. This is a powerful feature that saves hours of manual work!",
+      icon: "🎯",
     },
     {
-      title: "You're Ready! 🎉",
+      title: "You're All Set! 🎉",
       description:
-        "You now understand how to manage your product catalogue! Start by creating your first product or uploading images to the Media Library. Have fun building your catalogue!",
+        "You now know all the main features. Start creating products, organizing them, and use Render PNGs to generate professional images for your customers!",
       icon: "✨",
     },
   ];
@@ -135,7 +79,7 @@ export default function Tutorial({ onClose }) {
           onClick={onClose}
           className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500 transition"
         >
-          &times;
+          ✕
         </button>
 
         {/* Progress bar */}
