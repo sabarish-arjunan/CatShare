@@ -6,6 +6,7 @@ import SideDrawer from "./SideDrawer";
 import WholesaleTab from "./Wholesale";
 import ResellTab from "./Resell";
 import ProductPreviewModal from "./ProductPreviewModal";
+import Tutorial from "./Tutorial";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
