@@ -416,6 +416,52 @@ const exportProductsToCSV = (products) => {
   </div>
 )}
 
+{showRenderAfterRestore && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+  onClick={() => {
+    setShowRenderAfterRestore(false);
+    onClose();
+  }}
+  >
+    <div className="bg-white/80 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs text-center"
+    onClick={(e) => e.stopPropagation()}
+    >
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">✅ Restore Complete!</h2>
+
+      <p className="text-sm text-gray-600 mb-4">
+        Your catalogue has been restored. Now render PNGs to make your products shareable.
+      </p>
+
+      <p className="text-sm text-gray-600 mb-4">
+        Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
+      </p>
+
+      <div className="flex justify-center gap-4">
+        <button
+          className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
+          onClick={() => {
+            setShowRenderAfterRestore(false);
+            handleRenderAllPNGs();
+            setTimeout(onClose, 100);
+          }}
+        >
+          Render Now
+        </button>
+
+        <button
+          className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition text-sm"
+          onClick={() => {
+            setShowRenderAfterRestore(false);
+            onClose();
+          }}
+        >
+          Maybe Later
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 {showRenderConfirm && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
     <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
