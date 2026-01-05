@@ -417,26 +417,19 @@ const exportProductsToCSV = (products) => {
 )}
 
 {showRenderAfterRestore && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-  onClick={() => {
-    setShowRenderAfterRestore(false);
-    onClose();
-  }}
-  >
-    <div className="bg-white/80 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs text-center"
-    onClick={(e) => e.stopPropagation()}
-    >
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">✅ Restore Complete!</h2>
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
+      <h2 className="text-lg font-bold text-gray-800 mb-2">Render PNGs?</h2>
 
-      <p className="text-sm text-gray-600 mb-4">
-        Your catalogue has been restored. Now render PNGs to make your products shareable.
+      <p className="text-sm text-gray-600 mb-2">
+        Your catalogue has been restored. Would you like to render PNGs now?
       </p>
 
       <p className="text-sm text-gray-600 mb-4">
         Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
       </p>
 
-      <div className="flex justify-center gap-4">
+      <div className="flex justify-center gap-4 pb-[env(safe-area-inset-bottom)]">
         <button
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
@@ -445,7 +438,7 @@ const exportProductsToCSV = (products) => {
             setTimeout(onClose, 100);
           }}
         >
-          Render Now
+          Continue
         </button>
 
         <button
@@ -455,7 +448,7 @@ const exportProductsToCSV = (products) => {
             onClose();
           }}
         >
-          Maybe Later
+          Maybe later
         </button>
       </div>
     </div>
