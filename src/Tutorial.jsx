@@ -44,7 +44,7 @@ export default function Tutorial({ onClose }) {
 
   const steps = [
     {
-      title: "Welcome to Catalogue Manager 📦",
+      title: "Welcome to CatShare 📦",
       description:
         "Learn about the key features that help you manage your product catalogue effectively.",
       icon: "👋",
