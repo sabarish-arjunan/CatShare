@@ -64,16 +64,24 @@ export default function Tutorial({ onClose }) {
               <span className="font-semibold">Shelf (📦)</span> - Move to trash (can restore)
             </div>
             <div className="p-2 bg-white border border-gray-300 rounded">
-              <div className="text-xs font-semibold text-gray-700 mb-2">Stock Status Toggles:</div>
+              <div className="text-xs font-semibold text-gray-700 mb-2">Stock Status Toggles (Try clicking):</div>
               <div className="flex gap-2">
-                <div className="flex flex-col gap-1 flex-1">
-                  <button className="text-xs font-semibold px-2 py-1 rounded bg-green-600 text-white">WS In</button>
-                  <button className="text-xs font-semibold px-2 py-1 rounded bg-gray-300 text-gray-700">WS Out</button>
-                </div>
-                <div className="flex flex-col gap-1 flex-1">
-                  <button className="text-xs font-semibold px-2 py-1 rounded bg-amber-500 text-white">RS In</button>
-                  <button className="text-xs font-semibold px-2 py-1 rounded bg-gray-300 text-gray-700">RS Out</button>
-                </div>
+                <button
+                  onClick={() => setWsStock(!wsStock)}
+                  className={`flex-1 text-xs font-semibold px-2 py-1 rounded cursor-pointer transition ${
+                    wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  {wsStock ? "WS In" : "WS Out"}
+                </button>
+                <button
+                  onClick={() => setRsStock(!rsStock)}
+                  className={`flex-1 text-xs font-semibold px-2 py-1 rounded cursor-pointer transition ${
+                    rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
+                  }`}
+                >
+                  {rsStock ? "RS In" : "RS Out"}
+                </button>
               </div>
             </div>
             <div className="p-2 bg-white border border-gray-300 rounded text-xs">
