@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 
 export default function Tutorial({ onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [wsStock, setWsStock] = useState(true);
+  const [rsStock, setRsStock] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
