@@ -84,11 +84,11 @@ const TUTORIAL_STEPS = [
     requiresAction: "auto",
   },
   {
-    id: "rendering-intro",
-    title: "Rendering - The Powerful Feature ⭐",
-    description: "This is the MOST IMPORTANT feature! Use 'Render PNGs' to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing with customers!",
+    id: "build-images-intro",
+    title: "Building Images - The Powerful Feature ⭐",
+    description: "This is the MOST IMPORTANT feature! Use 'Build Images' to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing with customers!",
     action: "This feature is in the side menu",
-    target: "render-png-button",
+    target: "build-images-button",
     requiresAction: "auto",
   },
   {
