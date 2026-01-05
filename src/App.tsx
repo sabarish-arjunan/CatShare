@@ -10,13 +10,10 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 
-import { TutorialProvider } from "./TutorialContext";
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
 import Shelf from "./Shelf";
 import Retail from "./Retail";
-import TutorialHint from "./TutorialHint";
-import TutorialOverlay from "./TutorialOverlay";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
