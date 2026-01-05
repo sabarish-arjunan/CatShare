@@ -51,7 +51,7 @@ export default function Tutorial({ onClose }) {
       visualElements: null,
     },
     {
-      title: "Step 2 - Create Products ✏️",
+      title: "Create Products ✏️",
       description:
         "Click the blue '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. Click the edit icon on any product to modify it.",
       icon: "📝",
@@ -67,7 +67,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Step 3 - Manage Products 🛠️",
+      title: "Manage Products 🛠️",
       description:
         "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle WS/RS (Wholesale/Resell) In/Out stock status for each product.",
       icon: "📋",
@@ -136,7 +136,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Step 4 - Tab Actions 🔍",
+      title: "Tab Actions 🔍",
       description:
         "Use these action buttons available in both Wholesale and Resell tabs. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export product images.",
       icon: "🔀",
@@ -175,7 +175,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Step 5 - Wholesale vs Resell 🔀",
+      title: "Wholesale vs Resell 🔀",
       description:
         "Toggle between Wholesale and Resell tabs to view products with different pricing models. Each tab shows the same products but with prices tailored for different customer types.",
       icon: "💰",
@@ -230,7 +230,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Step 6 - Backup & Restore 💾",
+      title: "Backup & Restore 💾",
       description:
         "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products and images, then restore them whenever needed.",
       icon: "🛡️",
@@ -289,7 +289,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Step 7 - Extra Features ⚙️",
+      title: "Extra Features ⚙️",
       description:
         "Access additional tools from the side menu to manage deleted products, organize categories, and edit multiple products at once.",
       icon: "⚙️",
@@ -367,7 +367,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Step 8 - Forge Images ⭐",
+      title: "Forge Images ⭐",
       description:
         "Render PNGs are required to share product images. After adding/editing products, renders happen automatically. But after Restore or Bulk Edit, you MUST manually render all PNGs!",
       icon: "🎯",
