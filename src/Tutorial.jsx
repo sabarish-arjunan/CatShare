@@ -367,22 +367,54 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Render PNGs - Most Important Feature ⭐",
+      title: "Render PNGs - Essential Feature ⭐",
       description:
-        "Click 'Render PNGs' from the side menu to automatically generate professional product images with pricing, names, and details overlaid. Perfect for sharing with customers and creating presentations!",
+        "Render PNGs are required to share product images. After adding/editing products, renders happen automatically. But after Restore or Bulk Edit, you MUST manually render all PNGs!",
       icon: "🎯",
       visualElements: (
-        <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400">
-          <div className="text-center">
-            <div className="text-3xl mb-2">🔁</div>
-            <p className="font-bold text-sm text-gray-800">Render PNGs</p>
-            <p className="text-xs text-gray-600 mt-2">Generate professional product images with pricing automatically!</p>
-            <div className="mt-3 p-2 bg-white rounded text-xs text-gray-700">
-              ✓ Add product details overlaid on image<br/>
-              ✓ Include pricing information<br/>
-              ✓ Process all products at once<br/>
-              ✓ Perfect for catalogs & presentations
-            </div>
+        <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
+          {/* How It Works */}
+          <div className="bg-white rounded-lg p-3 border-l-4 border-yellow-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">💾 What Render PNGs Does:</p>
+            <p className="text-xs text-gray-700 mb-2">
+              Generates professional product images with pricing, names, and details overlaid on each product image.
+            </p>
+            <ul className="text-xs text-gray-700 space-y-1 ml-3">
+              <li>✓ Product name overlaid on image</li>
+              <li>✓ Pricing information included</li>
+              <li>✓ Product details displayed</li>
+              <li>✓ Shareable with customers</li>
+            </ul>
+          </div>
+
+          {/* Auto Render Info */}
+          <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">✅ Auto-Render (Automatic):</p>
+            <p className="text-xs text-gray-700">
+              When you <span className="font-medium">Add or Edit</span> a single product, PNGs render automatically.
+            </p>
+          </div>
+
+          {/* Manual Render Required */}
+          <div className="bg-red-50 rounded-lg p-3 border-l-4 border-red-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">⚠️ Manual Render Required:</p>
+            <p className="text-xs text-gray-700 mb-2">
+              You <span className="font-medium">MUST click Render PNGs</span> from the side menu after:
+            </p>
+            <ul className="text-xs text-gray-700 space-y-1 ml-3">
+              <li>🔄 Restoring from a backup</li>
+              <li>📝 Using Bulk Editor to edit products</li>
+            </ul>
+            <p className="text-xs text-gray-700 mt-2">
+              <span className="font-medium">Otherwise:</span> Non-rendered images cannot be shared, and you'd need to manually edit and save each product.
+            </p>
+          </div>
+
+          {/* Bottom Note */}
+          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+            <p className="text-xs text-gray-700">
+              💡 <span className="font-medium">Pro tip:</span> Always render PNGs after bulk operations - it takes minutes to render everything at once instead of hours editing individually!
+            </p>
           </div>
         </div>
       ),
