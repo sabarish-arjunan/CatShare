@@ -291,22 +291,76 @@ export default function Tutorial({ onClose }) {
     {
       title: "Shelf, Categories & Bulk Editor ⚙️",
       description:
-        "From the side menu:\n• Shelf: View deleted products and restore them\n• Manage Categories: Create and organize product categories\n• Bulk Editor: Edit multiple products at once for efficient updates",
-      icon: "🗂️",
+        "Access additional tools from the side menu to manage deleted products, organize categories, and edit multiple products at once.",
+      icon: "⚙️",
       visualElements: (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="space-y-2">
-            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
-              <p className="font-semibold text-sm">📦 Shelf</p>
-              <p className="text-xs text-gray-600">Recover deleted products</p>
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
+          {/* Shelf Section */}
+          <div className="p-3 bg-white rounded-lg border-l-4 border-red-500">
+            <div className="flex items-center gap-2 mb-2">
+              <MdInventory2 className="text-red-500 text-[18px]" />
+              <p className="font-semibold text-sm text-gray-800">Shelf</p>
             </div>
-            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
-              <p className="font-semibold text-sm">🏷️ Manage Categories</p>
-              <p className="text-xs text-gray-600">Organize products</p>
+            <div className="space-y-2 text-xs text-gray-700">
+              <p>
+                <span className="font-medium">What it is:</span> A recovery area for your deleted products.
+              </p>
+              <p>
+                <span className="font-medium">What you can do:</span>
+              </p>
+              <ul className="ml-3 space-y-1">
+                <li>✓ View all deleted products in one place</li>
+                <li>✓ Restore any deleted product back to your catalogue</li>
+                <li>✓ Permanently delete products if needed</li>
+              </ul>
+              <p className="text-blue-700 bg-blue-50 p-2 rounded mt-2">
+                💡 Deletion is temporary - check Shelf before moving on!
+              </p>
             </div>
-            <div className="p-3 bg-white border-l-4 border-blue-600 rounded">
-              <p className="font-semibold text-sm">⚡ Bulk Editor</p>
-              <p className="text-xs text-gray-600">Update many at once</p>
+          </div>
+
+          {/* Manage Categories Section */}
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">🗂️</span>
+              <p className="font-semibold text-sm text-gray-800">Manage Categories</p>
+            </div>
+            <div className="space-y-2 text-xs text-gray-700">
+              <p>
+                <span className="font-medium">What it is:</span> Organize products by creating custom categories.
+              </p>
+              <p>
+                <span className="font-medium">What you can do:</span>
+              </p>
+              <ul className="ml-3 space-y-1">
+                <li>✓ Create new categories for different product types</li>
+                <li>✓ Assign products to multiple categories</li>
+                <li>✓ Filter products by category in all tabs</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bulk Editor Section */}
+          <div className="p-3 bg-white rounded-lg border-l-4 border-purple-500">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">✏️</span>
+              <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
+            </div>
+            <div className="space-y-2 text-xs text-gray-700">
+              <p>
+                <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
+              </p>
+              <p>
+                <span className="font-medium">What you can do:</span>
+              </p>
+              <ul className="ml-3 space-y-1">
+                <li>✓ Update pricing for many products together</li>
+                <li>✓ Change categories in bulk</li>
+                <li>✓ Modify other product details en masse</li>
+              </ul>
+              <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
+                ⚡ Save time - update 50 products in seconds instead of one by one!
+              </p>
             </div>
           </div>
         </div>
