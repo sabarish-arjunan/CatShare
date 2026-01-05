@@ -389,10 +389,10 @@ useEffect(() => {
       {showRenderPopup && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
     <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
-      <h2 className="text-lg font-bold text-gray-800 mb-2">Build Images?</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-2">Render images?</h2>
 
       <p className="text-sm text-gray-600 mb-2">
-        Your changes are saved. Would you like to build images now?
+        Your changes are saved. Would you like to render images now?
       </p>
 
       <p className="text-sm text-gray-600 mb-4">
