@@ -181,10 +181,10 @@ export default function Tutorial({ onClose }) {
       icon: "💰",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 min-w-0">
             <button
               onClick={() => setActiveTab("wholesale")}
-              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+              className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
                 activeTab === "wholesale"
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-600 border border-gray-300"
@@ -194,7 +194,7 @@ export default function Tutorial({ onClose }) {
             </button>
             <button
               onClick={() => setActiveTab("resell")}
-              className={`flex-1 px-4 py-2 rounded text-sm font-semibold transition ${
+              className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
                 activeTab === "resell"
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-600 border border-gray-300"
