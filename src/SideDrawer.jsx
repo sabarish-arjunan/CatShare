@@ -139,7 +139,7 @@ const handleRenderAllPNGs = async () => {
 
       console.log(`✅ Rendered PNGs for ${product.name}`);
     } catch (err) {
-      console.warn(`❌ Failed to build images for ${product.name}`, err);
+      console.warn(`❌ Failed to render images for ${product.name}`, err);
     }
 
     setRenderProgress(Math.round(((i + 1) / all.length) * 100));
@@ -357,7 +357,7 @@ const exportProductsToCSV = (products) => {
   }`}
 >
   <span>🔁</span>
-  <span>{isRendering ? "Building Images..." : "Build Images"}</span>
+  <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
 <div className="pt-4 mt-5 border-t text-center text-xs text-gray-400">
@@ -419,16 +419,16 @@ const exportProductsToCSV = (products) => {
 {showRenderAfterRestore && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
     <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs">
-      <h2 className="text-lg font-bold text-gray-800 mb-3 text-center">Build Images?</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-3 text-center">Render images?</h2>
 
       <div className="space-y-3 mb-4">
         <p className="text-sm text-gray-600">
-          Your catalogue has been restored. Would you like to build images now?
+          Your catalogue has been restored. Would you like to render images now?
         </p>
 
         <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
           <p className="text-xs text-red-800">
-            <span className="font-semibold">⚠️ Important:</span> Building Images is <span className="font-semibold">must to share</span> the images. Without building, you cannot share product images with customers.
+            <span className="font-semibold">⚠️ Important:</span> Rendering images is <span className="font-semibold">must to share</span> the images. Without rendering, you cannot share product images with customers.
           </p>
         </div>
 
