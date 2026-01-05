@@ -1,10 +1,11 @@
-import { useRef, useContext } from "react";
+import { useRef } from "react";
 import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { FileSharer } from "@byteowls/capacitor-filesharer";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import MediaLibrary from "./MediaLibrary";
 import BulkEdit from "./BulkEdit";
+import Tutorial from "./Tutorial";
 import { App } from "@capacitor/app";
 import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
@@ -12,7 +13,6 @@ import RenderingOverlay from "./RenderingOverlay"; // path to the Lottie animati
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { MdInventory2 } from "react-icons/md";
-import { TutorialContext } from "./TutorialContext";
 
 
 export default function SideDrawer({
