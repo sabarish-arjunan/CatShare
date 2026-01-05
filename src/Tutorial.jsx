@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiEdit } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
+import { useRef } from "react";
 
 export default function Tutorial({ onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
