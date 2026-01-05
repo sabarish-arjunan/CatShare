@@ -59,11 +59,13 @@ export default function Tutorial({ onClose }) {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-sm font-semibold text-gray-700 mb-2">Product Controls:</div>
           <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">Edit (✏️)</span> - Modify product details
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <FiEdit className="text-blue-600" size={16} />
+              <span>Modify product details</span>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs">
-              <span className="font-semibold">Shelf (📦)</span> - Move to trash (can restore)
+            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+              <MdInventory2 className="text-red-500 text-[18px]" />
+              <span>Move to trash (can restore)</span>
             </div>
             <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
               <div className="flex items-center gap-2">
