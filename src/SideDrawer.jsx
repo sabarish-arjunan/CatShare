@@ -418,16 +418,24 @@ const exportProductsToCSV = (products) => {
 
 {showRenderAfterRestore && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
-    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
-      <h2 className="text-lg font-bold text-gray-800 mb-2">Render PNGs?</h2>
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs">
+      <h2 className="text-lg font-bold text-gray-800 mb-3 text-center">Render PNGs?</h2>
 
-      <p className="text-sm text-gray-600 mb-2">
-        Your catalogue has been restored. Would you like to render PNGs now?
-      </p>
+      <div className="space-y-3 mb-4">
+        <p className="text-sm text-gray-600">
+          Your catalogue has been restored. Would you like to render PNGs now?
+        </p>
 
-      <p className="text-sm text-gray-600 mb-4">
-        Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
-      </p>
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+          <p className="text-xs text-yellow-800">
+            <span className="font-semibold">⚠️ Important:</span> Rendering PNGs is <span className="font-semibold">must to share</span> the images. Without rendering, you cannot share product images with customers.
+          </p>
+        </div>
+
+        <p className="text-sm text-gray-600">
+          Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
+        </p>
+      </div>
 
       <div className="flex justify-center gap-4 pb-[env(safe-area-inset-bottom)]">
         <button
