@@ -334,26 +334,46 @@ export default function Tutorial({ onClose }) {
 
             {/* Restore Section */}
             <div className="p-3 bg-white rounded-lg border-l-4 border-green-600">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🛠️</span>
-                <p className="font-semibold text-sm text-gray-800">Restore</p>
-              </div>
-              <div className="space-y-2 text-xs text-gray-700">
-                <p>
-                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
-                </p>
-                <p>
-                  <span className="font-medium">What restores:</span>
-                </p>
-                <ul className="ml-3 space-y-1">
-                  <li>✓ All products with original details</li>
-                  <li>✓ All product images</li>
-                  <li>✓ Categories and deleted products</li>
-                </ul>
-                <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
-                  💡 Restore replaces your current catalogue with the backed-up data.
-                </p>
-              </div>
+              <button
+                onClick={() => setIsRestoreExpanded(!isRestoreExpanded)}
+                className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🛠️</span>
+                  <p className="font-semibold text-sm text-gray-800">Restore</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`text-xs text-gray-500 ${
+                    isRestoreExpanded
+                      ? "fade-out-hint"
+                      : ""
+                  }`}>
+                    tap to expand
+                  </span>
+                  <FiChevronDown
+                    className={`transition-transform ${isRestoreExpanded ? "rotate-180" : ""}`}
+                    size={16}
+                  />
+                </div>
+              </button>
+              {isRestoreExpanded && (
+                <div className="space-y-2 text-xs text-gray-700 mt-3">
+                  <p>
+                    <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
+                  </p>
+                  <p>
+                    <span className="font-medium">What restores:</span>
+                  </p>
+                  <ul className="ml-3 space-y-1">
+                    <li>✓ All products with original details</li>
+                    <li>✓ All product images</li>
+                    <li>✓ Categories and deleted products</li>
+                  </ul>
+                  <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
+                    💡 Restore replaces your current catalogue with the backed-up data.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
