@@ -289,7 +289,13 @@ const exportProductsToCSV = (products) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4"></div>
-          <h2 className="text-lg font-semibold mb-4">Menu</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            Me<span
+              onClick={handleNClick}
+              className="cursor-pointer hover:text-blue-600 transition"
+              title={showHiddenFeatures ? "Features unlocked! 🎉" : ""}
+            >n</span>u
+          </h2>
 
           <button
   onClick={() => setShowBackupPopup(true)}
