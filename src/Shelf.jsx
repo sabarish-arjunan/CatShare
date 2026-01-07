@@ -169,6 +169,10 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
         setDeletedProducts={setDeletedProducts}
         imageMap={globalImageMap}
         selected={[]}
+        onShowTutorial={() => {
+          navigate("/");
+          setMenuOpen(false);
+        }}
       />
 
       {showDeleteConfirm && (
