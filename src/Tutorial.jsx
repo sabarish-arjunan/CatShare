@@ -23,6 +23,8 @@ export default function Tutorial({ onClose }) {
   const [activeTab, setActiveTab] = useState("wholesale");
   const [isProductControlsExpanded, setIsProductControlsExpanded] = useState(false);
   const [isWholesaleFeaturesExpanded, setIsWholesaleFeaturesExpanded] = useState(false);
+  const [isBackupExpanded, setIsBackupExpanded] = useState(false);
+  const [isRestoreExpanded, setIsRestoreExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
