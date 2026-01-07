@@ -290,26 +290,46 @@ export default function Tutorial({ onClose }) {
           <div className="space-y-4">
             {/* Backup Section */}
             <div className="p-3 bg-white rounded-lg border-l-4 border-blue-600">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🛠️</span>
-                <p className="font-semibold text-sm text-gray-800">Backup</p>
-              </div>
-              <div className="space-y-2 text-xs text-gray-700">
-                <p>
-                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
-                </p>
-                <p>
-                  <span className="font-medium">File format:</span> Saves as <code className="bg-gray-100 px-1 rounded text-[11px]">catalogue-backup-[timestamp].zip</code>
-                </p>
-                <p>
-                  <span className="font-medium">Backup contents:</span>
-                </p>
-                <ul className="ml-3 space-y-1">
-                  <li>✓ All product data (names, prices, details)</li>
-                  <li>✓ All product images in images/ folder</li>
-                  <li>✓ Deleted products list</li>
-                </ul>
-              </div>
+              <button
+                onClick={() => setIsBackupExpanded(!isBackupExpanded)}
+                className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🛠️</span>
+                  <p className="font-semibold text-sm text-gray-800">Backup</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`text-xs text-gray-500 ${
+                    isBackupExpanded
+                      ? "fade-out-hint"
+                      : ""
+                  }`}>
+                    tap to expand
+                  </span>
+                  <FiChevronDown
+                    className={`transition-transform ${isBackupExpanded ? "rotate-180" : ""}`}
+                    size={16}
+                  />
+                </div>
+              </button>
+              {isBackupExpanded && (
+                <div className="space-y-2 text-xs text-gray-700 mt-3">
+                  <p>
+                    <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
+                  </p>
+                  <p>
+                    <span className="font-medium">File format:</span> Saves as <code className="bg-gray-100 px-1 rounded text-[11px]">catalogue-backup-[timestamp].zip</code>
+                  </p>
+                  <p>
+                    <span className="font-medium">Backup contents:</span>
+                  </p>
+                  <ul className="ml-3 space-y-1">
+                    <li>✓ All product data (names, prices, details)</li>
+                    <li>✓ All product images in images/ folder</li>
+                    <li>✓ Deleted products list</li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Restore Section */}
