@@ -79,8 +79,8 @@ export default function Tutorial({ onClose }) {
             className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
           >
             <span>Product Controls:</span>
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <span className="text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition">click</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="text-xs text-gray-500">tap to expand</span>
               <FiChevronDown
                 className={`transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}
                 size={18}
