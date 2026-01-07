@@ -11,6 +11,15 @@ const tutorialStyles = `
   .fade-out-hint {
     animation: fadeOut 0.6s ease-out forwards;
   }
+
+  @keyframes colorPulse {
+    0%, 100% { color: rgb(59, 130, 246); }
+    50% { color: rgb(239, 68, 68); }
+  }
+
+  .pulse-chevron {
+    animation: colorPulse 1s ease-in-out infinite;
+  }
 `;
 
 export default function Tutorial({ onClose }) {
