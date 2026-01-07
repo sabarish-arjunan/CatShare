@@ -31,6 +31,8 @@ export default function SideDrawer({
 const [isRendering, setIsRendering] = useState(false);
 const shouldRender = useRef(false);
 const [showRenderConfirm, setShowRenderConfirm] = useState(false);
+const [clickCountN, setClickCountN] = useState(0);
+const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
 const allproducts = JSON.parse(localStorage.getItem("products") || "[]");
 const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
