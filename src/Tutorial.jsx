@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit, FiChevronDown, FiPlus } from "react-icons/fi";
+import { FiEdit, FiChevronDown, FiPlus, FiPackage, FiList, FiFilter, FiDollarSign, FiDownload, FiTool, FiImage, FiCheckCircle } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
 
 const tutorialStyles = `
