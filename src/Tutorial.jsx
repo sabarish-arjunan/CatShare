@@ -175,35 +175,55 @@ export default function Tutorial({ onClose }) {
       icon: "🔀",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Wholesale Tab Features:</div>
-          <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
-              </svg>
-              <span>Find products by name</span>
+          <button
+            onClick={() => setIsWholesaleFeaturesExpanded(!isWholesaleFeaturesExpanded)}
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
+          >
+            <span>Wholesale Tab Features:</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`text-xs text-gray-500 ${
+                isWholesaleFeaturesExpanded
+                  ? "fade-out-hint"
+                  : ""
+              }`}>
+                tap to expand
+              </span>
+              <FiChevronDown
+                className={`transition-transform ${isWholesaleFeaturesExpanded ? "rotate-180" : ""}`}
+                size={18}
+              />
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
-              </svg>
-              <span>Filter by stock & category</span>
+          </button>
+          {isWholesaleFeaturesExpanded && (
+            <div className="space-y-2">
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
+                </svg>
+                <span>Find products by name</span>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
+                </svg>
+                <span>Filter by stock & category</span>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>Show product information</span>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
+                </svg>
+                <span>Export product images</span>
+              </div>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              <span>Show product information</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
-              </svg>
-              <span>Export product images</span>
-            </div>
-          </div>
+          )}
         </div>
       ),
     },
