@@ -11,7 +11,7 @@ import { saveRenderedImage } from "./Save";
 import RenderingOverlay from "./RenderingOverlay"; // path to the Lottie animation overlay
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { MdInventory2 } from "react-icons/md";
+import { MdInventory2, MdBackup, MdFolder, MdBook, MdImage } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 
 
