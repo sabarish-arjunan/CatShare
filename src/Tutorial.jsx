@@ -230,7 +230,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Wholesale vs Resell 🔀",
       description:
-        "Toggle between Wholesale and Resell tabs to view products with different pricing models. Each tab shows the same products but with prices tailored for different customer types.",
+        "Toggle between Wholesale and Resell tabs to view products with different pricing models.",
       icon: "💰",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
