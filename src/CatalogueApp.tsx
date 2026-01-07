@@ -38,29 +38,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
 
-  // Logo fullscreen state
-  const [showLogoFullscreen, setShowLogoFullscreen] = useState(false);
-  const logoFsRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (showLogoFullscreen && logoFsRef.current && !document.fullscreenElement) {
-      const el = logoFsRef.current as any;
-      if (el && el.requestFullscreen) {
-        el.requestFullscreen().catch(() => {});
-      }
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (document.fullscreenElement && document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        }
-        setShowLogoFullscreen(false);
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [showLogoFullscreen]);
-
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
       searchInputRef.current.focus();
