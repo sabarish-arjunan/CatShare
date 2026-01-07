@@ -179,7 +179,7 @@ export default function Tutorial({ onClose }) {
             onClick={() => setIsWholesaleFeaturesExpanded(!isWholesaleFeaturesExpanded)}
             className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
           >
-            <span>Wholesale Tab Features:</span>
+            <span>Tab Features:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
               <span className={`text-xs text-gray-500 ${
                 isWholesaleFeaturesExpanded
