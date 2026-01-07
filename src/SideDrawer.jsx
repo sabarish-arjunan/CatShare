@@ -43,6 +43,15 @@ const navigate = useNavigate();
 
   if (!open) return null;
 
+  const handleNClick = () => {
+    const newCount = clickCountN + 1;
+    setClickCountN(newCount);
+    if (newCount === 7) {
+      setShowHiddenFeatures(true);
+      setClickCountN(0); // Reset counter
+    }
+  };
+
   const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
   const zip = new JSZip();
