@@ -100,7 +100,13 @@ export default function Tutorial({ onClose }) {
           >
             <span>Product Controls:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="text-xs text-gray-500">tap to expand</span>
+              <span className={`text-xs text-gray-500 transition-opacity ${
+                isProductControlsExpanded
+                  ? "fade-out-hint"
+                  : "blink-hint"
+              }`}>
+                tap to expand
+              </span>
               <FiChevronDown
                 className={`transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}
                 size={18}
@@ -494,10 +500,12 @@ export default function Tutorial({ onClose }) {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-      onClick={onClose}
-    >
+    <>
+      <style>{tutorialStyles}</style>
+      <div
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+        onClick={onClose}
+      >
       <div
         className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
@@ -569,5 +577,6 @@ export default function Tutorial({ onClose }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
