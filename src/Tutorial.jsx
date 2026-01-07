@@ -490,7 +490,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Forge Images ⭐",
       description:
-        "Render images are required to share product images. After adding/editing products, renders happen automatically. But after Restore or Bulk Edit, you MUST manually render all images!",
+        "Render images to share products. Auto-renders after add/edit, but manual render needed after Restore or Bulk Edit.",
       icon: "🎯",
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
