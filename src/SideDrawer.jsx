@@ -12,6 +12,7 @@ import RenderingOverlay from "./RenderingOverlay"; // path to the Lottie animati
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { MdInventory2 } from "react-icons/md";
+import { RiEdit2Line } from "react-icons/ri";
 
 
 export default function SideDrawer({
