@@ -385,7 +385,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Extra Features ⚙️",
       description:
-        "Access additional tools from the side menu to manage deleted products, organize categories, and edit multiple products at once.",
+        "Access additional tools from the side menu.",
       icon: "⚙️",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
