@@ -124,7 +124,7 @@ export default function Tutorial({ onClose }) {
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
                 <MdInventory2 className="text-red-500 text-[18px]" />
-                <span>Move to trash (can restore)</span>
+                <span>Move to shelf (can restore)</span>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
                 <div className="flex items-center gap-2">
