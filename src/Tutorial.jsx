@@ -101,13 +101,6 @@ export default function Tutorial({ onClose }) {
           >
             <span>Product Controls:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className={`text-xs text-gray-500 ${
-                isProductControlsExpanded
-                  ? "fade-out-hint"
-                  : ""
-              }`}>
-                tap to expand
-              </span>
               <FiChevronDown
                 className={`transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}
                 size={18}
@@ -190,13 +183,6 @@ export default function Tutorial({ onClose }) {
           >
             <span>Tab Features:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className={`text-xs text-gray-500 ${
-                isWholesaleFeaturesExpanded
-                  ? "fade-out-hint"
-                  : ""
-              }`}>
-                tap to expand
-              </span>
               <FiChevronDown
                 className={`transition-transform ${isWholesaleFeaturesExpanded ? "rotate-180" : ""}`}
                 size={18}
@@ -306,13 +292,6 @@ export default function Tutorial({ onClose }) {
                   <p className="font-semibold text-sm text-gray-800">Backup</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`text-xs text-gray-500 ${
-                    isBackupExpanded
-                      ? "fade-out-hint"
-                      : ""
-                  }`}>
-                    tap to expand
-                  </span>
                   <FiChevronDown
                     className={`transition-transform ${isBackupExpanded ? "rotate-180" : ""}`}
                     size={16}
@@ -350,13 +329,6 @@ export default function Tutorial({ onClose }) {
                   <p className="font-semibold text-sm text-gray-800">Restore</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`text-xs text-gray-500 ${
-                    isRestoreExpanded
-                      ? "fade-out-hint"
-                      : ""
-                  }`}>
-                    tap to expand
-                  </span>
                   <FiChevronDown
                     className={`transition-transform ${isRestoreExpanded ? "rotate-180" : ""}`}
                     size={16}
@@ -404,13 +376,6 @@ export default function Tutorial({ onClose }) {
                 <p className="font-semibold text-sm text-gray-800">Shelf</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isShelfExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isShelfExpanded ? "rotate-180" : ""}`}
                   size={16}
@@ -448,13 +413,6 @@ export default function Tutorial({ onClose }) {
                 <p className="font-semibold text-sm text-gray-800">Manage Categories</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isManageCategoriesExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isManageCategoriesExpanded ? "rotate-180" : ""}`}
                   size={16}
@@ -489,13 +447,6 @@ export default function Tutorial({ onClose }) {
                 <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isBulkEditorExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isBulkEditorExpanded ? "rotate-180" : ""}`}
                   size={16}
@@ -539,13 +490,6 @@ export default function Tutorial({ onClose }) {
             >
               <p className="font-semibold text-sm text-gray-800">💾 What Render images Does:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isHowItWorksExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isHowItWorksExpanded ? "rotate-180" : ""}`}
                   size={16}
@@ -575,13 +519,6 @@ export default function Tutorial({ onClose }) {
             >
               <p className="font-semibold text-sm text-gray-800">✅ Auto-Render (Automatic):</p>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isAutoRenderExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isAutoRenderExpanded ? "rotate-180" : ""}`}
                   size={16}
@@ -603,13 +540,6 @@ export default function Tutorial({ onClose }) {
             >
               <p className="font-semibold text-sm text-gray-800">⚠️ Manual Render Required:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isManualRenderExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isManualRenderExpanded ? "rotate-180" : ""}`}
                   size={16}
@@ -640,13 +570,6 @@ export default function Tutorial({ onClose }) {
             >
               <p className="font-semibold text-sm text-gray-800">💡 Pro tip:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className={`text-xs text-gray-500 ${
-                  isProTipExpanded
-                    ? "fade-out-hint"
-                    : ""
-                }`}>
-                  tap to expand
-                </span>
                 <FiChevronDown
                   className={`transition-transform ${isProTipExpanded ? "rotate-180" : ""}`}
                   size={16}
