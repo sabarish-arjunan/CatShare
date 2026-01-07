@@ -657,7 +657,7 @@ export default function Tutorial({ onClose }) {
         </button>
 
         {/* Progress bar */}
-        <div className="w-full h-1 bg-gray-200 rounded-full mb-6 mt-8 overflow-hidden">
+        <div className="w-full h-0.5 bg-gray-200 rounded-full mb-6 overflow-hidden">
           <div
             className="h-full bg-blue-600 transition-all duration-300"
             style={{ width: `${progress}%` }}
