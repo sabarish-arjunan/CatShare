@@ -76,13 +76,16 @@ export default function Tutorial({ onClose }) {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
             onClick={() => setIsProductControlsExpanded(!isProductControlsExpanded)}
-            className="w-full flex items-center justify-between text-left text-sm font-semibold text-gray-700 mb-2 hover:text-gray-900 transition"
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
           >
             <span>Product Controls:</span>
-            <FiChevronDown
-              className={`transition-transform flex-shrink-0 ${isProductControlsExpanded ? "rotate-180" : ""}`}
-              size={18}
-            />
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <span className="text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition">click</span>
+              <FiChevronDown
+                className={`transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}
+                size={18}
+              />
+            </div>
           </button>
           {isProductControlsExpanded && (
             <div className="space-y-2">
