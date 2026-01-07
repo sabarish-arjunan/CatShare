@@ -261,20 +261,16 @@ export default function Tutorial({ onClose }) {
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-gray-700">Wholesale Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View products with <span className="font-semibold">wholesale pricing</span></p>
-                  <p>✓ Filter by stock status and categories</p>
-                  <p>✓ Bulk operations for business sales</p>
-                  <p>✓ Export product images for catalogs</p>
+                  <p>✓ View and share products with <span className="font-semibold">wholesale pricing</span></p>
+                  <p>✓ Manage stock availability of wholesale products separately</p>
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View products with <span className="font-semibold">retail pricing</span></p>
-                  <p>✓ Filter by stock status and categories</p>
-                  <p>✓ Show individual customer prices</p>
-                  <p>✓ Export product images with retail prices</p>
+                  <p>✓ View and share products with <span className="font-semibold">retail pricing</span></p>
+                  <p>✓ Manage stock availability of resell products separately</p>
                 </div>
               </div>
             )}
