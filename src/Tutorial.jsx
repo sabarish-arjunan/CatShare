@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiChevronDown } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
 
 export default function Tutorial({ onClose }) {
