@@ -79,9 +79,10 @@ export default function Tutorial({ onClose }) {
             className="w-full flex items-center justify-between text-left text-sm font-semibold text-gray-700 mb-2 hover:text-gray-900 transition"
           >
             <span>Product Controls:</span>
-            <span className={`text-xl transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}>
-              ▼
-            </span>
+            <FiChevronDown
+              className={`transition-transform flex-shrink-0 ${isProductControlsExpanded ? "rotate-180" : ""}`}
+              size={18}
+            />
           </button>
           {isProductControlsExpanded && (
             <div className="space-y-2">
