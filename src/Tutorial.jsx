@@ -28,6 +28,10 @@ export default function Tutorial({ onClose }) {
   const [isShelfExpanded, setIsShelfExpanded] = useState(false);
   const [isManageCategoriesExpanded, setIsManageCategoriesExpanded] = useState(false);
   const [isBulkEditorExpanded, setIsBulkEditorExpanded] = useState(false);
+  const [isHowItWorksExpanded, setIsHowItWorksExpanded] = useState(false);
+  const [isAutoRenderExpanded, setIsAutoRenderExpanded] = useState(false);
+  const [isManualRenderExpanded, setIsManualRenderExpanded] = useState(false);
+  const [isProTipExpanded, setIsProTipExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
