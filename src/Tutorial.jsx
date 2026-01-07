@@ -3,18 +3,9 @@ import { FiEdit, FiChevronDown } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
 
 const tutorialStyles = `
-  @keyframes blink {
-    0%, 49%, 100% { opacity: 1; }
-    50%, 99% { opacity: 0.3; }
-  }
-
   @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
-  }
-
-  .blink-hint {
-    animation: blink 1.5s ease-in-out infinite;
   }
 
   .fade-out-hint {
