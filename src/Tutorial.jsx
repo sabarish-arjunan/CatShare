@@ -79,14 +79,14 @@ export default function Tutorial({ onClose }) {
       title: "Welcome to CatShare",
       description:
         "Learn about the key features that help you manage your product catalogue effectively.",
-      icon: <FiPackage className="w-10 h-10 text-blue-600" />,
+      icon: <RiShoppingBag3Line className="w-10 h-10 text-purple-600" />,
       visualElements: null,
     },
     {
       title: "Create Products",
       description:
         "Click the blue '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. Click the edit icon on any product to modify it.",
-      icon: <FiEdit className="w-10 h-10 text-blue-600" />,
+      icon: <RiAddCircleLine className="w-10 h-10 text-blue-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-center">
@@ -102,7 +102,7 @@ export default function Tutorial({ onClose }) {
       title: "Manage Products",
       description:
         "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle WS/RS (Wholesale/Resell) In/Out stock status for each product.",
-      icon: <FiList className="w-10 h-10 text-blue-600" />,
+      icon: <RiLayout4Line className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
@@ -184,7 +184,7 @@ export default function Tutorial({ onClose }) {
       title: "Tab Actions",
       description:
         "Use action buttons in Wholesale and Resell tabs to filter, search, view details, and share product images.",
-      icon: <FiFilter className="w-10 h-10 text-blue-600" />,
+      icon: <RiSearchLine className="w-10 h-10 text-orange-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
@@ -236,7 +236,7 @@ export default function Tutorial({ onClose }) {
       title: "Wholesale vs Resell",
       description:
         "Toggle between Wholesale and Resell tabs to view products with different pricing models.",
-      icon: <FiDollarSign className="w-10 h-10 text-blue-600" />,
+      icon: <RiExchangeDollarLine className="w-10 h-10 text-red-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="flex gap-2 mb-4 min-w-0">
@@ -287,7 +287,7 @@ export default function Tutorial({ onClose }) {
       title: "Backup & Restore",
       description:
         "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products and images, then restore them whenever needed.",
-      icon: <FiDownload className="w-10 h-10 text-blue-600" />,
+      icon: <RiShieldLine className="w-10 h-10 text-cyan-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="space-y-4">
@@ -375,7 +375,7 @@ export default function Tutorial({ onClose }) {
       title: "Extra Features",
       description:
         "Access additional tools from the side menu.",
-      icon: <FiTool className="w-10 h-10 text-blue-600" />,
+      icon: <RiSettings4Line className="w-10 h-10 text-amber-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
           {/* Shelf Section */}
@@ -492,7 +492,7 @@ export default function Tutorial({ onClose }) {
       title: "Forge Images",
       description:
         "Render images to share products. Auto-renders after add/edit, but manual render needed after Restore or Bulk Edit.",
-      icon: <FiImage className="w-10 h-10 text-blue-600" />,
+      icon: <RiImage2Line className="w-10 h-10 text-pink-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
           {/* How It Works */}
@@ -602,7 +602,7 @@ export default function Tutorial({ onClose }) {
       title: "You're All Set!",
       description:
         "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render images to create professional catalogs!",
-      icon: <FiCheckCircle className="w-10 h-10 text-blue-600" />,
+      icon: <RiCheckDoubleLine className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
           <div className="text-center text-sm">
