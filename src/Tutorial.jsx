@@ -86,7 +86,7 @@ export default function Tutorial({ onClose }) {
       title: "Create Products",
       description:
         "Click the blue '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. Click the edit icon on any product to modify it.",
-      icon: <RiAddCircleLine className="w-10 h-10 text-blue-600" />,
+      icon: <RiAddCircleLine className="w-10 h-10 text-indigo-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-center">
