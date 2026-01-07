@@ -476,26 +476,46 @@ export default function Tutorial({ onClose }) {
 
           {/* Bulk Editor Section */}
           <div className="p-3 bg-white rounded-lg border-l-4 border-purple-500">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">✏️</span>
-              <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
-            </div>
-            <div className="space-y-2 text-xs text-gray-700">
-              <p>
-                <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
-              </p>
-              <p>
-                <span className="font-medium">What you can do:</span>
-              </p>
-              <ul className="ml-3 space-y-1">
-                <li>✓ Update pricing for many products together</li>
-                <li>✓ Change categories in bulk</li>
-                <li>✓ Modify other product details in bulk</li>
-              </ul>
-              <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
-                ⚡ Save time - update 50 products in seconds instead of one by one!
-              </p>
-            </div>
+            <button
+              onClick={() => setIsBulkEditorExpanded(!isBulkEditorExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">✏️</span>
+                <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-xs text-gray-500 ${
+                  isBulkEditorExpanded
+                    ? "fade-out-hint"
+                    : ""
+                }`}>
+                  tap to expand
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${isBulkEditorExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isBulkEditorExpanded && (
+              <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <p>
+                  <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
+                </p>
+                <p>
+                  <span className="font-medium">What you can do:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ Update pricing for many products together</li>
+                  <li>✓ Change categories in bulk</li>
+                  <li>✓ Modify other product details in bulk</li>
+                </ul>
+                <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
+                  ⚡ Save time - update 50 products in seconds instead of one by one!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       ),
