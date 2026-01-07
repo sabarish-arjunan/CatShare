@@ -354,7 +354,7 @@ const exportProductsToCSV = (products) => {
   onClick={() => setShowBulkEdit(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="text-gray-500">✏️</span>
+  <RiEdit2Line className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Bulk Editor</span>
 </button>
 
