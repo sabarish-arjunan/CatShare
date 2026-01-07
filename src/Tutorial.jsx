@@ -665,7 +665,13 @@ export default function Tutorial({ onClose }) {
 
         {/* Step icon and title */}
         <div className="text-center mb-6">
-          <div className="text-5xl mb-3">{step.icon}</div>
+          <div className="mb-3 flex justify-center">
+            {typeof step.icon === 'string' ? (
+              <div className="text-5xl">{step.icon}</div>
+            ) : (
+              step.icon
+            )}
+          </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             {step.title}
           </h2>
