@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit, FiChevronDown, FiPlus, FiPackage, FiList, FiFilter, FiDollarSign, FiDownload, FiTool, FiImage, FiCheckCircle } from "react-icons/fi";
+import { FiEdit, FiChevronDown, FiPlus } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
+import { RiShoppingBag3Line, RiAddCircleLine, RiLayout4Line, RiSearchLine, RiExchangeDollarLine, RiShieldLine, RiSettings4Line, RiImage2Line, RiCheckDoubleLine } from "react-icons/ri";
 
 const tutorialStyles = `
   @keyframes fadeOut {
