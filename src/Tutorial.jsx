@@ -193,7 +193,7 @@ export default function Tutorial({ onClose }) {
             <span>Tab Features:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
               <FiChevronDown
-                className={`transition-transform ${isWholesaleFeaturesExpanded ? "rotate-180" : ""}`}
+                className={`transition-transform ${isWholesaleFeaturesExpanded ? "rotate-180" : "pulse-chevron"}`}
                 size={18}
               />
             </div>
