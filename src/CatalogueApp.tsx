@@ -549,25 +549,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           </div>
         )}
 
-        {showLogoFullscreen && (
-          <div
-            ref={logoFsRef}
-            className="fixed inset-0 z-[60] bg-black flex items-center justify-center"
-            onClick={() => {
-              if (document.fullscreenElement && document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-              }
-              setShowLogoFullscreen(false);
-            }}
-          >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
-              alt="CatShare logo fullscreen"
-              className="max-w-[92vw] max-h-[92vh] w-auto h-auto"
-            />
-          </div>
-        )}
-
         {tab === "wholesale" && (
           <WholesaleTab
             filtered={visible}
