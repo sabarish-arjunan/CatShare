@@ -326,24 +326,28 @@ const exportProductsToCSV = (products) => {
   <span className="text-sm font-medium">Manage Categories</span>
 </button>
 
-<button
-  onClick={() => {
-    navigate('/retail');
-    onClose();
-  }}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  <span className="text-gray-500">🛍️</span>
-  <span className="text-sm font-medium">Retail</span>
-</button>
+{showHiddenFeatures && (
+  <>
+    <button
+      onClick={() => {
+        navigate('/retail');
+        onClose();
+      }}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+    >
+      <span className="text-gray-500">🛍️</span>
+      <span className="text-sm font-medium">Retail</span>
+    </button>
 
-<button
-  onClick={() => setShowMediaLibrary(true)}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  <span className="text-gray-500">🖼️</span>
-  <span className="text-sm font-medium">Media Library</span>
-</button>
+    <button
+      onClick={() => setShowMediaLibrary(true)}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+    >
+      <span className="text-gray-500">🖼️</span>
+      <span className="text-sm font-medium">Media Library</span>
+    </button>
+  </>
+)}
 
 <button
   onClick={() => setShowBulkEdit(true)}
