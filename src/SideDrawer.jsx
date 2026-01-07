@@ -31,6 +31,8 @@ export default function SideDrawer({
 const [isRendering, setIsRendering] = useState(false);
 const shouldRender = useRef(false);
 const [showRenderConfirm, setShowRenderConfirm] = useState(false);
+const [clickCountN, setClickCountN] = useState(0);
+const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
 const allproducts = JSON.parse(localStorage.getItem("products") || "[]");
 const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
@@ -40,6 +42,15 @@ const navigate = useNavigate();
 
 
   if (!open) return null;
+
+  const handleNClick = () => {
+    const newCount = clickCountN + 1;
+    setClickCountN(newCount);
+    if (newCount === 7) {
+      setShowHiddenFeatures(true);
+      setClickCountN(0); // Reset counter
+    }
+  };
 
   const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
@@ -278,7 +289,13 @@ const exportProductsToCSV = (products) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4"></div>
-          <h2 className="text-lg font-semibold mb-4">Menu</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            Me<span
+              onClick={handleNClick}
+              className="cursor-pointer"
+              title={showHiddenFeatures ? "Features unlocked! 🎉" : ""}
+            >n</span>u
+          </h2>
 
           <button
   onClick={() => setShowBackupPopup(true)}
@@ -309,24 +326,28 @@ const exportProductsToCSV = (products) => {
   <span className="text-sm font-medium">Manage Categories</span>
 </button>
 
-<button
-  onClick={() => {
-    navigate('/retail');
-    onClose();
-  }}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  <span className="text-gray-500">🛍️</span>
-  <span className="text-sm font-medium">Retail</span>
-</button>
+{showHiddenFeatures && (
+  <>
+    <button
+      onClick={() => {
+        navigate('/retail');
+        onClose();
+      }}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+    >
+      <span className="text-gray-500">🛍️</span>
+      <span className="text-sm font-medium">Retail</span>
+    </button>
 
-<button
-  onClick={() => setShowMediaLibrary(true)}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  <span className="text-gray-500">🖼️</span>
-  <span className="text-sm font-medium">Media Library</span>
-</button>
+    <button
+      onClick={() => setShowMediaLibrary(true)}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+    >
+      <span className="text-gray-500">🖼️</span>
+      <span className="text-sm font-medium">Media Library</span>
+    </button>
+  </>
+)}
 
 <button
   onClick={() => setShowBulkEdit(true)}
