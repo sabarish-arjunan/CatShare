@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit, FiChevronDown } from "react-icons/fi";
+import { FiEdit, FiChevronDown, FiPlus } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
+import { RiShoppingBag3Line, RiAddCircleLine, RiLayout4Line, RiSearchLine, RiExchangeDollarLine, RiShieldLine, RiSettings4Line, RiImage2Line, RiCheckDoubleLine } from "react-icons/ri";
 
 const tutorialStyles = `
   @keyframes fadeOut {
@@ -75,22 +76,22 @@ export default function Tutorial({ onClose }) {
 
   const steps = [
     {
-      title: "Welcome to CatShare 📦",
+      title: "Welcome to CatShare",
       description:
         "Learn about the key features that help you manage your product catalogue effectively.",
-      icon: "👋",
+      icon: <RiShoppingBag3Line className="w-10 h-10 text-purple-600" />,
       visualElements: null,
     },
     {
-      title: "Create Products ✏️",
+      title: "Create Products",
       description:
         "Click the blue '+' button at the bottom right to create a new product. Fill in name, pricing, categories, and upload an image. Click the edit icon on any product to modify it.",
-      icon: "📝",
+      icon: <RiAddCircleLine className="w-10 h-10 text-indigo-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full text-3xl">
-              ➕
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg hover:scale-105 transition">
+              <FiPlus size={24} />
             </div>
             <p className="text-xs text-gray-600 mt-2">Blue '+' button to create product</p>
           </div>
@@ -98,15 +99,15 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Manage Products 🛠️",
+      title: "Manage Products",
       description:
         "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle WS/RS (Wholesale/Resell) In/Out stock status for each product.",
-      icon: "📋",
+      icon: <RiLayout4Line className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
             onClick={() => setIsProductControlsExpanded(!isProductControlsExpanded)}
-            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-blue-100 hover:text-blue-900 cursor-pointer transition"
           >
             <span>Product Controls:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -124,7 +125,7 @@ export default function Tutorial({ onClose }) {
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
                 <MdInventory2 className="text-red-500 text-[18px]" />
-                <span>Move to trash (can restore)</span>
+                <span>Move to shelf (can restore)</span>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
                 <div className="flex items-center gap-2">
@@ -180,15 +181,15 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Tab Actions 🔍",
+      title: "Tab Actions",
       description:
-        "Use these action buttons available in both Wholesale and Resell tabs. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export product images.",
-      icon: "🔀",
+        "Use action buttons in Wholesale and Resell tabs to filter, search, view details, and share product images.",
+      icon: <RiSearchLine className="w-10 h-10 text-orange-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
             onClick={() => setIsWholesaleFeaturesExpanded(!isWholesaleFeaturesExpanded)}
-            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-blue-100 hover:text-blue-900 cursor-pointer transition"
           >
             <span>Tab Features:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -232,10 +233,10 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Wholesale vs Resell 🔀",
+      title: "Wholesale vs Resell",
       description:
         "Toggle between Wholesale and Resell tabs to view products with different pricing models.",
-      icon: "💰",
+      icon: <RiExchangeDollarLine className="w-10 h-10 text-red-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="flex gap-2 mb-4 min-w-0">
@@ -273,7 +274,7 @@ export default function Tutorial({ onClose }) {
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View and share products with <span className="font-semibold">retail pricing</span></p>
+                  <p>✓ View and share products with <span className="font-semibold">resell pricing</span></p>
                   <p>✓ Manage stock availability of resell products separately</p>
                 </div>
               </div>
@@ -283,10 +284,10 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Backup & Restore 💾",
+      title: "Backup & Restore",
       description:
         "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products and images, then restore them whenever needed.",
-      icon: "🛡️",
+      icon: <RiShieldLine className="w-10 h-10 text-cyan-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="space-y-4">
@@ -360,6 +361,9 @@ export default function Tutorial({ onClose }) {
                   <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
                     💡 Restore replaces your current catalogue with the backed-up data.
                   </p>
+                  <p className="text-red-700 bg-red-50 p-2 rounded">
+                    ⚠️ After restore, you MUST render images to share the created catalogues.
+                  </p>
                 </div>
               )}
             </div>
@@ -368,10 +372,10 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Extra Features ⚙️",
+      title: "Extra Features",
       description:
         "Access additional tools from the side menu.",
-      icon: "⚙️",
+      icon: <RiSettings4Line className="w-10 h-10 text-amber-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
           {/* Shelf Section */}
@@ -485,10 +489,10 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Forge Images ⭐",
+      title: "Forge Images",
       description:
-        "Render images are required to share product images. After adding/editing products, renders happen automatically. But after Restore or Bulk Edit, you MUST manually render all images!",
-      icon: "🎯",
+        "Render images to share products. Auto-renders after add/edit, but manual render needed after Restore or Bulk Edit.",
+      icon: <RiImage2Line className="w-10 h-10 text-pink-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
           {/* How It Works */}
@@ -595,10 +599,10 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "You're All Set! 🎉",
+      title: "You're All Set!",
       description:
         "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render images to create professional catalogs!",
-      icon: "✨",
+      icon: <RiCheckDoubleLine className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
           <div className="text-center text-sm">
@@ -653,16 +657,22 @@ export default function Tutorial({ onClose }) {
         </button>
 
         {/* Progress bar */}
-        <div className="w-full h-1 bg-gray-200 rounded-full mb-6 overflow-hidden">
+        <div className="w-full h-1 bg-gradient-to-r from-gray-200 to-gray-100 rounded-full mb-6 overflow-hidden shadow-sm">
           <div
-            className="h-full bg-blue-600 transition-all duration-300"
+            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 rounded-full shadow-md"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* Step icon and title */}
         <div className="text-center mb-6">
-          <div className="text-5xl mb-3">{step.icon}</div>
+          <div className="mb-3 flex justify-center">
+            {typeof step.icon === 'string' ? (
+              <div className="text-5xl">{step.icon}</div>
+            ) : (
+              step.icon
+            )}
+          </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             {step.title}
           </h2>
