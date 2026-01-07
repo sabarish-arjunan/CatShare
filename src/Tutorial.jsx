@@ -74,65 +74,75 @@ export default function Tutorial({ onClose }) {
       icon: "📋",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Product Controls:</div>
-          <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <FiEdit className="text-blue-600" size={16} />
-              <span>Modify product details</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <MdInventory2 className="text-red-500 text-[18px]" />
-              <span>Move to trash (can restore)</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setWsStock(!wsStock)}
-                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
-                    wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
-                  }`}
-                >
-                  {wsStock ? "WS In" : "WS Out"}
-                </button>
-                <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+          <button
+            onClick={() => setIsProductControlsExpanded(!isProductControlsExpanded)}
+            className="w-full flex items-center justify-between text-left text-sm font-semibold text-gray-700 mb-2 hover:text-gray-900 transition"
+          >
+            <span>Product Controls:</span>
+            <span className={`text-xl transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}>
+              ▼
+            </span>
+          </button>
+          {isProductControlsExpanded && (
+            <div className="space-y-2">
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <FiEdit className="text-blue-600" size={16} />
+                <span>Modify product details</span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setRsStock(!rsStock)}
-                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
-                    rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
-                  }`}
-                >
-                  {rsStock ? "RS In" : "RS Out"}
-                </button>
-                <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <MdInventory2 className="text-red-500 text-[18px]" />
+                <span>Move to trash (can restore)</span>
               </div>
-            </div>
-            <div className="p-3 bg-white border border-gray-300 rounded">
-              <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
-              <div className="space-y-1">
-                {dragItems.map((item, index) => (
-                  <div
-                    key={index}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      handleDragOver(index);
-                    }}
-                    onDragEnd={handleDragEnd}
-                    onDragLeave={() => setDragOverIndex(null)}
-                    className={`flex items-center gap-2 p-2 bg-gray-50 rounded cursor-move transition ${
-                      draggingIndex === index ? "opacity-50 bg-blue-100" : ""
-                    } ${dragOverIndex === index && draggingIndex !== index ? "border-t-2 border-blue-500" : ""}`}
+              <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setWsStock(!wsStock)}
+                    className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
+                      wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
+                    }`}
                   >
-                    <span className="text-gray-400 text-lg">☰</span>
-                    <span className="text-xs text-gray-700">{item}</span>
-                  </div>
-                ))}
+                    {wsStock ? "WS In" : "WS Out"}
+                  </button>
+                  <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setRsStock(!rsStock)}
+                    className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
+                      rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
+                    }`}
+                  >
+                    {rsStock ? "RS In" : "RS Out"}
+                  </button>
+                  <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
+                </div>
+              </div>
+              <div className="p-3 bg-white border border-gray-300 rounded">
+                <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
+                <div className="space-y-1">
+                  {dragItems.map((item, index) => (
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        handleDragOver(index);
+                      }}
+                      onDragEnd={handleDragEnd}
+                      onDragLeave={() => setDragOverIndex(null)}
+                      className={`flex items-center gap-2 p-2 bg-gray-50 rounded cursor-move transition ${
+                        draggingIndex === index ? "opacity-50 bg-blue-100" : ""
+                      } ${dragOverIndex === index && draggingIndex !== index ? "border-t-2 border-blue-500" : ""}`}
+                    >
+                      <span className="text-gray-400 text-lg">☰</span>
+                      <span className="text-xs text-gray-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       ),
     },
