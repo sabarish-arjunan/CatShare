@@ -11,7 +11,7 @@ import { saveRenderedImage } from "./Save";
 import RenderingOverlay from "./RenderingOverlay"; // path to the Lottie animation overlay
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { MdInventory2 } from "react-icons/md";
+import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 
 
@@ -58,6 +58,7 @@ const navigate = useNavigate();
   const zip = new JSZip();
 
   const dataForJson = [];
+  const deletedForJson = [];
 
   for (const p of products) {
     const product = { ...p };
@@ -82,7 +83,31 @@ const navigate = useNavigate();
     dataForJson.push(product);
   }
 
-  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted }, null, 2));
+  // Also process deleted products' images
+  for (const p of deleted) {
+    const product = { ...p };
+    delete product.imageBase64;
+
+    if (p.imagePath) {
+      try {
+        const res = await Filesystem.readFile({
+          path: p.imagePath,
+          directory: Directory.Data,
+        });
+
+        const imageFilename = p.imagePath.split("/").pop();
+        zip.file(`images/${imageFilename}`, res.data, { base64: true });
+
+        product.imageFilename = imageFilename; // map in JSON
+      } catch (err) {
+        console.warn("Could not read image:", p.imagePath);
+      }
+    }
+
+    deletedForJson.push(product);
+  }
+
+  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted: deletedForJson }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
   const reader = new FileReader();
@@ -261,8 +286,36 @@ const exportProductsToCSV = (products) => {
       localStorage.setItem("categories", JSON.stringify(categories));
 
       if (Array.isArray(parsed.deleted)) {
-        setDeletedProducts(parsed.deleted);
-        localStorage.setItem("deletedProducts", JSON.stringify(parsed.deleted));
+        // Also restore deleted products' images from the ZIP
+        const rebuiltDeleted = await Promise.all(
+          parsed.deleted.map(async (p) => {
+            if (p.imageFilename && p.imagePath) {
+              const imgFile = zip.file(`images/${p.imageFilename}`);
+              if (imgFile) {
+                const base64 = await imgFile.async("base64");
+
+                try {
+                  await Filesystem.writeFile({
+                    path: p.imagePath,
+                    data: base64,
+                    directory: Directory.Data,
+                    recursive: true,
+                  });
+                } catch (err) {
+                  console.warn("Image write failed for deleted product:", p.imagePath);
+                }
+              }
+            }
+
+            const clean = { ...p };
+            delete clean.imageBase64;
+            delete clean.imageFilename;
+            return clean;
+          })
+        );
+
+        setDeletedProducts(rebuiltDeleted);
+        localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
       }
 
       setShowRenderAfterRestore(true);
@@ -302,7 +355,7 @@ const exportProductsToCSV = (products) => {
   onClick={() => setShowBackupPopup(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="w-5 text-gray-500">🛠️</span>
+  <MdBackup className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Backup & Restore</span>
 </button>
 
@@ -323,7 +376,7 @@ const exportProductsToCSV = (products) => {
   onClick={() => setShowCategories(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="text-gray-500">🗂️</span>
+  <MdCategory className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Manage Categories</span>
 </button>
 
@@ -364,7 +417,7 @@ const exportProductsToCSV = (products) => {
   }}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="text-gray-500">🎓</span>
+  <MdBook className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Tutorial</span>
 </button>
 
@@ -378,7 +431,7 @@ const exportProductsToCSV = (products) => {
       : "bg-gray-800 text-white hover:bg-gray-700"
   }`}
 >
-  <span>🔁</span>
+  <MdImage className={`text-[18px] ${isRendering ? "text-gray-400" : "text-white"}`} />
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 

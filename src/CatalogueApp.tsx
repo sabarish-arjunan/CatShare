@@ -38,29 +38,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
 
-  // Logo fullscreen state
-  const [showLogoFullscreen, setShowLogoFullscreen] = useState(false);
-  const logoFsRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (showLogoFullscreen && logoFsRef.current && !document.fullscreenElement) {
-      const el = logoFsRef.current as any;
-      if (el && el.requestFullscreen) {
-        el.requestFullscreen().catch(() => {});
-      }
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (document.fullscreenElement && document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        }
-        setShowLogoFullscreen(false);
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [showLogoFullscreen]);
-
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -274,17 +251,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               }}
             >
               <span className="inline-flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowLogoFullscreen(true);
-                  }}
-                  className="p-1 m-0 inline-flex items-center justify-center shrink-0"
-                  aria-label="Open CatShare logo fullscreen"
-                >
-                  <img src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded pointer-events-none object-contain shrink-0" />
-                </button>
+                <img src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded object-contain shrink-0" />
                 <span>CatShare</span>
               </span>
             </h1>
@@ -579,25 +546,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 </button>
               </div>
             </div>
-          </div>
-        )}
-
-        {showLogoFullscreen && (
-          <div
-            ref={logoFsRef}
-            className="fixed inset-0 z-[60] bg-black flex items-center justify-center"
-            onClick={() => {
-              if (document.fullscreenElement && document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-              }
-              setShowLogoFullscreen(false);
-            }}
-          >
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
-              alt="CatShare logo fullscreen"
-              className="max-w-[92vw] max-h-[92vh] w-auto h-auto"
-            />
           </div>
         )}
 
