@@ -378,7 +378,7 @@ const exportProductsToCSV = (products) => {
       : "bg-gray-800 text-white hover:bg-gray-700"
   }`}
 >
-  <span>🔁</span>
+  <MdImage className={`text-[18px] ${isRendering ? "text-gray-400" : "text-white"}`} />
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
