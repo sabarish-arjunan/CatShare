@@ -360,6 +360,9 @@ export default function Tutorial({ onClose }) {
                   <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
                     💡 Restore replaces your current catalogue with the backed-up data.
                   </p>
+                  <p className="text-red-700 bg-red-50 p-2 rounded">
+                    ⚠️ After restore, you MUST render images to share the created catalogues.
+                  </p>
                 </div>
               )}
             </div>
