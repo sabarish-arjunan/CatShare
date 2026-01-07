@@ -292,7 +292,7 @@ const exportProductsToCSV = (products) => {
           <h2 className="text-lg font-semibold mb-4">
             Me<span
               onClick={handleNClick}
-              className="cursor-pointer hover:text-blue-600 transition"
+              className="cursor-pointer"
               title={showHiddenFeatures ? "Features unlocked! 🎉" : ""}
             >n</span>u
           </h2>
