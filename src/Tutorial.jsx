@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit, FiChevronDown } from "react-icons/fi";
+import { FiEdit, FiChevronDown, FiPlus } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
 
 const tutorialStyles = `
@@ -89,8 +89,8 @@ export default function Tutorial({ onClose }) {
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full text-3xl">
-              ➕
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg hover:scale-105 transition">
+              <FiPlus size={24} />
             </div>
             <p className="text-xs text-gray-600 mt-2">Blue '+' button to create product</p>
           </div>
