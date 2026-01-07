@@ -182,7 +182,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Tab Actions 🔍",
       description:
-        "Use these action buttons available in both Wholesale and Resell tabs. Use the filter icon to show/hide by stock and category. Click info icon to see details. Use share to export product images.",
+        "Use action buttons in Wholesale and Resell tabs to filter, search, view details, and share product images.",
       icon: "🔀",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
