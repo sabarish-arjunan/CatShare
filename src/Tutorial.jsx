@@ -22,6 +22,7 @@ export default function Tutorial({ onClose }) {
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [activeTab, setActiveTab] = useState("wholesale");
   const [isProductControlsExpanded, setIsProductControlsExpanded] = useState(false);
+  const [isWholesaleFeaturesExpanded, setIsWholesaleFeaturesExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
