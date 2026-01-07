@@ -58,6 +58,7 @@ const navigate = useNavigate();
   const zip = new JSZip();
 
   const dataForJson = [];
+  const deletedForJson = [];
 
   for (const p of products) {
     const product = { ...p };
@@ -82,7 +83,31 @@ const navigate = useNavigate();
     dataForJson.push(product);
   }
 
-  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted }, null, 2));
+  // Also process deleted products' images
+  for (const p of deleted) {
+    const product = { ...p };
+    delete product.imageBase64;
+
+    if (p.imagePath) {
+      try {
+        const res = await Filesystem.readFile({
+          path: p.imagePath,
+          directory: Directory.Data,
+        });
+
+        const imageFilename = p.imagePath.split("/").pop();
+        zip.file(`images/${imageFilename}`, res.data, { base64: true });
+
+        product.imageFilename = imageFilename; // map in JSON
+      } catch (err) {
+        console.warn("Could not read image:", p.imagePath);
+      }
+    }
+
+    deletedForJson.push(product);
+  }
+
+  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted: deletedForJson }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
   const reader = new FileReader();
