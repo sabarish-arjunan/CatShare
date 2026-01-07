@@ -302,7 +302,7 @@ const exportProductsToCSV = (products) => {
   onClick={() => setShowBackupPopup(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="w-5 text-gray-500">🛠️</span>
+  <MdBackup className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Backup & Restore</span>
 </button>
 
