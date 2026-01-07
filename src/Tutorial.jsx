@@ -13,8 +13,8 @@ const tutorialStyles = `
   }
 
   @keyframes colorPulse {
-    0%, 100% { color: rgb(59, 130, 246); }
-    50% { color: rgb(239, 68, 68); }
+    0%, 100% { color: rgb(209, 213, 219); }
+    50% { color: rgb(55, 65, 81); }
   }
 
   .pulse-chevron {
