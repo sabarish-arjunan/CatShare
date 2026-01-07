@@ -273,7 +273,7 @@ export default function Tutorial({ onClose }) {
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View and share products with <span className="font-semibold">retail pricing</span></p>
+                  <p>✓ View and share products with <span className="font-semibold">resell pricing</span></p>
                   <p>✓ Manage stock availability of resell products separately</p>
                 </div>
               </div>
