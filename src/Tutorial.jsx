@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiChevronDown } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
+
+const tutorialStyles = `
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .fade-out-hint {
+    animation: fadeOut 0.6s ease-out forwards;
+  }
+`;
 
 export default function Tutorial({ onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -10,6 +21,13 @@ export default function Tutorial({ onClose }) {
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [activeTab, setActiveTab] = useState("wholesale");
+  const [isProductControlsExpanded, setIsProductControlsExpanded] = useState(false);
+  const [isWholesaleFeaturesExpanded, setIsWholesaleFeaturesExpanded] = useState(false);
+  const [isBackupExpanded, setIsBackupExpanded] = useState(false);
+  const [isRestoreExpanded, setIsRestoreExpanded] = useState(false);
+  const [isShelfExpanded, setIsShelfExpanded] = useState(false);
+  const [isManageCategoriesExpanded, setIsManageCategoriesExpanded] = useState(false);
+  const [isBulkEditorExpanded, setIsBulkEditorExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
@@ -73,65 +91,85 @@ export default function Tutorial({ onClose }) {
       icon: "📋",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Product Controls:</div>
-          <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <FiEdit className="text-blue-600" size={16} />
-              <span>Modify product details</span>
+          <button
+            onClick={() => setIsProductControlsExpanded(!isProductControlsExpanded)}
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
+          >
+            <span>Product Controls:</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`text-xs text-gray-500 ${
+                isProductControlsExpanded
+                  ? "fade-out-hint"
+                  : ""
+              }`}>
+                tap to expand
+              </span>
+              <FiChevronDown
+                className={`transition-transform ${isProductControlsExpanded ? "rotate-180" : ""}`}
+                size={18}
+              />
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <MdInventory2 className="text-red-500 text-[18px]" />
-              <span>Move to trash (can restore)</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setWsStock(!wsStock)}
-                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
-                    wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
-                  }`}
-                >
-                  {wsStock ? "WS In" : "WS Out"}
-                </button>
-                <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+          </button>
+          {isProductControlsExpanded && (
+            <div className="space-y-2">
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <FiEdit className="text-blue-600" size={16} />
+                <span>Modify product details</span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setRsStock(!rsStock)}
-                  className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
-                    rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
-                  }`}
-                >
-                  {rsStock ? "RS In" : "RS Out"}
-                </button>
-                <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <MdInventory2 className="text-red-500 text-[18px]" />
+                <span>Move to trash (can restore)</span>
               </div>
-            </div>
-            <div className="p-3 bg-white border border-gray-300 rounded">
-              <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
-              <div className="space-y-1">
-                {dragItems.map((item, index) => (
-                  <div
-                    key={index}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      handleDragOver(index);
-                    }}
-                    onDragEnd={handleDragEnd}
-                    onDragLeave={() => setDragOverIndex(null)}
-                    className={`flex items-center gap-2 p-2 bg-gray-50 rounded cursor-move transition ${
-                      draggingIndex === index ? "opacity-50 bg-blue-100" : ""
-                    } ${dragOverIndex === index && draggingIndex !== index ? "border-t-2 border-blue-500" : ""}`}
+              <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setWsStock(!wsStock)}
+                    className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
+                      wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
+                    }`}
                   >
-                    <span className="text-gray-400 text-lg">☰</span>
-                    <span className="text-xs text-gray-700">{item}</span>
-                  </div>
-                ))}
+                    {wsStock ? "WS In" : "WS Out"}
+                  </button>
+                  <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setRsStock(!rsStock)}
+                    className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
+                      rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
+                    }`}
+                  >
+                    {rsStock ? "RS In" : "RS Out"}
+                  </button>
+                  <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
+                </div>
+              </div>
+              <div className="p-3 bg-white border border-gray-300 rounded">
+                <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
+                <div className="space-y-1">
+                  {dragItems.map((item, index) => (
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        handleDragOver(index);
+                      }}
+                      onDragEnd={handleDragEnd}
+                      onDragLeave={() => setDragOverIndex(null)}
+                      className={`flex items-center gap-2 p-2 bg-gray-50 rounded cursor-move transition ${
+                        draggingIndex === index ? "opacity-50 bg-blue-100" : ""
+                      } ${dragOverIndex === index && draggingIndex !== index ? "border-t-2 border-blue-500" : ""}`}
+                    >
+                      <span className="text-gray-400 text-lg">☰</span>
+                      <span className="text-xs text-gray-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       ),
     },
@@ -142,42 +180,62 @@ export default function Tutorial({ onClose }) {
       icon: "🔀",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="text-sm font-semibold text-gray-700 mb-2">Wholesale Tab Features:</div>
-          <div className="space-y-2">
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
-              </svg>
-              <span>Find products by name</span>
+          <button
+            onClick={() => setIsWholesaleFeaturesExpanded(!isWholesaleFeaturesExpanded)}
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-gray-200 hover:text-gray-900 cursor-pointer transition"
+          >
+            <span>Tab Features:</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`text-xs text-gray-500 ${
+                isWholesaleFeaturesExpanded
+                  ? "fade-out-hint"
+                  : ""
+              }`}>
+                tap to expand
+              </span>
+              <FiChevronDown
+                className={`transition-transform ${isWholesaleFeaturesExpanded ? "rotate-180" : ""}`}
+                size={18}
+              />
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
-              </svg>
-              <span>Filter by stock & category</span>
+          </button>
+          {isWholesaleFeaturesExpanded && (
+            <div className="space-y-2">
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
+                </svg>
+                <span>Find products by name</span>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
+                </svg>
+                <span>Filter by stock & category</span>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>Show product information</span>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
+                </svg>
+                <span>Export product images</span>
+              </div>
             </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              <span>Show product information</span>
-            </div>
-            <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
-              </svg>
-              <span>Export product images</span>
-            </div>
-          </div>
+          )}
         </div>
       ),
     },
     {
       title: "Wholesale vs Resell 🔀",
       description:
-        "Toggle between Wholesale and Resell tabs to view products with different pricing models. Each tab shows the same products but with prices tailored for different customer types.",
+        "Toggle between Wholesale and Resell tabs to view products with different pricing models.",
       icon: "💰",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
@@ -208,20 +266,16 @@ export default function Tutorial({ onClose }) {
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-gray-700">Wholesale Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View products with <span className="font-semibold">wholesale pricing</span></p>
-                  <p>✓ Filter by stock status and categories</p>
-                  <p>✓ Bulk operations for business sales</p>
-                  <p>✓ Export product images for catalogs</p>
+                  <p>✓ View and share products with <span className="font-semibold">wholesale pricing</span></p>
+                  <p>✓ Manage stock availability of wholesale products separately</p>
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View products with <span className="font-semibold">retail pricing</span></p>
-                  <p>✓ Filter by stock status and categories</p>
-                  <p>✓ Show individual customer prices</p>
-                  <p>✓ Export product images with retail prices</p>
+                  <p>✓ View and share products with <span className="font-semibold">retail pricing</span></p>
+                  <p>✓ Manage stock availability of resell products separately</p>
                 </div>
               </div>
             )}
@@ -239,50 +293,90 @@ export default function Tutorial({ onClose }) {
           <div className="space-y-4">
             {/* Backup Section */}
             <div className="p-3 bg-white rounded-lg border-l-4 border-blue-600">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🛠️</span>
-                <p className="font-semibold text-sm text-gray-800">Backup</p>
-              </div>
-              <div className="space-y-2 text-xs text-gray-700">
-                <p>
-                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
-                </p>
-                <p>
-                  <span className="font-medium">File format:</span> Saves as <code className="bg-gray-100 px-1 rounded text-[11px]">catalogue-backup-[timestamp].zip</code>
-                </p>
-                <p>
-                  <span className="font-medium">Backup contents:</span>
-                </p>
-                <ul className="ml-3 space-y-1">
-                  <li>✓ All product data (names, prices, details)</li>
-                  <li>✓ All product images in images/ folder</li>
-                  <li>✓ Deleted products list</li>
-                </ul>
-              </div>
+              <button
+                onClick={() => setIsBackupExpanded(!isBackupExpanded)}
+                className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🛠️</span>
+                  <p className="font-semibold text-sm text-gray-800">Backup</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`text-xs text-gray-500 ${
+                    isBackupExpanded
+                      ? "fade-out-hint"
+                      : ""
+                  }`}>
+                    tap to expand
+                  </span>
+                  <FiChevronDown
+                    className={`transition-transform ${isBackupExpanded ? "rotate-180" : ""}`}
+                    size={16}
+                  />
+                </div>
+              </button>
+              {isBackupExpanded && (
+                <div className="space-y-2 text-xs text-gray-700 mt-3">
+                  <p>
+                    <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
+                  </p>
+                  <p>
+                    <span className="font-medium">File format:</span> Saves as <code className="bg-gray-100 px-1 rounded text-[11px]">catalogue-backup-[timestamp].zip</code>
+                  </p>
+                  <p>
+                    <span className="font-medium">Backup contents:</span>
+                  </p>
+                  <ul className="ml-3 space-y-1">
+                    <li>✓ All product data (names, prices, details)</li>
+                    <li>✓ All product images in images/ folder</li>
+                    <li>✓ Deleted products list</li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Restore Section */}
             <div className="p-3 bg-white rounded-lg border-l-4 border-green-600">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🛠️</span>
-                <p className="font-semibold text-sm text-gray-800">Restore</p>
-              </div>
-              <div className="space-y-2 text-xs text-gray-700">
-                <p>
-                  <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
-                </p>
-                <p>
-                  <span className="font-medium">What restores:</span>
-                </p>
-                <ul className="ml-3 space-y-1">
-                  <li>✓ All products with original details</li>
-                  <li>✓ All product images</li>
-                  <li>✓ Categories and deleted products</li>
-                </ul>
-                <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
-                  💡 Restore replaces your current catalogue with the backed-up data.
-                </p>
-              </div>
+              <button
+                onClick={() => setIsRestoreExpanded(!isRestoreExpanded)}
+                className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🛠️</span>
+                  <p className="font-semibold text-sm text-gray-800">Restore</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`text-xs text-gray-500 ${
+                    isRestoreExpanded
+                      ? "fade-out-hint"
+                      : ""
+                  }`}>
+                    tap to expand
+                  </span>
+                  <FiChevronDown
+                    className={`transition-transform ${isRestoreExpanded ? "rotate-180" : ""}`}
+                    size={16}
+                  />
+                </div>
+              </button>
+              {isRestoreExpanded && (
+                <div className="space-y-2 text-xs text-gray-700 mt-3">
+                  <p>
+                    <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
+                  </p>
+                  <p>
+                    <span className="font-medium">What restores:</span>
+                  </p>
+                  <ul className="ml-3 space-y-1">
+                    <li>✓ All products with original details</li>
+                    <li>✓ All product images</li>
+                    <li>✓ Categories and deleted products</li>
+                  </ul>
+                  <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
+                    💡 Restore replaces your current catalogue with the backed-up data.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -291,77 +385,137 @@ export default function Tutorial({ onClose }) {
     {
       title: "Extra Features ⚙️",
       description:
-        "Access additional tools from the side menu to manage deleted products, organize categories, and edit multiple products at once.",
+        "Access additional tools from the side menu.",
       icon: "⚙️",
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
           {/* Shelf Section */}
           <div className="p-3 bg-white rounded-lg border-l-4 border-red-500">
-            <div className="flex items-center gap-2 mb-2">
-              <MdInventory2 className="text-red-500 text-[18px]" />
-              <p className="font-semibold text-sm text-gray-800">Shelf</p>
-            </div>
-            <div className="space-y-2 text-xs text-gray-700">
-              <p>
-                <span className="font-medium">What it is:</span> A recovery area for your deleted products.
-              </p>
-              <p>
-                <span className="font-medium">What you can do:</span>
-              </p>
-              <ul className="ml-3 space-y-1">
-                <li>✓ View all deleted products in one place</li>
-                <li>✓ Restore any deleted product back to your catalogue</li>
-                <li>✓ Permanently delete products if needed</li>
-              </ul>
-              <p className="text-blue-700 bg-blue-50 p-2 rounded mt-2">
-                💡 Deletion is temporary - check Shelf before moving on!
-              </p>
-            </div>
+            <button
+              onClick={() => setIsShelfExpanded(!isShelfExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+            >
+              <div className="flex items-center gap-2">
+                <MdInventory2 className="text-red-500 text-[18px]" />
+                <p className="font-semibold text-sm text-gray-800">Shelf</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-xs text-gray-500 ${
+                  isShelfExpanded
+                    ? "fade-out-hint"
+                    : ""
+                }`}>
+                  tap to expand
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${isShelfExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isShelfExpanded && (
+              <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <p>
+                  <span className="font-medium">What it is:</span> A recovery area for your deleted products.
+                </p>
+                <p>
+                  <span className="font-medium">What you can do:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ View all deleted products in one place</li>
+                  <li>✓ Restore any deleted product back to your catalogue</li>
+                  <li>✓ Permanently delete products if needed</li>
+                </ul>
+                <p className="text-blue-700 bg-blue-50 p-2 rounded mt-2">
+                  💡 Deletion is temporary - check Shelf before moving on!
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Manage Categories Section */}
           <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">🗂️</span>
-              <p className="font-semibold text-sm text-gray-800">Manage Categories</p>
-            </div>
-            <div className="space-y-2 text-xs text-gray-700">
-              <p>
-                <span className="font-medium">What it is:</span> Organize products by creating custom categories.
-              </p>
-              <p>
-                <span className="font-medium">What you can do:</span>
-              </p>
-              <ul className="ml-3 space-y-1">
-                <li>✓ Create new categories for different product types</li>
-                <li>✓ Assign products to multiple categories</li>
-                <li>✓ Filter products by category in all tabs</li>
-              </ul>
-            </div>
+            <button
+              onClick={() => setIsManageCategoriesExpanded(!isManageCategoriesExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🗂️</span>
+                <p className="font-semibold text-sm text-gray-800">Manage Categories</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-xs text-gray-500 ${
+                  isManageCategoriesExpanded
+                    ? "fade-out-hint"
+                    : ""
+                }`}>
+                  tap to expand
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${isManageCategoriesExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isManageCategoriesExpanded && (
+              <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <p>
+                  <span className="font-medium">What it is:</span> Organize products by creating custom categories.
+                </p>
+                <p>
+                  <span className="font-medium">What you can do:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ Create new categories for different product types</li>
+                  <li>✓ Assign products to multiple categories</li>
+                  <li>✓ Filter products by category in all tabs</li>
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Bulk Editor Section */}
           <div className="p-3 bg-white rounded-lg border-l-4 border-purple-500">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">✏️</span>
-              <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
-            </div>
-            <div className="space-y-2 text-xs text-gray-700">
-              <p>
-                <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
-              </p>
-              <p>
-                <span className="font-medium">What you can do:</span>
-              </p>
-              <ul className="ml-3 space-y-1">
-                <li>✓ Update pricing for many products together</li>
-                <li>✓ Change categories in bulk</li>
-                <li>✓ Modify other product details en masse</li>
-              </ul>
-              <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
-                ⚡ Save time - update 50 products in seconds instead of one by one!
-              </p>
-            </div>
+            <button
+              onClick={() => setIsBulkEditorExpanded(!isBulkEditorExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">✏️</span>
+                <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-xs text-gray-500 ${
+                  isBulkEditorExpanded
+                    ? "fade-out-hint"
+                    : ""
+                }`}>
+                  tap to expand
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${isBulkEditorExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isBulkEditorExpanded && (
+              <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <p>
+                  <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
+                </p>
+                <p>
+                  <span className="font-medium">What you can do:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ Update pricing for many products together</li>
+                  <li>✓ Change categories in bulk</li>
+                  <li>✓ Modify other product details in bulk</li>
+                </ul>
+                <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
+                  ⚡ Save time - update 50 products in seconds instead of one by one!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       ),
@@ -459,10 +613,12 @@ export default function Tutorial({ onClose }) {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-      onClick={onClose}
-    >
+    <>
+      <style>{tutorialStyles}</style>
+      <div
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+        onClick={onClose}
+      >
       <div
         className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
@@ -534,5 +690,6 @@ export default function Tutorial({ onClose }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
