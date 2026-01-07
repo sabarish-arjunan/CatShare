@@ -25,6 +25,9 @@ export default function Tutorial({ onClose }) {
   const [isWholesaleFeaturesExpanded, setIsWholesaleFeaturesExpanded] = useState(false);
   const [isBackupExpanded, setIsBackupExpanded] = useState(false);
   const [isRestoreExpanded, setIsRestoreExpanded] = useState(false);
+  const [isShelfExpanded, setIsShelfExpanded] = useState(false);
+  const [isManageCategoriesExpanded, setIsManageCategoriesExpanded] = useState(false);
+  const [isBulkEditorExpanded, setIsBulkEditorExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
