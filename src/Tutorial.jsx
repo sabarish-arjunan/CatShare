@@ -391,26 +391,46 @@ export default function Tutorial({ onClose }) {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
           {/* Shelf Section */}
           <div className="p-3 bg-white rounded-lg border-l-4 border-red-500">
-            <div className="flex items-center gap-2 mb-2">
-              <MdInventory2 className="text-red-500 text-[18px]" />
-              <p className="font-semibold text-sm text-gray-800">Shelf</p>
-            </div>
-            <div className="space-y-2 text-xs text-gray-700">
-              <p>
-                <span className="font-medium">What it is:</span> A recovery area for your deleted products.
-              </p>
-              <p>
-                <span className="font-medium">What you can do:</span>
-              </p>
-              <ul className="ml-3 space-y-1">
-                <li>✓ View all deleted products in one place</li>
-                <li>✓ Restore any deleted product back to your catalogue</li>
-                <li>✓ Permanently delete products if needed</li>
-              </ul>
-              <p className="text-blue-700 bg-blue-50 p-2 rounded mt-2">
-                💡 Deletion is temporary - check Shelf before moving on!
-              </p>
-            </div>
+            <button
+              onClick={() => setIsShelfExpanded(!isShelfExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+            >
+              <div className="flex items-center gap-2">
+                <MdInventory2 className="text-red-500 text-[18px]" />
+                <p className="font-semibold text-sm text-gray-800">Shelf</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-xs text-gray-500 ${
+                  isShelfExpanded
+                    ? "fade-out-hint"
+                    : ""
+                }`}>
+                  tap to expand
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${isShelfExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isShelfExpanded && (
+              <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <p>
+                  <span className="font-medium">What it is:</span> A recovery area for your deleted products.
+                </p>
+                <p>
+                  <span className="font-medium">What you can do:</span>
+                </p>
+                <ul className="ml-3 space-y-1">
+                  <li>✓ View all deleted products in one place</li>
+                  <li>✓ Restore any deleted product back to your catalogue</li>
+                  <li>✓ Permanently delete products if needed</li>
+                </ul>
+                <p className="text-blue-700 bg-blue-50 p-2 rounded mt-2">
+                  💡 Deletion is temporary - check Shelf before moving on!
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Manage Categories Section */}
