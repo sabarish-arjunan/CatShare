@@ -91,10 +91,10 @@ export default function Tutorial({ onClose }) {
           >
             <span>Product Controls:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <span className={`text-xs text-gray-500 transition-opacity ${
+              <span className={`text-xs text-gray-500 ${
                 isProductControlsExpanded
                   ? "fade-out-hint"
-                  : "blink-hint"
+                  : ""
               }`}>
                 tap to expand
               </span>
