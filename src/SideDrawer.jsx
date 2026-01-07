@@ -286,8 +286,36 @@ const exportProductsToCSV = (products) => {
       localStorage.setItem("categories", JSON.stringify(categories));
 
       if (Array.isArray(parsed.deleted)) {
-        setDeletedProducts(parsed.deleted);
-        localStorage.setItem("deletedProducts", JSON.stringify(parsed.deleted));
+        // Also restore deleted products' images from the ZIP
+        const rebuiltDeleted = await Promise.all(
+          parsed.deleted.map(async (p) => {
+            if (p.imageFilename && p.imagePath) {
+              const imgFile = zip.file(`images/${p.imageFilename}`);
+              if (imgFile) {
+                const base64 = await imgFile.async("base64");
+
+                try {
+                  await Filesystem.writeFile({
+                    path: p.imagePath,
+                    data: base64,
+                    directory: Directory.Data,
+                    recursive: true,
+                  });
+                } catch (err) {
+                  console.warn("Image write failed for deleted product:", p.imagePath);
+                }
+              }
+            }
+
+            const clean = { ...p };
+            delete clean.imageBase64;
+            delete clean.imageFilename;
+            return clean;
+          })
+        );
+
+        setDeletedProducts(rebuiltDeleted);
+        localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
       }
 
       setShowRenderAfterRestore(true);
