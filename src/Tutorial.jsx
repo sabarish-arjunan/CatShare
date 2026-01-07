@@ -356,7 +356,7 @@ export default function Tutorial({ onClose }) {
               <ul className="ml-3 space-y-1">
                 <li>✓ Update pricing for many products together</li>
                 <li>✓ Change categories in bulk</li>
-                <li>✓ Modify other product details en masse</li>
+                <li>✓ Modify other product details in bulk</li>
               </ul>
               <p className="text-green-700 bg-green-50 p-2 rounded mt-2">
                 ⚡ Save time - update 50 products in seconds instead of one by one!
