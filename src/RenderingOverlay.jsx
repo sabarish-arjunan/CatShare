@@ -69,7 +69,7 @@ export default function RenderingOverlay({ visible, current, total }) {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
+    <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
       <div className="w-64 h-64">
         <video
           src="/sim-render.mp4"
