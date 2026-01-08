@@ -567,7 +567,8 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-900 transition"
           onClick={() => {
             setShowRenderConfirm(false);
-            handleRenderAllPNGs();
+            onClose();
+            setTimeout(() => handleRenderAllPNGs(), 50);
           }}
         >
           Yes
