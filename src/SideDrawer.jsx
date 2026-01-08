@@ -532,9 +532,8 @@ const exportProductsToCSV = (products) => {
         <button
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
-            onClose();
             setShowRenderAfterRestore(false);
-            setTimeout(() => handleRenderAllPNGs(), 50);
+            handleRenderAllPNGs();
           }}
         >
           Continue
