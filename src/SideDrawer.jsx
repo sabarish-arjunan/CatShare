@@ -338,7 +338,7 @@ const exportProductsToCSV = (products) => {
         onClick={onClose}
       >
         <div
-          className="absolute left-0 w-64 bg-white shadow-lg p-4 overflow-y-auto"
+          className="absolute left-0 w-64 bg-white shadow-lg p-4 overflow-y-auto flex flex-col"
           style={{
             top: 0,
             height: "100%",
@@ -353,6 +353,8 @@ const exportProductsToCSV = (products) => {
               title={showHiddenFeatures ? "Features unlocked! 🎉" : ""}
             >n</span>u
           </h2>
+
+          <div className="flex-1"></div>
 
           <button
   onClick={() => setShowBackupPopup(true)}
