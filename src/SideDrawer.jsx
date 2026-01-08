@@ -446,7 +446,7 @@ const exportProductsToCSV = (products) => {
 <button
   onClick={() => setShowRenderConfirm(true)}
   disabled={isRendering}
-  className={`w-full flex items-center gap-3 px-5 py-3 mb-1 rounded-lg text-sm font-medium transition shadow-sm ${
+  className={`w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg text-sm font-medium transition shadow-sm ${
     isRendering
       ? "bg-gray-200 text-gray-400 cursor-not-allowed"
       : "bg-gray-800 text-white hover:bg-gray-700"
@@ -455,6 +455,30 @@ const exportProductsToCSV = (products) => {
   <MdImage className={`text-[18px] ${isRendering ? "text-gray-400" : "text-white"}`} />
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
+
+<div className="space-y-2 border-t pt-4 mt-5">
+  <button
+    onClick={() => {
+      navigate("/privacy");
+      onClose();
+    }}
+    className="w-full flex items-center gap-3 px-5 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm text-sm font-medium"
+  >
+    <MdDescription className="text-gray-500 text-[18px]" />
+    <span>Privacy Policy</span>
+  </button>
+
+  <button
+    onClick={() => {
+      navigate("/terms");
+      onClose();
+    }}
+    className="w-full flex items-center gap-3 px-5 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm text-sm font-medium"
+  >
+    <MdGavel className="text-gray-500 text-[18px]" />
+    <span>Terms of Service</span>
+  </button>
+</div>
 
 <div className="pt-4 mt-5 border-t text-center text-xs text-gray-400">
     Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
