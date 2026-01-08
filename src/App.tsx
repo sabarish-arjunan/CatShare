@@ -126,6 +126,8 @@ function AppWithBackHandler() {
               setProducts={setProducts}
               deletedProducts={deletedProducts}
               setDeletedProducts={setDeletedProducts}
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
             />
           }
         />
