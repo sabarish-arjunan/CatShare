@@ -14,6 +14,8 @@ import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
 import Shelf from "./Shelf";
 import Retail from "./Retail";
+import PrivacyPolicy from "./PrivacyPolicy";
+import TermsOfService from "./TermsOfService";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
@@ -25,6 +27,10 @@ function AppWithBackHandler() {
   const [deletedProducts, setDeletedProducts] = useState(() =>
     JSON.parse(localStorage.getItem("deletedProducts") || "[]")
   );
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   const isNative = Capacitor.getPlatform() !== "web";
 
@@ -67,6 +73,15 @@ function AppWithBackHandler() {
   useEffect(() => {
     localStorage.setItem("deletedProducts", JSON.stringify(deletedProducts));
   }, [deletedProducts]);
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     const handleNewProduct = () =>
@@ -113,6 +128,8 @@ function AppWithBackHandler() {
               setProducts={setProducts}
               deletedProducts={deletedProducts}
               setDeletedProducts={setDeletedProducts}
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
             />
           }
         />
@@ -130,6 +147,8 @@ function AppWithBackHandler() {
           }
         />
         <Route path="/retail" element={<Retail products={products} />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
       </Routes>
     </div>
   );

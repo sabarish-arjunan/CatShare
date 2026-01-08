@@ -16,7 +16,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -634,6 +634,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           setShowTutorial(true);
           setMenuOpen(false);
         }}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
 
       {showTutorial && (

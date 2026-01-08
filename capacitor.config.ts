@@ -2,12 +2,23 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.catshare.official',
-  appName: 'Catalogue Manager',
+  appName: 'CatShare',
   webDir: 'dist',
   bundledWebRuntime: false,
+  server: {
+    cleartext: false,
+  },
   plugins: {
     StatusBar: {
       overlay: false, // Do not draw under the status bar; system reserves inset
+    },
+    SplashScreen: {
+      launchShowDuration: 0,
+      launchAutoHide: true,
+      showSpinner: false,
+      iosSpinnerStyle: 'small',
+      androidSpinnerStyle: 'large',
+      spinnerColor: '#3b82f6',
     },
   },
 };

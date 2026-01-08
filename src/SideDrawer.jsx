@@ -13,6 +13,7 @@ import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 
 
 export default function SideDrawer({
@@ -24,6 +25,8 @@ export default function SideDrawer({
   setDeletedProducts,
   selected,
   onShowTutorial,
+  darkMode,
+  setDarkMode,
 }) {
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
@@ -421,6 +424,23 @@ const exportProductsToCSV = (products) => {
   <span className="text-sm font-medium">Tutorial</span>
 </button>
 
+<button
+  onClick={() => setDarkMode(!darkMode)}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+>
+  {darkMode ? (
+    <>
+      <MdLightMode className="text-gray-500 text-[18px]" />
+      <span className="text-sm font-medium">Light Mode</span>
+    </>
+  ) : (
+    <>
+      <MdDarkMode className="text-gray-500 text-[18px]" />
+      <span className="text-sm font-medium">Dark Mode</span>
+    </>
+  )}
+</button>
+
 <div>
 <button
   onClick={() => setShowRenderConfirm(true)}
@@ -435,8 +455,32 @@ const exportProductsToCSV = (products) => {
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
-<div className="pt-4 mt-5 border-t text-center text-xs text-gray-400">
-    Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
+<div className="pt-4 mt-5 border-t">
+    <div className="text-center text-xs text-gray-400 mb-3">
+      Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
+    </div>
+
+    <div className="flex justify-center items-center gap-3 text-xs">
+      <button
+        onClick={() => {
+          navigate("/privacy");
+          onClose();
+        }}
+        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+      >
+        Privacy Policy
+      </button>
+      <span className="text-gray-300 dark:text-gray-600">|</span>
+      <button
+        onClick={() => {
+          navigate("/terms");
+          onClose();
+        }}
+        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+      >
+        Terms of Service
+      </button>
+    </div>
   </div>
 
 {showBackupPopup && (
