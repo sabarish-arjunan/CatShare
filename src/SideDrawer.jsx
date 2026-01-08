@@ -594,34 +594,34 @@ const exportProductsToCSV = (products) => {
     </div>
   )}
 </div>
+        </div>
 
-          {/* Legal Links at Bottom */}
-          <div className="pt-4 border-t mt-4">
-            <div className="text-center text-xs text-gray-400 mb-3">
-              Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
-            </div>
+        {/* Legal Links - Fixed at Bottom */}
+        <div className="absolute left-0 w-64 bottom-0 bg-white border-t pt-3 pb-4">
+          <div className="text-center text-xs text-gray-400 mb-2 px-4">
+            Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
+          </div>
 
-            <div className="flex justify-center items-center gap-3 text-xs">
-              <button
-                onClick={() => {
-                  navigate("/privacy");
-                  onClose();
-                }}
-                className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-              >
-                Privacy Policy
-              </button>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <button
-                onClick={() => {
-                  navigate("/terms");
-                  onClose();
-                }}
-                className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-              >
-                Terms of Service
-              </button>
-            </div>
+          <div className="flex justify-center items-center gap-3 text-xs px-4">
+            <button
+              onClick={() => {
+                navigate("/privacy");
+                onClose();
+              }}
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <button
+              onClick={() => {
+                navigate("/terms");
+                onClose();
+              }}
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              Terms of Service
+            </button>
           </div>
         </div>
       </div>
