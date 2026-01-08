@@ -603,7 +603,7 @@ const exportProductsToCSV = (products) => {
         </div>
 
         {/* Legal Links - Fixed at Bottom */}
-        <div className="absolute left-0 w-64 bottom-0 bg-white border-t pt-3 pb-4">
+        <div className="absolute left-0 w-64 bottom-0 bg-white pt-3 pb-4">
           <div className="flex justify-center items-center gap-3 text-xs px-4">
             <button
               onClick={() => {
