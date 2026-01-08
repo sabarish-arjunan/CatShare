@@ -27,3 +27,98 @@ html, body, #root {
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Dark Mode Styles */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body,
+html.dark #root {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+html.dark {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3d3d3d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #404040;
+}
+
+/* Dark mode for components */
+html.dark .bg-white {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+html.dark .text-gray-800 {
+  color: #e0e0e0;
+}
+
+html.dark .text-gray-600 {
+  color: #b0b0b0;
+}
+
+html.dark .text-gray-500 {
+  color: #909090;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #3d3d3d;
+}
+
+html.dark .bg-gray-100:hover {
+  background-color: #4d4d4d;
+}
+
+html.dark .bg-gray-200 {
+  background-color: #4d4d4d;
+}
+
+html.dark .bg-gray-300 {
+  background-color: #505050;
+}
+
+html.dark .bg-gray-400 {
+  background-color: #606060;
+}
+
+html.dark .border {
+  border-color: #404040;
+}
+
+html.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+html.dark .shadow-lg {
+  box-shadow: 0 10px 15px 0 rgba(0, 0, 0, 0.7);
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #3d3d3d;
+  color: #e0e0e0;
+  border-color: #505050;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #808080;
+}
+
+html.dark .backdrop-blur-sm {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+html.dark .backdrop-blur-lg {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+html.dark .backdrop-blur-xl {
+  background-color: rgba(0, 0, 0, 0.75);
+}
