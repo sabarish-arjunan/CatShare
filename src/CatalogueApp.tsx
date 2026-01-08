@@ -634,6 +634,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           setShowTutorial(true);
           setMenuOpen(false);
         }}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
       />
 
       {showTutorial && (
