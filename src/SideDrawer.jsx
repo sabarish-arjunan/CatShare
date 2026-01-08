@@ -593,15 +593,17 @@ const exportProductsToCSV = (products) => {
       />
     </div>
   )}
+
+<div className="pt-4 mt-5 border-t">
+    <div className="text-center text-xs text-gray-400 mb-3">
+      Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
+    </div>
+  </div>
 </div>
         </div>
 
         {/* Legal Links - Fixed at Bottom */}
         <div className="absolute left-0 w-64 bottom-0 bg-white border-t pt-3 pb-4">
-          <div className="text-center text-xs text-gray-400 mb-2 px-4">
-            Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
-          </div>
-
           <div className="flex justify-center items-center gap-3 text-xs px-4">
             <button
               onClick={() => {
