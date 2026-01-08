@@ -455,34 +455,6 @@ const exportProductsToCSV = (products) => {
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
-<div className="pt-4 mt-5 border-t">
-    <div className="text-center text-xs text-gray-400 mb-3">
-      Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
-    </div>
-
-    <div className="flex justify-center items-center gap-3 text-xs">
-      <button
-        onClick={() => {
-          navigate("/privacy");
-          onClose();
-        }}
-        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-      >
-        Privacy Policy
-      </button>
-      <span className="text-gray-300 dark:text-gray-600">|</span>
-      <button
-        onClick={() => {
-          navigate("/terms");
-          onClose();
-        }}
-        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-      >
-        Terms of Service
-      </button>
-    </div>
-  </div>
-
 {showBackupPopup && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
   onClick={() => setShowBackupPopup(false)}
@@ -560,9 +532,9 @@ const exportProductsToCSV = (products) => {
         <button
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
+            onClose();
             setShowRenderAfterRestore(false);
-            handleRenderAllPNGs();
-            setTimeout(onClose, 100);
+            setTimeout(() => handleRenderAllPNGs(), 50);
           }}
         >
           Continue
@@ -595,7 +567,8 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-900 transition"
           onClick={() => {
             setShowRenderConfirm(false);
-            handleRenderAllPNGs();
+            onClose();
+            setTimeout(() => handleRenderAllPNGs(), 50);
           }}
         >
           Yes
@@ -621,10 +594,38 @@ const exportProductsToCSV = (products) => {
       />
     </div>
   )}
+
+<div className="pt-4 mt-5 border-t">
+    <div className="text-center text-xs text-gray-400 mb-3">
+      Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
+    </div>
+  </div>
 </div>
+        </div>
 
-
-
+        {/* Legal Links - Fixed at Bottom */}
+        <div className="absolute left-0 w-64 bottom-0 bg-white border-t pt-3 pb-4">
+          <div className="flex justify-center items-center gap-3 text-xs px-4">
+            <button
+              onClick={() => {
+                navigate("/privacy");
+                onClose();
+              }}
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <button
+              onClick={() => {
+                navigate("/terms");
+                onClose();
+              }}
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              Terms of Service
+            </button>
+          </div>
         </div>
       </div>
 

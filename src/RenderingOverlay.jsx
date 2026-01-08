@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import { KeepAwake } from "@capacitor-community/keep-awake";
 
 const getPageBackgroundColor = () => {
@@ -68,8 +69,8 @@ export default function RenderingOverlay({ visible, current, total }) {
 
   if (!visible) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
       <div className="w-64 h-64">
         <video
           src="/sim-render.mp4"
@@ -96,6 +97,7 @@ export default function RenderingOverlay({ visible, current, total }) {
       <p className="text-xs text-red-500 mt-2">
         ⚠️ Please keep the app open until rendering completes.
       </p>
-    </div>
+    </div>,
+    document.body
   );
 }
