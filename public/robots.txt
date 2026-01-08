@@ -1,0 +1,24 @@
+# CatShare - Product Catalog Manager
+# Allow all search engines to crawl and index the site
+
+User-agent: *
+Allow: /
+Allow: /icons/
+Allow: /manifest.json
+Disallow: /admin/
+Disallow: /private/
+Disallow: /*.json$
+
+# Google Search Console
+User-agent: Googlebot
+Allow: /
+
+# Bing Webmaster Tools
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay to prevent overwhelming the server
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://catshare.app/sitemap.xml
