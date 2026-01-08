@@ -25,6 +25,8 @@ export default function SideDrawer({
   setDeletedProducts,
   selected,
   onShowTutorial,
+  darkMode,
+  setDarkMode,
 }) {
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
