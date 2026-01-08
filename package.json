@@ -73,9 +73,9 @@
     "sharp": "^0.33.4",
     "node-fetch": "^3.3.2"
   },
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules. One top of the standard Vite setup, [tailwindcss](https://tailwindcss.com/) is installed and ready to be used in React components.",
+  "description": "CatShare - A powerful mobile-first product catalog and inventory management app. Create, organize, and share product listings with customers across multiple channels. Features include bulk editing, image rendering, backup & restore, and multi-format export.",
   "main": "postcss.config.js",
-  "keywords": [],
+  "keywords": ["catalog", "product management", "inventory", "app", "e-commerce", "retail", "wholesale", "product listing", "ecommerce tools", "business app"],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
