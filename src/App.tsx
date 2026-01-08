@@ -25,6 +25,10 @@ function AppWithBackHandler() {
   const [deletedProducts, setDeletedProducts] = useState(() =>
     JSON.parse(localStorage.getItem("deletedProducts") || "[]")
   );
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   const isNative = Capacitor.getPlatform() !== "web";
 
