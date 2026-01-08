@@ -594,7 +594,7 @@ const exportProductsToCSV = (products) => {
     </div>
   )}
 
-<div className="pt-4 mt-5 border-t">
+<div className="pt-4 mt-5">
     <div className="text-center text-xs text-gray-400 mb-3">
       Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
     </div>
