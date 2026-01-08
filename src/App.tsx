@@ -73,6 +73,15 @@ function AppWithBackHandler() {
   }, [deletedProducts]);
 
   useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
     const handleNewProduct = () =>
       setProducts(JSON.parse(localStorage.getItem("products") || "[]"));
     window.addEventListener("product-added", handleNewProduct);
