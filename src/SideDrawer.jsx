@@ -13,6 +13,7 @@ import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 
 
 export default function SideDrawer({
