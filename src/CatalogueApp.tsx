@@ -346,7 +346,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
       <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
-        {tab === "products" && (
+        {tab === "products" && visible.length === 0 && (
+          <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
+        )}
+
+        {tab === "products" && visible.length > 0 && (
           <DragDropContext onDragEnd={({ source, destination }) => {
             if (!destination) return;
             const copy = [...products];
