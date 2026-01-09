@@ -55,8 +55,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       id: 'backup',
       icon: <RiFileList2Line className="w-6 h-6 text-gray-600" />,
       title: 'Backup & Export',
-      description: 'Protect your data and export as needed',
-      details: 'Create complete backups of your catalog with all images. Export product data to CSV for analysis or import into other systems. Restore from backups anytime.',
+      description: 'Protect your data with backups and exports',
+      details: 'Create JSON backups of your complete product catalog. Export product data to CSV for analysis or import into other systems. Restore from backups anytime.',
     },
   ];
 
