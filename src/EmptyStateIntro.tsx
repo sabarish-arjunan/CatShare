@@ -94,7 +94,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             className="w-14 h-14 rounded shadow"
           />
         </div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Welcome to CatShare</h1>
+        <h1 className="text-xl font-bold text-gray-700 mb-2">Welcome to CatShare</h1>
         <p className="text-sm text-gray-600 mb-1">
           Your all-in-one product catalog and inventory management solution
         </p>
