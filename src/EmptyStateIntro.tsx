@@ -106,7 +106,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       {/* Key Features Section */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <RiLighbulbFlashLine className="w-6 h-6 text-yellow-500" />
+          <RiLightbulbFlashLine className="w-6 h-6 text-yellow-500" />
           Key Features
         </h2>
 
