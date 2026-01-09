@@ -7,6 +7,7 @@ import WholesaleTab from "./Wholesale";
 import ResellTab from "./Resell";
 import ProductPreviewModal from "./ProductPreviewModal";
 import Tutorial from "./Tutorial";
+import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
@@ -345,7 +346,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
       <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
-        {tab === "products" && (
+        {tab === "products" && visible.length === 0 && (
+          <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
+        )}
+
+        {tab === "products" && visible.length > 0 && (
           <DragDropContext onDragEnd={({ source, destination }) => {
             if (!destination) return;
             const copy = [...products];
