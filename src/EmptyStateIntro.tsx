@@ -12,7 +12,11 @@ import {
   RiLighbulbFlashLine,
 } from 'react-icons/ri';
 
-export default function EmptyStateIntro({ onCreateProduct }) {
+interface EmptyStateIntroProps {
+  onCreateProduct: () => void;
+}
+
+export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const toggleSection = (section: string) => {
