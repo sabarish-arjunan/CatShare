@@ -175,7 +175,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               <div className="pt-0.5">
                 <h3 className="font-semibold text-sm text-gray-700">Organize & Render</h3>
                 <p className="text-xs text-gray-500">
-                  Organize with categories, set stock levels, and render products as professional images
+                  Organize with categories, mark stock status, and render products as professional images
                 </p>
               </div>
             </div>
