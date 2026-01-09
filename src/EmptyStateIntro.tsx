@@ -269,7 +269,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       <div className="bg-gray-200 border border-gray-400 rounded-lg p-3 text-xs text-gray-700">
         <p className="font-semibold mb-1">💡 Pro Tip:</p>
         <p>
-          Access the full tutorial anytime from the menu. Learn about bulk editing, JSON backups, image rendering, CSV export, and category management to maximize your productivity!
+          Access the full tutorial anytime from the menu. Learn about bulk editing, JSON backups, image rendering, and category management to maximize your productivity!
         </p>
       </div>
     </div>
