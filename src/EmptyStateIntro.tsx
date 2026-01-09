@@ -68,8 +68,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
     },
     {
       title: 'Wholesale Distributors',
-      description: 'Track wholesale and resell separately',
-      benefits: ['Two-tier pricing', 'Inventory tracking', 'Quick sharing'],
+      description: 'Manage wholesale and resell separately',
+      benefits: ['Two-tier pricing', 'Stock status tracking', 'Quick sharing'],
     },
     {
       title: 'Retail Businesses',
