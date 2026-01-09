@@ -28,7 +28,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       icon: <RiShoppingBag3Line className="w-6 h-6 text-gray-600" />,
       title: 'Create Products',
       description: 'Build your product catalog with images and details',
-      details: 'Add product names, subtitles, pricing, categories, and images. Each product stores all the information you need to track and manage your inventory.',
+      details: 'Add product names, subtitles, pricing for wholesale and resale, categories, and images. Store all the information you need to organize and present your products.',
     },
     {
       id: 'organize',
