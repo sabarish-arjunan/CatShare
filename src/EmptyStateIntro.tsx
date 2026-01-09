@@ -78,7 +78,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
     },
     {
       title: 'Small Businesses',
-      description: 'Simple yet powerful inventory management',
+      description: 'Simple yet powerful product management',
       benefits: ['Easy to use', 'No setup required', 'Works offline'],
     },
   ];
