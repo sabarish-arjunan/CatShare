@@ -63,7 +63,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
   const useCases = [
     {
       title: 'E-commerce Sellers',
-      description: 'Manage product listings efficiently',
+      description: 'Manage product listings and pricing',
       benefits: ['Bulk editing', 'Professional images', 'Easy sharing'],
     },
     {
