@@ -7,6 +7,7 @@ import WholesaleTab from "./Wholesale";
 import ResellTab from "./Resell";
 import ProductPreviewModal from "./ProductPreviewModal";
 import Tutorial from "./Tutorial";
+import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
