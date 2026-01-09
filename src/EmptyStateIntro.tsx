@@ -34,8 +34,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       id: 'organize',
       icon: <RiImageAddLine className="w-6 h-6 text-gray-600" />,
       title: 'Organize & Manage',
-      description: 'Keep your inventory organized and up-to-date',
-      details: 'Drag to reorder products, categorize them, set stock levels, and manage wholesale vs. resell pricing. Bulk edit multiple items at once to save time.',
+      description: 'Keep your products organized and easily accessible',
+      details: 'Drag to reorder products, categorize them, and mark stock as IN or OUT for wholesale and resell channels. Bulk edit multiple items at once to save time.',
     },
     {
       id: 'share',
