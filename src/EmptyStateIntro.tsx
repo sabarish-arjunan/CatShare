@@ -27,8 +27,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       id: 'create',
       icon: <RiShoppingBag3Line className="w-6 h-6 text-gray-600" />,
       title: 'Create Products',
-      description: 'Build your product catalog with detailed information',
-      details: 'Add product names, descriptions, pricing, categories, and high-quality images. Each product can have multiple variants and custom fields for your specific needs.',
+      description: 'Build your product catalog with images and details',
+      details: 'Add product names, subtitles, pricing, categories, and images. Each product stores all the information you need to track and manage your inventory.',
     },
     {
       id: 'organize',
@@ -40,46 +40,46 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
     {
       id: 'share',
       icon: <RiShareForwardLine className="w-6 h-6 text-gray-600" />,
-      title: 'Share with Customers',
-      description: 'Export and share your catalog in multiple formats',
-      details: 'Generate beautiful HTML previews, PDF catalogs, or image galleries. Share links with customers, retailers, or wholesalers across multiple channels.',
+      title: 'Share Product Images',
+      description: 'Render and share professional product previews',
+      details: 'Generate beautiful product images with your custom pricing, colors, and branding. Share rendered images with customers, retailers, and wholesalers through any channel.',
     },
     {
       id: 'collaborate',
-      icon: <RiGroupLine className="w-6 h-6 text-gray-600" />,
+      icon: <RiExchangeDollarLine className="w-6 h-6 text-gray-600" />,
       title: 'Wholesale & Resell',
       description: 'Manage different pricing tiers for different channels',
-      details: 'Create separate wholesale and resell pricing. Track inventory separately for each channel. Set stock status independently for wholesale and resale.',
+      details: 'Create separate wholesale and resell pricing. Track inventory levels independently for each channel. Set pricing, units, and stock status separately.',
     },
     {
       id: 'backup',
       icon: <RiFileList2Line className="w-6 h-6 text-gray-600" />,
-      title: 'Backup & Restore',
-      description: 'Never lose your data with automatic backups',
-      details: 'Create backups of your entire catalog. Restore from previous versions anytime. Export your data in JSON format for safekeeping.',
+      title: 'Backup & Export',
+      description: 'Protect your data and export as needed',
+      details: 'Create complete backups of your catalog with all images. Export product data to CSV for analysis or import into other systems. Restore from backups anytime.',
     },
   ];
 
   const useCases = [
     {
       title: 'E-commerce Sellers',
-      description: 'Manage multiple product listings across platforms',
-      benefits: ['Multi-channel support', 'Bulk editing', 'Easy sharing'],
+      description: 'Manage product listings efficiently',
+      benefits: ['Bulk editing', 'Professional images', 'Easy sharing'],
     },
     {
       title: 'Wholesale Distributors',
-      description: 'Track wholesale and resell pricing separately',
+      description: 'Track wholesale and resell separately',
       benefits: ['Two-tier pricing', 'Inventory tracking', 'Quick sharing'],
     },
     {
       title: 'Retail Businesses',
-      description: 'Create beautiful catalogs for your customers',
-      benefits: ['Professional previews', 'Mobile-friendly', 'Print-ready exports'],
+      description: 'Professional product management',
+      benefits: ['Custom branding', 'Category organization', 'Mobile-friendly'],
     },
     {
       title: 'Small Businesses',
       description: 'Simple yet powerful inventory management',
-      benefits: ['Easy to use', 'No setup required', 'Free & offline'],
+      benefits: ['Easy to use', 'No setup required', 'Works offline'],
     },
   ];
 
@@ -96,10 +96,10 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
         </div>
         <h1 className="text-xl font-bold text-gray-600 mb-2">Welcome to CatShare</h1>
         <p className="text-sm text-gray-500 mb-1">
-          Your all-in-one product catalog and inventory management solution
+          Create, organize, and share your product catalog
         </p>
         <p className="text-xs text-gray-400">
-          Create, organize, and share your product listings with customers across multiple channels
+          Professional product management and inventory tracking for your business
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               <button
                 onClick={() => toggleSection(feature.id)}
                 className="w-full p-3 flex items-start gap-2 hover:bg-gray-50 transition-colors text-left"
-                >
+              >
                 <div className="mt-0.5 shrink-0">{feature.icon}</div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm text-gray-700">{feature.title}</h3>
@@ -159,7 +159,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               <div className="pt-0.5">
                 <h3 className="font-semibold text-sm text-gray-700">Create Products</h3>
                 <p className="text-xs text-gray-500">
-                  Click the '+' button to add your first product with name, price, image, and details
+                  Click the '+' button to add your first product with image, name, pricing, and details
                 </p>
               </div>
             </div>
@@ -173,9 +173,9 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
                 <div className="w-0.5 h-10 bg-gray-400 my-1" />
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-700">Organize & Manage</h3>
+                <h3 className="font-semibold text-sm text-gray-700">Organize & Render</h3>
                 <p className="text-xs text-gray-500">
-                  Drag to reorder, set stock levels, and manage wholesale vs resell pricing
+                  Organize with categories, set stock levels, and render products as professional images
                 </p>
               </div>
             </div>
@@ -188,9 +188,9 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
                 </div>
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-700">Share with Customers</h3>
+                <h3 className="font-semibold text-sm text-gray-700">Share & Manage</h3>
                 <p className="text-xs text-gray-500">
-                  Export as HTML, PDF, or share links with your customers and retailers
+                  Share images with customers, backup your data, and manage inventory
                 </p>
               </div>
             </div>
@@ -230,17 +230,17 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
             'Create unlimited products',
-            'Upload multiple images',
+            'Upload product images',
             'Set wholesale & resell prices',
             'Track inventory levels',
             'Drag to reorder products',
             'Bulk edit items',
-            'Export as HTML/PDF',
+            'Render product images',
             'Create backups',
             'Organize with categories',
             'Search products quickly',
-            'Share with customers',
-            'Works offline',
+            'Share rendered images',
+            'Export as CSV',
           ].map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-gray-600">
               <RiCheckLine className="w-4 h-4 text-gray-600 shrink-0" />
@@ -269,7 +269,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       <div className="bg-gray-200 border border-gray-400 rounded-lg p-3 text-xs text-gray-700">
         <p className="font-semibold mb-1">💡 Pro Tip:</p>
         <p>
-          You can access the full tutorial anytime from the menu. Check out features like bulk editing, backup & restore, and multi-format exports to maximize your productivity!
+          Access the full tutorial anytime from the menu. Learn about bulk editing, backup & restore, rendering, and CSV export to maximize your productivity!
         </p>
       </div>
     </div>
