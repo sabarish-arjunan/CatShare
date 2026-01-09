@@ -159,7 +159,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               <div className="pt-0.5">
                 <h3 className="font-semibold text-sm text-gray-700">Create Products</h3>
                 <p className="text-xs text-gray-500">
-                  Click the '+' button to add your first product with image, name, pricing, and details
+                  Click the '+' button to add products with images, names, pricing, and details
                 </p>
               </div>
             </div>
