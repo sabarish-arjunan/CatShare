@@ -41,8 +41,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       id: 'share',
       icon: <RiShareForwardLine className="w-6 h-6 text-gray-600" />,
       title: 'Share Product Images',
-      description: 'Render and share professional product previews',
-      details: 'Generate beautiful product images with your custom pricing, colors, and branding. Share rendered images with customers, retailers, and wholesalers through any channel.',
+      description: 'Generate and share professional product previews',
+      details: 'Render beautiful product images with your custom pricing, colors, and branding. Share the generated images directly with customers, retailers, and wholesalers.',
     },
     {
       id: 'collaborate',
