@@ -48,8 +48,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       id: 'collaborate',
       icon: <RiExchangeDollarLine className="w-6 h-6 text-gray-600" />,
       title: 'Wholesale & Resell',
-      description: 'Manage different pricing tiers for different channels',
-      details: 'Create separate wholesale and resell pricing. Track inventory levels independently for each channel. Set pricing, units, and stock status separately.',
+      description: 'Manage different pricing for different channels',
+      details: 'Create separate wholesale and resell pricing. Toggle stock status independently for each channel (IN or OUT). Organize products for wholesale distribution and resale.',
     },
     {
       id: 'backup',
