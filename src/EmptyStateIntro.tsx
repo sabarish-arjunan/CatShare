@@ -94,18 +94,18 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             className="w-14 h-14 rounded shadow"
           />
         </div>
-        <h1 className="text-xl font-bold text-gray-700 mb-2">Welcome to CatShare</h1>
-        <p className="text-sm text-gray-600 mb-1">
+        <h1 className="text-xl font-bold text-gray-600 mb-2">Welcome to CatShare</h1>
+        <p className="text-sm text-gray-500 mb-1">
           Your all-in-one product catalog and inventory management solution
         </p>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-400">
           Create, organize, and share your product listings with customers across multiple channels
         </p>
       </div>
 
       {/* Key Features Section */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-gray-600 mb-4 flex items-center gap-2">
           <RiLightbulbFlashLine className="w-5 h-5 text-gray-700" />
           Key Features
         </h2>
@@ -119,11 +119,11 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               <button
                 onClick={() => toggleSection(feature.id)}
                 className="w-full p-3 flex items-start gap-2 hover:bg-gray-50 transition-colors text-left"
-              >
+                >
                 <div className="mt-0.5 shrink-0">{feature.icon}</div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-sm text-gray-900">{feature.title}</h3>
-                  <p className="text-xs text-gray-600">{feature.description}</p>
+                  <h3 className="font-semibold text-sm text-gray-700">{feature.title}</h3>
+                  <p className="text-xs text-gray-500">{feature.description}</p>
                 </div>
                 <FiChevronDown
                   className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
@@ -144,21 +144,21 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* How It Works Diagram */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">How It Works</h2>
+        <h2 className="text-lg font-bold text-gray-600 mb-4">How It Works</h2>
 
         <div className="bg-gray-100 rounded-lg p-5 border border-gray-300">
           <div className="space-y-4">
             {/* Step 1 */}
             <div className="flex gap-3">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gray-500 text-gray-100 flex items-center justify-center font-bold text-sm shrink-0">
                   1
                 </div>
                 <div className="w-0.5 h-10 bg-gray-400 my-1" />
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-900">Create Products</h3>
-                <p className="text-xs text-gray-600">
+                <h3 className="font-semibold text-sm text-gray-700">Create Products</h3>
+                <p className="text-xs text-gray-500">
                   Click the '+' button to add your first product with name, price, image, and details
                 </p>
               </div>
@@ -167,14 +167,14 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             {/* Step 2 */}
             <div className="flex gap-3">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gray-500 text-gray-100 flex items-center justify-center font-bold text-sm shrink-0">
                   2
                 </div>
                 <div className="w-0.5 h-10 bg-gray-400 my-1" />
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-900">Organize & Manage</h3>
-                <p className="text-xs text-gray-600">
+                <h3 className="font-semibold text-sm text-gray-700">Organize & Manage</h3>
+                <p className="text-xs text-gray-500">
                   Drag to reorder, set stock levels, and manage wholesale vs resell pricing
                 </p>
               </div>
@@ -183,13 +183,13 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             {/* Step 3 */}
             <div className="flex gap-3">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gray-500 text-gray-100 flex items-center justify-center font-bold text-sm shrink-0">
                   3
                 </div>
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-900">Share with Customers</h3>
-                <p className="text-xs text-gray-600">
+                <h3 className="font-semibold text-sm text-gray-700">Share with Customers</h3>
+                <p className="text-xs text-gray-500">
                   Export as HTML, PDF, or share links with your customers and retailers
                 </p>
               </div>
@@ -200,7 +200,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* Use Cases Grid */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Perfect For</h2>
+        <h2 className="text-lg font-bold text-gray-600 mb-4">Perfect For</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {useCases.map((useCase, index) => (
@@ -208,12 +208,12 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               key={index}
               className="bg-white rounded-lg border border-gray-300 p-3 hover:shadow transition-shadow"
             >
-              <h3 className="font-semibold text-sm text-gray-900 mb-1">{useCase.title}</h3>
-              <p className="text-xs text-gray-600 mb-2">{useCase.description}</p>
+              <h3 className="font-semibold text-sm text-gray-700 mb-1">{useCase.title}</h3>
+              <p className="text-xs text-gray-500 mb-2">{useCase.description}</p>
               <div className="space-y-1">
                 {useCase.benefits.map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-gray-700">
-                    <RiCheckLine className="w-3.5 h-3.5 text-gray-700 shrink-0" />
+                  <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
+                    <RiCheckLine className="w-3.5 h-3.5 text-gray-600 shrink-0" />
                     {benefit}
                   </div>
                 ))}
@@ -225,7 +225,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* Features Checklist */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">What You Can Do</h2>
+        <h2 className="text-lg font-bold text-gray-600 mb-4">What You Can Do</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
@@ -242,8 +242,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             'Share with customers',
             'Works offline',
           ].map((feature, index) => (
-            <div key={index} className="flex items-center gap-2 text-gray-700">
-              <RiCheckLine className="w-4 h-4 text-gray-700 shrink-0" />
+            <div key={index} className="flex items-center gap-2 text-gray-600">
+              <RiCheckLine className="w-4 h-4 text-gray-600 shrink-0" />
               <span className="text-xs">{feature}</span>
             </div>
           ))}
@@ -251,14 +251,14 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gray-800 rounded-lg p-6 text-center text-white mb-6">
+      <div className="bg-gray-600 rounded-lg p-6 text-center text-gray-50 mb-6">
         <h2 className="text-lg font-bold mb-2">Ready to Get Started?</h2>
         <p className="mb-4 text-xs text-gray-300">
           Create your first product in just a few seconds
         </p>
         <button
           onClick={onCreateProduct}
-          className="inline-flex items-center gap-2 bg-gray-200 text-gray-900 font-semibold px-6 py-2 rounded-full hover:bg-gray-100 transition-colors shadow hover:shadow-md text-sm"
+          className="inline-flex items-center gap-2 bg-gray-300 text-gray-700 font-semibold px-6 py-2 rounded-full hover:bg-gray-200 transition-colors shadow hover:shadow-md text-sm"
         >
           <FiPlus size={18} />
           Create Your First Product
@@ -266,7 +266,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       </div>
 
       {/* Tips */}
-      <div className="bg-gray-200 border border-gray-400 rounded-lg p-3 text-xs text-gray-800">
+      <div className="bg-gray-200 border border-gray-400 rounded-lg p-3 text-xs text-gray-700">
         <p className="font-semibold mb-1">💡 Pro Tip:</p>
         <p>
           You can access the full tutorial anytime from the menu. Check out features like bulk editing, backup & restore, and multi-format exports to maximize your productivity!
