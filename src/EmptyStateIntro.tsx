@@ -8,8 +8,7 @@ import {
   RiShareForwardLine,
   RiFileList2Line,
   RiCheckLine,
-  RiArrowDownLine,
-  RiLighbulbFlashLine,
+  RiLightbulbFlashLine,
 } from 'react-icons/ri';
 
 interface EmptyStateIntroProps {
