@@ -99,7 +99,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
           Create, organize, and share your product catalog
         </p>
         <p className="text-xs text-gray-400">
-          Professional product management and inventory tracking for your business
+          Professional product management for wholesale and resale businesses
         </p>
       </div>
 
