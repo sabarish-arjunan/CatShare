@@ -236,11 +236,11 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             'Drag to reorder products',
             'Bulk edit items',
             'Render product images',
-            'Backup with JSON',
+            'JSON backup & restore',
             'Organize with categories',
             'Search products quickly',
             'Share rendered images',
-            'Export as CSV',
+            'Restore from backups',
           ].map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-gray-600">
               <RiCheckLine className="w-4 h-4 text-gray-600 shrink-0" />
