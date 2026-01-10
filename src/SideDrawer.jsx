@@ -606,7 +606,7 @@ const exportProductsToCSV = (products) => {
         {/* Legal Links - Fixed at Bottom */}
         <div className="absolute left-0 w-64 bottom-0 bg-white pt-3 pb-4">
           <div className="flex flex-col items-center gap-2 mb-3 px-4">
-            <span className="text-xs text-gray-500">CatShare v{JSON.stringify(require('../package.json').version).replace(/"/g, '')}</span>
+            <span className="text-xs text-gray-500">CatShare v{packageJson.version}</span>
           </div>
           <div className="flex justify-center items-center gap-3 text-xs px-4">
             <button
