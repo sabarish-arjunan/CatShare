@@ -1,2 +1,3 @@
-// Version should match android/app/build.gradle versionName
+// Version automatically extracted from android/app/build.gradle
+// Do not edit manually - run: npm run extract-version
 export const APP_VERSION = "1.0.3";
