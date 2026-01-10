@@ -373,7 +373,7 @@ setTimeout(async () => {
             <select
               value={packageUnit}
               onChange={(e) => setPackageUnit(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
             >
               <option>pcs / set</option>
               <option>pcs / dozen</option>
@@ -392,7 +392,7 @@ setTimeout(async () => {
             <select
               value={ageGroupUnit}
               onChange={(e) => setAgeGroupUnit(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
             >
               <option>months</option>
               <option>years</option>
@@ -411,7 +411,7 @@ setTimeout(async () => {
             <select
               value={wholesaleUnit}
               onChange={(e) => setWholesaleUnit(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
@@ -429,7 +429,7 @@ setTimeout(async () => {
             <select
               value={resellUnit}
               onChange={(e) => setResellUnit(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
