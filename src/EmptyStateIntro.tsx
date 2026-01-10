@@ -87,13 +87,6 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
     <div className="w-full max-w-xl mx-auto px-3 py-6">
       {/* Welcome Section */}
       <div className="text-center mb-8">
-        <div className="flex justify-center mb-3">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
-            alt="CatShare"
-            className="w-14 h-14 rounded shadow"
-          />
-        </div>
         <h1 className="text-xl font-bold text-gray-500 mb-2">Welcome to CatShare</h1>
         <p className="text-sm text-gray-300 mb-1">
           Create, organize, and share your product catalog
