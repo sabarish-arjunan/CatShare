@@ -25,7 +25,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
   const features = [
     {
       id: 'create',
-      icon: <RiShoppingBag3Line className="w-6 h-6 text-gray-600" />,
+      icon: <RiShoppingBag3Line className="w-6 h-6 text-gray-500" />,
       title: 'Create Products',
       description: 'Build your product catalog with images and details',
       details: 'Add product names, subtitles, pricing for wholesale and resale, categories, and images. Store all the information you need to organize and present your products.',
@@ -87,26 +87,19 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
     <div className="w-full max-w-xl mx-auto px-3 py-6">
       {/* Welcome Section */}
       <div className="text-center mb-8">
-        <div className="flex justify-center mb-3">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
-            alt="CatShare"
-            className="w-14 h-14 rounded shadow"
-          />
-        </div>
-        <h1 className="text-xl font-bold text-gray-600 mb-2">Welcome to CatShare</h1>
-        <p className="text-sm text-gray-500 mb-1">
+        <h1 className="text-xl font-bold text-gray-500 mb-2">Welcome to CatShare</h1>
+        <p className="text-sm text-gray-300 mb-1">
           Create, organize, and share your product catalog
         </p>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-300">
           Professional product management for wholesale and resale businesses
         </p>
       </div>
 
       {/* Key Features Section */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-600 mb-4 flex items-center gap-2">
-          <RiLightbulbFlashLine className="w-5 h-5 text-gray-700" />
+        <h2 className="text-lg font-bold text-gray-500 mb-4 flex items-center gap-2">
+          <RiLightbulbFlashLine className="w-5 h-5 text-gray-500" />
           Key Features
         </h2>
 
@@ -122,11 +115,11 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               >
                 <div className="mt-0.5 shrink-0">{feature.icon}</div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-sm text-gray-700">{feature.title}</h3>
-                  <p className="text-xs text-gray-500">{feature.description}</p>
+                  <h3 className="font-semibold text-sm text-gray-500">{feature.title}</h3>
+                  <p className="text-xs text-gray-300">{feature.description}</p>
                 </div>
                 <FiChevronDown
-                  className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
+                  className={`w-4 h-4 text-gray-300 shrink-0 transition-transform duration-200 ${
                     expandedSection === feature.id ? 'transform rotate-180' : ''
                   }`}
                 />
@@ -134,7 +127,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
               {expandedSection === feature.id && (
                 <div className="px-3 pb-3 pt-2 bg-gray-50 border-t border-gray-200">
-                  <p className="text-xs text-gray-700">{feature.details}</p>
+                  <p className="text-xs text-gray-500">{feature.details}</p>
                 </div>
               )}
             </div>
@@ -144,7 +137,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* How It Works Diagram */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-600 mb-4">How It Works</h2>
+        <h2 className="text-lg font-bold text-gray-500 mb-4">How It Works</h2>
 
         <div className="bg-gray-100 rounded-lg p-5 border border-gray-300">
           <div className="space-y-4">
@@ -154,11 +147,11 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
                 <div className="w-8 h-8 rounded-full bg-gray-500 text-gray-100 flex items-center justify-center font-bold text-sm shrink-0">
                   1
                 </div>
-                <div className="w-0.5 h-10 bg-gray-400 my-1" />
+                <div className="w-0.5 h-10 bg-gray-300 my-1" />
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-700">Create Products</h3>
-                <p className="text-xs text-gray-500">
+                <h3 className="font-semibold text-sm text-gray-500">Create Products</h3>
+                <p className="text-xs text-gray-300">
                   Click the '+' button to add products with images, names, pricing, and details
                 </p>
               </div>
@@ -170,11 +163,11 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
                 <div className="w-8 h-8 rounded-full bg-gray-500 text-gray-100 flex items-center justify-center font-bold text-sm shrink-0">
                   2
                 </div>
-                <div className="w-0.5 h-10 bg-gray-400 my-1" />
+                <div className="w-0.5 h-10 bg-gray-300 my-1" />
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-700">Organize & Render</h3>
-                <p className="text-xs text-gray-500">
+                <h3 className="font-semibold text-sm text-gray-500">Organize & Render</h3>
+                <p className="text-xs text-gray-300">
                   Organize with categories, mark stock status, and render products as professional images
                 </p>
               </div>
@@ -188,8 +181,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
                 </div>
               </div>
               <div className="pt-0.5">
-                <h3 className="font-semibold text-sm text-gray-700">Share & Manage</h3>
-                <p className="text-xs text-gray-500">
+                <h3 className="font-semibold text-sm text-gray-500">Share & Manage</h3>
+                <p className="text-xs text-gray-300">
                   Share images with customers, backup your data, and manage inventory
                 </p>
               </div>
@@ -200,7 +193,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* Use Cases Grid */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-600 mb-4">Perfect For</h2>
+        <h2 className="text-lg font-bold text-gray-500 mb-4">Perfect For</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {useCases.map((useCase, index) => (
@@ -208,12 +201,12 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               key={index}
               className="bg-white rounded-lg border border-gray-300 p-3 hover:shadow transition-shadow"
             >
-              <h3 className="font-semibold text-sm text-gray-700 mb-1">{useCase.title}</h3>
-              <p className="text-xs text-gray-500 mb-2">{useCase.description}</p>
+              <h3 className="font-semibold text-sm text-gray-500 mb-1">{useCase.title}</h3>
+              <p className="text-xs text-gray-300 mb-2">{useCase.description}</p>
               <div className="space-y-1">
                 {useCase.benefits.map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
-                    <RiCheckLine className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                  <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
+                    <RiCheckLine className="w-3.5 h-3.5 text-gray-500 shrink-0" />
                     {benefit}
                   </div>
                 ))}
@@ -225,7 +218,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* Features Checklist */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-600 mb-4">What You Can Do</h2>
+        <h2 className="text-lg font-bold text-gray-500 mb-4">What You Can Do</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
@@ -242,8 +235,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             'Share rendered images',
             'Restore from backups',
           ].map((feature, index) => (
-            <div key={index} className="flex items-center gap-2 text-gray-600">
-              <RiCheckLine className="w-4 h-4 text-gray-600 shrink-0" />
+            <div key={index} className="flex items-center gap-2 text-gray-300">
+              <RiCheckLine className="w-4 h-4 text-gray-500 shrink-0" />
               <span className="text-xs">{feature}</span>
             </div>
           ))}
@@ -266,7 +259,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       </div>
 
       {/* Tips */}
-      <div className="bg-gray-200 border border-gray-400 rounded-lg p-3 text-xs text-gray-700">
+      <div className="bg-gray-200 border border-gray-400 rounded-lg p-3 text-xs text-gray-500">
         <p className="font-semibold mb-1">💡 Pro Tip:</p>
         <p>
           Access the full tutorial anytime from the menu. Learn about bulk editing, JSON backups, image rendering, and category management to maximize your productivity!

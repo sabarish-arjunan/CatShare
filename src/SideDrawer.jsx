@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { FileSharer } from "@byteowls/capacitor-filesharer";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -14,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { APP_VERSION } from "./config/version";
 
 
 export default function SideDrawer({
@@ -604,6 +604,9 @@ const exportProductsToCSV = (products) => {
 
         {/* Legal Links - Fixed at Bottom */}
         <div className="absolute left-0 w-64 bottom-0 bg-white pt-3 pb-4">
+          <div className="flex flex-col items-center gap-2 mb-3 px-4">
+            <span className="text-xs text-gray-500">CatShare v{APP_VERSION}</span>
+          </div>
           <div className="flex justify-center items-center gap-3 text-xs px-4">
             <button
               onClick={() => {
