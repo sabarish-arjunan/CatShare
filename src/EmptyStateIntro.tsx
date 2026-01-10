@@ -25,7 +25,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
   const features = [
     {
       id: 'create',
-      icon: <RiShoppingBag3Line className="w-6 h-6 text-gray-600" />,
+      icon: <RiShoppingBag3Line className="w-6 h-6 text-gray-500" />,
       title: 'Create Products',
       description: 'Build your product catalog with images and details',
       details: 'Add product names, subtitles, pricing for wholesale and resale, categories, and images. Store all the information you need to organize and present your products.',
@@ -94,19 +94,19 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             className="w-14 h-14 rounded shadow"
           />
         </div>
-        <h1 className="text-xl font-bold text-gray-400 mb-2">Welcome to CatShare</h1>
+        <h1 className="text-xl font-bold text-gray-500 mb-2">Welcome to CatShare</h1>
         <p className="text-sm text-gray-300 mb-1">
           Create, organize, and share your product catalog
         </p>
-        <p className="text-xs text-gray-200">
+        <p className="text-xs text-gray-300">
           Professional product management for wholesale and resale businesses
         </p>
       </div>
 
       {/* Key Features Section */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-400 mb-4 flex items-center gap-2">
-          <RiLightbulbFlashLine className="w-5 h-5 text-gray-600" />
+        <h2 className="text-lg font-bold text-gray-500 mb-4 flex items-center gap-2">
+          <RiLightbulbFlashLine className="w-5 h-5 text-gray-500" />
           Key Features
         </h2>
 
@@ -144,7 +144,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* How It Works Diagram */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-400 mb-4">How It Works</h2>
+        <h2 className="text-lg font-bold text-gray-500 mb-4">How It Works</h2>
 
         <div className="bg-gray-100 rounded-lg p-5 border border-gray-300">
           <div className="space-y-4">
@@ -200,7 +200,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* Use Cases Grid */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-400 mb-4">Perfect For</h2>
+        <h2 className="text-lg font-bold text-gray-500 mb-4">Perfect For</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {useCases.map((useCase, index) => (
@@ -212,7 +212,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
               <p className="text-xs text-gray-300 mb-2">{useCase.description}</p>
               <div className="space-y-1">
                 {useCase.benefits.map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-gray-400">
+                  <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
                     <RiCheckLine className="w-3.5 h-3.5 text-gray-500 shrink-0" />
                     {benefit}
                   </div>
@@ -225,7 +225,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
 
       {/* Features Checklist */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-400 mb-4">What You Can Do</h2>
+        <h2 className="text-lg font-bold text-gray-500 mb-4">What You Can Do</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
@@ -242,8 +242,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             'Share rendered images',
             'Restore from backups',
           ].map((feature, index) => (
-            <div key={index} className="flex items-center gap-2 text-gray-400">
-              <RiCheckLine className="w-4 h-4 text-gray-400 shrink-0" />
+            <div key={index} className="flex items-center gap-2 text-gray-300">
+              <RiCheckLine className="w-4 h-4 text-gray-500 shrink-0" />
               <span className="text-xs">{feature}</span>
             </div>
           ))}
