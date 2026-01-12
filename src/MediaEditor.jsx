@@ -21,6 +21,7 @@ import {
 
 export default function MediaEditor({ image, onClose, onSave }) {
   const { showToast } = useToast();
+  const { showPopup } = usePopup();
   const [tab, setTab] = useState("adjust");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
