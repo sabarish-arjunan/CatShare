@@ -227,7 +227,7 @@ useEffect(() => {
     <select
       value={item.packageUnit || ""}
       onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
-      className="border rounded px-2 py-1 min-w-[75px]"
+      className="border rounded px-2 py-1 pr-8 min-w-[75px]"
     >
       <option value="pcs / set">pcs / set</option>
       <option value="pcs / dozen">pcs / dozen</option>
@@ -247,7 +247,7 @@ useEffect(() => {
                 <select
                   value={item.ageUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
@@ -266,7 +266,7 @@ useEffect(() => {
                 <select
                   value={item.wholesaleUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>
@@ -285,7 +285,7 @@ useEffect(() => {
                 <select
                   value={item.resellUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>
