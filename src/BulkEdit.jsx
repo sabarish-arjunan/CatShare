@@ -242,12 +242,12 @@ useEffect(() => {
                 <input
                   value={item.age || ""}
                   onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 flex-1"
                 />
                 <select
                   value={item.ageUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
-                  className="border rounded px-2 py-1 pr-8"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
