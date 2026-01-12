@@ -14,6 +14,7 @@ import { useToast } from "./context/ToastContext";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [retailProducts, setRetailProducts] = useState(() =>
     JSON.parse(localStorage.getItem("retailProducts") || "[]")
   );
