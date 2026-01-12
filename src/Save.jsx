@@ -46,6 +46,12 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
   }
 
+  // ✅ Ensure product.image exists before rendering
+  if (!product.image) {
+    console.error("❌ Failed to load image for rendering: File does not exist.");
+    return;
+  }
+
   const wrapper = document.createElement("div");
   Object.assign(wrapper.style, {
     position: "absolute",
