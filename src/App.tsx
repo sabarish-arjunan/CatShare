@@ -121,6 +121,7 @@ function AppWithBackHandler() {
         backgroundColor: "#fff",
       }}
     >
+      <ToastContainer />
       <Routes>
         <Route
           path="/"
