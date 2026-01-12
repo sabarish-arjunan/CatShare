@@ -700,6 +700,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         }}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        isRendering={isRendering}
+        renderProgress={renderProgress}
+        renderResult={renderResult}
+        setRenderResult={setRenderResult}
+        handleRenderAllPNGs={handleRenderAllPNGs}
       />
 
       {showTutorial && (
