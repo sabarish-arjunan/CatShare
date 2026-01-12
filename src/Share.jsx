@@ -7,6 +7,7 @@ export async function handleShare({
   setProcessingIndex,
   setProcessingTotal,
   mode = "resell", // or "wholesale"
+  showPopup, // New parameter for error notification
 }) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
