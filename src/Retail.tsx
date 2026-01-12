@@ -661,7 +661,7 @@ export default function Retail({ products = [] }) {
                     setEditingProduct(null);
                     setImagePreview(null);
                   } catch (err) {
-                    showToast('Image save failed: ' + err.message, 'error');
+                    showPopup('Image save failed: ' + err.message, 'error');
                   }
                 }} className="px-3 py-2 rounded bg-blue-600 text-white">Save</button>
               </div>
