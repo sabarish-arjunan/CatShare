@@ -23,6 +23,7 @@ import { usePopup } from "./context/PopupContext";
 
 export default function MediaLibrary({ onSelect, onClose }) {
   const { showToast } = useToast();
+  const { showPopup } = usePopup();
   const [media, setMedia] = useState([]);
   const [preview, setPreview] = useState(null);
   const [selected, setSelected] = useState([]);
