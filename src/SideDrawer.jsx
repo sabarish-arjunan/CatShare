@@ -158,57 +158,6 @@ const { showToast } = useToast();
 };
 
  
-const handleRenderAllPNGs = async () => {
-  const all = JSON.parse(localStorage.getItem("products") || "[]");
-  if (all.length === 0) return;
-
-  setIsRendering(true);
-  setRenderProgress(0);
-
-  for (let i = 0; i < all.length; i++) {
-    const product = all[i];
-
-    // 🧠 Inject base64 from imageMap (used in CatalogueApp)
-    if (!product.image && imageMap[product.id]) {
-      product.image = imageMap[product.id];
-    }
-
-    // ✅ Skip products without images - don't error, just skip
-    if (!product.image && !product.imagePath) {
-      console.warn(`⚠️ Skipping ${product.name} - no image available`);
-      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-      continue;
-    }
-
-    try {
-      await saveRenderedImage(product, "resell", {
-        resellUnit: product.resellUnit || "/ piece",
-        wholesaleUnit: product.wholesaleUnit || "/ piece",
-        packageUnit: product.packageUnit || "pcs / set",
-        ageGroupUnit: product.ageUnit || "months",
-      });
-
-      await saveRenderedImage(product, "wholesale", {
-        resellUnit: product.resellUnit || "/ piece",
-        wholesaleUnit: product.wholesaleUnit || "/ piece",
-        packageUnit: product.packageUnit || "pcs / set",
-        ageGroupUnit: product.ageUnit || "months",
-      });
-
-      console.log(`✅ Rendered PNGs for ${product.name}`);
-    } catch (err) {
-      console.warn(`❌ Failed to render images for ${product.name}`, err);
-    }
-
-    setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-  }
-
-  setRenderResult({
-    status: "success",
-    message: "PNG rendering completed for all products",
-  });
-  setIsRendering(false);
-};
 
 
 const exportProductsToCSV = (products) => {
