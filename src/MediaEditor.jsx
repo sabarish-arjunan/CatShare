@@ -86,7 +86,7 @@ export default function MediaEditor({ image, onClose, onSave }) {
         blackpoint: 0,
       });
     } catch {
-      alert("Original backup not found.");
+      showToast("Original backup not found", "error");
     }
   };
 
