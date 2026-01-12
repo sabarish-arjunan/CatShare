@@ -294,6 +294,7 @@ export default function ProductPreviewModal({
   filteredProducts = [],
 }) {
   const { showToast } = useToast();
+  const { showPopup } = usePopup();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
