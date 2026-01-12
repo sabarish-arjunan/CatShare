@@ -18,6 +18,8 @@ import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
+import { PopupProvider } from "./context/PopupContext";
+import { PopupContainer } from "./components/PopupContainer";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
