@@ -29,6 +29,7 @@ export default function WholesaleTab({
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
+  const { showPopup } = usePopup();
 
 
 useEffect(() => {
