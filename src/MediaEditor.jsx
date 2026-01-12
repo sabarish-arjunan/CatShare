@@ -6,6 +6,7 @@ import { Filesystem } from "@capacitor/filesystem";
 import { MEDIA_DIR } from "./MediaLibraryUtils";
 import { getCroppedImg, applyAdjustments } from "./editUtils";
 import { useToast } from "./context/ToastContext";
+import { usePopup } from "./context/PopupContext";
 import {
   FiSun,
   FiSliders,
