@@ -38,9 +38,6 @@ export default function SideDrawer({
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
    const [showBulkEdit, setShowBulkEdit] = useState(false);
-   const [renderProgress, setRenderProgress] = useState(0);
-const [isRendering, setIsRendering] = useState(false);
-const shouldRender = useRef(false);
 const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 const [clickCountN, setClickCountN] = useState(0);
 const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
