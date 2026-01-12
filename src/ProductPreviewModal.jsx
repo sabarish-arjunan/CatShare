@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { FiX, FiShare2 } from "react-icons/fi";
+import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
@@ -223,7 +223,10 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error sharing image:', error);
-      showToast('Unable to share image. Please try again.', 'error');
+      setShareResult({
+        status: "error",
+        message: "Unable to share image. Please try again.",
+      });
     }
   };
 
@@ -295,6 +298,7 @@ export default function ProductPreviewModal({
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
+  const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -592,6 +596,36 @@ export default function ProductPreviewModal({
           isOpen={showFullScreenImage}
           onClose={() => setShowFullScreenImage(false)}
         />
+      )}
+
+      {/* Share Result Modal */}
+      {shareResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+            <div className="flex justify-center mb-4">
+              {shareResult.status === "success" ? (
+                <FiCheckCircle className="w-12 h-12 text-green-500" />
+              ) : (
+                <FiAlertCircle className="w-12 h-12 text-red-500" />
+              )}
+            </div>
+
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              {shareResult.status === "success" ? "Success!" : "Failed"}
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-5">
+              {shareResult.message}
+            </p>
+
+            <button
+              onClick={() => setShareResult(null)}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+            >
+              OK
+            </button>
+          </div>
+        </div>
       )}
     </>
   );

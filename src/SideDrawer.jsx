@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
 
@@ -43,6 +44,8 @@ const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
 const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
+const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
+const [renderResult, setRenderResult] = useState(null); // { status: 'success'|'error', message: string }
 const navigate = useNavigate();
 const { showToast } = useToast();
 
@@ -137,12 +140,16 @@ const { showToast } = useToast();
         contentType: "application/zip",
       });
 
-      showToast("Backup ZIP created and shared", "success");
+      setBackupResult({
+        status: "success",
+        message: "Backup ZIP created and shared",
+      });
     } catch (err) {
-      showToast("Backup failed: " + err.message, "error");
+      setBackupResult({
+        status: "error",
+        message: "Backup failed: " + err.message,
+      });
     }
-
-    onClose();
   };
 
   reader.readAsDataURL(blob);
@@ -162,6 +169,13 @@ const handleRenderAllPNGs = async () => {
     // 🧠 Inject base64 from imageMap (used in CatalogueApp)
     if (!product.image && imageMap[product.id]) {
       product.image = imageMap[product.id];
+    }
+
+    // ✅ Skip products without images - don't error, just skip
+    if (!product.image && !product.imagePath) {
+      console.warn(`⚠️ Skipping ${product.name} - no image available`);
+      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+      continue;
     }
 
     try {
@@ -187,7 +201,10 @@ const handleRenderAllPNGs = async () => {
     setRenderProgress(Math.round(((i + 1) / all.length) * 100));
   }
 
-  showToast("PNG rendering completed for all products", "success");
+  setRenderResult({
+    status: "success",
+    message: "PNG rendering completed for all products",
+  });
   setIsRendering(false);
 };
 
@@ -325,8 +342,10 @@ const exportProductsToCSV = (products) => {
 
       setShowRenderAfterRestore(true);
     } catch (err) {
-      showToast("Restore failed: " + err.message, "error");
-      onClose();
+      setBackupResult({
+        status: "error",
+        message: "Restore failed: " + err.message,
+      });
     }
   };
 
@@ -585,7 +604,69 @@ const exportProductsToCSV = (products) => {
   </div>
 )}
 
+{backupResult && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+      <div className="flex justify-center mb-4">
+        {backupResult.status === "success" ? (
+          <FiCheckCircle className="w-12 h-12 text-green-500" />
+        ) : (
+          <FiAlertCircle className="w-12 h-12 text-red-500" />
+        )}
+      </div>
 
+      <h2 className="text-lg font-semibold text-gray-800 mb-2">
+        {backupResult.status === "success" ? "Success!" : "Failed"}
+      </h2>
+
+      <p className="text-sm text-gray-600 mb-5">
+        {backupResult.message}
+      </p>
+
+      <button
+        onClick={() => {
+          setBackupResult(null);
+          onClose();
+        }}
+        className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
+{renderResult && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+      <div className="flex justify-center mb-4">
+        {renderResult.status === "success" ? (
+          <FiCheckCircle className="w-12 h-12 text-green-500" />
+        ) : (
+          <FiAlertCircle className="w-12 h-12 text-red-500" />
+        )}
+      </div>
+
+      <h2 className="text-lg font-semibold text-gray-800 mb-2">
+        {renderResult.status === "success" ? "Success!" : "Failed"}
+      </h2>
+
+      <p className="text-sm text-gray-600 mb-5">
+        {renderResult.message}
+      </p>
+
+      <button
+        onClick={() => {
+          setRenderResult(null);
+          onClose();
+        }}
+        className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
 
   {isRendering && (
     <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
