@@ -7,7 +7,6 @@ import BulkEdit from "./BulkEdit";
 import { App } from "@capacitor/app";
 import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
-import RenderingOverlay from "./RenderingOverlay"; // path to the Lottie animation overlay
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
