@@ -23,6 +23,7 @@ export default function BulkEdit({ products, imageMap, setProducts, onClose, tri
   const [step, setStep] = useState("select");
   const [showRenderPopup, setShowRenderPopup] = useState(false);
   const { showToast } = useToast();
+  const { showPopup } = usePopup();
   const totalProducts = products.length;
 const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
 
