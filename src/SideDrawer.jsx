@@ -327,7 +327,7 @@ const exportProductsToCSV = (products) => {
 
       setShowRenderAfterRestore(true);
     } catch (err) {
-      showToast("Restore failed: " + err.message, "error");
+      showPopup("Restore failed: " + err.message, "error");
       onClose();
     }
   };
