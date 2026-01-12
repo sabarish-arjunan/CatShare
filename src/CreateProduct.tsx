@@ -13,6 +13,7 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
