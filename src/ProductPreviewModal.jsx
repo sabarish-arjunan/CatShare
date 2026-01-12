@@ -295,6 +295,7 @@ export default function ProductPreviewModal({
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
+  const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
