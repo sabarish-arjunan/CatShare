@@ -25,10 +25,6 @@ export default function PrivacyPolicy() {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 py-6 text-gray-800 dark:text-gray-200">
         <div className="prose dark:prose-invert max-w-none">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Last Updated: January 8, 2024
-          </p>
-
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
               Privacy Policy
