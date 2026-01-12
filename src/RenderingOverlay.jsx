@@ -104,6 +104,6 @@ export default function RenderingOverlay({ visible, current, total }) {
         ⚠️ Please keep the app open until rendering completes.
       </p>
     </div>,
-    document.body
+    portalRoot
   );
 }
