@@ -44,6 +44,7 @@ const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per ima
 const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const navigate = useNavigate();
+const { showToast } = useToast();
 
 
   if (!open) return null;
