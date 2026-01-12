@@ -137,9 +137,9 @@ const { showToast } = useToast();
         contentType: "application/zip",
       });
 
-      alert("✅ Backup ZIP created and shared.");
+      showToast("Backup ZIP created and shared", "success");
     } catch (err) {
-      alert("❌ Backup failed: " + err.message);
+      showToast("Backup failed: " + err.message, "error");
     }
 
     onClose();
