@@ -176,7 +176,7 @@ useEffect(() => {
         {editedData.map((item, index) => (
           <div
             key={item.id}
-            className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(120px,1fr))] gap-2 items-center text-sm py-2 border-b"
+            className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 items-center text-sm py-2 border-b"
           >
             <div>{index + 1}</div>
             <div className="w-14 h-14 flex items-center justify-center">
