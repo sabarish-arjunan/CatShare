@@ -124,6 +124,7 @@ function AppWithBackHandler() {
       }}
     >
       <ToastContainer />
+      <PopupContainer />
       <Routes>
         <Route
           path="/"
