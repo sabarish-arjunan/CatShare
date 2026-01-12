@@ -15,6 +15,7 @@ import { RiEdit2Line } from "react-icons/ri";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
+import { usePopup } from "./context/PopupContext";
 
 
 export default function SideDrawer({
