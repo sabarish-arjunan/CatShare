@@ -16,6 +16,8 @@ import Shelf from "./Shelf";
 import Retail from "./Retail";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
+import { ToastProvider } from "./context/ToastContext";
+import { ToastContainer } from "./components/ToastContainer";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
