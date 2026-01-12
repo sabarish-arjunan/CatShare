@@ -5,6 +5,7 @@ import { Share } from "@capacitor/share";
 import { FiX, FiShare2 } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
+import { useToast } from "./context/ToastContext";
 
 // Full Screen Image Viewer Component
 const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
