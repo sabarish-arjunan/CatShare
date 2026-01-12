@@ -139,12 +139,16 @@ const { showToast } = useToast();
         contentType: "application/zip",
       });
 
-      showToast("Backup ZIP created and shared", "success");
+      setBackupResult({
+        status: "success",
+        message: "Backup ZIP created and shared",
+      });
     } catch (err) {
-      showToast("Backup failed: " + err.message, "error");
+      setBackupResult({
+        status: "error",
+        message: "Backup failed: " + err.message,
+      });
     }
-
-    onClose();
   };
 
   reader.readAsDataURL(blob);
