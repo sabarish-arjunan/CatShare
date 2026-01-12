@@ -139,9 +139,9 @@ const { showPopup } = usePopup();
         contentType: "application/zip",
       });
 
-      showToast("Backup ZIP created and shared", "success");
+      showPopup("Backup ZIP created and shared", "success");
     } catch (err) {
-      showToast("Backup failed: " + err.message, "error");
+      showPopup("Backup failed: " + err.message, "error");
     }
 
     onClose();
