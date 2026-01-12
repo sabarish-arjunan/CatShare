@@ -227,7 +227,7 @@ export default function CreateProduct() {
         });
       }
     } catch (err) {
-      showToast("Image save failed: " + err.message, "error");
+      showPopup("Image save failed: " + err.message, "error");
       return;
     }
 
