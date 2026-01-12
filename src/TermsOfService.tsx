@@ -219,7 +219,7 @@ export default function TermsOfService() {
               12. Export and Portability
             </h3>
             <p>
-              CatShare allows you to export your data in standard formats (CSV, ZIP). You can access and
+              CatShare allows you to export your data in ZIP format. You can access and
               export your data at any time to ensure portability and prevent vendor lock-in.
             </p>
           </section>
