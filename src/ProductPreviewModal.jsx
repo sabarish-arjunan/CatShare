@@ -291,6 +291,7 @@ export default function ProductPreviewModal({
   onSwipeRight,
   filteredProducts = [],
 }) {
+  const { showToast } = useToast();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
