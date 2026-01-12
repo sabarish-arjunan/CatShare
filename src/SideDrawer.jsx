@@ -331,8 +331,10 @@ const exportProductsToCSV = (products) => {
 
       setShowRenderAfterRestore(true);
     } catch (err) {
-      showToast("Restore failed: " + err.message, "error");
-      onClose();
+      setBackupResult({
+        status: "error",
+        message: "Restore failed: " + err.message,
+      });
     }
   };
 
