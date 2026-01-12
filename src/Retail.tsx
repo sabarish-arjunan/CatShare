@@ -16,6 +16,7 @@ import { usePopup } from "./context/PopupContext";
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { showPopup } = usePopup();
   const [retailProducts, setRetailProducts] = useState(() =>
     JSON.parse(localStorage.getItem("retailProducts") || "[]")
   );
