@@ -19,6 +19,7 @@ import {
 } from "react-icons/fi";
 import MediaEditor from "./MediaEditor";
 import { useToast } from "./context/ToastContext";
+import { usePopup } from "./context/PopupContext";
 
 export default function MediaLibrary({ onSelect, onClose }) {
   const { showToast } = useToast();
