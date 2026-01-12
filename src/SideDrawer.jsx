@@ -194,7 +194,7 @@ const handleRenderAllPNGs = async () => {
 
 const exportProductsToCSV = (products) => {
   if (!products || products.length === 0) {
-    alert("No products to export!");
+    showToast("No products to export!", "warning");
     return;
   }
 
