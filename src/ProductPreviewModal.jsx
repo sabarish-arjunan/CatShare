@@ -10,6 +10,7 @@ import { usePopup } from "./context/PopupContext";
 
 // Full Screen Image Viewer Component
 const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
+  const { showPopup } = usePopup();
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
