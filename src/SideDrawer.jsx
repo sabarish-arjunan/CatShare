@@ -44,6 +44,7 @@ const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
 const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
+const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
 const navigate = useNavigate();
 const { showToast } = useToast();
 
