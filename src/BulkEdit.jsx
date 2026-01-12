@@ -280,12 +280,12 @@ useEffect(() => {
                 <input
                   value={item.resell || ""}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 flex-1"
                 />
                 <select
                   value={item.resellUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
-                  className="border rounded px-2 py-1 pr-8"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>
