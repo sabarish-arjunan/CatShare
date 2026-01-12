@@ -103,9 +103,9 @@ export default function MediaLibrary({ onSelect, onClose }) {
         directory: FilesystemDirectory.Documents,
       });
       await loadMedia();
-      alert("✅ Image reverted to original.");
+      showToast("Image reverted to original", "success");
     } catch {
-      alert("❌ No original backup found.");
+      showToast("No original backup found", "error");
     }
   };
 
