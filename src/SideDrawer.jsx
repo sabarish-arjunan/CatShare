@@ -29,6 +29,11 @@ export default function SideDrawer({
   onShowTutorial,
   darkMode,
   setDarkMode,
+  isRendering,
+  renderProgress,
+  renderResult,
+  setRenderResult,
+  handleRenderAllPNGs,
 }) {
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
