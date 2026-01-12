@@ -10,6 +10,7 @@ import { handleShare } from "./Share";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import ProductPreviewModal from "./ProductPreviewModal";
+import { useToast } from "./context/ToastContext";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
