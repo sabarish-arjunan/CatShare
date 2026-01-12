@@ -95,7 +95,7 @@ useEffect(() => {
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
-    showToast("Something went wrong during save.", "error");
+    showPopup("Something went wrong during save.", "error");
   }
 };
 
