@@ -442,6 +442,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessingIndex,
       setProcessingTotal,
       mode: "wholesale",
+      showPopup,
     });
   }}
   className="w-9 h-9 flex items-center justify-center rounded-md text-green-600 hover:text-green-700 transition-colors"
