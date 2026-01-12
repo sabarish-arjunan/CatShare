@@ -19,6 +19,7 @@ import {
 } from "react-icons/fi";
 
 export default function MediaEditor({ image, onClose, onSave }) {
+  const { showToast } = useToast();
   const [tab, setTab] = useState("adjust");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
