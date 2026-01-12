@@ -192,6 +192,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessingIndex,
           setProcessingTotal,
           mode: "wholesale",
+          showPopup,
         });
       };
       container.appendChild(shareBtn);
