@@ -54,6 +54,10 @@ export async function handleShare({
     console.log("✅ Shared", fileUris.length, "products");
   } catch (err) {
     console.error("❌ Share failed:", err);
-    alert("Sharing failed: " + err.message);
+    if (showPopup) {
+      showPopup("Sharing failed: " + err.message, "error");
+    } else {
+      alert("Sharing failed: " + err.message);
+    }
   }
 }
