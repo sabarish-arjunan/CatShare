@@ -69,6 +69,12 @@ export default function RenderingOverlay({ visible, current, total }) {
 
   if (!visible) return null;
 
+  const portalRoot = document.getElementById("portal-root");
+  if (!portalRoot) {
+    console.warn("Portal root not found, overlay may not display correctly");
+    return null;
+  }
+
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
       <div className="w-64 h-64">
