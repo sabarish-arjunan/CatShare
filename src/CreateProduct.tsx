@@ -8,6 +8,7 @@ import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
+import { usePopup } from "./context/PopupContext";
 
 export default function CreateProduct() {
   const navigate = useNavigate();
