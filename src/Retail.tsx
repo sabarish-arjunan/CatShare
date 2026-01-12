@@ -11,6 +11,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import ProductPreviewModal from "./ProductPreviewModal";
 import { useToast } from "./context/ToastContext";
+import { usePopup } from "./context/PopupContext";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
