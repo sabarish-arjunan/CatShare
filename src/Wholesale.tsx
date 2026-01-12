@@ -7,6 +7,7 @@ import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
+import { usePopup } from "./context/PopupContext";
 
 
 export default function WholesaleTab({
