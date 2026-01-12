@@ -46,6 +46,7 @@ const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const navigate = useNavigate();
 const { showToast } = useToast();
+const { showPopup } = usePopup();
 
 
   if (!open) return null;
