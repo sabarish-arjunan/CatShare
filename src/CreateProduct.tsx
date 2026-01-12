@@ -7,6 +7,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
+import { useToast } from "./context/ToastContext";
 
 export default function CreateProduct() {
   const navigate = useNavigate();
