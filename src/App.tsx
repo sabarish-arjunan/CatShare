@@ -159,8 +159,10 @@ function AppWithBackHandler() {
 
 export default function App() {
   return (
-    <Router>
-      <AppWithBackHandler />
-    </Router>
+    <ToastProvider>
+      <Router>
+        <AppWithBackHandler />
+      </Router>
+    </ToastProvider>
   );
 }
