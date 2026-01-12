@@ -266,7 +266,7 @@ function FullScreenPreview({ item, onClose, setShowEditor, onRevert }) {
   try {
     await Capacitor.Plugins.GalleryEditor.openEditor({ path: fullPath });
   } catch (err) {
-    alert("❌ Failed to open system editor");
+    showToast("Failed to open system editor", "error");
     console.error("System editor error:", err);
   }
 };
