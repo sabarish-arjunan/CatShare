@@ -194,8 +194,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
               <p className="font-semibold text-gray-900 dark:text-white">CatShare Support</p>
-              <p className="text-gray-600 dark:text-gray-400">Email: support@catshare.app</p>
-              <p className="text-gray-600 dark:text-gray-400">Website: https://catshare.app</p>
+              <p className="text-gray-600 dark:text-gray-400">Email: bazelwings@gmail.com</p>
             </div>
           </section>
 
