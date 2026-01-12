@@ -158,7 +158,7 @@ export default function PrivacyPolicy() {
               <li>Opt-out of non-essential communications</li>
             </ul>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-              To exercise these rights, please contact us at support@catshare.app
+              To exercise these rights, please contact us at bazelwings@gmail.com
             </p>
           </section>
 
