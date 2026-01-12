@@ -278,7 +278,7 @@ setTimeout(async () => {
   navigate("/");
 }, 300);
     } catch (err) {
-      showToast("Product save failed: " + err.message, "error");
+      showPopup("Product save failed: " + err.message, "error");
     }
   };
 
