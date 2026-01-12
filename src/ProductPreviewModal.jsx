@@ -5,6 +5,7 @@ import { Share } from "@capacitor/share";
 import { FiX, FiShare2 } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
+import { useToast } from "./context/ToastContext";
 
 // Full Screen Image Viewer Component
 const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
@@ -222,7 +223,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error sharing image:', error);
-      alert('Unable to share image. Please try again.');
+      showToast('Unable to share image. Please try again.', 'error');
     }
   };
 
@@ -290,6 +291,7 @@ export default function ProductPreviewModal({
   onSwipeRight,
   filteredProducts = [],
 }) {
+  const { showToast } = useToast();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);

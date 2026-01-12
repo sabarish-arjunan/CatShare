@@ -14,6 +14,7 @@ import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons
 import { RiEdit2Line } from "react-icons/ri";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { APP_VERSION } from "./config/version";
+import { useToast } from "./context/ToastContext";
 
 
 export default function SideDrawer({
@@ -43,6 +44,7 @@ const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per ima
 const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const navigate = useNavigate();
+const { showToast } = useToast();
 
 
   if (!open) return null;
@@ -135,9 +137,9 @@ const navigate = useNavigate();
         contentType: "application/zip",
       });
 
-      alert("✅ Backup ZIP created and shared.");
+      showToast("Backup ZIP created and shared", "success");
     } catch (err) {
-      alert("❌ Backup failed: " + err.message);
+      showToast("Backup failed: " + err.message, "error");
     }
 
     onClose();
@@ -185,14 +187,14 @@ const handleRenderAllPNGs = async () => {
     setRenderProgress(Math.round(((i + 1) / all.length) * 100));
   }
 
-  alert("✅ PNG rendering completed for all products.");
+  showToast("PNG rendering completed for all products", "success");
   setIsRendering(false);
 };
 
 
 const exportProductsToCSV = (products) => {
   if (!products || products.length === 0) {
-    alert("No products to export!");
+    showToast("No products to export!", "warning");
     return;
   }
 
@@ -323,7 +325,7 @@ const exportProductsToCSV = (products) => {
 
       setShowRenderAfterRestore(true);
     } catch (err) {
-      alert("❌ Restore failed: " + err.message);
+      showToast("Restore failed: " + err.message, "error");
       onClose();
     }
   };

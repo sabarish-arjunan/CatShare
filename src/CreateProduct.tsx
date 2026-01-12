@@ -7,11 +7,13 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
+import { useToast } from "./context/ToastContext";
 
 export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
@@ -205,7 +207,7 @@ export default function CreateProduct() {
 
   const saveAndNavigate = async () => {
     if (!imagePreview) {
-      alert("Please upload and crop an image before saving.");
+      showToast("Please upload and crop an image before saving.", "warning");
       return;
     }
 
@@ -223,7 +225,7 @@ export default function CreateProduct() {
         });
       }
     } catch (err) {
-      alert("❌ Image save failed:\n" + err.message);
+      showToast("Image save failed: " + err.message, "error");
       return;
     }
 
@@ -274,7 +276,7 @@ setTimeout(async () => {
   navigate("/");
 }, 300);
     } catch (err) {
-      alert("❌ Product save failed:\n" + err.message);
+      showToast("Product save failed: " + err.message, "error");
     }
   };
 

@@ -25,10 +25,6 @@ export default function PrivacyPolicy() {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 py-6 text-gray-800 dark:text-gray-200">
         <div className="prose dark:prose-invert max-w-none">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Last Updated: January 8, 2024
-          </p>
-
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
               Privacy Policy
@@ -158,7 +154,7 @@ export default function PrivacyPolicy() {
               <li>Opt-out of non-essential communications</li>
             </ul>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-              To exercise these rights, please contact us at support@catshare.app
+              To exercise these rights, please contact us at bazelwings@gmail.com
             </p>
           </section>
 
@@ -194,8 +190,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
               <p className="font-semibold text-gray-900 dark:text-white">CatShare Support</p>
-              <p className="text-gray-600 dark:text-gray-400">Email: support@catshare.app</p>
-              <p className="text-gray-600 dark:text-gray-400">Website: https://catshare.app</p>
+              <p className="text-gray-600 dark:text-gray-400">Email: bazelwings@gmail.com</p>
             </div>
           </section>
 

@@ -59,7 +59,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   useEffect(() => {
     const loadImages = async () => {
       const map = {};
-      for (const p of products) {
+      // Use Promise.all to read all images in parallel instead of sequentially
+      const promises = products.map(async (p) => {
         if (p.imagePath) {
           try {
             const result = await Filesystem.readFile({ path: p.imagePath, directory: Directory.Data });
@@ -70,7 +71,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         } else {
           map[p.id] = p.image || "";
         }
-      }
+      });
+      await Promise.all(promises);
       setImageMap(map);
     };
     loadImages();

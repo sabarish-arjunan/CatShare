@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { useToast } from "./context/ToastContext";
 
 const FIELD_OPTIONS = [
   { key: "name", label: "Name" },
@@ -20,6 +21,7 @@ export default function BulkEdit({ products, imageMap, setProducts, onClose, tri
   const [selectedFields, setSelectedFields] = useState([]);
   const [step, setStep] = useState("select");
   const [showRenderPopup, setShowRenderPopup] = useState(false);
+  const { showToast } = useToast();
   const totalProducts = products.length;
 const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
 
@@ -91,7 +93,7 @@ useEffect(() => {
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
-    alert("Something went wrong during save.");
+    showToast("Something went wrong during save.", "error");
   }
 };
 
@@ -165,7 +167,7 @@ useEffect(() => {
 
 
     <div className="flex-1 overflow-auto px-4">
-        <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(120px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
+        <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
           <div>#</div>
           <div>Image</div>
           {selectedFields.map((field) => (
@@ -176,7 +178,7 @@ useEffect(() => {
         {editedData.map((item, index) => (
           <div
             key={item.id}
-            className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(120px,1fr))] gap-2 items-center text-sm py-2 border-b"
+            className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 items-center text-sm py-2 border-b"
           >
             <div>{index + 1}</div>
             <div className="w-14 h-14 flex items-center justify-center">
@@ -222,12 +224,12 @@ useEffect(() => {
     <input
       value={item.package || ""}
       onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
-      className="border rounded px-2 py-1 w-full"
+      className="border rounded px-2 py-1 w-28"
     />
     <select
       value={item.packageUnit || ""}
       onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
-      className="border rounded px-2 py-1 min-w-[75px]"
+      className="border rounded px-2 py-1 pr-8 w-16"
     >
       <option value="pcs / set">pcs / set</option>
       <option value="pcs / dozen">pcs / dozen</option>
@@ -242,12 +244,12 @@ useEffect(() => {
                 <input
                   value={item.age || ""}
                   onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.ageUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
@@ -261,12 +263,12 @@ useEffect(() => {
                 <input
                   value={item.wholesale || ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesale", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.wholesaleUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>
@@ -280,12 +282,12 @@ useEffect(() => {
                 <input
                   value={item.resell || ""}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.resellUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>

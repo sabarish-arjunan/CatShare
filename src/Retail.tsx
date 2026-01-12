@@ -10,9 +10,11 @@ import { handleShare } from "./Share";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import ProductPreviewModal from "./ProductPreviewModal";
+import { useToast } from "./context/ToastContext";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [retailProducts, setRetailProducts] = useState(() =>
     JSON.parse(localStorage.getItem("retailProducts") || "[]")
   );
@@ -657,7 +659,7 @@ export default function Retail({ products = [] }) {
                     setEditingProduct(null);
                     setImagePreview(null);
                   } catch (err) {
-                    alert('Image save failed: ' + err.message);
+                    showToast('Image save failed: ' + err.message, 'error');
                   }
                 }} className="px-3 py-2 rounded bg-blue-600 text-white">Save</button>
               </div>

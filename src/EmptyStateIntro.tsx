@@ -55,8 +55,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       id: 'backup',
       icon: <RiFileList2Line className="w-6 h-6 text-gray-600" />,
       title: 'Backup & Restore',
-      description: 'Protect your data with JSON backups',
-      details: 'Create JSON backups of your complete product catalog including all images. Restore from backups anytime to recover your data.',
+      description: 'Protect your data with ZIP backups',
+      details: 'Create ZIP backups of your complete product catalog including all images. Restore from backups anytime to recover your data.',
     },
   ];
 
@@ -229,7 +229,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
             'Drag to reorder products',
             'Bulk edit items',
             'Render product images',
-            'JSON backup & restore',
+            'ZIP backup & restore',
             'Organize with categories',
             'Search products quickly',
             'Share rendered images',

@@ -16,6 +16,8 @@ import Shelf from "./Shelf";
 import Retail from "./Retail";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
+import { ToastProvider } from "./context/ToastContext";
+import { ToastContainer } from "./components/ToastContainer";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
@@ -119,6 +121,7 @@ function AppWithBackHandler() {
         backgroundColor: "#fff",
       }}
     >
+      <ToastContainer />
       <Routes>
         <Route
           path="/"
@@ -156,8 +159,10 @@ function AppWithBackHandler() {
 
 export default function App() {
   return (
-    <Router>
-      <AppWithBackHandler />
-    </Router>
+    <ToastProvider>
+      <Router>
+        <AppWithBackHandler />
+      </Router>
+    </ToastProvider>
   );
 }

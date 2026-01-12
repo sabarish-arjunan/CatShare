@@ -25,10 +25,6 @@ export default function TermsOfService() {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 py-6 text-gray-800 dark:text-gray-200">
         <div className="prose dark:prose-invert max-w-none">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Last Updated: January 8, 2024
-          </p>
-
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
               Terms of Service
@@ -223,7 +219,7 @@ export default function TermsOfService() {
               12. Export and Portability
             </h3>
             <p>
-              CatShare allows you to export your data in standard formats (CSV, ZIP). You can access and
+              CatShare allows you to export your data in ZIP format. You can access and
               export your data at any time to ensure portability and prevent vendor lock-in.
             </p>
           </section>
@@ -237,8 +233,7 @@ export default function TermsOfService() {
             </p>
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
               <p className="font-semibold text-gray-900 dark:text-white">CatShare Support</p>
-              <p className="text-gray-600 dark:text-gray-400">Email: support@catshare.app</p>
-              <p className="text-gray-600 dark:text-gray-400">Website: https://catshare.app</p>
+              <p className="text-gray-600 dark:text-gray-400">Email: bazelwings@gmail.com</p>
             </div>
           </section>
 

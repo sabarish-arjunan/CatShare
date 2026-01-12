@@ -5,6 +5,7 @@ import Cropper from "react-easy-crop";
 import { Filesystem } from "@capacitor/filesystem";
 import { MEDIA_DIR } from "./MediaLibraryUtils";
 import { getCroppedImg, applyAdjustments } from "./editUtils";
+import { useToast } from "./context/ToastContext";
 import {
   FiSun,
   FiSliders,
@@ -18,6 +19,7 @@ import {
 } from "react-icons/fi";
 
 export default function MediaEditor({ image, onClose, onSave }) {
+  const { showToast } = useToast();
   const [tab, setTab] = useState("adjust");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -84,7 +86,7 @@ export default function MediaEditor({ image, onClose, onSave }) {
         blackpoint: 0,
       });
     } catch {
-      alert("Original backup not found.");
+      showToast("Original backup not found", "error");
     }
   };
 
@@ -107,7 +109,7 @@ export default function MediaEditor({ image, onClose, onSave }) {
     };
     reader.readAsDataURL(blobResult);
   } catch (err) {
-    alert("Background removal failed.");
+    showToast("Background removal failed", "error");
   }
 };
 
