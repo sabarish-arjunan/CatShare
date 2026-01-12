@@ -109,7 +109,7 @@ export default function MediaEditor({ image, onClose, onSave }) {
     };
     reader.readAsDataURL(blobResult);
   } catch (err) {
-    alert("Background removal failed.");
+    showToast("Background removal failed", "error");
   }
 };
 
