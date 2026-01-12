@@ -18,8 +18,10 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import MediaEditor from "./MediaEditor";
+import { useToast } from "./context/ToastContext";
 
 export default function MediaLibrary({ onSelect, onClose }) {
+  const { showToast } = useToast();
   const [media, setMedia] = useState([]);
   const [preview, setPreview] = useState(null);
   const [selected, setSelected] = useState([]);
