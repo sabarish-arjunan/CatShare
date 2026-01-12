@@ -194,7 +194,10 @@ const handleRenderAllPNGs = async () => {
     setRenderProgress(Math.round(((i + 1) / all.length) * 100));
   }
 
-  showToast("PNG rendering completed for all products", "success");
+  setRenderResult({
+    status: "success",
+    message: "PNG rendering completed for all products",
+  });
   setIsRendering(false);
 };
 
