@@ -15,6 +15,7 @@ export default function CreateProduct() {
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
   const { showToast } = useToast();
+  const { showPopup } = usePopup();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
