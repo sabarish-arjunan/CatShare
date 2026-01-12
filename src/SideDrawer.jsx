@@ -171,6 +171,13 @@ const handleRenderAllPNGs = async () => {
       product.image = imageMap[product.id];
     }
 
+    // ✅ Skip products without images - don't error, just skip
+    if (!product.image && !product.imagePath) {
+      console.warn(`⚠️ Skipping ${product.name} - no image available`);
+      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+      continue;
+    }
+
     try {
       await saveRenderedImage(product, "resell", {
         resellUnit: product.resellUnit || "/ piece",
