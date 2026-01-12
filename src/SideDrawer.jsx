@@ -696,12 +696,6 @@ const exportProductsToCSV = (products) => {
         <CategoryModal onClose={() => setShowCategories(false)} />
       )}
       
-      <RenderingOverlay
-  visible={isRendering}
-  current={Math.round((renderProgress / 100) * products.length)}
-  total={products.length}
-/>
-
     </>
   );
 }
