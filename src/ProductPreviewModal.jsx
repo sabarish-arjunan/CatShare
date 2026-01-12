@@ -223,7 +223,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error sharing image:', error);
-      alert('Unable to share image. Please try again.');
+      showToast('Unable to share image. Please try again.', 'error');
     }
   };
 
