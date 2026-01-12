@@ -222,12 +222,12 @@ useEffect(() => {
     <input
       value={item.package || ""}
       onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
-      className="border rounded px-2 py-1 w-full"
+      className="border rounded px-2 py-1 flex-1"
     />
     <select
       value={item.packageUnit || ""}
       onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
-      className="border rounded px-2 py-1 pr-8 min-w-[75px]"
+      className="border rounded px-2 py-1 pr-8 w-16"
     >
       <option value="pcs / set">pcs / set</option>
       <option value="pcs / dozen">pcs / dozen</option>
