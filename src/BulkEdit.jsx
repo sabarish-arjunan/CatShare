@@ -222,7 +222,7 @@ useEffect(() => {
     <input
       value={item.package || ""}
       onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
-      className="border rounded px-2 py-1 flex-1"
+      className="border rounded px-2 py-1 w-28"
     />
     <select
       value={item.packageUnit || ""}
@@ -242,7 +242,7 @@ useEffect(() => {
                 <input
                   value={item.age || ""}
                   onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
-                  className="border rounded px-2 py-1 flex-1"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.ageUnit || ""}
@@ -261,7 +261,7 @@ useEffect(() => {
                 <input
                   value={item.wholesale || ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesale", e.target.value)}
-                  className="border rounded px-2 py-1 flex-1"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.wholesaleUnit || ""}
@@ -280,7 +280,7 @@ useEffect(() => {
                 <input
                   value={item.resell || ""}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
-                  className="border rounded px-2 py-1 flex-1"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.resellUnit || ""}
