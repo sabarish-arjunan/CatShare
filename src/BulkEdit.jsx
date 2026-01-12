@@ -165,7 +165,7 @@ useEffect(() => {
 
 
     <div className="flex-1 overflow-auto px-4">
-        <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(120px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
+        <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
           <div>#</div>
           <div>Image</div>
           {selectedFields.map((field) => (
