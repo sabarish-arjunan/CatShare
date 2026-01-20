@@ -439,32 +439,13 @@ setTimeout(async () => {
           </div>
 
           <label className="block text-sm font-medium mb-1">Product Badge</label>
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <button
-              type="button"
-              onClick={() =>
-                setFormData((prev) => ({
-                  ...prev,
-                  badge: prev.badge === "Muslin" ? "" : "Muslin",
-                }))
-              }
-              className={`px-4 py-1.5 rounded-full text-sm border transition ${
-                formData.badge === "Muslin"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              Muslin
-            </button>
-
-            <input
-              name="badge"
-              value={formData.badge}
-              onChange={handleChange}
-              placeholder="or type new"
-              className="border p-2 rounded text-sm"
-            />
-          </div>
+          <input
+            name="badge"
+            value={formData.badge}
+            onChange={handleChange}
+            placeholder="Enter product badge"
+            className="border p-2 rounded text-sm w-full"
+          />
 
           <div className="mb-4">
             <label className="block mb-1 font-semibold">Categories</label>
