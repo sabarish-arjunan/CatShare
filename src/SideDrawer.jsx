@@ -712,7 +712,54 @@ const exportProductsToCSV = (products) => {
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />
       )}
-      
+
+{/* Settings Modal */}
+{showSettings && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+    onClick={() => setShowSettings(false)}
+  >
+    <div className="bg-white/95 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2 className="text-lg font-semibold text-gray-800 mb-6">Settings</h2>
+
+      {/* Watermark Toggle */}
+      <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
+        <div className="flex-1">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">Watermark</h3>
+          <p className="text-xs text-gray-500">Show "created using CatShare" on images</p>
+        </div>
+        <button
+          onClick={() => handleWatermarkToggle(!showWatermark)}
+          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+            showWatermark ? "bg-blue-600" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+              showWatermark ? "translate-x-7" : "translate-x-1"
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Status */}
+      <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <p className="text-xs text-gray-600">
+          <span className="font-medium">Status:</span> Watermark is {showWatermark ? "🟢 Enabled" : "🔴 Disabled"}
+        </p>
+      </div>
+
+      <button
+        onClick={() => setShowSettings(false)}
+        className="w-full mt-4 px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium text-sm"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
     </>
   );
 }
