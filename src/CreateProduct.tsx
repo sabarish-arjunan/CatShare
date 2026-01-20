@@ -35,10 +35,21 @@ export default function CreateProduct() {
 
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
-  const [showWatermark] = useState(() => {
+  const [showWatermark, setShowWatermarkLocal] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
+
+  // Listen for watermark setting changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
   const [originalBase64, setOriginalBase64] = useState(null);
   const [overrideColor, setOverrideColor] = useState("#d1b3c4");
   const [fontColor, setFontColor] = useState("white");
