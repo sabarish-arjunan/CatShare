@@ -597,6 +597,25 @@ setTimeout(async () => {
           margin: "0 auto",
         }}
       />
+
+      {/* Watermark - "created using CatShare" */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 8,
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontSize: "10px",
+          color: "rgba(0, 0, 0, 0.25)",
+          fontFamily: "Arial, sans-serif",
+          fontWeight: 500,
+          letterSpacing: "0.3px",
+          pointerEvents: "none"
+        }}
+      >
+        created using CatShare
+      </div>
+
       {formData.badge && (
         <div
           style={{
