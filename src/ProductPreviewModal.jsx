@@ -350,10 +350,21 @@ export default function ProductPreviewModal({
   }, [onClose]);
 
   // Check if watermark should be shown
-  const showWatermark = (() => {
+  const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
-  })();
+  });
+
+  // Listen for watermark setting changes from Settings modal
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   useEffect(() => {
     const loadImage = async () => {
