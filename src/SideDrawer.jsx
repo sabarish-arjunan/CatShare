@@ -46,8 +46,19 @@ const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per ima
 const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
+const [showSettings, setShowSettings] = useState(false);
+const [showWatermark, setShowWatermark] = useState(() => {
+  const stored = localStorage.getItem("showWatermark");
+  return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+});
 const navigate = useNavigate();
 const { showToast } = useToast();
+
+// Save watermark preference to localStorage
+const handleWatermarkToggle = (value) => {
+  setShowWatermark(value);
+  localStorage.setItem("showWatermark", JSON.stringify(value));
+};
 
 
   if (!open) return null;
