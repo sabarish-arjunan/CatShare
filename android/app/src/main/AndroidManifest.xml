@@ -38,11 +38,6 @@
                 <data android:scheme="https" android:host="catshare.app" />
                 <data android:scheme="https" android:host="www.catshare.app" />
             </intent-filter>
-
-            <!-- App Shortcuts for Quick Access -->
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
         </activity>
 
         <provider
