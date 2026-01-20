@@ -598,7 +598,7 @@ setTimeout(async () => {
         }}
       />
 
-      {/* Watermark - "created using CatShare" */}
+      {/* Watermark - "created using CatShare" - Adaptive color based on background */}
       <div
         style={{
           position: "absolute",
@@ -606,7 +606,9 @@ setTimeout(async () => {
           left: "50%",
           transform: "translateX(-50%)",
           fontSize: "10px",
-          color: "rgba(0, 0, 0, 0.25)",
+          color: imageBgOverride?.toLowerCase() === "white" || imageBgOverride?.toLowerCase() === "#ffffff"
+            ? "rgba(0, 0, 0, 0.25)"
+            : "rgba(255, 255, 255, 0.4)",
           fontFamily: "Arial, sans-serif",
           fontWeight: 500,
           letterSpacing: "0.3px",
