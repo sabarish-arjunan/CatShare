@@ -188,11 +188,15 @@ export async function saveRenderedImage(product, type, units = {}) {
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
 
-    // Add subtle watermark "created using CatShare"
+    // Add subtle watermark "created using CatShare" - Adaptive color based on background
     const watermarkText = "created using CatShare";
     const watermarkSize = Math.max(12, croppedCanvas.width / 40); // Responsive font size
     ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
-    ctx.fillStyle = "rgba(0, 0, 0, 0.25)"; // Semi-transparent dark gray
+
+    // Check if background is light or dark and set watermark color accordingly
+    const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
+    ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"; // Dark gray for light bg, white for dark bg
+
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
 
