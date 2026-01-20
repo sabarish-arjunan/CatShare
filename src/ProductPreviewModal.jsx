@@ -480,22 +480,24 @@ export default function ProductPreviewModal({
               />
 
               {/* Watermark - "created using CatShare" - Adaptive color based on background */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 8,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  fontSize: "10px",
-                  color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)",
-                  fontFamily: "Arial, sans-serif",
-                  fontWeight: 500,
-                  letterSpacing: "0.3px",
-                  pointerEvents: "none"
-                }}
-              >
-                created using CatShare
-              </div>
+              {showWatermark && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 8,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "10px",
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)",
+                    fontFamily: "Arial, sans-serif",
+                    fontWeight: 500,
+                    letterSpacing: "0.3px",
+                    pointerEvents: "none"
+                  }}
+                >
+                  created using CatShare
+                </div>
+              )}
 
               {bothOut && (
                 <div
