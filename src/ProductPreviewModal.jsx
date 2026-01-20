@@ -254,7 +254,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       {/* Image container */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden touch-none"
+        className="w-full h-full flex items-center justify-center overflow-hidden touch-none relative"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -277,6 +277,25 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
           }}
           draggable={false}
         />
+
+        {/* Watermark overlay */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 20,
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "14px",
+            color: "rgba(255, 255, 255, 0.3)",
+            fontFamily: "Arial, sans-serif",
+            fontWeight: 500,
+            letterSpacing: "0.5px",
+            pointerEvents: "none",
+            zIndex: 5
+          }}
+        >
+          created using CatShare
+        </div>
       </div>
 
     </div>
