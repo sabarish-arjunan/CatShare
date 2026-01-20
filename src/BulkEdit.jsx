@@ -297,21 +297,12 @@ useEffect(() => {
             )}
 
             {selectedFields.includes("badge") && (
-              <div className="flex items-center gap-1">
-                <input
-                  value={item.badge || ""}
-                  onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
-                />
-                <button
-                  onClick={() =>
-                    handleFieldChange(item.id, "badge", item.badge === "Muslin" ? "" : "Muslin")
-                  }
-                  className={`px-2 py-1 text-xs rounded ${item.badge === "Muslin" ? "bg-purple-600 text-white" : "bg-gray-200 text-black"}`}
-                >
-                  Muslin
-                </button>
-              </div>
+              <input
+                value={item.badge || ""}
+                onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
+                placeholder="Enter badge"
+                className="border rounded px-2 py-1 w-full"
+              />
             )}
 
             {selectedFields.includes("category") && (
