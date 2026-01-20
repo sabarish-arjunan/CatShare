@@ -188,6 +188,19 @@ export async function saveRenderedImage(product, type, units = {}) {
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
 
+    // Add subtle watermark "created using CatShare"
+    const watermarkText = "created using CatShare";
+    const watermarkSize = Math.max(12, croppedCanvas.width / 40); // Responsive font size
+    ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.25)"; // Semi-transparent dark gray
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+
+    // Position watermark at bottom center of image, with padding
+    const watermarkX = croppedCanvas.width / 2;
+    const watermarkY = croppedCanvas.height - Math.floor(watermarkSize / 2) - 8;
+    ctx.fillText(watermarkText, watermarkX, watermarkY);
+
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
     const filename = `product_${id}_${type}.png`;
     const folder = type === "wholesale" ? "Wholesale" : "Resell";
