@@ -347,6 +347,12 @@ export default function ProductPreviewModal({
     return () => window.removeEventListener("keydown", esc);
   }, [onClose]);
 
+  // Check if watermark should be shown
+  const showWatermark = (() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+  })();
+
   useEffect(() => {
     const loadImage = async () => {
       if (product?.imagePath) {
