@@ -454,7 +454,24 @@ export default function ProductPreviewModal({
                 }}
               />
 
-            
+              {/* Watermark - "created using CatShare" */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 8,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  fontSize: "10px",
+                  color: "rgba(0, 0, 0, 0.25)",
+                  fontFamily: "Arial, sans-serif",
+                  fontWeight: 500,
+                  letterSpacing: "0.3px",
+                  pointerEvents: "none"
+                }}
+              >
+                created using CatShare
+              </div>
+
               {bothOut && (
                 <div
                   style={{
@@ -477,7 +494,7 @@ export default function ProductPreviewModal({
                   OUT OF STOCK
                 </div>
               )}
-              
+
               {product.badge && (
                 <div
                   style={{
