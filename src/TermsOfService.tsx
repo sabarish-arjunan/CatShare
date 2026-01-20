@@ -239,7 +239,7 @@ export default function TermsOfService() {
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-8 pb-8">
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              © 2024 CatShare. All rights reserved. Created by Sabarish Arjunan.
+              © 2024 CatShare. All rights reserved. Created by BazelWings.
             </p>
           </div>
         </div>
