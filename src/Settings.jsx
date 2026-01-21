@@ -69,30 +69,30 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="space-y-3 max-w-2xl">
+      <main className="flex-1 overflow-y-auto px-4 py-4 pb-24">
+        <div className="space-y-2 max-w-lg">
           {/* Dark Mode Setting */}
           <div
             onClick={() => navigate("/settings/appearance")}
             className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition cursor-pointer text-left"
           >
-            <div className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800">Appearance</h3>
+            <div className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-800">Appearance</h3>
                 </div>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDarkModeToggle(!localDarkMode);
                   }}
-                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 cursor-pointer ${
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
                     localDarkMode ? "bg-blue-600" : "bg-gray-300"
                   }`}
                 >
                   <span
-                    className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform ${
-                      localDarkMode ? "translate-x-8" : "translate-x-1"
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      localDarkMode ? "translate-x-7" : "translate-x-0.5"
                     }`}
                   />
                 </div>
@@ -105,23 +105,23 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
             onClick={() => navigate("/settings/watermark")}
             className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition cursor-pointer text-left"
           >
-            <div className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800">Watermark</h3>
+            <div className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-800">Watermark</h3>
                 </div>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleWatermarkToggle(!showWatermark);
                   }}
-                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 cursor-pointer ${
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
                     showWatermark ? "bg-blue-600" : "bg-gray-300"
                   }`}
                 >
                   <span
-                    className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform ${
-                      showWatermark ? "translate-x-8" : "translate-x-1"
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      showWatermark ? "translate-x-7" : "translate-x-0.5"
                     }`}
                   />
                 </div>
@@ -130,21 +130,21 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
           </div>
 
           {/* Pro Plan Card */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-gray-200">
             <div
               onClick={() => navigate("/settings/pro")}
               className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition cursor-pointer text-left"
             >
-              <div className="p-4 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">🎉</span>
-                      <h3 className="text-lg font-semibold text-green-900">Using Pro for FREE</h3>
+              <div className="p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-base flex-shrink-0">🎉</span>
+                      <h3 className="text-sm font-semibold text-green-900">Using Pro for FREE</h3>
                     </div>
-                    <p className="text-sm text-green-700">Beta access to all premium features</p>
+                    <p className="text-xs text-green-700">Beta access to all premium features</p>
                   </div>
-                  <span className="text-2xl ml-4 flex-shrink-0">→</span>
+                  <span className="text-xl flex-shrink-0">→</span>
                 </div>
               </div>
             </div>
