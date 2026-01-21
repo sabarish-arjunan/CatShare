@@ -511,11 +511,64 @@ setTimeout(async () => {
 
           <div className="my-3">
             <label className="block mb-1 font-semibold">Override BG:</label>
-            <input
-              type="color"
-              value={overrideColor}
-              onChange={(e) => setOverrideColor(e.target.value)}
-            />
+            <div className="flex gap-2 flex-wrap mb-3">
+              {[
+                "#ffffff", "#000000", "#d1b3c4", "#add8e6", "#ffc0cb",
+                "#ffeb3b", "#4caf50", "#ff9800", "#9c27b0", "#e91e63",
+                "#00bcd4", "#795548"
+              ].map((color) => (
+                <div
+                  key={color}
+                  onClick={() => setOverrideColor(color)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    backgroundColor: color,
+                    border:
+                      overrideColor === color
+                        ? "3px solid black"
+                        : "1px solid #ccc",
+                    cursor: "pointer",
+                    borderRadius: "6px",
+                  }}
+                  title={color}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2 items-center">
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  backgroundColor: overrideColor,
+                  border: "2px solid #ccc",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  position: "relative",
+                }}
+                onClick={() => document.getElementById("color-input-mobile").click()}
+              >
+                <input
+                  id="color-input-mobile"
+                  type="color"
+                  value={overrideColor}
+                  onChange={(e) => setOverrideColor(e.target.value)}
+                  style={{ display: "none" }}
+                />
+              </div>
+              <input
+                type="text"
+                value={overrideColor}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val.match(/^#[0-9A-F]{6}$/i) || val.match(/^rgb\(/i)) {
+                    setOverrideColor(val);
+                  }
+                }}
+                placeholder="#ffffff or rgb(255, 255, 255)"
+                className="border p-2 rounded flex-1 text-xs"
+              />
+            </div>
           </div>
 
           {suggestedColors.length > 0 && (
