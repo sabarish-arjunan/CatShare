@@ -176,7 +176,9 @@ The app is optimized for key metrics:
 
 ## Author
 
-Created by **Sabarish Arjunan**
+**BazelWings**
+
+Developed by **Sabarish Arjunan**
 
 ## License
 

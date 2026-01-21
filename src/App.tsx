@@ -14,6 +14,7 @@ import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
 import Shelf from "./Shelf";
 import Retail from "./Retail";
+import Settings from "./Settings";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
@@ -150,6 +151,10 @@ function AppWithBackHandler() {
           }
         />
         <Route path="/retail" element={<Retail products={products} />} />
+        <Route
+          path="/settings"
+          element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>

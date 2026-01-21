@@ -35,6 +35,39 @@ export default function CreateProduct() {
 
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
+  const [showWatermark, setShowWatermarkLocal] = useState(() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+  });
+  const [watermarkText, setWatermarkText] = useState(() => {
+    return localStorage.getItem("watermarkText") || "created using CatShare";
+  });
+
+  // Listen for watermark setting changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
+    };
+
+    const handleWatermarkChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+    };
+  }, []);
   const [originalBase64, setOriginalBase64] = useState(null);
   const [overrideColor, setOverrideColor] = useState("#d1b3c4");
   const [fontColor, setFontColor] = useState("white");
@@ -439,32 +472,13 @@ setTimeout(async () => {
           </div>
 
           <label className="block text-sm font-medium mb-1">Product Badge</label>
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <button
-              type="button"
-              onClick={() =>
-                setFormData((prev) => ({
-                  ...prev,
-                  badge: prev.badge === "Muslin" ? "" : "Muslin",
-                }))
-              }
-              className={`px-4 py-1.5 rounded-full text-sm border transition ${
-                formData.badge === "Muslin"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              Muslin
-            </button>
-
-            <input
-              name="badge"
-              value={formData.badge}
-              onChange={handleChange}
-              placeholder="or type new"
-              className="border p-2 rounded text-sm"
-            />
-          </div>
+          <input
+            name="badge"
+            value={formData.badge}
+            onChange={handleChange}
+            placeholder="Enter product badge"
+            className="border p-2 rounded text-sm w-full"
+          />
 
           <div className="mb-4">
             <label className="block mb-1 font-semibold">Categories</label>
@@ -616,6 +630,29 @@ setTimeout(async () => {
           margin: "0 auto",
         }}
       />
+
+      {/* Watermark - Adaptive color based on background */}
+      {showWatermark && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 8,
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "10px",
+            color: imageBgOverride?.toLowerCase() === "white" || imageBgOverride?.toLowerCase() === "#ffffff"
+              ? "rgba(0, 0, 0, 0.25)"
+              : "rgba(255, 255, 255, 0.4)",
+            fontFamily: "Arial, sans-serif",
+            fontWeight: 500,
+            letterSpacing: "0.3px",
+            pointerEvents: "none"
+          }}
+        >
+          {watermarkText}
+        </div>
+      )}
+
       {formData.badge && (
         <div
           style={{

@@ -188,6 +188,29 @@ export async function saveRenderedImage(product, type, units = {}) {
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
 
+    // Add watermark - Only if enabled in settings
+    const showWatermark = localStorage.getItem("showWatermark");
+    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : true; // Default: true
+
+    if (isWatermarkEnabled) {
+      // Get custom watermark text from localStorage, default to "created using CatShare"
+      const watermarkText = localStorage.getItem("watermarkText") || "created using CatShare";
+      const watermarkSize = Math.max(12, croppedCanvas.width / 40); // Responsive font size
+      ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
+
+      // Check if background is light or dark and set watermark color accordingly
+      const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
+      ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"; // Dark gray for light bg, white for dark bg
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+
+      // Position watermark at bottom center of image, with padding
+      const watermarkX = croppedCanvas.width / 2;
+      const watermarkY = croppedCanvas.height - Math.floor(watermarkSize / 2) - 8;
+      ctx.fillText(watermarkText, watermarkX, watermarkY);
+    }
+
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
     const filename = `product_${id}_${type}.png`;
     const folder = type === "wholesale" ? "Wholesale" : "Resell";

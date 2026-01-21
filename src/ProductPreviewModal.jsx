@@ -254,7 +254,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       {/* Image container */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden touch-none"
+        className="w-full h-full flex items-center justify-center overflow-hidden touch-none relative"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -277,6 +277,27 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
           }}
           draggable={false}
         />
+
+        {/* Watermark overlay - White/light for full-screen view against dark background */}
+        {showWatermark && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 20,
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontSize: "14px",
+              color: "rgba(255, 255, 255, 0.4)",
+              fontFamily: "Arial, sans-serif",
+              fontWeight: 500,
+              letterSpacing: "0.5px",
+              pointerEvents: "none",
+              zIndex: 5
+            }}
+          >
+            {watermarkText}
+          </div>
+        )}
       </div>
 
     </div>
@@ -327,6 +348,43 @@ export default function ProductPreviewModal({
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [onClose]);
+
+  // Check if watermark should be shown
+  const [showWatermark, setShowWatermark] = useState(() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+  });
+
+  // Get custom watermark text
+  const [watermarkText, setWatermarkText] = useState(() => {
+    return localStorage.getItem("watermarkText") || "created using CatShare";
+  });
+
+  // Listen for watermark setting changes from Settings modal
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
+    };
+
+    const handleWatermarkChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+    };
+  }, []);
 
   useEffect(() => {
     const loadImage = async () => {
@@ -454,7 +512,26 @@ export default function ProductPreviewModal({
                 }}
               />
 
-            
+              {/* Watermark - Adaptive color based on background */}
+              {showWatermark && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 8,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "10px",
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)",
+                    fontFamily: "Arial, sans-serif",
+                    fontWeight: 500,
+                    letterSpacing: "0.3px",
+                    pointerEvents: "none"
+                  }}
+                >
+                  {watermarkText}
+                </div>
+              )}
+
               {bothOut && (
                 <div
                   style={{
@@ -477,7 +554,7 @@ export default function ProductPreviewModal({
                   OUT OF STOCK
                 </div>
               )}
-              
+
               {product.badge && (
                 <div
                   style={{
