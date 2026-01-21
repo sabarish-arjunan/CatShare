@@ -21,6 +21,12 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
+  // Handle dark mode toggle
+  const handleDarkModeToggle = (value) => {
+    setLocalDarkMode(value);
+    setDarkMode(value);
+  };
+
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
       {/* Status bar placeholder */}
