@@ -39,16 +39,34 @@ export default function CreateProduct() {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
+  const [watermarkText, setWatermarkText] = useState(() => {
+    return localStorage.getItem("watermarkText") || "created using CatShare";
+  });
 
   // Listen for watermark setting changes
   useEffect(() => {
     const handleStorageChange = () => {
       const stored = localStorage.getItem("showWatermark");
       setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
+    };
+
+    const handleWatermarkChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
     };
 
     window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+    };
   }, []);
   const [originalBase64, setOriginalBase64] = useState(null);
   const [overrideColor, setOverrideColor] = useState("#d1b3c4");
