@@ -158,6 +158,18 @@ function AppWithBackHandler() {
           path="/settings"
           element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />}
         />
+        <Route
+          path="/settings/appearance"
+          element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
+        <Route
+          path="/settings/watermark"
+          element={<WatermarkSettings />}
+        />
+        <Route
+          path="/settings/pro"
+          element={<ProInfo />}
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
