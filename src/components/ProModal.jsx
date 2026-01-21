@@ -5,12 +5,10 @@ export default function ProModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const proFeatures = [
-    { name: "Advanced Analytics", description: "Track sales and inventory metrics" },
-    { name: "API Access", description: "Integrate with your systems" },
-    { name: "Priority Support", description: "Get faster help and support" },
-    { name: "Custom Branding", description: "Remove CatShare watermark option" },
-    { name: "Bulk Operations", description: "Advanced batch processing tools" },
-    { name: "Advanced Export", description: "More export formats and options" },
+    { name: "Bulk Editor", description: "Edit multiple products at once with batch operations" },
+    { name: "Watermark Customization", description: "Change watermark text and customize it for your brand" },
+    { name: "Manage Categories", description: "Create, edit, and organize unlimited product categories" },
+    { name: "Stock Control", description: "Toggle wholesale and resell stock IN/OUT status" },
   ];
 
   return (
