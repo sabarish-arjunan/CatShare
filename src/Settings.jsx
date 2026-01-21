@@ -86,13 +86,13 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
                     e.stopPropagation();
                     handleDarkModeToggle(!localDarkMode);
                   }}
-                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
+                  className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
                     localDarkMode ? "bg-blue-600" : "bg-gray-300"
                   }`}
                 >
                   <span
-                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                      localDarkMode ? "translate-x-7" : "translate-x-0.5"
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                      localDarkMode ? "translate-x-6" : "translate-x-0.5"
                     }`}
                   />
                 </div>
