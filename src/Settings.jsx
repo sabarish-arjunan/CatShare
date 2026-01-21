@@ -102,7 +102,7 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
 
           {/* Watermark Setting */}
           <button
-            onClick={() => setWatermarkModalOpen(true)}
+            onClick={() => navigate("/settings/watermark")}
             className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
           >
             <div className="p-4 sm:p-6">
