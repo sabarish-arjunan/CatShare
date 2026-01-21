@@ -147,7 +147,7 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">Watermark</h3>
                   <p className="text-sm text-gray-600">
-                    Display "created using CatShare" on all product images and previews
+                    Display custom text on all product images and previews
                   </p>
                 </div>
                 <button
@@ -178,6 +178,38 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
                     : "Watermark is hidden on all content"}
                 </p>
               </div>
+
+              {/* Watermark Text Editor - Only visible when enabled */}
+              {showWatermark && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <label className="block text-sm font-medium text-gray-800 mb-2">Watermark Text</label>
+                  <input
+                    type="text"
+                    value={editingWatermarkText}
+                    onChange={(e) => handleWatermarkTextChange(e.target.value)}
+                    placeholder="Enter watermark text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">Current: <span className="font-mono">{watermarkText}</span></p>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={handleSaveWatermarkText}
+                      disabled={editingWatermarkText.trim() === ""}
+                      className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleResetWatermarkText}
+                      className="flex-1 px-3 py-2 bg-gray-200 text-gray-800 text-sm rounded-lg hover:bg-gray-300 transition font-medium"
+                    >
+                      Reset to Default
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
