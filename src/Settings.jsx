@@ -72,21 +72,21 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
       <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
         <div className="space-y-3 max-w-2xl">
           {/* Dark Mode Setting */}
-          <button
+          <div
             onClick={() => navigate("/settings/appearance")}
-            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
+            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition cursor-pointer text-left"
           >
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-800">Appearance</h3>
                 </div>
-                <button
+                <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDarkModeToggle(!localDarkMode);
                   }}
-                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
+                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 cursor-pointer ${
                     localDarkMode ? "bg-blue-600" : "bg-gray-300"
                   }`}
                 >
@@ -95,27 +95,27 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
                       localDarkMode ? "translate-x-8" : "translate-x-1"
                     }`}
                   />
-                </button>
+                </div>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* Watermark Setting */}
-          <button
+          <div
             onClick={() => navigate("/settings/watermark")}
-            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
+            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition cursor-pointer text-left"
           >
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-800">Watermark</h3>
                 </div>
-                <button
+                <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleWatermarkToggle(!showWatermark);
                   }}
-                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
+                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 cursor-pointer ${
                     showWatermark ? "bg-blue-600" : "bg-gray-300"
                   }`}
                 >
@@ -124,16 +124,16 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
                       showWatermark ? "translate-x-8" : "translate-x-1"
                     }`}
                   />
-                </button>
+                </div>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* Pro Plan Card */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <button
+            <div
               onClick={() => navigate("/settings/pro")}
-              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition text-left"
+              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition cursor-pointer text-left"
             >
               <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
@@ -147,7 +147,7 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
                   <span className="text-2xl ml-4 flex-shrink-0">→</span>
                 </div>
               </div>
-            </button>
+            </div>
           </div>
         </div>
       </main>
