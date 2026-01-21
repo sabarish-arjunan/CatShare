@@ -47,20 +47,20 @@ function ColorPickerModal({ value, onChange, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-5 max-w-sm w-full">
-        <h2 className="font-bold text-lg mb-4">Choose Color</h2>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3">
+      <div className="bg-white rounded-lg shadow-lg p-3 w-full" style={{ maxWidth: "320px" }}>
+        <h2 className="font-bold text-base mb-3">Choose Color</h2>
 
         {/* Hue Slider */}
-        <div className="mb-4">
-          <label className="block text-xs font-medium mb-2">Hue</label>
+        <div className="mb-3">
+          <label className="block text-xs font-medium mb-1">Hue</label>
           <input
             type="range"
             min="0"
             max="360"
             value={hue}
             onChange={(e) => setHue(parseFloat(e.target.value))}
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right,
                 hsl(0, 100%, 50%), hsl(30, 100%, 50%), hsl(60, 100%, 50%),
@@ -71,15 +71,15 @@ function ColorPickerModal({ value, onChange, onClose }) {
         </div>
 
         {/* Saturation Slider */}
-        <div className="mb-4">
-          <label className="block text-xs font-medium mb-2">Saturation</label>
+        <div className="mb-3">
+          <label className="block text-xs font-medium mb-1">Saturation</label>
           <input
             type="range"
             min="0"
             max="100"
             value={saturation}
             onChange={(e) => setSaturation(parseFloat(e.target.value))}
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right,
                 hsl(${hue}, 0%, ${brightness}%),
@@ -89,15 +89,15 @@ function ColorPickerModal({ value, onChange, onClose }) {
         </div>
 
         {/* Brightness Slider */}
-        <div className="mb-4">
-          <label className="block text-xs font-medium mb-2">Brightness</label>
+        <div className="mb-3">
+          <label className="block text-xs font-medium mb-1">Brightness</label>
           <input
             type="range"
             min="0"
             max="100"
             value={brightness}
             onChange={(e) => setBrightness(parseFloat(e.target.value))}
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right, #000, hsl(${hue}, ${saturation}%, 50%), #fff)`
             }}
@@ -105,22 +105,22 @@ function ColorPickerModal({ value, onChange, onClose }) {
         </div>
 
         {/* Color Preview */}
-        <div className="mb-4">
+        <div className="mb-3">
           <div
             style={{ backgroundColor: currentColor }}
-            className="w-full h-24 rounded-lg border-2 border-gray-300"
+            className="w-full h-16 rounded-lg border-2 border-gray-300"
           />
         </div>
 
         {/* Hex Input */}
-        <div className="mb-4">
+        <div className="mb-3">
           <label className="block text-xs font-medium mb-1">Hex Code</label>
           <input
             type="text"
             value={hexInput}
             onChange={(e) => handleHexChange(e.target.value)}
             placeholder="#ffffff"
-            className="border rounded w-full p-2 text-sm font-mono"
+            className="border rounded w-full p-1.5 text-xs font-mono"
           />
         </div>
 
@@ -128,13 +128,13 @@ function ColorPickerModal({ value, onChange, onClose }) {
         <div className="flex gap-2">
           <button
             onClick={() => onChange(currentColor)}
-            className="flex-1 bg-blue-600 text-white py-2 rounded font-medium"
+            className="flex-1 bg-blue-600 text-white py-1.5 rounded font-medium text-sm"
           >
             Apply
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded font-medium"
+            className="flex-1 bg-gray-300 text-gray-700 py-1.5 rounded font-medium text-sm"
           >
             Cancel
           </button>
