@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import SideDrawer from "./SideDrawer";
+import AppearanceModal from "./components/AppearanceModal";
+import WatermarkModal from "./components/WatermarkModal";
 
 export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [appearanceModalOpen, setAppearanceModalOpen] = useState(false);
+  const [watermarkModalOpen, setWatermarkModalOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
@@ -14,7 +18,6 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
     return stored || "created using CatShare"; // Default text
   });
   const [localDarkMode, setLocalDarkMode] = useState(darkMode);
-  const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
 
   const navigate = useNavigate();
 
@@ -23,45 +26,17 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
     setLocalDarkMode(darkMode);
   }, [darkMode]);
 
-  // Handle watermark toggle
-  const handleWatermarkToggle = (value) => {
-    setShowWatermark(value);
-    localStorage.setItem("showWatermark", JSON.stringify(value));
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
-  };
-
-  // Handle watermark text change
-  const handleWatermarkTextChange = (text) => {
-    setEditingWatermarkText(text);
-  };
-
-  // Save watermark text
-  const handleSaveWatermarkText = () => {
-    const trimmedText = editingWatermarkText.trim();
-    if (trimmedText.length === 0) {
-      setEditingWatermarkText(watermarkText); // Reset to previous value
-      return;
-    }
-    setWatermarkText(trimmedText);
-    localStorage.setItem("watermarkText", trimmedText);
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: trimmedText } }));
-  };
-
-  // Reset watermark text to default
-  const handleResetWatermarkText = () => {
-    const defaultText = "created using CatShare";
-    setWatermarkText(defaultText);
-    setEditingWatermarkText(defaultText);
-    localStorage.setItem("watermarkText", defaultText);
-    window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: defaultText } }));
-  };
-
   // Handle dark mode toggle
   const handleDarkModeToggle = (value) => {
     setLocalDarkMode(value);
     setDarkMode(value);
+  };
+
+  // Handle watermark toggle
+  const handleWatermarkToggle = (value) => {
+    setShowWatermark(value);
+    localStorage.setItem("showWatermark", JSON.stringify(value));
+    window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
   return (
