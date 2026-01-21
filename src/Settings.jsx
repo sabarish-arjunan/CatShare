@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdOutlineHome } from "react-icons/md";
+import { MdOutlineHome, MdDarkMode, MdLightMode } from "react-icons/md";
 import SideDrawer from "./SideDrawer";
 
-export default function Settings() {
+export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
+  const [localDarkMode, setLocalDarkMode] = useState(darkMode);
 
   const navigate = useNavigate();
 
