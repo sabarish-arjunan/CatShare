@@ -645,28 +645,25 @@ setTimeout(async () => {
             </div>
           </div>
 
-          <div className="my-3">
-            <label className="block mb-1 font-semibold">Override BG:</label>
+          <div className="my-2">
+            <label className="block mb-1 text-sm font-medium">Override BG:</label>
             <button
               onClick={() => setShowColorPicker(true)}
-              className="flex items-center gap-3 w-full border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 transition-colors"
             >
               <div
                 style={{
-                  width: 50,
-                  height: 50,
+                  width: 36,
+                  height: 36,
                   backgroundColor: overrideColor,
                   border: "2px solid #ccc",
-                  borderRadius: "8px",
+                  borderRadius: "6px",
                 }}
               />
-              <div className="flex-1 text-left">
-                <div className="text-sm font-medium text-gray-700">Click to choose color</div>
-                <div className="text-xs text-gray-500">{overrideColor}</div>
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-xs font-medium text-gray-700">Choose color</div>
+                <div className="text-xs text-gray-500 truncate">{overrideColor}</div>
               </div>
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
             </button>
           </div>
 
