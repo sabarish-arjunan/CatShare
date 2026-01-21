@@ -71,19 +71,19 @@ export default function ProModal({ isOpen, onClose }) {
             <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex gap-2">
                 <span className="text-blue-600 font-bold">✓</span>
-                <span>Scale your business without limitations</span>
+                <span>Edit bulk products at once to save time</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-blue-600 font-bold">✓</span>
-                <span>Automate complex workflows with API access</span>
+                <span>Full control over watermark and branding</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-blue-600 font-bold">✓</span>
-                <span>Get priority support from our team</span>
+                <span>Unlimited categories for organizing products</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-blue-600 font-bold">✓</span>
-                <span>Customize your branding and watermark</span>
+                <span>Advanced inventory management with stock control</span>
               </li>
             </ul>
           </div>
