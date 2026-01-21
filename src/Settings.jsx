@@ -4,11 +4,13 @@ import { MdOutlineHome } from "react-icons/md";
 import SideDrawer from "./SideDrawer";
 import AppearanceModal from "./components/AppearanceModal";
 import WatermarkModal from "./components/WatermarkModal";
+import ProModal from "./components/ProModal";
 
 export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [appearanceModalOpen, setAppearanceModalOpen] = useState(false);
   const [watermarkModalOpen, setWatermarkModalOpen] = useState(false);
+  const [proModalOpen, setProModalOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
