@@ -92,16 +92,16 @@ export default function ProModal({ isOpen, onClose }) {
           </div>
 
           {/* CTA */}
-          <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white">
-            <p className="text-sm font-semibold mb-2">Stay Updated</p>
+          <div className="p-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white">
+            <p className="text-sm font-semibold mb-2">🚀 Make the Most of It</p>
             <p className="text-xs mb-3 opacity-90">
-              We'll notify you when CatShare Pro launches. Your free account will always work!
+              Use all these Pro features now while they're free. We'll let you know when pricing takes effect, and you'll have plenty of notice!
             </p>
             <button
               onClick={onClose}
               className="w-full px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm rounded-lg transition font-medium"
             >
-              Got it!
+              Got it, thanks!
             </button>
           </div>
 
