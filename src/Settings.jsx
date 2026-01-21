@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdOutlineHome, MdDarkMode, MdLightMode } from "react-icons/md";
+import { MdOutlineHome } from "react-icons/md";
 import SideDrawer from "./SideDrawer";
 
 export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
