@@ -151,7 +151,10 @@ function AppWithBackHandler() {
           }
         />
         <Route path="/retail" element={<Retail products={products} />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route
+          path="/settings"
+          element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
