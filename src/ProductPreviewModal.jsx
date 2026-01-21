@@ -512,7 +512,7 @@ export default function ProductPreviewModal({
                 }}
               />
 
-              {/* Watermark - "created using CatShare" - Adaptive color based on background */}
+              {/* Watermark - Adaptive color based on background */}
               {showWatermark && (
                 <div
                   style={{
@@ -528,7 +528,7 @@ export default function ProductPreviewModal({
                     pointerEvents: "none"
                   }}
                 >
-                  created using CatShare
+                  {watermarkText}
                 </div>
               )}
 
