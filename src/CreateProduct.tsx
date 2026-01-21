@@ -9,6 +9,141 @@ import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
 
+function ColorPickerModal({ value, onChange, onClose }) {
+  const [hue, setHue] = useState(0);
+  const [saturation, setSaturation] = useState(100);
+  const [brightness, setBrightness] = useState(100);
+  const [hexInput, setHexInput] = useState(value);
+
+  const hslToRgb = (h, s, l) => {
+    s /= 100;
+    l /= 100;
+    const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n) =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const r = Math.round(255 * f(0));
+    const g = Math.round(255 * f(8));
+    const b = Math.round(255 * f(4));
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
+  const rgbToHex = (rgb) => {
+    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (!match) return value;
+    const r = parseInt(match[1]).toString(16).padStart(2, '0');
+    const g = parseInt(match[2]).toString(16).padStart(2, '0');
+    const b = parseInt(match[3]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`.toUpperCase();
+  };
+
+  const currentColor = hslToRgb(hue, saturation, brightness);
+
+  const handleHexChange = (hex) => {
+    if (hex.match(/^#[0-9A-Fa-f]{6}$/)) {
+      setHexInput(hex);
+      onChange(hex);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3">
+      <div className="bg-white rounded-lg shadow-lg p-3 w-full" style={{ maxWidth: "320px" }}>
+        <h2 className="font-bold text-lg mb-3">Choose Color</h2>
+
+        {/* Hue Slider */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium mb-1">Hue</label>
+          <input
+            type="range"
+            min="0"
+            max="360"
+            value={hue}
+            onChange={(e) => setHue(parseFloat(e.target.value))}
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right,
+                hsl(0, 100%, 50%), hsl(30, 100%, 50%), hsl(60, 100%, 50%),
+                hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%),
+                hsl(300, 100%, 50%), hsl(360, 100%, 50%))`
+            }}
+          />
+        </div>
+
+        {/* Saturation Slider */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium mb-1">Saturation</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={saturation}
+            onChange={(e) => setSaturation(parseFloat(e.target.value))}
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right,
+                hsl(${hue}, 0%, ${brightness}%),
+                hsl(${hue}, 100%, ${brightness}%))`
+            }}
+          />
+        </div>
+
+        {/* Brightness Slider */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium mb-1">Brightness</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={brightness}
+            onChange={(e) => setBrightness(parseFloat(e.target.value))}
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #000, hsl(${hue}, ${saturation}%, 50%), #fff)`
+            }}
+          />
+        </div>
+
+        {/* Color Preview */}
+        <div className="mb-3">
+          <div
+            style={{ backgroundColor: currentColor }}
+            className="w-full h-16 rounded-lg border-2 border-gray-300"
+          />
+        </div>
+
+        {/* Hex Input */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium mb-1">Hex Code</label>
+          <input
+            type="text"
+            value={hexInput}
+            onChange={(e) => handleHexChange(e.target.value)}
+            placeholder="#ffffff"
+            className="border rounded w-full p-2 text-sm font-mono"
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onChange(currentColor)}
+            className="flex-1 bg-blue-600 text-white py-2 rounded font-medium"
+          >
+            Apply
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -73,6 +208,7 @@ export default function CreateProduct() {
   const [fontColor, setFontColor] = useState("white");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [wholesaleUnit, setWholesaleUnit] = useState("/ piece");
   const [resellUnit, setResellUnit] = useState("/ piece");
@@ -509,14 +645,38 @@ setTimeout(async () => {
             </div>
           </div>
 
-          <div className="my-3">
+          <div className="my-2">
             <label className="block mb-1 font-semibold">Override BG:</label>
-            <input
-              type="color"
-              value={overrideColor}
-              onChange={(e) => setOverrideColor(e.target.value)}
-            />
+            <button
+              onClick={() => setShowColorPicker(true)}
+              className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 transition-colors"
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  backgroundColor: overrideColor,
+                  border: "2px solid #ccc",
+                  borderRadius: "6px",
+                }}
+              />
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-sm font-medium text-gray-700">Choose color</div>
+                <div className="text-sm text-gray-500 truncate">{overrideColor}</div>
+              </div>
+            </button>
           </div>
+
+          {showColorPicker && (
+            <ColorPickerModal
+              value={overrideColor}
+              onChange={(color) => {
+                setOverrideColor(color);
+                setShowColorPicker(false);
+              }}
+              onClose={() => setShowColorPicker(false)}
+            />
+          )}
 
           {suggestedColors.length > 0 && (
             <div className="mb-3">
