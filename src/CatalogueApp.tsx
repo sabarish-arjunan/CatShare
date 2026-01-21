@@ -370,7 +370,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             </div>
           </div>
 
-          {/* Fixed Icons Group (Glass + Sort + Push) */}
+          {/* Fixed Icons Group (Glass + Sort) */}
           <div className="flex items-center gap-2 shrink-0 ml-2">
             <button
               onClick={() => setShowSearch((prev) => !prev)}
@@ -393,27 +393,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M6 12h12M10 17h8" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {
-                const code = prompt("Enter commit message (optional):", "Code changes");
-                if (code !== null) {
-                  window.dispatchEvent(new CustomEvent("git-push", { detail: { message: code } }));
-                }
-              }}
-              className="text-xl text-gray-600 hover:text-blue-600 transition-colors"
-              title="Push Code"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
               </svg>
             </button>
           </div>
