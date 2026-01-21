@@ -73,7 +73,7 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
         <div className="space-y-3 max-w-2xl">
           {/* Dark Mode Setting */}
           <button
-            onClick={() => setAppearanceModalOpen(true)}
+            onClick={() => navigate("/settings/appearance")}
             className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
           >
             <div className="p-4 sm:p-6">
