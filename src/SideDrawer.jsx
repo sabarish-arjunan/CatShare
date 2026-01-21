@@ -9,7 +9,7 @@ import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage } from "react-icons/md";
+import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage, MdSettings } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
