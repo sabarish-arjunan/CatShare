@@ -646,7 +646,7 @@ setTimeout(async () => {
           </div>
 
           <div className="my-2">
-            <label className="block mb-1 text-sm font-medium">Override BG:</label>
+            <label className="block mb-1 font-semibold">Override BG:</label>
             <button
               onClick={() => setShowColorPicker(true)}
               className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 transition-colors"
@@ -661,8 +661,8 @@ setTimeout(async () => {
                 }}
               />
               <div className="flex-1 text-left min-w-0">
-                <div className="text-xs font-medium text-gray-700">Choose color</div>
-                <div className="text-xs text-gray-500 truncate">{overrideColor}</div>
+                <div className="text-sm font-medium text-gray-700">Choose color</div>
+                <div className="text-sm text-gray-500 truncate">{overrideColor}</div>
               </div>
             </button>
           </div>
