@@ -106,8 +106,9 @@ export default function ProModal({ isOpen, onClose }) {
           </div>
 
           {/* Footer Note */}
-          <p className="text-xs text-gray-500 text-center">
-            Currently free. Pro version coming soon.
+          <p className="text-xs text-center">
+            <span className="text-green-600 font-semibold">✓ Free access to Pro features during beta</span>
+            <span className="text-gray-500 block mt-1">Pricing model coming soon</span>
           </p>
         </div>
       </div>
