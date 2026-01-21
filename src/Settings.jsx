@@ -132,7 +132,7 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
           {/* Pro Plan Card */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <button
-              onClick={() => setProModalOpen(true)}
+              onClick={() => navigate("/settings/pro")}
               className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition text-left"
             >
               <div className="p-4 sm:p-6">
