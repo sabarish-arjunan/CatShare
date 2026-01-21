@@ -15,6 +15,9 @@ import CreateProduct from "./CreateProduct";
 import Shelf from "./Shelf";
 import Retail from "./Retail";
 import Settings from "./Settings";
+import AppearanceSettings from "./pages/AppearanceSettings";
+import WatermarkSettings from "./pages/WatermarkSettings";
+import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
@@ -154,6 +157,18 @@ function AppWithBackHandler() {
         <Route
           path="/settings"
           element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
+        <Route
+          path="/settings/appearance"
+          element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
+        <Route
+          path="/settings/watermark"
+          element={<WatermarkSettings />}
+        />
+        <Route
+          path="/settings/pro"
+          element={<ProInfo />}
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
