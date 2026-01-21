@@ -46,9 +46,9 @@ export default function ProModal({ isOpen, onClose }) {
 
           {/* Coming Soon Notice */}
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm font-semibold text-blue-900 mb-2">✨ What's Coming</p>
+            <p className="text-sm font-semibold text-blue-900 mb-2">⏰ Limited Time Offer</p>
             <p className="text-xs text-blue-800">
-              CatShare Pro will unlock powerful features for efficient product management. Currently, all features are free while we prepare the Pro version.
+              You're getting Pro features for free during our beta phase. When CatShare Pro officially launches, these premium features will require a subscription. Enjoy everything now!
             </p>
           </div>
 
