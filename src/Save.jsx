@@ -188,12 +188,13 @@ export async function saveRenderedImage(product, type, units = {}) {
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
 
-    // Add subtle watermark "created using CatShare" - Only if enabled in settings
+    // Add watermark - Only if enabled in settings
     const showWatermark = localStorage.getItem("showWatermark");
     const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : true; // Default: true
 
     if (isWatermarkEnabled) {
-      const watermarkText = "created using CatShare";
+      // Get custom watermark text from localStorage, default to "created using CatShare"
+      const watermarkText = localStorage.getItem("watermarkText") || "created using CatShare";
       const watermarkSize = Math.max(12, croppedCanvas.width / 40); // Responsive font size
       ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
 
