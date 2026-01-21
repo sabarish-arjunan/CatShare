@@ -295,7 +295,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
               zIndex: 5
             }}
           >
-            created using CatShare
+            {watermarkText}
           </div>
         )}
       </div>
