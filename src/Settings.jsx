@@ -13,6 +13,11 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
 
   const navigate = useNavigate();
 
+  // Update localDarkMode when darkMode prop changes
+  useEffect(() => {
+    setLocalDarkMode(darkMode);
+  }, [darkMode]);
+
   // Handle watermark toggle
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
