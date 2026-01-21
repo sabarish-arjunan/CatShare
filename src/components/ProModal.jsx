@@ -34,10 +34,10 @@ export default function ProModal({ isOpen, onClose }) {
           {/* Current Status */}
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
             <p className="text-sm text-green-900 mb-1">
-              <span className="font-semibold">Current Plan:</span> Free - Fully Featured
+              <span className="font-semibold">Current Plan:</span> Free - All Features Unlocked
             </p>
             <p className="text-xs text-green-800">
-              You have access to all core features at no cost. Pro features coming soon!
+              You currently have full access to everything, including pro features. Enjoy all the tools while they're free!
             </p>
           </div>
 
