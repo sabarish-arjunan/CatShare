@@ -35,12 +35,12 @@ export default function ProModal({ isOpen, onClose }) {
         {/* Content */}
         <div className="space-y-6">
           {/* Current Status */}
-          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-            <p className="text-sm text-green-900 mb-1">
-              <span className="font-semibold">Current Plan:</span> Free - All Features Unlocked
+          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm">
+            <p className="text-sm text-green-900 mb-2">
+              <span className="font-semibold">🎉 Special Offer:</span> Pro Features - Completely Free
             </p>
-            <p className="text-xs text-green-800">
-              You currently have full access to everything, including pro features. Enjoy all the tools while they're free!
+            <p className="text-xs text-green-800 leading-relaxed">
+              You have unlimited access to all CatShare Pro features at no cost. Make the most of it while you can!
             </p>
           </div>
 
