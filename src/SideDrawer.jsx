@@ -405,23 +405,6 @@ const exportProductsToCSV = (products) => {
   <span className="text-sm font-medium">Tutorial</span>
 </button>
 
-<button
-  onClick={() => setDarkMode(!darkMode)}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  {darkMode ? (
-    <>
-      <MdLightMode className="text-gray-500 text-[18px]" />
-      <span className="text-sm font-medium">Light Mode</span>
-    </>
-  ) : (
-    <>
-      <MdDarkMode className="text-gray-500 text-[18px]" />
-      <span className="text-sm font-medium">Dark Mode</span>
-    </>
-  )}
-</button>
-
 <div>
 <button
   onClick={() => setShowRenderConfirm(true)}
