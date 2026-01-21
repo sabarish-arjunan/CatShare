@@ -151,6 +151,7 @@ function AppWithBackHandler() {
           }
         />
         <Route path="/retail" element={<Retail products={products} />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
