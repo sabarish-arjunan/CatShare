@@ -56,7 +56,7 @@ export default function ProModal({ isOpen, onClose }) {
           <div>
             <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <MdStar className="text-yellow-500" />
-              Features Coming in Pro Version
+              Pro Features (Available Now - Free!)
             </h3>
             <div className="space-y-2">
               {proFeatures.map((feature, idx) => (
