@@ -208,6 +208,7 @@ export default function CreateProduct() {
   const [fontColor, setFontColor] = useState("white");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [wholesaleUnit, setWholesaleUnit] = useState("/ piece");
   const [resellUnit, setResellUnit] = useState("/ piece");
