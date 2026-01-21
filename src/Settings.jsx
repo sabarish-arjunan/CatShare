@@ -9,7 +9,12 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
     const stored = localStorage.getItem("showWatermark");
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
+  const [watermarkText, setWatermarkText] = useState(() => {
+    const stored = localStorage.getItem("watermarkText");
+    return stored || "created using CatShare"; // Default text
+  });
   const [localDarkMode, setLocalDarkMode] = useState(darkMode);
+  const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
 
   const navigate = useNavigate();
 
