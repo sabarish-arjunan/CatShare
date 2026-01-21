@@ -31,6 +31,33 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
+  // Handle watermark text change
+  const handleWatermarkTextChange = (text) => {
+    setEditingWatermarkText(text);
+  };
+
+  // Save watermark text
+  const handleSaveWatermarkText = () => {
+    const trimmedText = editingWatermarkText.trim();
+    if (trimmedText.length === 0) {
+      setEditingWatermarkText(watermarkText); // Reset to previous value
+      return;
+    }
+    setWatermarkText(trimmedText);
+    localStorage.setItem("watermarkText", trimmedText);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: trimmedText } }));
+  };
+
+  // Reset watermark text to default
+  const handleResetWatermarkText = () => {
+    const defaultText = "created using CatShare";
+    setWatermarkText(defaultText);
+    setEditingWatermarkText(defaultText);
+    localStorage.setItem("watermarkText", defaultText);
+    window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: defaultText } }));
+  };
+
   // Handle dark mode toggle
   const handleDarkModeToggle = (value) => {
     setLocalDarkMode(value);
