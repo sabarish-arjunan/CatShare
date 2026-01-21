@@ -14,6 +14,7 @@ import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
 import Shelf from "./Shelf";
 import Retail from "./Retail";
+import Settings from "./Settings";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
