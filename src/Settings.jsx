@@ -74,19 +74,22 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="space-y-4 max-w-2xl">
+        <div className="space-y-3 max-w-2xl">
           {/* Dark Mode Setting */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setAppearanceModalOpen(true)}
+            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
+          >
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Appearance</h3>
-                  <p className="text-sm text-gray-600">
-                    Switch between light and dark theme
-                  </p>
+                  <h3 className="text-lg font-semibold text-gray-800">Appearance</h3>
                 </div>
                 <button
-                  onClick={() => handleDarkModeToggle(!localDarkMode)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDarkModeToggle(!localDarkMode);
+                  }}
                   className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
                     localDarkMode ? "bg-blue-600" : "bg-gray-300"
                   }`}
@@ -98,35 +101,24 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
                   />
                 </button>
               </div>
-
-              {/* Status */}
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-700">
-                  <span className="font-semibold">Current Theme:</span>{" "}
-                  <span className="font-medium">
-                    {localDarkMode ? (
-                      <>🌙 Dark Mode</>
-                    ) : (
-                      <>☀️ Light Mode</>
-                    )}
-                  </span>
-                </p>
-              </div>
             </div>
-          </div>
+          </button>
 
           {/* Watermark Setting */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setWatermarkModalOpen(true)}
+            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
+          >
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Watermark</h3>
-                  <p className="text-sm text-gray-600">
-                    Display custom text on all product images and previews
-                  </p>
+                  <h3 className="text-lg font-semibold text-gray-800">Watermark</h3>
                 </div>
                 <button
-                  onClick={() => handleWatermarkToggle(!showWatermark)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleWatermarkToggle(!showWatermark);
+                  }}
                   className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
                     showWatermark ? "bg-blue-600" : "bg-gray-300"
                   }`}
@@ -138,69 +130,26 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
                   />
                 </button>
               </div>
-
-              {/* Status */}
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-700">
-                  <span className="font-semibold">Status:</span>{" "}
-                  <span className={showWatermark ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                    {showWatermark ? "🟢 Enabled" : "🔴 Disabled"}
-                  </span>
-                </p>
-                <p className="text-xs text-gray-600 mt-2">
-                  {showWatermark
-                    ? "Watermark will appear on all exported images and in previews"
-                    : "Watermark is hidden on all content"}
-                </p>
-              </div>
-
-              {/* Watermark Text Editor - Only visible when enabled */}
-              {showWatermark && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <label className="block text-sm font-medium text-gray-800 mb-2">Watermark Text</label>
-                  <input
-                    type="text"
-                    value={editingWatermarkText}
-                    onChange={(e) => handleWatermarkTextChange(e.target.value)}
-                    placeholder="Enter watermark text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">Current: <span className="font-mono">{watermarkText}</span></p>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      onClick={handleSaveWatermarkText}
-                      disabled={editingWatermarkText.trim() === ""}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleResetWatermarkText}
-                      className="flex-1 px-3 py-2 bg-gray-200 text-gray-800 text-sm rounded-lg hover:bg-gray-300 transition font-medium"
-                    >
-                      Reset to Default
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
-
-          {/* Info Section */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-            <h4 className="font-semibold text-blue-900 text-sm mb-2">💡 About Watermark</h4>
-            <ul className="text-xs text-blue-800 space-y-1">
-              <li>• Default text: "created using CatShare"</li>
-              <li>• Fully customizable when enabled</li>
-              <li>• Appears at the bottom center of images</li>
-              <li>• Color adapts to background (dark text on light, white on dark)</li>
-              <li>• Visible in product previews and exported images</li>
-            </ul>
-          </div>
+          </button>
         </div>
       </main>
+
+      {/* Modals */}
+      <AppearanceModal
+        isOpen={appearanceModalOpen}
+        onClose={() => setAppearanceModalOpen(false)}
+        darkMode={localDarkMode}
+        setDarkMode={handleDarkModeToggle}
+      />
+      <WatermarkModal
+        isOpen={watermarkModalOpen}
+        onClose={() => setWatermarkModalOpen(false)}
+        showWatermark={showWatermark}
+        setShowWatermark={handleWatermarkToggle}
+        watermarkText={watermarkText}
+        setWatermarkText={setWatermarkText}
+      />
 
       {/* Side Drawer */}
       {menuOpen && (
