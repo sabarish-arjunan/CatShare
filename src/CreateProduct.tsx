@@ -647,65 +647,39 @@ setTimeout(async () => {
 
           <div className="my-3">
             <label className="block mb-1 font-semibold">Override BG:</label>
-            <div className="flex gap-2 flex-wrap mb-3">
-              {[
-                "#ffffff", "#000000", "#d1b3c4", "#add8e6", "#ffc0cb",
-                "#ffeb3b", "#4caf50", "#ff9800", "#9c27b0", "#e91e63",
-                "#00bcd4", "#795548"
-              ].map((color) => (
-                <div
-                  key={color}
-                  onClick={() => setOverrideColor(color)}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    backgroundColor: color,
-                    border:
-                      overrideColor === color
-                        ? "3px solid black"
-                        : "1px solid #ccc",
-                    cursor: "pointer",
-                    borderRadius: "6px",
-                  }}
-                  title={color}
-                />
-              ))}
-            </div>
-            <div className="flex gap-2 items-center">
+            <button
+              onClick={() => setShowColorPicker(true)}
+              className="flex items-center gap-3 w-full border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+            >
               <div
                 style={{
-                  width: 44,
-                  height: 44,
+                  width: 50,
+                  height: 50,
                   backgroundColor: overrideColor,
                   border: "2px solid #ccc",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  position: "relative",
+                  borderRadius: "8px",
                 }}
-                onClick={() => document.getElementById("color-input-mobile").click()}
-              >
-                <input
-                  id="color-input-mobile"
-                  type="color"
-                  value={overrideColor}
-                  onChange={(e) => setOverrideColor(e.target.value)}
-                  style={{ display: "none" }}
-                />
-              </div>
-              <input
-                type="text"
-                value={overrideColor}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val.match(/^#[0-9A-F]{6}$/i) || val.match(/^rgb\(/i)) {
-                    setOverrideColor(val);
-                  }
-                }}
-                placeholder="#ffffff or rgb(255, 255, 255)"
-                className="border p-2 rounded flex-1 text-xs"
               />
-            </div>
+              <div className="flex-1 text-left">
+                <div className="text-sm font-medium text-gray-700">Click to choose color</div>
+                <div className="text-xs text-gray-500">{overrideColor}</div>
+              </div>
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
+
+          {showColorPicker && (
+            <ColorPickerModal
+              value={overrideColor}
+              onChange={(color) => {
+                setOverrideColor(color);
+                setShowColorPicker(false);
+              }}
+              onClose={() => setShowColorPicker(false)}
+            />
+          )}
 
           {suggestedColors.length > 0 && (
             <div className="mb-3">
