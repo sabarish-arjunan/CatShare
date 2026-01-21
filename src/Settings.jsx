@@ -134,6 +134,27 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
               </div>
             </div>
           </button>
+
+          {/* Pro Plan Card */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <button
+              onClick={() => setProModalOpen(true)}
+              className="w-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-300 transition text-left"
+            >
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">✨</span>
+                      <h3 className="text-lg font-semibold text-blue-900">Your Plan: Free</h3>
+                    </div>
+                    <p className="text-sm text-blue-700">Pro features coming soon</p>
+                  </div>
+                  <span className="text-2xl ml-4 flex-shrink-0">→</span>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
       </main>
 
