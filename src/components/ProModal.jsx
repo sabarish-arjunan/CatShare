@@ -18,7 +18,10 @@ export default function ProModal({ isOpen, onClose }) {
         <div className="flex items-center justify-between mb-6 sticky top-0 bg-white">
           <div className="flex items-center gap-2">
             <MdStar className="text-yellow-500 text-2xl" />
-            <h2 className="text-xl font-bold text-gray-800">CatShare Pro</h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">CatShare Pro</h2>
+              <p className="text-xs text-green-600 font-medium">You're using Pro for FREE</p>
+            </div>
           </div>
           <button
             onClick={onClose}
