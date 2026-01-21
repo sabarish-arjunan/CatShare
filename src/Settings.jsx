@@ -139,16 +139,16 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
           <div className="mt-6 pt-6 border-t border-gray-200">
             <button
               onClick={() => setProModalOpen(true)}
-              className="w-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-300 transition text-left"
+              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition text-left"
             >
               <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">✨</span>
-                      <h3 className="text-lg font-semibold text-blue-900">Your Plan: Free</h3>
+                      <span className="text-lg">🎉</span>
+                      <h3 className="text-lg font-semibold text-green-900">Using Pro for FREE</h3>
                     </div>
-                    <p className="text-sm text-blue-700">Pro features coming soon</p>
+                    <p className="text-sm text-green-700">Beta access to all premium features</p>
                   </div>
                   <span className="text-2xl ml-4 flex-shrink-0">→</span>
                 </div>
