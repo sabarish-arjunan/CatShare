@@ -173,6 +173,10 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
         watermarkText={watermarkText}
         setWatermarkText={setWatermarkText}
       />
+      <ProModal
+        isOpen={proModalOpen}
+        onClose={() => setProModalOpen(false)}
+      />
 
       {/* Side Drawer */}
       {menuOpen && (
