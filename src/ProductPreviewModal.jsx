@@ -355,15 +355,35 @@ export default function ProductPreviewModal({
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
 
+  // Get custom watermark text
+  const [watermarkText, setWatermarkText] = useState(() => {
+    return localStorage.getItem("watermarkText") || "created using CatShare";
+  });
+
   // Listen for watermark setting changes from Settings modal
   useEffect(() => {
     const handleStorageChange = () => {
       const stored = localStorage.getItem("showWatermark");
       setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
+    };
+
+    const handleWatermarkChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "created using CatShare");
     };
 
     window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+    };
   }, []);
 
   useEffect(() => {
