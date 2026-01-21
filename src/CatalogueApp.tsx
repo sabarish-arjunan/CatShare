@@ -19,7 +19,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
