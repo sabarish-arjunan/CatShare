@@ -152,25 +152,6 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
         </div>
       </main>
 
-      {/* Modals */}
-      <AppearanceModal
-        isOpen={appearanceModalOpen}
-        onClose={() => setAppearanceModalOpen(false)}
-        darkMode={localDarkMode}
-        setDarkMode={handleDarkModeToggle}
-      />
-      <WatermarkModal
-        isOpen={watermarkModalOpen}
-        onClose={() => setWatermarkModalOpen(false)}
-        showWatermark={showWatermark}
-        setShowWatermark={handleWatermarkToggle}
-        watermarkText={watermarkText}
-        setWatermarkText={setWatermarkText}
-      />
-      <ProModal
-        isOpen={proModalOpen}
-        onClose={() => setProModalOpen(false)}
-      />
 
       {/* Side Drawer */}
       {menuOpen && (
