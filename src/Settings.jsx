@@ -144,7 +144,6 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
                     </div>
                     <p className="text-xs text-green-700">Beta access to all premium features</p>
                   </div>
-                  <span className="text-xl flex-shrink-0">→</span>
                 </div>
               </div>
             </div>
