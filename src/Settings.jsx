@@ -63,6 +63,46 @@ export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
         <div className="space-y-4 max-w-2xl">
+          {/* Dark Mode Setting */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Appearance</h3>
+                  <p className="text-sm text-gray-600">
+                    Switch between light and dark theme
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDarkModeToggle(!localDarkMode)}
+                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
+                    localDarkMode ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform ${
+                      localDarkMode ? "translate-x-8" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Status */}
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-xs text-gray-700">
+                  <span className="font-semibold">Current Theme:</span>{" "}
+                  <span className="font-medium">
+                    {localDarkMode ? (
+                      <>🌙 Dark Mode</>
+                    ) : (
+                      <>☀️ Light Mode</>
+                    )}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Watermark Setting */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
             <div className="p-4 sm:p-6">
