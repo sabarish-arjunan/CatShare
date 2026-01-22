@@ -18,7 +18,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void; isRendering?: boolean; setIsRendering?: (value: boolean) => void; renderProgress?: number; setRenderProgress?: (value: number) => void }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>> }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
