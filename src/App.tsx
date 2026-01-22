@@ -266,15 +266,15 @@ function AppWithBackHandler() {
           element={
             <Settings
               darkMode={darkMode}
-              setDarkMode={setDarkMode}
+              setDarkMode={setDarkMode as any}
               products={products}
-              setProducts={setProducts}
+              setProducts={setProducts as any}
               deletedProducts={deletedProducts}
-              setDeletedProducts={setDeletedProducts}
+              setDeletedProducts={setDeletedProducts as any}
               isRendering={isRendering}
-              setIsRendering={setIsRendering}
+              setIsRendering={setIsRendering as any}
               renderProgress={renderProgress}
-              setRenderProgress={setRenderProgress}
+              setRenderProgress={setRenderProgress as any}
             />
           }
         />
