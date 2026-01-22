@@ -144,10 +144,7 @@ const { showToast } = useToast();
     reader.readAsDataURL(blob);
   } catch (err) {
     console.error("Download rendered images failed:", err);
-    showToast({
-      type: "error",
-      message: "Failed to download rendered images",
-    });
+    showToast("Failed to download rendered images", "error");
   }
 };
 
