@@ -155,108 +155,137 @@ export default function WatermarkSettings() {
               {/* Watermark Position Selector */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                 <label className="block text-sm font-medium text-gray-800 mb-4">Position</label>
-                <p className="text-xs text-gray-600 mb-4">Choose where the watermark appears on images</p>
+                <p className="text-xs text-gray-600 mb-4">Click on the position buttons on the image preview</p>
 
-                {/* Position Grid */}
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Top Row */}
+                {/* Position Preview Image with Buttons */}
+                <div className="relative w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-4" style={{ aspectRatio: "3/4" }}>
+                  {/* Sample product image preview */}
+                  <div className="w-full h-full flex items-center justify-center bg-white">
+                    <div className="text-center text-gray-400">
+                      <div className="text-4xl mb-2">📷</div>
+                      <p className="text-sm font-medium">Sample Product Image</p>
+                    </div>
+                  </div>
+
+                  {/* Top Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-left")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-left"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Top Left"
                   >
-                    Top Left
+                    ↖
                   </button>
+
+                  {/* Top Center Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-center")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-center"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Top Center"
                   >
-                    Top
+                    ⬆
                   </button>
+
+                  {/* Top Right Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-right")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-right"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Top Right"
                   >
-                    Top Right
+                    ↗
                   </button>
 
-                  {/* Middle Row */}
+                  {/* Middle Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("middle-left")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute top-1/2 -translate-y-1/2 left-3 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "middle-left"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Middle Left"
                   >
-                    Middle Left
-                  </button>
-                  <button
-                    onClick={() => handlePositionChange("middle-center")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
-                      watermarkPosition === "middle-center"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    Center
-                  </button>
-                  <button
-                    onClick={() => handlePositionChange("middle-right")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
-                      watermarkPosition === "middle-right"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    Middle Right
+                    ⬅
                   </button>
 
-                  {/* Bottom Row */}
+                  {/* Middle Center Position Button */}
+                  <button
+                    onClick={() => handlePositionChange("middle-center")}
+                    className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                      watermarkPosition === "middle-center"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
+                    }`}
+                    title="Middle Center"
+                  >
+                    ●
+                  </button>
+
+                  {/* Middle Right Position Button */}
+                  <button
+                    onClick={() => handlePositionChange("middle-right")}
+                    className={`absolute top-1/2 -translate-y-1/2 right-3 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                      watermarkPosition === "middle-right"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
+                    }`}
+                    title="Middle Right"
+                  >
+                    ➡
+                  </button>
+
+                  {/* Bottom Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("bottom-left")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute bottom-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-left"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Bottom Left"
                   >
-                    Bottom Left
+                    ↙
                   </button>
+
+                  {/* Bottom Center Position Button */}
                   <button
                     onClick={() => handlePositionChange("bottom-center")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-center"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Bottom Center"
                   >
-                    Bottom
+                    ⬇
                   </button>
+
+                  {/* Bottom Right Position Button */}
                   <button
                     onClick={() => handlePositionChange("bottom-right")}
-                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                    className={`absolute bottom-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-right"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
+                    title="Bottom Right"
                   >
-                    Bottom Right
+                    ↘
                   </button>
                 </div>
 
-                <p className="text-xs text-gray-500 mt-4">
+                <p className="text-xs text-gray-500">
                   Current position: <span className="font-medium capitalize">{watermarkPosition.replace("-", " ")}</span>
                 </p>
               </div>
