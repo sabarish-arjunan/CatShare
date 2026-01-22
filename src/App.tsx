@@ -280,7 +280,7 @@ function AppWithBackHandler() {
         />
         <Route
           path="/settings/appearance"
-          element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode} />}
+          element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode as any} />}
         />
         <Route
           path="/settings/watermark"
