@@ -96,8 +96,9 @@ export default function WatermarkSettings() {
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-xs text-blue-900">
               <span className="font-semibold">Status:</span>{" "}
-              <span className={showWatermark ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                {showWatermark ? "🟢 Enabled" : "🔴 Disabled"}
+              <span className={`${showWatermark ? "text-green-600 font-medium" : "text-red-600 font-medium"} flex items-center gap-1.5 inline-flex`}>
+                <MdCircle size={10} className={showWatermark ? "text-green-500" : "text-red-500"} />
+                {showWatermark ? "Enabled" : "Disabled"}
               </span>
             </p>
             <p className="text-xs text-blue-800 mt-2">
