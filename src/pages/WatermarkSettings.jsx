@@ -417,7 +417,7 @@ export default function WatermarkSettings() {
           onClick={() => {
             window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
           }}
-          className="fixed bottom-6 right-6 px-4 py-3 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition font-medium shadow-lg hover:shadow-xl z-40 flex items-center gap-2"
+          className="fixed bottom-6 right-6 px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl z-40 flex items-center gap-2"
         >
           <span>Render All</span>
         </button>
