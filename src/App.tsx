@@ -129,6 +129,11 @@ function AppWithBackHandler() {
       }}
     >
       <ToastContainer />
+      <RenderingOverlay
+        visible={isRendering}
+        current={Math.round((renderProgress / 100) * products.length)}
+        total={products.length}
+      />
       <Routes>
         <Route
           path="/"
