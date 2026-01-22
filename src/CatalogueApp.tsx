@@ -725,12 +725,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       {showTutorial && (
         <Tutorial onClose={() => setShowTutorial(false)} />
       )}
-
-      <RenderingOverlay
-        visible={isRendering}
-        current={Math.round((renderProgress / 100) * products.length)}
-        total={products.length}
-      />
     </div>
   );
 }
