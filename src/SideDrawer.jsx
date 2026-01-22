@@ -725,32 +725,29 @@ const exportProductsToCSV = (products) => {
         </div>
       </div>
 
-{showMediaLibrary && (
-  <MediaLibrary
-    onClose={() => setShowMediaLibrary(false)}
-    onSelect={() => setShowMediaLibrary(false)} // ← temp, will connect to product later
-  />
-)}  
+      {showMediaLibrary && (
+        <MediaLibrary
+          onClose={() => setShowMediaLibrary(false)}
+          onSelect={() => setShowMediaLibrary(false)}
+        />
+      )}
 
-{showBulkEdit && (() => {
-  try {
-    return (
-      <BulkEdit
-  products={products}
-  imageMap={imageMap}
-  setProducts={setProducts}
-  onClose={() => setShowBulkEdit(false)}
-  triggerRender={handleRenderAllPNGs}
-/>
-
-
-
-    );
-  } catch (err) {
-    console.error("💥 Error in BulkEdit:", err);
-    return <div className='text-red-600'>BulkEdit crashed.</div>;
-  }
-})()}
+      {showBulkEdit && (() => {
+        try {
+          return (
+            <BulkEdit
+              products={products}
+              imageMap={imageMap}
+              setProducts={setProducts}
+              onClose={() => setShowBulkEdit(false)}
+              triggerRender={handleRenderAllPNGs}
+            />
+          );
+        } catch (err) {
+          console.error("💥 Error in BulkEdit:", err);
+          return <div className='text-red-600'>BulkEdit crashed.</div>;
+        }
+      })()}
 
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />
