@@ -81,7 +81,7 @@ export default function WatermarkSettings() {
           </p>
 
           {/* Toggle */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-800 flex items-center gap-2">
                 <MdCircle size={12} className={showWatermark ? "text-green-500" : "text-red-500"} />
