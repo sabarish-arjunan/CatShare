@@ -407,73 +407,6 @@ export default function Retail({ products = [] }) {
     })();
   }, [retailProducts]);
 
-  const handleDownload = async (e, productId, productName) => {
-    e.stopPropagation();
-    try {
-      const imageUrl = imageMap[productId];
-      if (!imageUrl) return;
-
-      // Convert data URL or fetch the image
-      let blob;
-      if (imageUrl.startsWith('data:')) {
-        const arr = imageUrl.split(',');
-        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
-        const bstr = atob(arr[1]);
-        const n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        for (let i = 0; i < n; i++) {
-          u8arr[i] = bstr.charCodeAt(i);
-        }
-        blob = new Blob([u8arr], { type: mime });
-      } else {
-        const response = await fetch(imageUrl);
-        blob = await response.blob();
-      }
-
-      // Get file extension from mime type
-      const mimeType = blob.type || 'image/png';
-      const ext = mimeType.split('/')[1] || 'png';
-      const filename = `${productName || 'product'}_${productId}.${ext}`;
-
-      // Use FileSaver or Filesystem API for download
-      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: filename,
-            types: [{ description: 'Image', accept: { [mimeType]: [`.${ext}`] } }],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-        } catch (err) {
-          if (err.name !== 'AbortError') {
-            console.warn('Save file picker failed, trying download:', err);
-            // Fallback to blob download
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }
-        }
-      } else {
-        // Fallback: simple blob download
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    } catch (err) {
-      console.error('Download failed:', err);
-    }
-  };
 
   return (
     <div className="w-full min-h-[100dvh] bg-gradient-to-b from-white to-gray-100 relative">
@@ -566,11 +499,6 @@ export default function Retail({ products = [] }) {
                 )}
 
                 <div className="absolute top-1 right-1 flex gap-1 z-10">
-                  <button onClick={(e) => handleDownload(e, p.id, p.name)} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-gray-700 hover:text-gray-900 transition-colors" title="Download image">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                  </button>
                   <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm">✎</button>
                   <button onClick={(e) => {
                     e.stopPropagation();
