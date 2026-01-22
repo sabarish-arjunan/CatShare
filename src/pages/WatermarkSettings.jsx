@@ -415,15 +415,43 @@ export default function WatermarkSettings() {
       {showWatermark && hasChanges && !renderBoxVisible && (
         <button
           onClick={() => {
-            if (renderBoxRef.current) {
-              renderBoxRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
+            setShowRenderConfirm(true);
           }}
           className="fixed bottom-6 right-6 px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl z-40 flex items-center gap-2"
         >
           <MdWarning size={18} />
           <span>Render</span>
         </button>
+      )}
+
+      {/* Render Confirmation Modal */}
+      {showRenderConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
+            <p className="text-lg font-medium text-gray-800 mb-2">Render all product images?</p>
+            <p className="text-sm text-gray-600 mb-4">
+              This will apply watermark changes to all your shared images.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                className="px-5 py-2 rounded-full bg-red-900 text-white font-medium shadow hover:bg-red-950 transition"
+                onClick={() => {
+                  setShowRenderConfirm(false);
+                  window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+                }}
+              >
+                Yes, Render
+              </button>
+              <button
+                className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition"
+                onClick={() => setShowRenderConfirm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
