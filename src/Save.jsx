@@ -199,23 +199,49 @@ export async function saveRenderedImage(product, type, units = {}) {
       const watermarkText = localStorage.getItem("watermarkText") || "created using CatShare";
       const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
 
-      // Get the imageWrap element to determine its dimensions and position in the rendered canvas
+      // Get the imageWrap and imageShadowWrap elements to determine position in the rendered canvas
       const imageWrapEl = document.getElementById(`image-wrap-${id}`);
-      if (imageWrapEl) {
-        const imageWrapRect = imageWrapEl.getBoundingClientRect();
-        const containerRect = imageWrapEl.closest(`.full-detail-${id}-${type}`).getBoundingClientRect();
+      const imageShadowWrapEl = document.getElementById(`image-shadow-wrap-${id}`);
+      const containerEl = imageWrapEl?.closest(`.full-detail-${id}-${type}`);
 
-        // Calculate image section position in the rendered canvas
+      if (imageWrapEl && imageShadowWrapEl && containerEl) {
         // html2canvas renders at 3x scale
         const scale = 3;
-        const imageWrapOffsetTop = (imageWrapRect.top - containerRect.top) * scale;
-        const imageWrapOffsetLeft = (imageWrapRect.left - containerRect.left) * scale;
-        const imageWrapWidth = imageWrapRect.width * scale;
-        const imageWrapHeight = imageWrapRect.height * scale;
+        const containerWidth = 330; // wrapper width in px
+        const scaledContainerWidth = containerWidth * scale;
 
-        // Watermark font size should be relative to image section width (same as preview: 10px for small sections)
-        // Scale it to match what appears in the preview
-        const watermarkSize = Math.max(20, imageWrapWidth / 40); // Larger base size since we're at 3x scale
+        // Get the computed dimensions of the image wrap
+        const imageWrapStyle = window.getComputedStyle(imageWrapEl);
+        const imageShadowWrapStyle = window.getComputedStyle(imageShadowWrapEl);
+        const imagePadding = 16; // padding in imageWrap
+
+        // Calculate dimensions accounting for all parent elements
+        const imageWrapWidth = containerWidth * scale; // Full container width
+
+        // Calculate offset from top
+        // For wholesale: priceBar (≈36px) + imageShadowWrap offset
+        // For resell: imageShadowWrap offset + other content
+        let imageWrapOffsetTop = 0;
+        let currentEl = imageShadowWrapEl;
+
+        // Sum up the heights of all previous siblings
+        while (currentEl.previousElementSibling) {
+          const prevEl = currentEl.previousElementSibling;
+          const prevHeight = prevEl.offsetHeight || 0;
+          imageWrapOffsetTop += prevHeight;
+          currentEl = prevEl;
+        }
+
+        imageWrapOffsetTop *= scale;
+
+        // Image section height includes padding and the image itself
+        const imageWrapHeight = imageWrapEl.offsetHeight * scale;
+        const imageWrapOffsetLeft = 0;
+
+        // Watermark font size should be relative to image section width
+        // Matches the preview sizing logic
+        const previewFontSize = 10; // Base font size in preview
+        const watermarkSize = previewFontSize * scale; // Scale up proportionally
         ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
 
         // Check if background is light or dark and set watermark color accordingly
