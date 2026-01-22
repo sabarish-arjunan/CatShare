@@ -50,6 +50,26 @@ export default function WatermarkSettings() {
     return () => window.removeEventListener("renderComplete", handleRenderComplete);
   }, []);
 
+  // Track if Render All Images box is visible in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setRenderBoxVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (renderBoxRef.current) {
+      observer.observe(renderBoxRef.current);
+    }
+
+    return () => {
+      if (renderBoxRef.current) {
+        observer.unobserve(renderBoxRef.current);
+      }
+    };
+  }, []);
+
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
     localStorage.setItem("showWatermark", JSON.stringify(value));
