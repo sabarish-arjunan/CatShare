@@ -19,6 +19,10 @@ export default function WatermarkSettings() {
     return stored || "bottom-center"; // Default position
   });
   const [hasChanges, setHasChanges] = useState(false);
+  const [initialShowWatermark] = useState(() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : false;
+  });
   const [initialWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
     return stored || "Created using CatShare";
