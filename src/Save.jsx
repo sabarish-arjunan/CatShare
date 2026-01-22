@@ -97,6 +97,7 @@ export async function saveRenderedImage(product, type, units = {}) {
     marginBottom: "1px",
     borderRadius: "0",
   });
+  imageShadowWrap.id = `image-shadow-wrap-${id}`;
 
   const imageWrap = document.createElement("div");
   Object.assign(imageWrap.style, {
@@ -106,6 +107,7 @@ export async function saveRenderedImage(product, type, units = {}) {
     position: "relative",
     overflow: "visible",
   });
+  imageWrap.id = `image-wrap-${id}`;
 
   const img = document.createElement("img");
   img.alt = product.name;
