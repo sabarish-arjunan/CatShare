@@ -162,8 +162,8 @@ export default function WatermarkSettings() {
                   {/* Sample product image preview */}
                   <div className="w-full h-full flex items-center justify-center bg-white">
                     <div className="text-center text-gray-400">
-                      <div className="text-4xl mb-2">📷</div>
-                      <p className="text-sm font-medium">Sample Product Image</p>
+                      <div className="text-2xl mb-1">📷</div>
+                      <p className="text-xs font-medium">Sample</p>
                     </div>
                   </div>
 
