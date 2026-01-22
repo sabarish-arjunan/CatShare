@@ -40,9 +40,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [shelfTarget, setShelfTarget] = useState(null);
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
-  const [isRendering, setIsRendering] = useState(false);
-  const [renderProgress, setRenderProgress] = useState(0);
+  const [localIsRendering, setLocalIsRendering] = useState(false);
+  const [localRenderProgress, setLocalRenderProgress] = useState(0);
   const [renderResult, setRenderResult] = useState(null);
+
+  // Use passed props if available, otherwise use local state
+  const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
+  const setIsRendering = propSetIsRendering || setLocalIsRendering;
+  const renderProgress = propRenderProgress !== undefined ? propRenderProgress : localRenderProgress;
+  const setRenderProgress = propSetRenderProgress || setLocalRenderProgress;
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
