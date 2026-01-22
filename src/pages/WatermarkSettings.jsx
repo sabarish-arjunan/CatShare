@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack } from "react-icons/md";
+import { MdArrowBack, MdWarning } from "react-icons/md";
 import { MdCircle } from "react-icons/md";
 
 export default function WatermarkSettings() {
@@ -27,6 +27,9 @@ export default function WatermarkSettings() {
     const stored = localStorage.getItem("watermarkPosition");
     return stored || "bottom-center";
   });
+  const [renderBoxVisible, setRenderBoxVisible] = useState(false);
+  const renderBoxRef = useRef(null);
+  const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
@@ -43,10 +46,40 @@ export default function WatermarkSettings() {
   useEffect(() => {
     const handleRenderComplete = () => {
       setHasChanges(false);
+      setRenderBoxVisible(false);
     };
     window.addEventListener("renderComplete", handleRenderComplete);
     return () => window.removeEventListener("renderComplete", handleRenderComplete);
   }, []);
+
+  // Reset renderBoxVisible when render box is not shown
+  useEffect(() => {
+    if (!hasChanges || !showWatermark) {
+      setRenderBoxVisible(false);
+    }
+  }, [hasChanges, showWatermark]);
+
+  // Track if Render All Images box is visible in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setRenderBoxVisible(entry.isIntersecting);
+      },
+      { threshold: 0.01 }
+    );
+
+    if (renderBoxRef.current) {
+      observer.observe(renderBoxRef.current);
+    }
+
+    return () => {
+      if (renderBoxRef.current) {
+        observer.unobserve(renderBoxRef.current);
+      } else {
+        observer.disconnect();
+      }
+    };
+  }, [renderBoxRef]);
 
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
@@ -144,37 +177,6 @@ export default function WatermarkSettings() {
           </div>
 
           {/* Warning about export images */}
-          {showWatermark && (
-            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <p className="text-xs text-amber-900">
-                <span className="font-semibold">⚠️ Note about Export Images:</span>
-              </p>
-              <p className="text-xs text-amber-800 mt-2">
-                Other previews will show watermark changes immediately. However, to see watermark changes in your export images, you need to <span className="font-semibold">render all images</span> again. Export images will only update after rendering.
-              </p>
-            </div>
-          )}
-
-          {/* Render Images Box - Only visible when changes are made */}
-          {showWatermark && hasChanges && (
-            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-xs text-green-900 mb-3">
-                <span className="font-semibold">✓ Changes Detected</span>
-              </p>
-              <p className="text-xs text-green-800 mb-3">
-                You've made changes to your watermark settings. Click below to render all images and apply these changes to your exports.
-              </p>
-              <button
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
-                }}
-                className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition font-medium"
-              >
-                Render All Images
-              </button>
-            </div>
-          )}
-
           {/* Watermark Text Editor - Only visible when enabled */}
           {showWatermark && (
             <>
@@ -375,19 +377,99 @@ export default function WatermarkSettings() {
             </>
           )}
 
-          {/* Info Section */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 text-sm mb-2">💡 About Watermark</h4>
-            <ul className="text-xs text-blue-800 space-y-1">
-              <li>• Default text: "Created using CatShare"</li>
-              <li>• Fully customizable text and position</li>
-              <li>• 9 position options to choose from</li>
-              <li>• Color adapts to background (dark text on light, white on dark)</li>
-              <li>• Visible in product previews and exported images</li>
-            </ul>
-          </div>
+          {/* Render Images Box - Only visible when changes are made */}
+          {showWatermark && hasChanges && (
+            <div ref={renderBoxRef} className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-xs text-red-900 mb-3">
+                <span className="font-semibold">✓ Changes Detected</span>
+              </p>
+              <p className="text-xs text-red-800 mb-3">
+                You've made changes to your watermark settings. Click below to render all images and apply these changes to your shared images.
+              </p>
+              <button
+                onClick={() => {
+                  setShowRenderConfirm(true);
+                }}
+                className="w-full px-4 py-2 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium"
+              >
+                Render All Images
+              </button>
+            </div>
+          )}
+
+          {showWatermark && (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <p className="text-xs text-amber-900">
+                <span className="font-semibold">⚠️ Note about Shared Images:</span>
+              </p>
+              <p className="text-xs text-amber-800 mt-2">
+                Other previews will show watermark changes immediately. However, to see watermark changes in your shared images, you need to <span className="font-semibold">render all images</span> again. Shared images will only update after rendering.
+              </p>
+            </div>
+          )}
+
         </div>
       </main>
+
+      {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
+      {showWatermark && hasChanges && !renderBoxVisible && (
+        <div className="fixed bottom-6 right-6 z-40 group">
+          <button
+            onClick={() => {
+              setShowRenderConfirm(true);
+            }}
+            title="Watermark changes won't appear on shared images until rendered"
+            className="px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
+          >
+            <MdWarning size={18} />
+            <span>Render</span>
+          </button>
+          <div className="absolute bottom-full right-0 mb-2 bg-gray-800 text-white text-xs rounded-lg p-3 max-w-xs hidden group-hover:block pointer-events-none whitespace-normal">
+            <p className="font-semibold mb-1">Why render now?</p>
+            <p>Watermark changes only appear on shared images after rendering. Previews update immediately, but shared content needs to be rendered.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Render Confirmation Modal */}
+      {showRenderConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <p className="text-lg font-medium text-gray-800 mb-4">Render all product images?</p>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-left">
+              <p className="text-sm font-semibold text-red-900 mb-2">Why render now?</p>
+              <ul className="text-xs text-red-800 space-y-1">
+                <li>• Your watermark changes won't appear on shared images until rendered</li>
+                <li>• Previews update immediately, but shared images need rendering</li>
+                <li>• This ensures customers see your updated watermark</li>
+              </ul>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              This will apply all watermark changes to your shared images.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                className="px-5 py-2 rounded-full bg-red-900 text-white font-medium shadow hover:bg-red-950 transition"
+                onClick={() => {
+                  setShowRenderConfirm(false);
+                  window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+                }}
+              >
+                Yes, Render
+              </button>
+              <button
+                className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition"
+                onClick={() => setShowRenderConfirm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
