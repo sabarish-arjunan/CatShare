@@ -118,6 +118,18 @@ export default function WatermarkSettings() {
             </p>
           </div>
 
+          {/* Warning about export images */}
+          {showWatermark && (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <p className="text-xs text-amber-900">
+                <span className="font-semibold">⚠️ Note about Export Images:</span>
+              </p>
+              <p className="text-xs text-amber-800 mt-2">
+                Other previews will show watermark changes immediately. However, to see watermark changes in your export images, you need to <span className="font-semibold">render all images</span> again. Export images will only update after rendering.
+              </p>
+            </div>
+          )}
+
           {/* Watermark Text Editor - Only visible when enabled */}
           {showWatermark && (
             <>
