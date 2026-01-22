@@ -196,6 +196,39 @@ function AppWithBackHandler() {
         current={Math.round((renderProgress / 100) * products.length)}
         total={products.length}
       />
+
+      {/* Global Success/Error Popup after rendering completes */}
+      {renderResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+            <div className="flex justify-center mb-4">
+              {renderResult.status === "success" ? (
+                <FiCheckCircle className="w-12 h-12 text-green-500" />
+              ) : (
+                <FiAlertCircle className="w-12 h-12 text-red-500" />
+              )}
+            </div>
+
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              {renderResult.status === "success" ? "Success!" : "Failed"}
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-5">
+              {renderResult.message}
+            </p>
+
+            <button
+              onClick={() => {
+                setRenderResult(null);
+              }}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       <Routes>
         <Route
           path="/"
