@@ -192,7 +192,7 @@ export async function saveRenderedImage(product, type, units = {}) {
 
     // Add watermark - Only if enabled in settings
     const showWatermark = localStorage.getItem("showWatermark");
-    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : true; // Default: true
+    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : false; // Default: false (disabled)
 
     if (isWatermarkEnabled) {
       // Get custom watermark text from localStorage, default to "Created using CatShare"
