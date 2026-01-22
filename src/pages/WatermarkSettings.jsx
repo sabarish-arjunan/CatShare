@@ -153,7 +153,7 @@ export default function WatermarkSettings() {
               </div>
 
               {/* Watermark Position Selector */}
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
                 <label className="block text-sm font-medium text-gray-800 mb-3">Position</label>
                 <p className="text-xs text-gray-600 mb-3">Click on the position buttons on the image preview</p>
 
