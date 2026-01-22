@@ -413,15 +413,21 @@ export default function WatermarkSettings() {
 
       {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
       {showWatermark && hasChanges && !renderBoxVisible && (
-        <button
-          onClick={() => {
-            setShowRenderConfirm(true);
-          }}
-          className="fixed bottom-6 right-6 px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl z-40 flex items-center gap-2"
-        >
-          <MdWarning size={18} />
-          <span>Render</span>
-        </button>
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            onClick={() => {
+              setShowRenderConfirm(true);
+            }}
+            className="px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl flex items-center gap-2 group"
+          >
+            <MdWarning size={18} />
+            <span>Render</span>
+          </button>
+          <div className="absolute bottom-full right-0 mb-2 bg-gray-800 text-white text-xs rounded-lg p-2 max-w-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-normal">
+            <p className="font-semibold mb-1">Watermark changes need to be rendered to appear on shared images</p>
+            <p>Without rendering, changes only show in previews</p>
+          </div>
+        </div>
       )}
 
       {/* Render Confirmation Modal */}
