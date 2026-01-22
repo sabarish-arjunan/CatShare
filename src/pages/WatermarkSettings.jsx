@@ -158,7 +158,7 @@ export default function WatermarkSettings() {
                 <p className="text-xs text-gray-600 mb-3">Click on the position buttons on the image preview</p>
 
                 {/* Position Preview Image with Buttons */}
-                <div className="relative mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-3" style={{ aspectRatio: "1/1", maxWidth: "280px", width: "100%" }}>
+                <div className="relative mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-3" style={{ aspectRatio: "1/1", maxWidth: "294px", width: "100%" }}>
                   {/* Sample product image preview */}
                   <img
                     src="https://cdn.builder.io/api/v1/image/assets%2F9de8f88039f043c2bb2e12760a839fad%2F7f2e888f655c4a6d8e8d286a6b93b85a?format=webp&width=800&height=1200"
