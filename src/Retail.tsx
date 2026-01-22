@@ -407,6 +407,74 @@ export default function Retail({ products = [] }) {
     })();
   }, [retailProducts]);
 
+  const handleDownload = async (e, productId, productName) => {
+    e.stopPropagation();
+    try {
+      const imageUrl = imageMap[productId];
+      if (!imageUrl) return;
+
+      // Convert data URL or fetch the image
+      let blob;
+      if (imageUrl.startsWith('data:')) {
+        const arr = imageUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+        const bstr = atob(arr[1]);
+        const n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) {
+          u8arr[i] = bstr.charCodeAt(i);
+        }
+        blob = new Blob([u8arr], { type: mime });
+      } else {
+        const response = await fetch(imageUrl);
+        blob = await response.blob();
+      }
+
+      // Get file extension from mime type
+      const mimeType = blob.type || 'image/png';
+      const ext = mimeType.split('/')[1] || 'png';
+      const filename = `${productName || 'product'}_${productId}.${ext}`;
+
+      // Use FileSaver or Filesystem API for download
+      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: 'Image', accept: { [mimeType]: [`.${ext}`] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Save file picker failed, trying download:', err);
+            // Fallback to blob download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        // Fallback: simple blob download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
   return (
     <div className="w-full min-h-[100dvh] bg-gradient-to-b from-white to-gray-100 relative">
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-screen h-[40px] bg-black z-50" />
