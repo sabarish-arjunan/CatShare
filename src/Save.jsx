@@ -195,6 +195,7 @@ export async function saveRenderedImage(product, type, units = {}) {
     if (isWatermarkEnabled) {
       // Get custom watermark text from localStorage, default to "created using CatShare"
       const watermarkText = localStorage.getItem("watermarkText") || "created using CatShare";
+      const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
       const watermarkSize = Math.max(12, croppedCanvas.width / 40); // Responsive font size
       ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
 
@@ -202,12 +203,68 @@ export async function saveRenderedImage(product, type, units = {}) {
       const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
       ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"; // Dark gray for light bg, white for dark bg
 
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
+      // Calculate position based on watermarkPosition
+      const padding = 20;
+      let watermarkX, watermarkY;
 
-      // Position watermark at bottom center of image, with padding
-      const watermarkX = croppedCanvas.width / 2;
-      const watermarkY = croppedCanvas.height - Math.floor(watermarkSize / 2) - 8;
+      switch(watermarkPosition) {
+        case "top-left":
+          ctx.textAlign = "left";
+          ctx.textBaseline = "top";
+          watermarkX = padding;
+          watermarkY = padding;
+          break;
+        case "top-center":
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          watermarkX = croppedCanvas.width / 2;
+          watermarkY = padding;
+          break;
+        case "top-right":
+          ctx.textAlign = "right";
+          ctx.textBaseline = "top";
+          watermarkX = croppedCanvas.width - padding;
+          watermarkY = padding;
+          break;
+        case "middle-left":
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          watermarkX = padding;
+          watermarkY = croppedCanvas.height / 2;
+          break;
+        case "middle-center":
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          watermarkX = croppedCanvas.width / 2;
+          watermarkY = croppedCanvas.height / 2;
+          break;
+        case "middle-right":
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          watermarkX = croppedCanvas.width - padding;
+          watermarkY = croppedCanvas.height / 2;
+          break;
+        case "bottom-left":
+          ctx.textAlign = "left";
+          ctx.textBaseline = "bottom";
+          watermarkX = padding;
+          watermarkY = croppedCanvas.height - padding;
+          break;
+        case "bottom-right":
+          ctx.textAlign = "right";
+          ctx.textBaseline = "bottom";
+          watermarkX = croppedCanvas.width - padding;
+          watermarkY = croppedCanvas.height - padding;
+          break;
+        case "bottom-center":
+        default:
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
+          watermarkX = croppedCanvas.width / 2;
+          watermarkY = croppedCanvas.height - padding;
+          break;
+      }
+
       ctx.fillText(watermarkText, watermarkX, watermarkY);
     }
 
