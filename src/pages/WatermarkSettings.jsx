@@ -45,10 +45,18 @@ export default function WatermarkSettings() {
   useEffect(() => {
     const handleRenderComplete = () => {
       setHasChanges(false);
+      setRenderBoxVisible(false);
     };
     window.addEventListener("renderComplete", handleRenderComplete);
     return () => window.removeEventListener("renderComplete", handleRenderComplete);
   }, []);
+
+  // Reset renderBoxVisible when render box is not shown
+  useEffect(() => {
+    if (!hasChanges || !showWatermark) {
+      setRenderBoxVisible(false);
+    }
+  }, [hasChanges, showWatermark]);
 
   // Track if Render All Images box is visible in viewport
   useEffect(() => {
