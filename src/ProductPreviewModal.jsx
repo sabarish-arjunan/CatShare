@@ -370,7 +370,7 @@ export default function ProductPreviewModal({
   // Check if watermark should be shown
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
   });
 
   // Get custom watermark text
