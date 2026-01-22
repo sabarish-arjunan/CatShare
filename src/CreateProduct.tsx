@@ -9,6 +9,30 @@ import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
 
+// Helper function to get CSS styles based on watermark position
+const getWatermarkPositionStyles = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none"
+  };
+
+  const positionMap = {
+    "top-left": { top: 20, left: 20, transform: "none" },
+    "top-center": { top: 20, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 20, right: 20, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 20, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 20, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 20, left: 20, transform: "none" },
+    "bottom-center": { bottom: 20, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 20, right: 20, left: "auto", transform: "none" }
+  };
+
+  return { ...baseStyles, ...positionMap[position] };
+};
+
 function ColorPickerModal({ value, onChange, onClose }) {
   const [hue, setHue] = useState(0);
   const [saturation, setSaturation] = useState(100);
@@ -175,7 +199,11 @@ export default function CreateProduct() {
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "created using CatShare";
+    return localStorage.getItem("watermarkText") || "Created using CatShare";
+  });
+
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
   });
 
   // Listen for watermark setting changes
@@ -185,7 +213,10 @@ export default function CreateProduct() {
       setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     const handleWatermarkChange = () => {
@@ -193,14 +224,31 @@ export default function CreateProduct() {
       setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = () => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handleWatermarkToggle = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
+    window.addEventListener("watermarkChanged", handleWatermarkToggle);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
+      window.removeEventListener("watermarkChanged", handleWatermarkToggle);
     };
   }, []);
   const [originalBase64, setOriginalBase64] = useState(null);
@@ -795,18 +843,12 @@ setTimeout(async () => {
       {showWatermark && (
         <div
           style={{
-            position: "absolute",
-            bottom: 8,
-            left: "50%",
-            transform: "translateX(-50%)",
+            ...getWatermarkPositionStyles(watermarkPosition),
             fontSize: "10px",
             color: imageBgOverride?.toLowerCase() === "white" || imageBgOverride?.toLowerCase() === "#ffffff"
               ? "rgba(0, 0, 0, 0.25)"
               : "rgba(255, 255, 255, 0.4)",
-            fontFamily: "Arial, sans-serif",
-            fontWeight: 500,
-            letterSpacing: "0.3px",
-            pointerEvents: "none"
+            letterSpacing: "0.3px"
           }}
         >
           {watermarkText}
