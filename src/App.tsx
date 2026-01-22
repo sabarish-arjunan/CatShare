@@ -174,6 +174,23 @@ function AppWithBackHandler() {
   }, [location, navigate]);
 
   // Listen for render request from watermark settings and other components
+  // Auto-dismiss render result popup after 5 seconds
+  useEffect(() => {
+    if (renderResult) {
+      if (renderResultTimeoutRef.current) {
+        clearTimeout(renderResultTimeoutRef.current);
+      }
+      renderResultTimeoutRef.current = setTimeout(() => {
+        setRenderResult(null);
+      }, 5000);
+    }
+    return () => {
+      if (renderResultTimeoutRef.current) {
+        clearTimeout(renderResultTimeoutRef.current);
+      }
+    };
+  }, [renderResult]);
+
   useEffect(() => {
     const handleRequestRenderAllPNGs = () => {
       handleRenderAllPNGs();
