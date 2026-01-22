@@ -60,7 +60,107 @@ const { showToast } = useToast();
     }
   };
 
-  const handleBackup = async () => {
+  const handleDownloadRenderedImages = async () => {
+  try {
+    const zip = new JSZip();
+    let hasImages = false;
+
+    // Try to read Wholesale folder
+    try {
+      const wholesaleFiles = await Filesystem.readdir({
+        path: "Wholesale",
+        directory: Directory.External,
+      });
+
+      for (const file of wholesaleFiles.files) {
+        if (file.name.endsWith(".png")) {
+          const fileData = await Filesystem.readFile({
+            path: `Wholesale/${file.name}`,
+            directory: Directory.External,
+          });
+          zip.file(`Wholesale/${file.name}`, fileData.data, { base64: true });
+          hasImages = true;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not read Wholesale folder:", err.message);
+    }
+
+    // Try to read Resell folder
+    try {
+      const resellFiles = await Filesystem.readdir({
+        path: "Resell",
+        directory: Directory.External,
+      });
+
+      for (const file of resellFiles.files) {
+        if (file.name.endsWith(".png")) {
+          const fileData = await Filesystem.readFile({
+            path: `Resell/${file.name}`,
+            directory: Directory.External,
+          });
+          zip.file(`Resell/${file.name}`, fileData.data, { base64: true });
+          hasImages = true;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not read Resell folder:", err.message);
+    }
+
+    if (!hasImages) {
+      showToast({
+        type: "info",
+        message: "No rendered images found. Please render images first.",
+      });
+      return;
+    }
+
+    const blob = await zip.generateAsync({ type: "blob" });
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      const base64Data = reader.result.split(",")[1];
+
+      const now = new Date();
+      const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
+      const filename = `catshare-rendered-images-${timestamp}.zip`;
+
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data: base64Data,
+          directory: Directory.External,
+        });
+
+        await FileSharer.share({
+          filename,
+          base64Data,
+          contentType: "application/zip",
+        });
+
+        showToast({
+          type: "success",
+          message: "Rendered images downloaded successfully!",
+        });
+      } catch (err) {
+        showToast({
+          type: "error",
+          message: "Failed to download images: " + err.message,
+        });
+      }
+    };
+
+    reader.readAsDataURL(blob);
+  } catch (err) {
+    console.error("Download rendered images failed:", err);
+    showToast({
+      type: "error",
+      message: "Failed to download rendered images",
+    });
+  }
+};
+
+const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
   const zip = new JSZip();
 
