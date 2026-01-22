@@ -237,7 +237,7 @@ export default function CreateProduct() {
 
     const handleWatermarkToggle = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
     };
 
     window.addEventListener("storage", handleStorageChange);
