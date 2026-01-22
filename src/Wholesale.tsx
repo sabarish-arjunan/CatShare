@@ -157,6 +157,74 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     }
   };
 
+  const handleDownload = async (e, productId, productName) => {
+    e.stopPropagation();
+    try {
+      const imageUrl = imageMap[productId];
+      if (!imageUrl) return;
+
+      // Convert data URL or fetch the image
+      let blob;
+      if (imageUrl.startsWith('data:')) {
+        const arr = imageUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+        const bstr = atob(arr[1]);
+        const n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) {
+          u8arr[i] = bstr.charCodeAt(i);
+        }
+        blob = new Blob([u8arr], { type: mime });
+      } else {
+        const response = await fetch(imageUrl);
+        blob = await response.blob();
+      }
+
+      // Get file extension from mime type
+      const mimeType = blob.type || 'image/png';
+      const ext = mimeType.split('/')[1] || 'png';
+      const filename = `${productName || 'product'}_${productId}.${ext}`;
+
+      // Use FileSaver or Filesystem API for download
+      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: 'Image', accept: { [mimeType]: [`.${ext}`] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Save file picker failed, trying download:', err);
+            // Fallback to blob download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        // Fallback: simple blob download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
   useEffect(() => {
     const toggleFilterHandler = () => setShowFilters((prev) => !prev);
     window.addEventListener("toggle-wholesale-filter", toggleFilterHandler);
@@ -635,12 +703,22 @@ onMouseLeave={handleTouchEnd}
   )}
 </AnimatePresence>
 
+                {/* Download Button */}
+                <button
+                  onClick={(e) => handleDownload(e, p.id, p.name)}
+                  className="absolute top-1.5 right-1.5 w-7 h-7 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow-md text-gray-700 hover:text-gray-900 z-20 transition-colors"
+                  title="Download image"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </button>
               </div>
-              
+
 {/* Price Badge Over Image */}
 {showInfo && (
 <div
-  className="absolute top-1.5 right-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
+  className="absolute top-1.5 left-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
   ₹{p.wholesale}
 </div>

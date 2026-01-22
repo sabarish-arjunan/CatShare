@@ -192,7 +192,7 @@ export async function saveRenderedImage(product, type, units = {}) {
 
     // Add watermark - Only if enabled in settings
     const showWatermark = localStorage.getItem("showWatermark");
-    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : true; // Default: true
+    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : false; // Default: false (disabled)
 
     if (isWatermarkEnabled) {
       // Get custom watermark text from localStorage, default to "Created using CatShare"
@@ -249,7 +249,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)";
 
         // Calculate position based on watermarkPosition, relative to image section only
-        const padding = 20 * scale; // Scale padding to match canvas scale
+        const padding = 10 * scale; // Scale padding to match canvas scale (50% towards corner)
         let watermarkX, watermarkY;
 
         switch(watermarkPosition) {

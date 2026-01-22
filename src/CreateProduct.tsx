@@ -19,15 +19,15 @@ const getWatermarkPositionStyles = (position) => {
   };
 
   const positionMap = {
-    "top-left": { top: 20, left: 20, transform: "none" },
-    "top-center": { top: 20, left: "50%", transform: "translateX(-50%)" },
-    "top-right": { top: 20, right: 20, left: "auto", transform: "none" },
-    "middle-left": { top: "50%", left: 20, transform: "translateY(-50%)" },
+    "top-left": { top: 10, left: 10, transform: "none" },
+    "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 10, right: 10, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
     "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
-    "middle-right": { top: "50%", right: 20, left: "auto", transform: "translateY(-50%)" },
-    "bottom-left": { bottom: 20, left: 20, transform: "none" },
-    "bottom-center": { bottom: 20, left: "50%", transform: "translateX(-50%)" },
-    "bottom-right": { bottom: 20, right: 20, left: "auto", transform: "none" }
+    "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 10, left: 10, transform: "none" },
+    "bottom-center": { bottom: 10, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
   return { ...baseStyles, ...positionMap[position] };
@@ -196,7 +196,7 @@ export default function CreateProduct() {
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     return localStorage.getItem("watermarkText") || "Created using CatShare";
@@ -210,7 +210,7 @@ export default function CreateProduct() {
   useEffect(() => {
     const handleStorageChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
@@ -221,7 +221,7 @@ export default function CreateProduct() {
 
     const handleWatermarkChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
@@ -237,7 +237,7 @@ export default function CreateProduct() {
 
     const handleWatermarkToggle = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
     };
 
     window.addEventListener("storage", handleStorageChange);
