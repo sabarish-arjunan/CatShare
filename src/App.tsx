@@ -145,6 +145,23 @@ function AppWithBackHandler() {
     }
   }, [darkMode]);
 
+  // Initialize watermark settings with defaults on first load
+  useEffect(() => {
+    const showWatermark = localStorage.getItem("showWatermark");
+    const watermarkText = localStorage.getItem("watermarkText");
+    const watermarkPosition = localStorage.getItem("watermarkPosition");
+
+    if (showWatermark === null) {
+      localStorage.setItem("showWatermark", JSON.stringify(false)); // Default: disabled
+    }
+    if (watermarkText === null) {
+      localStorage.setItem("watermarkText", "Created using CatShare");
+    }
+    if (watermarkPosition === null) {
+      localStorage.setItem("watermarkPosition", "bottom-center");
+    }
+  }, []);
+
   useEffect(() => {
     const handleNewProduct = () =>
       setProducts(JSON.parse(localStorage.getItem("products") || "[]"));
