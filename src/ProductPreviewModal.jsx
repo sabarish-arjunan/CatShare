@@ -390,7 +390,7 @@ export default function ProductPreviewModal({
       setShowWatermark(stored !== null ? JSON.parse(stored) : true);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
 
       const positionStored = localStorage.getItem("watermarkPosition");
       setWatermarkPosition(positionStored || "bottom-center");
@@ -401,7 +401,7 @@ export default function ProductPreviewModal({
       setShowWatermark(stored !== null ? JSON.parse(stored) : true);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
 
       const positionStored = localStorage.getItem("watermarkPosition");
       setWatermarkPosition(positionStored || "bottom-center");
