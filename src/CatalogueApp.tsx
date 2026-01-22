@@ -141,17 +141,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => clearTimeout(timeout);
   }, []);
 
-  // Event listener for render request from watermark settings
-  useEffect(() => {
-    const handleRequestRenderAllPNGs = () => {
-      // Call the render function asynchronously
-      handleRenderAllPNGs();
-    };
-
-    window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-  }, []);
-
   const handleTabChange = (key) => {
     setTab(key);
     setSelected([]);
