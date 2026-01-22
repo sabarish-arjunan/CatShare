@@ -171,6 +171,16 @@ function AppWithBackHandler() {
     };
   }, [location, navigate]);
 
+  // Listen for render request from watermark settings and other components
+  useEffect(() => {
+    const handleRequestRenderAllPNGs = () => {
+      handleRenderAllPNGs();
+    };
+
+    window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+  }, [handleRenderAllPNGs]);
+
   return (
     <div
       style={{
