@@ -14,6 +14,10 @@ export default function WatermarkSettings() {
     return stored || "created using CatShare";
   });
   const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    const stored = localStorage.getItem("watermarkPosition");
+    return stored || "bottom-center"; // Default position
+  });
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
