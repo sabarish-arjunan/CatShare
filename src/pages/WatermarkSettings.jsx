@@ -260,7 +260,7 @@ export default function WatermarkSettings() {
                   {/* Top Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-left")}
-                    className={`absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute top-1 left-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-left"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -273,7 +273,7 @@ export default function WatermarkSettings() {
                   {/* Top Center Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-center")}
-                    className={`absolute top-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute top-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-center"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -286,7 +286,7 @@ export default function WatermarkSettings() {
                   {/* Top Right Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-right")}
-                    className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute top-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-right"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -299,7 +299,7 @@ export default function WatermarkSettings() {
                   {/* Middle Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("middle-left")}
-                    className={`absolute top-1/2 -translate-y-1/2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute top-1/2 -translate-y-1/2 left-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "middle-left"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -325,7 +325,7 @@ export default function WatermarkSettings() {
                   {/* Middle Right Position Button */}
                   <button
                     onClick={() => handlePositionChange("middle-right")}
-                    className={`absolute top-1/2 -translate-y-1/2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute top-1/2 -translate-y-1/2 right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "middle-right"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -338,7 +338,7 @@ export default function WatermarkSettings() {
                   {/* Bottom Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("bottom-left")}
-                    className={`absolute bottom-2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute bottom-1 left-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-left"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -351,7 +351,7 @@ export default function WatermarkSettings() {
                   {/* Bottom Center Position Button */}
                   <button
                     onClick={() => handlePositionChange("bottom-center")}
-                    className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-center"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
@@ -364,7 +364,7 @@ export default function WatermarkSettings() {
                   {/* Bottom Right Position Button */}
                   <button
                     onClick={() => handlePositionChange("bottom-right")}
-                    className={`absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-right"
                         ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
