@@ -413,19 +413,20 @@ export default function WatermarkSettings() {
 
       {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
       {showWatermark && hasChanges && !renderBoxVisible && (
-        <div className="fixed bottom-6 right-6 z-40">
+        <div className="fixed bottom-6 right-6 z-40 group">
           <button
             onClick={() => {
               setShowRenderConfirm(true);
             }}
-            className="px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl flex items-center gap-2 group"
+            title="Watermark changes won't appear on shared images until rendered"
+            className="px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
           >
             <MdWarning size={18} />
             <span>Render</span>
           </button>
-          <div className="absolute bottom-full right-0 mb-2 bg-gray-800 text-white text-xs rounded-lg p-2 max-w-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-normal">
-            <p className="font-semibold mb-1">Watermark changes need to be rendered to appear on shared images</p>
-            <p>Without rendering, changes only show in previews</p>
+          <div className="absolute bottom-full right-0 mb-2 bg-gray-800 text-white text-xs rounded-lg p-3 max-w-xs hidden group-hover:block pointer-events-none whitespace-normal">
+            <p className="font-semibold mb-1">Why render now?</p>
+            <p>Watermark changes only appear on shared images after rendering. Previews update immediately, but shared content needs to be rendered.</p>
           </div>
         </div>
       )}
