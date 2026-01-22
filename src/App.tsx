@@ -41,6 +41,7 @@ function AppWithBackHandler() {
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [renderResult, setRenderResult] = useState(null);
 
   const isNative = Capacitor.getPlatform() !== "web";
 
