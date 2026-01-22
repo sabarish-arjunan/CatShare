@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,6 +23,8 @@ import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
+import { saveRenderedImage } from "./Save";
+import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
@@ -40,8 +42,58 @@ function AppWithBackHandler() {
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [renderResult, setRenderResult] = useState(null);
 
   const isNative = Capacitor.getPlatform() !== "web";
+
+  // Handle rendering all PNGs
+  const handleRenderAllPNGs = useCallback(async () => {
+    const all = JSON.parse(localStorage.getItem("products") || "[]");
+    if (all.length === 0) return;
+
+    setIsRendering(true);
+    setRenderProgress(0);
+
+    for (let i = 0; i < all.length; i++) {
+      const product = all[i];
+
+      // Skip products without images - don't error, just skip
+      if (!product.image && !product.imagePath) {
+        console.warn(`⚠️ Skipping ${product.name} - no image available`);
+        setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+        continue;
+      }
+
+      try {
+        await saveRenderedImage(product, "resell", {
+          resellUnit: product.resellUnit || "/ piece",
+          wholesaleUnit: product.wholesaleUnit || "/ piece",
+          packageUnit: product.packageUnit || "pcs / set",
+          ageGroupUnit: product.ageUnit || "months",
+        });
+
+        await saveRenderedImage(product, "wholesale", {
+          resellUnit: product.resellUnit || "/ piece",
+          wholesaleUnit: product.wholesaleUnit || "/ piece",
+          packageUnit: product.packageUnit || "pcs / set",
+          ageGroupUnit: product.ageUnit || "months",
+        });
+
+        console.log(`✅ Rendered PNGs for ${product.name}`);
+      } catch (err) {
+        console.warn(`❌ Failed to render images for ${product.name}`, err);
+      }
+
+      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+    }
+
+    setRenderResult({
+      status: "success",
+      message: "PNG rendering completed for all products",
+    });
+    setIsRendering(false);
+    window.dispatchEvent(new CustomEvent("renderComplete"));
+  }, []);
 
   useEffect(() => {
     if (!isNative) return;
@@ -120,6 +172,16 @@ function AppWithBackHandler() {
     };
   }, [location, navigate]);
 
+  // Listen for render request from watermark settings and other components
+  useEffect(() => {
+    const handleRequestRenderAllPNGs = () => {
+      handleRenderAllPNGs();
+    };
+
+    window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+  }, [handleRenderAllPNGs]);
+
   return (
     <div
       style={{
@@ -134,6 +196,39 @@ function AppWithBackHandler() {
         current={Math.round((renderProgress / 100) * products.length)}
         total={products.length}
       />
+
+      {/* Global Success/Error Popup after rendering completes */}
+      {renderResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+            <div className="flex justify-center mb-4">
+              {renderResult.status === "success" ? (
+                <FiCheckCircle className="w-12 h-12 text-green-500" />
+              ) : (
+                <FiAlertCircle className="w-12 h-12 text-red-500" />
+              )}
+            </div>
+
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              {renderResult.status === "success" ? "Success!" : "Failed"}
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-5">
+              {renderResult.message}
+            </p>
+
+            <button
+              onClick={() => {
+                setRenderResult(null);
+              }}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       <Routes>
         <Route
           path="/"

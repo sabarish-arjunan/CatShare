@@ -19,6 +19,10 @@ export default function WatermarkSettings() {
     return stored || "bottom-center"; // Default position
   });
   const [hasChanges, setHasChanges] = useState(false);
+  const [initialShowWatermark] = useState(() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : false;
+  });
   const [initialWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
     return stored || "Created using CatShare";
@@ -37,10 +41,11 @@ export default function WatermarkSettings() {
 
   // Track changes to watermark settings
   useEffect(() => {
+    const toggleChanged = showWatermark !== initialShowWatermark;
     const textChanged = watermarkText !== initialWatermarkText;
     const positionChanged = watermarkPosition !== initialWatermarkPosition;
-    setHasChanges(textChanged || positionChanged);
-  }, [watermarkText, watermarkPosition, initialWatermarkText, initialWatermarkPosition]);
+    setHasChanges(toggleChanged || textChanged || positionChanged);
+  }, [showWatermark, watermarkText, watermarkPosition, initialShowWatermark, initialWatermarkText, initialWatermarkPosition]);
 
   // Listen for render completion to reset changes
   useEffect(() => {
@@ -54,10 +59,10 @@ export default function WatermarkSettings() {
 
   // Reset renderBoxVisible when render box is not shown
   useEffect(() => {
-    if (!hasChanges || !showWatermark) {
+    if (!hasChanges) {
       setRenderBoxVisible(false);
     }
-  }, [hasChanges, showWatermark]);
+  }, [hasChanges]);
 
   // Track if Render All Images box is visible in viewport
   useEffect(() => {
@@ -378,7 +383,7 @@ export default function WatermarkSettings() {
           )}
 
           {/* Render Images Box - Only visible when changes are made */}
-          {showWatermark && hasChanges && (
+          {hasChanges && (
             <div ref={renderBoxRef} className="p-4 bg-red-50 rounded-lg border border-red-200">
               <p className="text-xs text-red-900 mb-3">
                 <span className="font-semibold">✓ Changes Detected</span>
@@ -412,7 +417,7 @@ export default function WatermarkSettings() {
       </main>
 
       {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
-      {showWatermark && hasChanges && !renderBoxVisible && (
+      {hasChanges && !renderBoxVisible && (
         <div className="fixed bottom-6 right-6 z-40 group">
           <button
             onClick={() => {
