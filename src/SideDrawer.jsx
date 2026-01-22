@@ -135,10 +135,7 @@ const { showToast } = useToast();
           contentType: "application/zip",
         });
 
-        showToast({
-          type: "success",
-          message: "Rendered images downloaded successfully!",
-        });
+        showToast("Rendered images downloaded successfully!", "success");
       } catch (err) {
         showToast({
           type: "error",
