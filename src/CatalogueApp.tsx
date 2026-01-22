@@ -18,7 +18,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void; isRendering?: boolean; setIsRendering?: (value: boolean) => void; renderProgress?: number; setRenderProgress?: (value: number) => void }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, handleRenderAllPNGs: propHandleRenderAllPNGs, renderResult, setRenderResult }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void; isRendering?: boolean; setIsRendering?: (value: boolean) => void; renderProgress?: number; setRenderProgress?: (value: number) => void; handleRenderAllPNGs?: () => Promise<void>; renderResult?: any; setRenderResult?: (value: any) => void }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
