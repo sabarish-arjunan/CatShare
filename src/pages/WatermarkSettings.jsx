@@ -7,11 +7,11 @@ export default function WatermarkSettings() {
   const navigate = useNavigate();
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true;
+    return stored !== null ? JSON.parse(stored) : false;
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
-    return stored || "created using CatShare";
+    return stored || "Created using CatShare";
   });
   const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
@@ -41,7 +41,7 @@ export default function WatermarkSettings() {
   };
 
   const handleResetWatermarkText = () => {
-    const defaultText = "created using CatShare";
+    const defaultText = "Created using CatShare";
     setWatermarkText(defaultText);
     setEditingWatermarkText(defaultText);
     localStorage.setItem("watermarkText", defaultText);
