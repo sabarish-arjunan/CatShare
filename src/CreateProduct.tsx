@@ -202,6 +202,10 @@ export default function CreateProduct() {
     return localStorage.getItem("watermarkText") || "Created using CatShare";
   });
 
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
+  });
+
   // Listen for watermark setting changes
   useEffect(() => {
     const handleStorageChange = () => {
@@ -210,6 +214,9 @@ export default function CreateProduct() {
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     const handleWatermarkChange = () => {
@@ -218,13 +225,30 @@ export default function CreateProduct() {
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = () => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handleWatermarkToggle = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
+    window.addEventListener("watermarkChanged", handleWatermarkToggle);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
+      window.removeEventListener("watermarkChanged", handleWatermarkToggle);
     };
   }, []);
   const [originalBase64, setOriginalBase64] = useState(null);
