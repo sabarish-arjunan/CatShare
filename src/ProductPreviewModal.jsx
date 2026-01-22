@@ -726,6 +726,9 @@ export default function ProductPreviewModal({
           productName={product.name}
           isOpen={showFullScreenImage}
           onClose={() => setShowFullScreenImage(false)}
+          showWatermark={showWatermark}
+          watermarkText={watermarkText}
+          watermarkPosition={watermarkPosition}
         />
       )}
 
