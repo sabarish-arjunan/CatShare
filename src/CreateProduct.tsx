@@ -185,7 +185,7 @@ export default function CreateProduct() {
       setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
     };
 
     const handleWatermarkChange = () => {
@@ -193,7 +193,7 @@ export default function CreateProduct() {
       setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
     };
 
     window.addEventListener("storage", handleStorageChange);
