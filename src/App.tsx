@@ -38,6 +38,8 @@ function AppWithBackHandler() {
     const saved = localStorage.getItem("darkMode");
     return saved ? JSON.parse(saved) : false;
   });
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderProgress, setRenderProgress] = useState(0);
 
   const isNative = Capacitor.getPlatform() !== "web";
 
