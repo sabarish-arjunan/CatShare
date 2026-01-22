@@ -154,11 +154,11 @@ export default function WatermarkSettings() {
 
               {/* Watermark Position Selector */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                <label className="block text-sm font-medium text-gray-800 mb-4">Position</label>
-                <p className="text-xs text-gray-600 mb-4">Click on the position buttons on the image preview</p>
+                <label className="block text-sm font-medium text-gray-800 mb-3">Position</label>
+                <p className="text-xs text-gray-600 mb-3">Click on the position buttons on the image preview</p>
 
                 {/* Position Preview Image with Buttons */}
-                <div className="relative w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-4" style={{ aspectRatio: "3/4" }}>
+                <div className="relative mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-3" style={{ aspectRatio: "3/4", maxWidth: "280px", width: "100%" }}>
                   {/* Sample product image preview */}
                   <div className="w-full h-full flex items-center justify-center bg-white">
                     <div className="text-center text-gray-400">
