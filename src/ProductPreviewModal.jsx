@@ -306,16 +306,10 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
         {showWatermark && (
           <div
             style={{
-              position: "absolute",
-              bottom: 20,
-              left: "50%",
-              transform: "translateX(-50%)",
+              ...getWatermarkPositionStyles(watermarkPosition),
               fontSize: "14px",
               color: "rgba(255, 255, 255, 0.4)",
-              fontFamily: "Arial, sans-serif",
-              fontWeight: 500,
               letterSpacing: "0.5px",
-              pointerEvents: "none",
               zIndex: 5
             }}
           >
