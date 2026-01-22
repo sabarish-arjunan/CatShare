@@ -28,7 +28,7 @@ export default function WatermarkModal({ isOpen, onClose, showWatermark, setShow
   };
 
   const handleResetWatermarkText = () => {
-    const defaultText = "created using CatShare";
+    const defaultText = "Created using CatShare";
     setWatermarkText(defaultText);
     setEditingWatermarkText(defaultText);
     localStorage.setItem("watermarkText", defaultText);
