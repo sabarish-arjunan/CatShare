@@ -46,6 +46,11 @@ export default function Settings({
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
+  // Handle render all PNGs
+  const handleRenderAllPNGs = () => {
+    window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+  };
+
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
       {/* Status bar placeholder */}
