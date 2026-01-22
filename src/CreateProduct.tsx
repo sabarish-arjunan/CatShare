@@ -175,7 +175,7 @@ export default function CreateProduct() {
     return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "created using CatShare";
+    return localStorage.getItem("watermarkText") || "Created using CatShare";
   });
 
   // Listen for watermark setting changes
