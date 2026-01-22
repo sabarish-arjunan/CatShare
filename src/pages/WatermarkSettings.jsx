@@ -176,7 +176,7 @@ export default function WatermarkSettings() {
                       fontWeight: 500,
                       letterSpacing: "0.5px",
                       color: "rgba(51, 51, 51, 0.85)",
-                      textShadow: "0 1px 2px rgba(255, 255, 255, 0.7)",
+                      textShadow: "none",
                       pointerEvents: "none",
                       zIndex: 3,
                       ...(watermarkPosition === "top-left" && { top: 8, left: 8, transform: "none" }),
