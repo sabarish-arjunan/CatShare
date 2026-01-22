@@ -18,10 +18,26 @@ export default function WatermarkSettings() {
     const stored = localStorage.getItem("watermarkPosition");
     return stored || "bottom-center"; // Default position
   });
+  const [hasChanges, setHasChanges] = useState(false);
+  const [initialWatermarkText] = useState(() => {
+    const stored = localStorage.getItem("watermarkText");
+    return stored || "Created using CatShare";
+  });
+  const [initialWatermarkPosition] = useState(() => {
+    const stored = localStorage.getItem("watermarkPosition");
+    return stored || "bottom-center";
+  });
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
   }, [watermarkText]);
+
+  // Track changes to watermark settings
+  useEffect(() => {
+    const textChanged = watermarkText !== initialWatermarkText;
+    const positionChanged = watermarkPosition !== initialWatermarkPosition;
+    setHasChanges(textChanged || positionChanged);
+  }, [watermarkText, watermarkPosition, initialWatermarkText, initialWatermarkPosition]);
 
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
