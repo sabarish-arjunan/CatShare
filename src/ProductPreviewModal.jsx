@@ -398,7 +398,7 @@ export default function ProductPreviewModal({
 
     const handleWatermarkChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
