@@ -137,10 +137,7 @@ const { showToast } = useToast();
 
         showToast("Rendered images downloaded successfully!", "success");
       } catch (err) {
-        showToast({
-          type: "error",
-          message: "Failed to download images: " + err.message,
-        });
+        showToast("Failed to download images: " + err.message, "error");
       }
     };
 
