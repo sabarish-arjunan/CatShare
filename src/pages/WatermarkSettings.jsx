@@ -75,7 +75,7 @@ export default function WatermarkSettings() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="space-y-6 max-w-2xl">
+        <div className="space-y-4 max-w-2xl">
           <p className="text-gray-600 text-sm">
             Display custom text on all product images and previews
           </p>
