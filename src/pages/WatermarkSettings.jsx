@@ -175,7 +175,7 @@ export default function WatermarkSettings() {
                       fontFamily: "Arial, sans-serif",
                       fontWeight: 500,
                       letterSpacing: "0.5px",
-                      color: "rgba(51, 51, 51, 0.85)",
+                      color: "rgba(128, 128, 128, 0.85)",
                       textShadow: "none",
                       pointerEvents: "none",
                       zIndex: 3,
