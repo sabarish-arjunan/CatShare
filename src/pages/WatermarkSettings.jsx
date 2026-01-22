@@ -285,8 +285,8 @@ export default function WatermarkSettings() {
                   </button>
                 </div>
 
-                <p className="text-xs text-gray-500">
-                  Current position: <span className="font-medium capitalize">{watermarkPosition.replace("-", " ")}</span>
+                <p className="text-xs text-gray-500 text-center">
+                  Current: <span className="font-medium capitalize">{watermarkPosition.replace("-", " ")}</span>
                 </p>
               </div>
             </>
