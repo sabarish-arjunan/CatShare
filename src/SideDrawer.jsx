@@ -737,7 +737,7 @@ const exportProductsToCSV = (products) => {
     return (
       <BulkEdit
   products={products}
-  imageMap={imageMap}   // ✅ this is the missing prop
+  imageMap={imageMap}
   setProducts={setProducts}
   onClose={() => setShowBulkEdit(false)}
   triggerRender={handleRenderAllPNGs}
