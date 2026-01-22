@@ -11,7 +11,7 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
-    return stored || "created using CatShare"; // Default text
+    return stored || "Created using CatShare"; // Default text
   });
   const [localDarkMode, setLocalDarkMode] = useState(darkMode);
 
