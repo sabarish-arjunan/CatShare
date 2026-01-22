@@ -56,7 +56,7 @@ export default function WatermarkSettings() {
       ([entry]) => {
         setRenderBoxVisible(entry.isIntersecting);
       },
-      { threshold: 0.1 }
+      { threshold: 0.01 }
     );
 
     if (renderBoxRef.current) {
@@ -66,9 +66,11 @@ export default function WatermarkSettings() {
     return () => {
       if (renderBoxRef.current) {
         observer.unobserve(renderBoxRef.current);
+      } else {
+        observer.disconnect();
       }
     };
-  }, []);
+  }, [renderBoxRef]);
 
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
