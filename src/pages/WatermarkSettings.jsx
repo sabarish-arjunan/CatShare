@@ -433,10 +433,20 @@ export default function WatermarkSettings() {
       {/* Render Confirmation Modal */}
       {showRenderConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
-          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
-            <p className="text-lg font-medium text-gray-800 mb-2">Render all product images?</p>
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <p className="text-lg font-medium text-gray-800 mb-4">Render all product images?</p>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-left">
+              <p className="text-sm font-semibold text-red-900 mb-2">Why render now?</p>
+              <ul className="text-xs text-red-800 space-y-1">
+                <li>• Your watermark changes won't appear on shared images until rendered</li>
+                <li>• Previews update immediately, but shared images need rendering</li>
+                <li>• This ensures customers see your updated watermark</li>
+              </ul>
+            </div>
+
             <p className="text-sm text-gray-600 mb-4">
-              This will apply watermark changes to all your shared images.
+              This will apply all watermark changes to your shared images.
             </p>
 
             <div className="flex justify-center gap-4">
