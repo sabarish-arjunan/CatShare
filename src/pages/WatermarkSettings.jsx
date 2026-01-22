@@ -388,7 +388,7 @@ export default function WatermarkSettings() {
               </p>
               <button
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+                  setShowRenderConfirm(true);
                 }}
                 className="w-full px-4 py-2 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium"
               >
