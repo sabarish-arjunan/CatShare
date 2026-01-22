@@ -9,6 +9,30 @@ import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
 
+// Helper function to get CSS styles based on watermark position
+const getWatermarkPositionStyles = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none"
+  };
+
+  const positionMap = {
+    "top-left": { top: 20, left: 20, transform: "none" },
+    "top-center": { top: 20, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 20, right: 20, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 20, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 20, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 20, left: 20, transform: "none" },
+    "bottom-center": { bottom: 20, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 20, right: 20, left: "auto", transform: "none" }
+  };
+
+  return { ...baseStyles, ...positionMap[position] };
+};
+
 function ColorPickerModal({ value, onChange, onClose }) {
   const [hue, setHue] = useState(0);
   const [saturation, setSaturation] = useState(100);
