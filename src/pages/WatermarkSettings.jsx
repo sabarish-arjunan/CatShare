@@ -383,7 +383,7 @@ export default function WatermarkSettings() {
           )}
 
           {/* Render Images Box - Only visible when changes are made */}
-          {showWatermark && hasChanges && (
+          {hasChanges && (
             <div ref={renderBoxRef} className="p-4 bg-red-50 rounded-lg border border-red-200">
               <p className="text-xs text-red-900 mb-3">
                 <span className="font-semibold">✓ Changes Detected</span>
