@@ -147,7 +147,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     };
     window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
     return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-  }, []);
+  }, [handleRenderAllPNGs]);
 
   const handleTabChange = (key) => {
     setTab(key);
