@@ -284,6 +284,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return aCat.localeCompare(bCat);
   });
 
+  // Setup event listener for render request from watermark settings
+  useEffect(() => {
+    const handleRequestRenderAllPNGs = () => {
+      handleRenderAllPNGs();
+    };
+
+    window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+  }, []);
+
   return (
     <div
       className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
