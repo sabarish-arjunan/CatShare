@@ -410,6 +410,18 @@ export default function WatermarkSettings() {
           </div>
         </div>
       </main>
+
+      {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
+      {showWatermark && hasChanges && !renderBoxVisible && (
+        <button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+          }}
+          className="fixed bottom-6 right-6 px-4 py-3 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition font-medium shadow-lg hover:shadow-xl z-40 flex items-center gap-2"
+        >
+          <span>Render All</span>
+        </button>
+      )}
     </div>
   );
 }
