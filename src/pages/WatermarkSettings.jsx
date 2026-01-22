@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
+import { MdCircle } from "react-icons/md";
 
 export default function WatermarkSettings() {
   const navigate = useNavigate();
