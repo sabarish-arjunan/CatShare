@@ -195,8 +195,8 @@ export async function saveRenderedImage(product, type, units = {}) {
     const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : true; // Default: true
 
     if (isWatermarkEnabled) {
-      // Get custom watermark text from localStorage, default to "created using CatShare"
-      const watermarkText = localStorage.getItem("watermarkText") || "created using CatShare";
+      // Get custom watermark text from localStorage, default to "Created using CatShare"
+      const watermarkText = localStorage.getItem("watermarkText") || "Created using CatShare";
       const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
 
       // Get the imageWrap and imageShadowWrap elements to determine position in the rendered canvas
