@@ -145,6 +145,10 @@ function AppWithBackHandler() {
               setDeletedProducts={setDeletedProducts}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
+              isRendering={isRendering}
+              setIsRendering={setIsRendering}
+              renderProgress={renderProgress}
+              setRenderProgress={setRenderProgress}
             />
           }
         />
