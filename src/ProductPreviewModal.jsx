@@ -553,6 +553,8 @@ export default function ProductPreviewModal({
                 <div
                   style={{
                     ...getWatermarkPositionStyles(watermarkPosition),
+                    fontSize: "10px",
+                    letterSpacing: "0.3px",
                     color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
                   }}
                 >
