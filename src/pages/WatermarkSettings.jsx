@@ -48,6 +48,12 @@ export default function WatermarkSettings() {
     window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: defaultText } }));
   };
 
+  const handlePositionChange = (position) => {
+    setWatermarkPosition(position);
+    localStorage.setItem("watermarkPosition", position);
+    window.dispatchEvent(new CustomEvent("watermarkPositionChanged", { detail: { position } }));
+  };
+
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
       {/* Status bar placeholder */}
