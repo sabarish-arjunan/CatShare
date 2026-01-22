@@ -41,10 +41,11 @@ export default function WatermarkSettings() {
 
   // Track changes to watermark settings
   useEffect(() => {
+    const toggleChanged = showWatermark !== initialShowWatermark;
     const textChanged = watermarkText !== initialWatermarkText;
     const positionChanged = watermarkPosition !== initialWatermarkPosition;
-    setHasChanges(textChanged || positionChanged);
-  }, [watermarkText, watermarkPosition, initialWatermarkText, initialWatermarkPosition]);
+    setHasChanges(toggleChanged || textChanged || positionChanged);
+  }, [showWatermark, watermarkText, watermarkPosition, initialShowWatermark, initialWatermarkText, initialWatermarkPosition]);
 
   // Listen for render completion to reset changes
   useEffect(() => {
