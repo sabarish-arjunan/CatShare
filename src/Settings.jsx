@@ -109,26 +109,9 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
               onClick={() => navigate("/settings/watermark")}
               className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-gray-800">Watermark</h3>
-                  <p className="text-xs text-gray-500 mt-1">Add custom text to your product images</p>
-                </div>
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleWatermarkToggle(!showWatermark);
-                  }}
-                  className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
-                    showWatermark ? "bg-blue-600" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                      showWatermark ? "translate-x-6" : "translate-x-0.5"
-                    }`}
-                  />
-                </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-semibold text-gray-800">Watermark</h3>
+                <p className="text-xs text-gray-500">Add custom text to your product images</p>
               </div>
             </div>
           </div>
