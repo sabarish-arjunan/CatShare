@@ -417,7 +417,7 @@ export default function WatermarkSettings() {
       </main>
 
       {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
-      {showWatermark && hasChanges && !renderBoxVisible && (
+      {hasChanges && !renderBoxVisible && (
         <div className="fixed bottom-6 right-6 z-40 group">
           <button
             onClick={() => {
