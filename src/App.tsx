@@ -168,7 +168,20 @@ function AppWithBackHandler() {
         <Route path="/retail" element={<Retail products={products} />} />
         <Route
           path="/settings"
-          element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />}
+          element={
+            <Settings
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              products={products}
+              setProducts={setProducts}
+              deletedProducts={deletedProducts}
+              setDeletedProducts={setDeletedProducts}
+              isRendering={isRendering}
+              setIsRendering={setIsRendering}
+              renderProgress={renderProgress}
+              setRenderProgress={setRenderProgress}
+            />
+          }
         />
         <Route
           path="/settings/appearance"
