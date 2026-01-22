@@ -397,17 +397,6 @@ export default function WatermarkSettings() {
             </div>
           )}
 
-          {/* Info Section */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 text-sm mb-2">💡 About Watermark</h4>
-            <ul className="text-xs text-blue-800 space-y-1">
-              <li>• Default text: "Created using CatShare"</li>
-              <li>• Fully customizable text and position</li>
-              <li>• 9 position options to choose from</li>
-              <li>• Color adapts to background (dark text on light, white on dark)</li>
-              <li>• Visible in product previews and shared images</li>
-            </ul>
-          </div>
         </div>
       </main>
 
