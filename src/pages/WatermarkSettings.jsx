@@ -39,6 +39,15 @@ export default function WatermarkSettings() {
     setHasChanges(textChanged || positionChanged);
   }, [watermarkText, watermarkPosition, initialWatermarkText, initialWatermarkPosition]);
 
+  // Listen for render completion to reset changes
+  useEffect(() => {
+    const handleRenderComplete = () => {
+      setHasChanges(false);
+    };
+    window.addEventListener("renderComplete", handleRenderComplete);
+    return () => window.removeEventListener("renderComplete", handleRenderComplete);
+  }, []);
+
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
     localStorage.setItem("showWatermark", JSON.stringify(value));
