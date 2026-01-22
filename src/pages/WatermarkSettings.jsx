@@ -197,7 +197,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("top-left")}
                     className={`absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-left"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Top Left"
@@ -210,7 +210,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("top-center")}
                     className={`absolute top-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-center"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Top Center"
@@ -223,7 +223,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("top-right")}
                     className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "top-right"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Top Right"
@@ -236,7 +236,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("middle-left")}
                     className={`absolute top-1/2 -translate-y-1/2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "middle-left"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Middle Left"
@@ -249,7 +249,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("middle-center")}
                     className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "middle-center"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Middle Center"
@@ -262,7 +262,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("middle-right")}
                     className={`absolute top-1/2 -translate-y-1/2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "middle-right"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Middle Right"
@@ -275,7 +275,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("bottom-left")}
                     className={`absolute bottom-2 left-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-left"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Bottom Left"
@@ -288,7 +288,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("bottom-center")}
                     className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-center"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Bottom Center"
@@ -301,7 +301,7 @@ export default function WatermarkSettings() {
                     onClick={() => handlePositionChange("bottom-right")}
                     className={`absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                       watermarkPosition === "bottom-right"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-400 scale-110"
+                        ? "hidden"
                         : "bg-gray-400 text-white hover:bg-gray-500"
                     }`}
                     title="Bottom Right"
