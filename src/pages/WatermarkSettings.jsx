@@ -373,7 +373,7 @@ export default function WatermarkSettings() {
                 <span className="font-semibold">✓ Changes Detected</span>
               </p>
               <p className="text-xs text-purple-800 mb-3">
-                You've made changes to your watermark settings. Click below to render all images and apply these changes to your exports.
+                You've made changes to your watermark settings. Click below to render all images and apply these changes to your shared images.
               </p>
               <button
                 onClick={() => {
