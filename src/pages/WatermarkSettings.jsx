@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 import { MdCircle } from "react-icons/md";
@@ -27,6 +27,8 @@ export default function WatermarkSettings() {
     const stored = localStorage.getItem("watermarkPosition");
     return stored || "bottom-center";
   });
+  const [renderBoxVisible, setRenderBoxVisible] = useState(false);
+  const renderBoxRef = useRef(null);
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
