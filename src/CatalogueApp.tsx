@@ -11,7 +11,6 @@ import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
-import RenderingOverlay from "./RenderingOverlay";
 import { saveRenderedImage } from "./Save";
 
 export function openPreviewHtml(id, tab = null) {
@@ -19,7 +18,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void; isRendering?: boolean; setIsRendering?: (value: boolean) => void; renderProgress?: number; setRenderProgress?: (value: number) => void }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -40,9 +39,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [shelfTarget, setShelfTarget] = useState(null);
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
-  const [isRendering, setIsRendering] = useState(false);
-  const [renderProgress, setRenderProgress] = useState(0);
+  const [localIsRendering, setLocalIsRendering] = useState(false);
+  const [localRenderProgress, setLocalRenderProgress] = useState(0);
   const [renderResult, setRenderResult] = useState(null);
+
+  // Use passed props if available, otherwise use local state
+  const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
+  const setIsRendering = propSetIsRendering || setLocalIsRendering;
+  const renderProgress = propRenderProgress !== undefined ? propRenderProgress : localRenderProgress;
+  const setRenderProgress = propSetRenderProgress || setLocalRenderProgress;
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
@@ -224,6 +229,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       message: "PNG rendering completed for all products",
     });
     setIsRendering(false);
+    window.dispatchEvent(new CustomEvent("renderComplete"));
   };
 
   const handleDelete = async (id) => {
@@ -277,6 +283,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     const bCat = Array.isArray(b.category) ? b.category[0] || "" : b.category || "";
     return aCat.localeCompare(bCat);
   });
+
+  // Setup event listener for render request from watermark settings
+  useEffect(() => {
+    const handleRequestRenderAllPNGs = () => {
+      handleRenderAllPNGs();
+    };
+
+    window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+  }, []);
 
   return (
     <div
@@ -710,12 +726,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       {showTutorial && (
         <Tutorial onClose={() => setShowTutorial(false)} />
       )}
-
-      <RenderingOverlay
-        visible={isRendering}
-        current={Math.round((renderProgress / 100) * products.length)}
-        total={products.length}
-      />
     </div>
   );
 }

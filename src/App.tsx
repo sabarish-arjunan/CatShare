@@ -22,6 +22,7 @@ import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
+import RenderingOverlay from "./RenderingOverlay";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ function AppWithBackHandler() {
     const saved = localStorage.getItem("darkMode");
     return saved ? JSON.parse(saved) : false;
   });
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderProgress, setRenderProgress] = useState(0);
 
   const isNative = Capacitor.getPlatform() !== "web";
 
@@ -126,6 +129,11 @@ function AppWithBackHandler() {
       }}
     >
       <ToastContainer />
+      <RenderingOverlay
+        visible={isRendering}
+        current={Math.round((renderProgress / 100) * products.length)}
+        total={products.length}
+      />
       <Routes>
         <Route
           path="/"
@@ -137,6 +145,10 @@ function AppWithBackHandler() {
               setDeletedProducts={setDeletedProducts}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
+              isRendering={isRendering}
+              setIsRendering={setIsRendering}
+              renderProgress={renderProgress}
+              setRenderProgress={setRenderProgress}
             />
           }
         />
@@ -156,7 +168,20 @@ function AppWithBackHandler() {
         <Route path="/retail" element={<Retail products={products} />} />
         <Route
           path="/settings"
-          element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />}
+          element={
+            <Settings
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              products={products}
+              setProducts={setProducts}
+              deletedProducts={deletedProducts}
+              setDeletedProducts={setDeletedProducts}
+              isRendering={isRendering}
+              setIsRendering={setIsRendering}
+              renderProgress={renderProgress}
+              setRenderProgress={setRenderProgress}
+            />
+          }
         />
         <Route
           path="/settings/appearance"

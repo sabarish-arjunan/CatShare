@@ -3,7 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import SideDrawer from "./SideDrawer";
 
-export default function Settings({ darkMode = false, setDarkMode = (value) => {} }) {
+export default function Settings({
+  darkMode = false,
+  setDarkMode = (value) => {},
+  products = [],
+  setProducts = () => {},
+  deletedProducts = [],
+  setDeletedProducts = () => {},
+  isRendering = false,
+  setIsRendering = () => {},
+  renderProgress = 0,
+  setRenderProgress = () => {},
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
@@ -33,6 +44,11 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
     setShowWatermark(value);
     localStorage.setItem("showWatermark", JSON.stringify(value));
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
+  };
+
+  // Handle render all PNGs
+  const handleRenderAllPNGs = () => {
+    window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
   };
 
   return (
@@ -142,19 +158,19 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
         <SideDrawer
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
-          products={[]}
+          products={products}
           imageMap={{}}
-          setProducts={() => {}}
-          setDeletedProducts={() => {}}
+          setProducts={setProducts}
+          setDeletedProducts={setDeletedProducts}
           selected={[]}
           onShowTutorial={() => {}}
-          darkMode={false}
-          setDarkMode={() => {}}
-          isRendering={false}
-          renderProgress={0}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          isRendering={isRendering}
+          renderProgress={renderProgress}
           renderResult={null}
           setRenderResult={() => {}}
-          handleRenderAllPNGs={() => {}}
+          handleRenderAllPNGs={handleRenderAllPNGs}
         />
       )}
     </div>
