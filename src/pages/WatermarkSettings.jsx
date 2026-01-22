@@ -166,6 +166,31 @@ export default function WatermarkSettings() {
                     className="w-full h-full object-cover"
                   />
 
+                  {/* Watermark Text Preview at Selected Position */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      fontSize: "9px",
+                      fontFamily: "Arial, sans-serif",
+                      fontWeight: 500,
+                      letterSpacing: "0.3px",
+                      color: "rgba(255, 255, 255, 0.6)",
+                      pointerEvents: "none",
+                      zIndex: 3,
+                      ...(watermarkPosition === "top-left" && { top: 8, left: 8, transform: "none" }),
+                      ...(watermarkPosition === "top-center" && { top: 8, left: "50%", transform: "translateX(-50%)" }),
+                      ...(watermarkPosition === "top-right" && { top: 8, right: 8, left: "auto", transform: "none" }),
+                      ...(watermarkPosition === "middle-left" && { top: "50%", left: 8, transform: "translateY(-50%)" }),
+                      ...(watermarkPosition === "middle-center" && { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }),
+                      ...(watermarkPosition === "middle-right" && { top: "50%", right: 8, left: "auto", transform: "translateY(-50%)" }),
+                      ...(watermarkPosition === "bottom-left" && { bottom: 8, left: 8, transform: "none" }),
+                      ...(watermarkPosition === "bottom-center" && { bottom: 8, left: "50%", transform: "translateX(-50%)" }),
+                      ...(watermarkPosition === "bottom-right" && { bottom: 8, right: 8, left: "auto", transform: "none" }),
+                    }}
+                  >
+                    {watermarkText}
+                  </div>
+
                   {/* Top Left Position Button */}
                   <button
                     onClick={() => handlePositionChange("top-left")}
