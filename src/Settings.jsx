@@ -7,7 +7,7 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (disabled for new users)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
