@@ -22,6 +22,7 @@ import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
+import RenderingOverlay from "./RenderingOverlay";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
