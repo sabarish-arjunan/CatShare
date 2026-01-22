@@ -237,6 +237,9 @@ function AppWithBackHandler() {
 
             <button
               onClick={() => {
+                if (renderResultTimeoutRef.current) {
+                  clearTimeout(renderResultTimeoutRef.current);
+                }
                 setRenderResult(null);
               }}
               className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
