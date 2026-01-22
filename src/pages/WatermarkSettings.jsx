@@ -121,16 +121,16 @@ export default function WatermarkSettings() {
           {/* Watermark Text Editor - Only visible when enabled */}
           {showWatermark && (
             <>
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                <label className="block text-sm font-medium text-gray-800 mb-3">Watermark Text</label>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+                <label className="block text-sm font-medium text-gray-800 mb-2">Watermark Text</label>
                 <input
                   type="text"
                   value={editingWatermarkText}
                   onChange={(e) => setEditingWatermarkText(e.target.value)}
                   placeholder="Enter watermark text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm mb-3"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm mb-2"
                 />
-                <p className="text-xs text-gray-500 mb-4">
+                <p className="text-xs text-gray-500 mb-3">
                   Current: <span className="font-mono">{watermarkText}</span>
                 </p>
 
