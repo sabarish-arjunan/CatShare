@@ -7,8 +7,32 @@ import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
 
+// Helper function to get CSS styles based on watermark position
+const getWatermarkPositionStyles = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none"
+  };
+
+  const positionMap = {
+    "top-left": { top: 20, left: 20, transform: "none" },
+    "top-center": { top: 20, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 20, right: 20, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 20, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 20, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 20, left: 20, transform: "none" },
+    "bottom-center": { bottom: 20, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 20, right: 20, left: "auto", transform: "none" }
+  };
+
+  return { ...baseStyles, ...positionMap[position] };
+};
+
 // Full Screen Image Viewer Component
-const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
+const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWatermark, watermarkText, watermarkPosition }) => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -282,16 +306,10 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
         {showWatermark && (
           <div
             style={{
-              position: "absolute",
-              bottom: 20,
-              left: "50%",
-              transform: "translateX(-50%)",
+              ...getWatermarkPositionStyles(watermarkPosition),
               fontSize: "14px",
               color: "rgba(255, 255, 255, 0.4)",
-              fontFamily: "Arial, sans-serif",
-              fontWeight: 500,
               letterSpacing: "0.5px",
-              pointerEvents: "none",
               zIndex: 5
             }}
           >
@@ -360,6 +378,11 @@ export default function ProductPreviewModal({
     return localStorage.getItem("watermarkText") || "created using CatShare";
   });
 
+  // Get watermark position
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
+  });
+
   // Listen for watermark setting changes from Settings modal
   useEffect(() => {
     const handleStorageChange = () => {
@@ -368,6 +391,9 @@ export default function ProductPreviewModal({
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     const handleWatermarkChange = () => {
@@ -376,13 +402,23 @@ export default function ProductPreviewModal({
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = (e) => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
     };
   }, []);
 
@@ -516,16 +552,10 @@ export default function ProductPreviewModal({
               {showWatermark && (
                 <div
                   style={{
-                    position: "absolute",
-                    bottom: 8,
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    ...getWatermarkPositionStyles(watermarkPosition),
                     fontSize: "10px",
-                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)",
-                    fontFamily: "Arial, sans-serif",
-                    fontWeight: 500,
                     letterSpacing: "0.3px",
-                    pointerEvents: "none"
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
                   }}
                 >
                   {watermarkText}
@@ -672,6 +702,9 @@ export default function ProductPreviewModal({
           productName={product.name}
           isOpen={showFullScreenImage}
           onClose={() => setShowFullScreenImage(false)}
+          showWatermark={showWatermark}
+          watermarkText={watermarkText}
+          watermarkPosition={watermarkPosition}
         />
       )}
 
