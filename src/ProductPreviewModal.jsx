@@ -375,7 +375,7 @@ export default function ProductPreviewModal({
 
   // Get custom watermark text
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "created using CatShare";
+    return localStorage.getItem("watermarkText") || "Created using CatShare";
   });
 
   // Get watermark position
