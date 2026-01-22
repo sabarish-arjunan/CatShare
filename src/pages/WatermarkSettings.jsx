@@ -170,11 +170,12 @@ export default function WatermarkSettings() {
                   <div
                     style={{
                       position: "absolute",
-                      fontSize: "9px",
+                      fontSize: "10px",
                       fontFamily: "Arial, sans-serif",
                       fontWeight: 500,
-                      letterSpacing: "0.3px",
-                      color: "rgba(255, 255, 255, 0.6)",
+                      letterSpacing: "0.5px",
+                      color: "rgba(255, 255, 255, 0.8)",
+                      textShadow: "0 1px 3px rgba(0, 0, 0, 0.5)",
                       pointerEvents: "none",
                       zIndex: 3,
                       ...(watermarkPosition === "top-left" && { top: 8, left: 8, transform: "none" }),
