@@ -566,6 +566,11 @@ export default function Retail({ products = [] }) {
                 )}
 
                 <div className="absolute top-1 right-1 flex gap-1 z-10">
+                  <button onClick={(e) => handleDownload(e, p.id, p.name)} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-gray-700 hover:text-gray-900 transition-colors" title="Download image">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
                   <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm">✎</button>
                   <button onClick={(e) => {
                     e.stopPropagation();
