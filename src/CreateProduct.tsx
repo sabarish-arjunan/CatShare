@@ -210,7 +210,7 @@ export default function CreateProduct() {
   useEffect(() => {
     const handleStorageChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
