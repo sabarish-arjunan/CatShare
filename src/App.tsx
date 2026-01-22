@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,6 +23,7 @@ import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
+import { saveRenderedImage } from "./Save";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
