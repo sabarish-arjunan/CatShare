@@ -24,6 +24,7 @@ import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
 import { saveRenderedImage } from "./Save";
+import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
