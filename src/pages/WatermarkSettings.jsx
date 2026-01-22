@@ -164,6 +164,7 @@ export default function WatermarkSettings() {
                     src="https://cdn.builder.io/api/v1/image/assets%2F9de8f88039f043c2bb2e12760a839fad%2F7f2e888f655c4a6d8e8d286a6b93b85a?format=webp&width=800&height=1200"
                     alt="Sample product"
                     className="w-full h-full object-cover"
+                    style={{ transform: "scale(1.05)" }}
                   />
 
                   {/* Watermark Text Preview at Selected Position */}
