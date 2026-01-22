@@ -136,6 +136,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => clearTimeout(timeout);
   }, []);
 
+  useEffect(() => {
+    const handleRequestRenderAllPNGs = () => {
+      handleRenderAllPNGs();
+    };
+    window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+  }, []);
+
   const handleTabChange = (key) => {
     setTab(key);
     setSelected([]);
