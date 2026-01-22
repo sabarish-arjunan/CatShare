@@ -268,8 +268,8 @@ export default function WatermarkSettings() {
             <h4 className="font-semibold text-blue-900 text-sm mb-2">💡 About Watermark</h4>
             <ul className="text-xs text-blue-800 space-y-1">
               <li>• Default text: "created using CatShare"</li>
-              <li>• Fully customizable when enabled</li>
-              <li>• Appears at the bottom center of images</li>
+              <li>• Fully customizable text and position</li>
+              <li>• 9 position options to choose from</li>
               <li>• Color adapts to background (dark text on light, white on dark)</li>
               <li>• Visible in product previews and exported images</li>
             </ul>
