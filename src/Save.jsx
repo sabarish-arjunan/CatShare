@@ -198,76 +198,94 @@ export async function saveRenderedImage(product, type, units = {}) {
       // Get custom watermark text from localStorage, default to "created using CatShare"
       const watermarkText = localStorage.getItem("watermarkText") || "created using CatShare";
       const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
-      const watermarkSize = Math.max(12, croppedCanvas.width / 40); // Responsive font size
-      ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
 
-      // Check if background is light or dark and set watermark color accordingly
-      const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
-      ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"; // Dark gray for light bg, white for dark bg
+      // Get the imageWrap element to determine its dimensions and position in the rendered canvas
+      const imageWrapEl = document.getElementById(`image-wrap-${id}`);
+      if (imageWrapEl) {
+        const imageWrapRect = imageWrapEl.getBoundingClientRect();
+        const containerRect = imageWrapEl.closest(`.full-detail-${id}-${type}`).getBoundingClientRect();
 
-      // Calculate position based on watermarkPosition
-      const padding = 20;
-      let watermarkX, watermarkY;
+        // Calculate image section position in the rendered canvas
+        // html2canvas renders at 3x scale
+        const scale = 3;
+        const imageWrapOffsetTop = (imageWrapRect.top - containerRect.top) * scale;
+        const imageWrapOffsetLeft = (imageWrapRect.left - containerRect.left) * scale;
+        const imageWrapWidth = imageWrapRect.width * scale;
+        const imageWrapHeight = imageWrapRect.height * scale;
 
-      switch(watermarkPosition) {
-        case "top-left":
-          ctx.textAlign = "left";
-          ctx.textBaseline = "top";
-          watermarkX = padding;
-          watermarkY = padding;
-          break;
-        case "top-center":
-          ctx.textAlign = "center";
-          ctx.textBaseline = "top";
-          watermarkX = croppedCanvas.width / 2;
-          watermarkY = padding;
-          break;
-        case "top-right":
-          ctx.textAlign = "right";
-          ctx.textBaseline = "top";
-          watermarkX = croppedCanvas.width - padding;
-          watermarkY = padding;
-          break;
-        case "middle-left":
-          ctx.textAlign = "left";
-          ctx.textBaseline = "middle";
-          watermarkX = padding;
-          watermarkY = croppedCanvas.height / 2;
-          break;
-        case "middle-center":
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          watermarkX = croppedCanvas.width / 2;
-          watermarkY = croppedCanvas.height / 2;
-          break;
-        case "middle-right":
-          ctx.textAlign = "right";
-          ctx.textBaseline = "middle";
-          watermarkX = croppedCanvas.width - padding;
-          watermarkY = croppedCanvas.height / 2;
-          break;
-        case "bottom-left":
-          ctx.textAlign = "left";
-          ctx.textBaseline = "bottom";
-          watermarkX = padding;
-          watermarkY = croppedCanvas.height - padding;
-          break;
-        case "bottom-right":
-          ctx.textAlign = "right";
-          ctx.textBaseline = "bottom";
-          watermarkX = croppedCanvas.width - padding;
-          watermarkY = croppedCanvas.height - padding;
-          break;
-        case "bottom-center":
-        default:
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          watermarkX = croppedCanvas.width / 2;
-          watermarkY = croppedCanvas.height - padding;
-          break;
+        // Watermark font size should be relative to image section width (same as preview: 10px for small sections)
+        // Scale it to match what appears in the preview
+        const watermarkSize = Math.max(20, imageWrapWidth / 40); // Larger base size since we're at 3x scale
+        ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
+
+        // Check if background is light or dark and set watermark color accordingly
+        const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
+        ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)";
+
+        // Calculate position based on watermarkPosition, relative to image section only
+        const padding = 20 * scale; // Scale padding to match canvas scale
+        let watermarkX, watermarkY;
+
+        switch(watermarkPosition) {
+          case "top-left":
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            watermarkX = imageWrapOffsetLeft + padding;
+            watermarkY = imageWrapOffsetTop + padding;
+            break;
+          case "top-center":
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
+            watermarkY = imageWrapOffsetTop + padding;
+            break;
+          case "top-right":
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
+            watermarkY = imageWrapOffsetTop + padding;
+            break;
+          case "middle-left":
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            watermarkX = imageWrapOffsetLeft + padding;
+            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
+            break;
+          case "middle-center":
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
+            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
+            break;
+          case "middle-right":
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
+            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
+            break;
+          case "bottom-left":
+            ctx.textAlign = "left";
+            ctx.textBaseline = "bottom";
+            watermarkX = imageWrapOffsetLeft + padding;
+            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+            break;
+          case "bottom-right":
+            ctx.textAlign = "right";
+            ctx.textBaseline = "bottom";
+            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
+            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+            break;
+          case "bottom-center":
+          default:
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
+            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+            break;
+        }
+
+        ctx.fillText(watermarkText, watermarkX, watermarkY);
       }
-
-      ctx.fillText(watermarkText, watermarkX, watermarkY);
     }
 
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
