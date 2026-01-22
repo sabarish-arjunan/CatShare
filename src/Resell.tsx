@@ -157,6 +157,99 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     }
   };
 
+  const handleDownload = async (e, productId, productName) => {
+    e.stopPropagation();
+    try {
+      // Get the full-detail div that contains the rendered product card
+      const sourceElement = document.querySelector(`.full-detail-${productId}`);
+      if (!sourceElement) {
+        console.error('Product detail element not found');
+        return;
+      }
+
+      // Create a temporary container to capture the element
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = '400px';
+      tempContainer.style.zIndex = '-1';
+
+      // Clone the element to avoid modifying the original
+      const clonedElement = sourceElement.cloneNode(true) as HTMLElement;
+      clonedElement.style.display = 'block';
+      clonedElement.style.margin = '0';
+      clonedElement.style.padding = '0';
+
+      tempContainer.appendChild(clonedElement);
+      document.body.appendChild(tempContainer);
+
+      // Wait a moment for the element to be rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Use html2canvas to capture the rendered element
+      const canvas = await html2canvas(clonedElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          console.error('Failed to create image blob');
+          document.body.removeChild(tempContainer);
+          return;
+        }
+
+        const filename = `${productName || 'product'}_${productId}.png`;
+
+        // Use FileSaver or Filesystem API for download
+        if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: filename,
+              types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              console.warn('Save file picker failed, trying download:', err);
+              // Fallback to blob download
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }
+          }
+        } else {
+          // Fallback: simple blob download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        // Clean up temporary container
+        document.body.removeChild(tempContainer);
+      }, 'image/png');
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
   useEffect(() => {
     const toggleFilterHandler = () => setShowFilters((prev) => !prev);
     window.addEventListener("toggle-resell-filter", toggleFilterHandler);
