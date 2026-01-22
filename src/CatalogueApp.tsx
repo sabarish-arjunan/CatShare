@@ -232,6 +232,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       message: "PNG rendering completed for all products",
     });
     setIsRendering(false);
+    window.dispatchEvent(new CustomEvent("renderComplete"));
   };
 
   const handleDelete = async (id) => {
