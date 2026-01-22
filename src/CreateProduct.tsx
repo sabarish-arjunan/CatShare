@@ -196,7 +196,7 @@ export default function CreateProduct() {
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     return localStorage.getItem("watermarkText") || "Created using CatShare";
