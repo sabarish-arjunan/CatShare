@@ -221,7 +221,7 @@ export default function CreateProduct() {
 
     const handleWatermarkChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "Created using CatShare");
