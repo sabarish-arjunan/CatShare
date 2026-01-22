@@ -405,7 +405,7 @@ export default function WatermarkSettings() {
               <li>• Fully customizable text and position</li>
               <li>• 9 position options to choose from</li>
               <li>• Color adapts to background (dark text on light, white on dark)</li>
-              <li>• Visible in product previews and exported images</li>
+              <li>• Visible in product previews and shared images</li>
             </ul>
           </div>
         </div>
