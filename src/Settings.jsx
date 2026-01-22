@@ -80,6 +80,7 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-gray-800">Appearance</h3>
+                  <p className="text-xs text-gray-500 mt-1">Customize the look and feel of the app</p>
                 </div>
                 <div
                   onClick={(e) => {
