@@ -7,21 +7,46 @@ export default function WatermarkSettings() {
   const navigate = useNavigate();
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true;
+    return stored !== null ? JSON.parse(stored) : false;
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
-    return stored || "created using CatShare";
+    return stored || "Created using CatShare";
   });
   const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
     const stored = localStorage.getItem("watermarkPosition");
     return stored || "bottom-center"; // Default position
   });
+  const [hasChanges, setHasChanges] = useState(false);
+  const [initialWatermarkText] = useState(() => {
+    const stored = localStorage.getItem("watermarkText");
+    return stored || "Created using CatShare";
+  });
+  const [initialWatermarkPosition] = useState(() => {
+    const stored = localStorage.getItem("watermarkPosition");
+    return stored || "bottom-center";
+  });
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
   }, [watermarkText]);
+
+  // Track changes to watermark settings
+  useEffect(() => {
+    const textChanged = watermarkText !== initialWatermarkText;
+    const positionChanged = watermarkPosition !== initialWatermarkPosition;
+    setHasChanges(textChanged || positionChanged);
+  }, [watermarkText, watermarkPosition, initialWatermarkText, initialWatermarkPosition]);
+
+  // Listen for render completion to reset changes
+  useEffect(() => {
+    const handleRenderComplete = () => {
+      setHasChanges(false);
+    };
+    window.addEventListener("renderComplete", handleRenderComplete);
+    return () => window.removeEventListener("renderComplete", handleRenderComplete);
+  }, []);
 
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
@@ -41,7 +66,7 @@ export default function WatermarkSettings() {
   };
 
   const handleResetWatermarkText = () => {
-    const defaultText = "created using CatShare";
+    const defaultText = "Created using CatShare";
     setWatermarkText(defaultText);
     setEditingWatermarkText(defaultText);
     localStorage.setItem("watermarkText", defaultText);
@@ -118,6 +143,38 @@ export default function WatermarkSettings() {
             </p>
           </div>
 
+          {/* Warning about export images */}
+          {showWatermark && (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <p className="text-xs text-amber-900">
+                <span className="font-semibold">⚠️ Note about Export Images:</span>
+              </p>
+              <p className="text-xs text-amber-800 mt-2">
+                Other previews will show watermark changes immediately. However, to see watermark changes in your export images, you need to <span className="font-semibold">render all images</span> again. Export images will only update after rendering.
+              </p>
+            </div>
+          )}
+
+          {/* Render Images Box - Only visible when changes are made */}
+          {showWatermark && hasChanges && (
+            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-xs text-green-900 mb-3">
+                <span className="font-semibold">✓ Changes Detected</span>
+              </p>
+              <p className="text-xs text-green-800 mb-3">
+                You've made changes to your watermark settings. Click below to render all images and apply these changes to your exports.
+              </p>
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+                }}
+                className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition font-medium"
+              >
+                Render All Images
+              </button>
+            </div>
+          )}
+
           {/* Watermark Text Editor - Only visible when enabled */}
           {showWatermark && (
             <>
@@ -158,12 +215,13 @@ export default function WatermarkSettings() {
                 <p className="text-xs text-gray-600 mb-3">Click on the position buttons on the image preview</p>
 
                 {/* Position Preview Image with Buttons */}
-                <div className="relative mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-3" style={{ aspectRatio: "3/4", maxWidth: "280px", width: "100%" }}>
+                <div className="relative mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 mb-3" style={{ aspectRatio: "1/1", maxWidth: "280px", width: "100%" }}>
                   {/* Sample product image preview */}
                   <img
-                    src="https://cdn.builder.io/api/v1/image/assets%2F4a9f61412f2a4023906de77e2fcc438d%2Fd39e16e1a32945ddb550e4c4b2ed69ba?format=webp&width=800&height=1200"
+                    src="https://cdn.builder.io/api/v1/image/assets%2F9de8f88039f043c2bb2e12760a839fad%2F7f2e888f655c4a6d8e8d286a6b93b85a?format=webp&width=800&height=1200"
                     alt="Sample product"
                     className="w-full h-full object-cover"
+                    style={{ transform: "scale(1.05)" }}
                   />
 
                   {/* Watermark Text Preview at Selected Position */}
@@ -174,8 +232,8 @@ export default function WatermarkSettings() {
                       fontFamily: "Arial, sans-serif",
                       fontWeight: 500,
                       letterSpacing: "0.5px",
-                      color: "rgba(255, 255, 255, 0.8)",
-                      textShadow: "0 1px 3px rgba(0, 0, 0, 0.5)",
+                      color: "rgba(128, 128, 128, 0.85)",
+                      textShadow: "none",
                       pointerEvents: "none",
                       zIndex: 3,
                       ...(watermarkPosition === "top-left" && { top: 8, left: 8, transform: "none" }),
@@ -321,7 +379,7 @@ export default function WatermarkSettings() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-semibold text-blue-900 text-sm mb-2">💡 About Watermark</h4>
             <ul className="text-xs text-blue-800 space-y-1">
-              <li>• Default text: "created using CatShare"</li>
+              <li>• Default text: "Created using CatShare"</li>
               <li>• Fully customizable text and position</li>
               <li>• 9 position options to choose from</li>
               <li>• Color adapts to background (dark text on light, white on dark)</li>
