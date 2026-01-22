@@ -108,10 +108,7 @@ const { showToast } = useToast();
     }
 
     if (!hasImages) {
-      showToast({
-        type: "info",
-        message: "No rendered images found. Please render images first.",
-      });
+      showToast("No rendered images found. Please render images first.", "info");
       return;
     }
 
