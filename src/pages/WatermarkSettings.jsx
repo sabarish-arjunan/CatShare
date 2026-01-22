@@ -368,18 +368,18 @@ export default function WatermarkSettings() {
 
           {/* Render Images Box - Only visible when changes are made */}
           {showWatermark && hasChanges && (
-            <div ref={renderBoxRef} className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-xs text-green-900 mb-3">
+            <div ref={renderBoxRef} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <p className="text-xs text-purple-900 mb-3">
                 <span className="font-semibold">✓ Changes Detected</span>
               </p>
-              <p className="text-xs text-green-800 mb-3">
+              <p className="text-xs text-purple-800 mb-3">
                 You've made changes to your watermark settings. Click below to render all images and apply these changes to your exports.
               </p>
               <button
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
                 }}
-                className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition font-medium"
+                className="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition font-medium"
               >
                 Render All Images
               </button>
