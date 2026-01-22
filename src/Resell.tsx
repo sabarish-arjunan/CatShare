@@ -157,6 +157,122 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     }
   };
 
+  const handleDownload = async (e, productId, productName) => {
+    e.stopPropagation();
+    try {
+      // Find the product card by data-id
+      const cardElement = document.querySelector(`[data-id="${productId}"]`);
+      if (!cardElement) {
+        console.error('Product card not found');
+        return;
+      }
+
+      // Get just the image area (first div with relative aspect-square)
+      const imageArea = cardElement.querySelector('.relative.aspect-square');
+      if (!imageArea) {
+        console.error('Image area not found');
+        return;
+      }
+
+      // Create a temporary container to capture the element
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = 'auto';
+      tempContainer.style.zIndex = '-1';
+
+      // Clone the image area to avoid modifying the original
+      const clonedElement = imageArea.cloneNode(true) as HTMLElement;
+      clonedElement.style.display = 'block';
+      clonedElement.style.margin = '0';
+      clonedElement.style.padding = '0';
+      clonedElement.style.width = '400px';
+      clonedElement.style.height = '400px';
+
+      tempContainer.appendChild(clonedElement);
+      document.body.appendChild(tempContainer);
+
+      // Wait for images to load
+      const images = clonedElement.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          return new Promise((resolve) => {
+            if (img.complete) {
+              resolve(null);
+            } else {
+              img.onload = () => resolve(null);
+              img.onerror = () => resolve(null);
+            }
+          });
+        })
+      );
+
+      // Use html2canvas to capture the rendered element
+      const canvas = await html2canvas(clonedElement, {
+        backgroundColor: '#ffffff',
+        scale: 3,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        width: 400,
+        height: 400,
+      });
+
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          console.error('Failed to create image blob');
+          document.body.removeChild(tempContainer);
+          return;
+        }
+
+        const filename = `${productName || 'product'}_${productId}.png`;
+
+        // Use FileSaver or Filesystem API for download
+        if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: filename,
+              types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              console.warn('Save file picker failed, trying download:', err);
+              // Fallback to blob download
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }
+          }
+        } else {
+          // Fallback: simple blob download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        // Clean up temporary container
+        document.body.removeChild(tempContainer);
+      }, 'image/png');
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
   useEffect(() => {
     const toggleFilterHandler = () => setShowFilters((prev) => !prev);
     window.addEventListener("toggle-resell-filter", toggleFilterHandler);
@@ -596,7 +712,17 @@ onMouseLeave={handleTouchEnd}
                     </span>
                   </div>
                 )}
-                
+
+                {/* Download Button */}
+                <button
+                  onClick={(e) => handleDownload(e, p.id, p.name)}
+                  className="absolute top-1.5 right-1.5 w-7 h-7 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow-md text-gray-700 hover:text-gray-900 z-20 transition-colors"
+                  title="Download image"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </button>
 
 <AnimatePresence>
   {isSelected && (

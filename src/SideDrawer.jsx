@@ -60,7 +60,95 @@ const { showToast } = useToast();
     }
   };
 
-  const handleBackup = async () => {
+  const handleDownloadRenderedImages = async () => {
+  try {
+    const zip = new JSZip();
+    let hasImages = false;
+
+    // Try to read Wholesale folder
+    try {
+      const wholesaleFiles = await Filesystem.readdir({
+        path: "Wholesale",
+        directory: Directory.External,
+      });
+
+      for (const file of wholesaleFiles.files) {
+        if (file.name.endsWith(".png")) {
+          const fileData = await Filesystem.readFile({
+            path: `Wholesale/${file.name}`,
+            directory: Directory.External,
+          });
+          zip.file(`Wholesale/${file.name}`, fileData.data, { base64: true });
+          hasImages = true;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not read Wholesale folder:", err.message);
+    }
+
+    // Try to read Resell folder
+    try {
+      const resellFiles = await Filesystem.readdir({
+        path: "Resell",
+        directory: Directory.External,
+      });
+
+      for (const file of resellFiles.files) {
+        if (file.name.endsWith(".png")) {
+          const fileData = await Filesystem.readFile({
+            path: `Resell/${file.name}`,
+            directory: Directory.External,
+          });
+          zip.file(`Resell/${file.name}`, fileData.data, { base64: true });
+          hasImages = true;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not read Resell folder:", err.message);
+    }
+
+    if (!hasImages) {
+      showToast("No rendered images found. Please render images first.", "info");
+      return;
+    }
+
+    const blob = await zip.generateAsync({ type: "blob" });
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      const base64Data = reader.result.split(",")[1];
+
+      const now = new Date();
+      const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
+      const filename = `catshare-rendered-images-${timestamp}.zip`;
+
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data: base64Data,
+          directory: Directory.External,
+        });
+
+        await FileSharer.share({
+          filename,
+          base64Data,
+          contentType: "application/zip",
+        });
+
+        showToast("Rendered images downloaded successfully!", "success");
+      } catch (err) {
+        showToast("Failed to download images: " + err.message, "error");
+      }
+    };
+
+    reader.readAsDataURL(blob);
+  } catch (err) {
+    console.error("Download rendered images failed:", err);
+    showToast("Failed to download rendered images", "error");
+  }
+};
+
+const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
   const zip = new JSZip();
 
@@ -418,6 +506,17 @@ const exportProductsToCSV = (products) => {
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
+<button
+  onClick={() => handleDownloadRenderedImages()}
+  className="w-full flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium transition shadow-sm bg-blue-600 text-white hover:bg-blue-700 mb-2"
+  title="Download all rendered product images"
+>
+  <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+  </svg>
+  <span>Download rendered images</span>
+</button>
+
 {showBackupPopup && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
   onClick={() => setShowBackupPopup(false)}
@@ -625,32 +724,29 @@ const exportProductsToCSV = (products) => {
         </div>
       </div>
 
-{showMediaLibrary && (
-  <MediaLibrary
-    onClose={() => setShowMediaLibrary(false)}
-    onSelect={() => setShowMediaLibrary(false)} // ← temp, will connect to product later
-  />
-)}  
+      {showMediaLibrary && (
+        <MediaLibrary
+          onClose={() => setShowMediaLibrary(false)}
+          onSelect={() => setShowMediaLibrary(false)}
+        />
+      )}
 
-{showBulkEdit && (() => {
-  try {
-    return (
-      <BulkEdit
-  products={products}
-  imageMap={imageMap}   // ✅ this is the missing prop
-  setProducts={setProducts}
-  onClose={() => setShowBulkEdit(false)}
-  triggerRender={handleRenderAllPNGs}
-/>
-
-
-
-    );
-  } catch (err) {
-    console.error("💥 Error in BulkEdit:", err);
-    return <div className='text-red-600'>BulkEdit crashed.</div>;
-  }
-})()}
+      {showBulkEdit && (() => {
+        try {
+          return (
+            <BulkEdit
+              products={products}
+              imageMap={imageMap}
+              setProducts={setProducts}
+              onClose={() => setShowBulkEdit(false)}
+              triggerRender={handleRenderAllPNGs}
+            />
+          );
+        } catch (err) {
+          console.error("💥 Error in BulkEdit:", err);
+          return <div className='text-red-600'>BulkEdit crashed.</div>;
+        }
+      })()}
 
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />

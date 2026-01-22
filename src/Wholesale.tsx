@@ -160,66 +160,114 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   const handleDownload = async (e, productId, productName) => {
     e.stopPropagation();
     try {
-      const imageUrl = imageMap[productId];
-      if (!imageUrl) return;
-
-      // Convert data URL or fetch the image
-      let blob;
-      if (imageUrl.startsWith('data:')) {
-        const arr = imageUrl.split(',');
-        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
-        const bstr = atob(arr[1]);
-        const n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        for (let i = 0; i < n; i++) {
-          u8arr[i] = bstr.charCodeAt(i);
-        }
-        blob = new Blob([u8arr], { type: mime });
-      } else {
-        const response = await fetch(imageUrl);
-        blob = await response.blob();
+      // Find the product card by data-id
+      const cardElement = document.querySelector(`[data-id="${productId}"]`);
+      if (!cardElement) {
+        console.error('Product card not found');
+        return;
       }
 
-      // Get file extension from mime type
-      const mimeType = blob.type || 'image/png';
-      const ext = mimeType.split('/')[1] || 'png';
-      const filename = `${productName || 'product'}_${productId}.${ext}`;
+      // Get just the image area (first div with relative aspect-square)
+      const imageArea = cardElement.querySelector('.relative.aspect-square');
+      if (!imageArea) {
+        console.error('Image area not found');
+        return;
+      }
 
-      // Use FileSaver or Filesystem API for download
-      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: filename,
-            types: [{ description: 'Image', accept: { [mimeType]: [`.${ext}`] } }],
+      // Create a temporary container to capture the element
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = 'auto';
+      tempContainer.style.zIndex = '-1';
+
+      // Clone the image area to avoid modifying the original
+      const clonedElement = imageArea.cloneNode(true) as HTMLElement;
+      clonedElement.style.display = 'block';
+      clonedElement.style.margin = '0';
+      clonedElement.style.padding = '0';
+      clonedElement.style.width = '400px';
+      clonedElement.style.height = '400px';
+
+      tempContainer.appendChild(clonedElement);
+      document.body.appendChild(tempContainer);
+
+      // Wait for images to load
+      const images = clonedElement.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          return new Promise((resolve) => {
+            if (img.complete) {
+              resolve(null);
+            } else {
+              img.onload = () => resolve(null);
+              img.onerror = () => resolve(null);
+            }
           });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-        } catch (err) {
-          if (err.name !== 'AbortError') {
-            console.warn('Save file picker failed, trying download:', err);
-            // Fallback to blob download
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }
+        })
+      );
+
+      // Use html2canvas to capture the rendered element
+      const canvas = await html2canvas(clonedElement, {
+        backgroundColor: '#ffffff',
+        scale: 3,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        width: 400,
+        height: 400,
+      });
+
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          console.error('Failed to create image blob');
+          document.body.removeChild(tempContainer);
+          return;
         }
-      } else {
-        // Fallback: simple blob download
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+
+        const filename = `${productName || 'product'}_${productId}.png`;
+
+        // Use FileSaver or Filesystem API for download
+        if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: filename,
+              types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              console.warn('Save file picker failed, trying download:', err);
+              // Fallback to blob download
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }
+          }
+        } else {
+          // Fallback: simple blob download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        // Clean up temporary container
+        document.body.removeChild(tempContainer);
+      }, 'image/png');
     } catch (err) {
       console.error('Download failed:', err);
     }
