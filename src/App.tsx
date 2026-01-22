@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -43,6 +43,7 @@ function AppWithBackHandler() {
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderResult, setRenderResult] = useState(null);
+  const renderResultTimeoutRef = useRef(null);
 
   const isNative = Capacitor.getPlatform() !== "web";
 
@@ -173,6 +174,23 @@ function AppWithBackHandler() {
   }, [location, navigate]);
 
   // Listen for render request from watermark settings and other components
+  // Auto-dismiss render result popup after 5 seconds
+  useEffect(() => {
+    if (renderResult) {
+      if (renderResultTimeoutRef.current) {
+        clearTimeout(renderResultTimeoutRef.current);
+      }
+      renderResultTimeoutRef.current = setTimeout(() => {
+        setRenderResult(null);
+      }, 5000);
+    }
+    return () => {
+      if (renderResultTimeoutRef.current) {
+        clearTimeout(renderResultTimeoutRef.current);
+      }
+    };
+  }, [renderResult]);
+
   useEffect(() => {
     const handleRequestRenderAllPNGs = () => {
       handleRenderAllPNGs();
@@ -219,6 +237,9 @@ function AppWithBackHandler() {
 
             <button
               onClick={() => {
+                if (renderResultTimeoutRef.current) {
+                  clearTimeout(renderResultTimeoutRef.current);
+                }
                 setRenderResult(null);
               }}
               className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
@@ -244,6 +265,8 @@ function AppWithBackHandler() {
               setIsRendering={setIsRendering}
               renderProgress={renderProgress}
               setRenderProgress={setRenderProgress}
+              renderResult={renderResult}
+              setRenderResult={setRenderResult}
             />
           }
         />
@@ -266,21 +289,21 @@ function AppWithBackHandler() {
           element={
             <Settings
               darkMode={darkMode}
-              setDarkMode={setDarkMode}
+              setDarkMode={setDarkMode as any}
               products={products}
-              setProducts={setProducts}
+              setProducts={setProducts as any}
               deletedProducts={deletedProducts}
-              setDeletedProducts={setDeletedProducts}
+              setDeletedProducts={setDeletedProducts as any}
               isRendering={isRendering}
-              setIsRendering={setIsRendering}
+              setIsRendering={setIsRendering as any}
               renderProgress={renderProgress}
-              setRenderProgress={setRenderProgress}
+              setRenderProgress={setRenderProgress as any}
             />
           }
         />
         <Route
           path="/settings/appearance"
-          element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode} />}
+          element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode as any} />}
         />
         <Route
           path="/settings/watermark"

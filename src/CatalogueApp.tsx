@@ -18,7 +18,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress }: { products: any[]; setProducts: (products: any[] | ((prev: any[]) => any[])) => void; deletedProducts: any[]; setDeletedProducts: (products: any[] | ((prev: any[]) => any[])) => void; darkMode: boolean; setDarkMode: (value: boolean) => void; isRendering?: boolean; setIsRendering?: (value: boolean) => void; renderProgress?: number; setRenderProgress?: (value: number) => void }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -41,13 +41,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [bypassChecked, setBypassChecked] = useState(false);
   const [localIsRendering, setLocalIsRendering] = useState(false);
   const [localRenderProgress, setLocalRenderProgress] = useState(0);
-  const [renderResult, setRenderResult] = useState(null);
+  const [localRenderResult, setLocalRenderResult] = useState(null);
 
   // Use passed props if available, otherwise use local state
   const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
   const setIsRendering = propSetIsRendering || setLocalIsRendering;
   const renderProgress = propRenderProgress !== undefined ? propRenderProgress : localRenderProgress;
   const setRenderProgress = propSetRenderProgress || setLocalRenderProgress;
+  const renderResult = propRenderResult !== undefined ? propRenderResult : localRenderResult;
+  const setRenderResult = propSetRenderResult || setLocalRenderResult;
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
