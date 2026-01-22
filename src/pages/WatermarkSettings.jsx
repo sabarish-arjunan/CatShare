@@ -422,7 +422,7 @@ export default function WatermarkSettings() {
           className="fixed bottom-6 right-6 px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl z-40 flex items-center gap-2"
         >
           <MdWarning size={18} />
-          <span>Render All</span>
+          <span>Render</span>
         </button>
       )}
     </div>
