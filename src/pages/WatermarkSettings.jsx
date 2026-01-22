@@ -120,36 +120,147 @@ export default function WatermarkSettings() {
 
           {/* Watermark Text Editor - Only visible when enabled */}
           {showWatermark && (
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-              <label className="block text-sm font-medium text-gray-800 mb-3">Watermark Text</label>
-              <input
-                type="text"
-                value={editingWatermarkText}
-                onChange={(e) => setEditingWatermarkText(e.target.value)}
-                placeholder="Enter watermark text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm mb-3"
-              />
-              <p className="text-xs text-gray-500 mb-4">
-                Current: <span className="font-mono">{watermarkText}</span>
-              </p>
+            <>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <label className="block text-sm font-medium text-gray-800 mb-3">Watermark Text</label>
+                <input
+                  type="text"
+                  value={editingWatermarkText}
+                  onChange={(e) => setEditingWatermarkText(e.target.value)}
+                  placeholder="Enter watermark text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm mb-3"
+                />
+                <p className="text-xs text-gray-500 mb-4">
+                  Current: <span className="font-mono">{watermarkText}</span>
+                </p>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSaveWatermarkText}
-                  disabled={editingWatermarkText.trim() === ""}
-                  className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-                >
-                  Save Changes
-                </button>
-                <button
-                  onClick={handleResetWatermarkText}
-                  className="flex-1 px-3 py-2 bg-gray-200 text-gray-800 text-sm rounded-lg hover:bg-gray-300 transition font-medium"
-                >
-                  Reset to Default
-                </button>
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSaveWatermarkText}
+                    disabled={editingWatermarkText.trim() === ""}
+                    className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={handleResetWatermarkText}
+                    className="flex-1 px-3 py-2 bg-gray-200 text-gray-800 text-sm rounded-lg hover:bg-gray-300 transition font-medium"
+                  >
+                    Reset to Default
+                  </button>
+                </div>
               </div>
-            </div>
+
+              {/* Watermark Position Selector */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <label className="block text-sm font-medium text-gray-800 mb-4">Position</label>
+                <p className="text-xs text-gray-600 mb-4">Choose where the watermark appears on images</p>
+
+                {/* Position Grid */}
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Top Row */}
+                  <button
+                    onClick={() => handlePositionChange("top-left")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "top-left"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Top Left
+                  </button>
+                  <button
+                    onClick={() => handlePositionChange("top-center")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "top-center"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Top
+                  </button>
+                  <button
+                    onClick={() => handlePositionChange("top-right")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "top-right"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Top Right
+                  </button>
+
+                  {/* Middle Row */}
+                  <button
+                    onClick={() => handlePositionChange("middle-left")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "middle-left"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Middle Left
+                  </button>
+                  <button
+                    onClick={() => handlePositionChange("middle-center")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "middle-center"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Center
+                  </button>
+                  <button
+                    onClick={() => handlePositionChange("middle-right")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "middle-right"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Middle Right
+                  </button>
+
+                  {/* Bottom Row */}
+                  <button
+                    onClick={() => handlePositionChange("bottom-left")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "bottom-left"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Bottom Left
+                  </button>
+                  <button
+                    onClick={() => handlePositionChange("bottom-center")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "bottom-center"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Bottom
+                  </button>
+                  <button
+                    onClick={() => handlePositionChange("bottom-right")}
+                    className={`p-3 border-2 rounded-lg font-medium text-sm transition ${
+                      watermarkPosition === "bottom-right"
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Bottom Right
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-4">
+                  Current position: <span className="font-medium capitalize">{watermarkPosition.replace("-", " ")}</span>
+                </p>
+              </div>
+            </>
           )}
 
           {/* Info Section */}
