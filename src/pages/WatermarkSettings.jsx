@@ -29,6 +29,7 @@ export default function WatermarkSettings() {
   });
   const [renderBoxVisible, setRenderBoxVisible] = useState(false);
   const renderBoxRef = useRef(null);
+  const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
