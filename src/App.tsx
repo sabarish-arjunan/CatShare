@@ -210,9 +210,6 @@ function AppWithBackHandler() {
               setIsRendering={setIsRendering}
               renderProgress={renderProgress}
               setRenderProgress={setRenderProgress}
-              handleRenderAllPNGs={handleRenderAllPNGs}
-              renderResult={renderResult}
-              setRenderResult={setRenderResult}
             />
           }
         />
