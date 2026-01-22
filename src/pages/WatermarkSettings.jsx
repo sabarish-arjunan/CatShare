@@ -59,10 +59,10 @@ export default function WatermarkSettings() {
 
   // Reset renderBoxVisible when render box is not shown
   useEffect(() => {
-    if (!hasChanges || !showWatermark) {
+    if (!hasChanges) {
       setRenderBoxVisible(false);
     }
-  }, [hasChanges, showWatermark]);
+  }, [hasChanges]);
 
   // Track if Render All Images box is visible in viewport
   useEffect(() => {
