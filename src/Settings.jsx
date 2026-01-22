@@ -158,19 +158,19 @@ export default function Settings({
         <SideDrawer
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
-          products={[]}
+          products={products}
           imageMap={{}}
-          setProducts={() => {}}
-          setDeletedProducts={() => {}}
+          setProducts={setProducts}
+          setDeletedProducts={setDeletedProducts}
           selected={[]}
           onShowTutorial={() => {}}
-          darkMode={false}
-          setDarkMode={() => {}}
-          isRendering={false}
-          renderProgress={0}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          isRendering={isRendering}
+          renderProgress={renderProgress}
           renderResult={null}
           setRenderResult={() => {}}
-          handleRenderAllPNGs={() => {}}
+          handleRenderAllPNGs={handleRenderAllPNGs}
         />
       )}
     </div>
