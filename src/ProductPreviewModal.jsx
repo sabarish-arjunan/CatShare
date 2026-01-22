@@ -360,6 +360,37 @@ export default function ProductPreviewModal({
     return localStorage.getItem("watermarkText") || "created using CatShare";
   });
 
+  // Get watermark position
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
+  });
+
+  // Helper function to get CSS styles based on position
+  const getWatermarkPositionStyles = (position) => {
+    const baseStyles = {
+      position: "absolute",
+      fontSize: "10px",
+      fontFamily: "Arial, sans-serif",
+      fontWeight: 500,
+      letterSpacing: "0.3px",
+      pointerEvents: "none"
+    };
+
+    const positionMap = {
+      "top-left": { top: 8, left: 8, transform: "none" },
+      "top-center": { top: 8, left: "50%", transform: "translateX(-50%)" },
+      "top-right": { top: 8, right: 8, left: "auto", transform: "none" },
+      "middle-left": { top: "50%", left: 8, transform: "translateY(-50%)" },
+      "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+      "middle-right": { top: "50%", right: 8, left: "auto", transform: "translateY(-50%)" },
+      "bottom-left": { bottom: 8, left: 8, transform: "none" },
+      "bottom-center": { bottom: 8, left: "50%", transform: "translateX(-50%)" },
+      "bottom-right": { bottom: 8, right: 8, left: "auto", transform: "none" }
+    };
+
+    return { ...baseStyles, ...positionMap[position] };
+  };
+
   // Listen for watermark setting changes from Settings modal
   useEffect(() => {
     const handleStorageChange = () => {
@@ -368,6 +399,9 @@ export default function ProductPreviewModal({
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     const handleWatermarkChange = () => {
@@ -376,13 +410,23 @@ export default function ProductPreviewModal({
 
       const textStored = localStorage.getItem("watermarkText");
       setWatermarkText(textStored || "created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = (e) => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
     };
   }, []);
 
