@@ -707,8 +707,18 @@ setTimeout(async () => {
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>custom</option>
             </select>
           </div>
+          {resellUnit === "custom" && (
+            <input
+              type="text"
+              value={customResellUnit}
+              onChange={(e) => setCustomResellUnit(e.target.value)}
+              placeholder="Enter custom resell unit (e.g., '/ box')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <label className="block text-sm font-medium mb-1">Product Badge</label>
           <input
