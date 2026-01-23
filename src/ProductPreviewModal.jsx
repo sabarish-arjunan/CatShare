@@ -655,7 +655,7 @@ export default function ProductPreviewModal({
             </div>
 
             {/* Bottom Bar */}
-            {tab !== "wholesale" && (
+            {tab !== "wholesale" && (product.showResellPrice !== false) && (
               <div
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
@@ -666,7 +666,7 @@ export default function ProductPreviewModal({
                   fontSize: 19,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit === "custom" ? product.customResellUnit : product.resellUnit}
               </div>
             )}
 
