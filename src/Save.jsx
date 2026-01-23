@@ -189,7 +189,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   `;
   container.appendChild(details);
 
-  if (type === "resell") {
+  if (type === "resell" && shouldShowPrice) {
     container.appendChild(priceBar); // Price at bottom
   }
 
