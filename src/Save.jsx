@@ -167,15 +167,24 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.color = fontColor;
   details.style.padding = "10px";
   details.style.fontSize = "17px";
+
+  // Build attributes list based on visibility
+  const displayPackageUnit = product.packageUnit === "custom" ? (product.customPackageUnit || "") : units.packageUnit;
+  const displayAgeUnit = product.ageUnit === "custom" ? (product.customAgeUnit || "") : units.ageGroupUnit;
+
+  const attributesHtml = `
+    ${showColour ? `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>` : ""}
+    ${showPackage ? `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${displayPackageUnit}</p>` : ""}
+    ${showAgeGroup ? `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${displayAgeUnit}</p>` : ""}
+  `;
+
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
       <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${product.name}</p>
       ${product.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${product.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${units.packageUnit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${units.ageGroupUnit}</p>
+      ${attributesHtml}
     </div>
   `;
   container.appendChild(details);
