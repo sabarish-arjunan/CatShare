@@ -673,21 +673,23 @@ onMouseLeave={handleTouchEnd}
     backgroundColor: "#fff",
                 }}
               >
-                <h2
-                  style={{
-                    backgroundColor: p.bgColor || "#add8e6",
-                    color: p.fontColor || "white",
-                    padding: 5,
-                    textAlign: "center",
-                    fontWeight: "normal",
-                    fontSize: 19,
-                    margin: 0,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{p.resell}{" "}
-                  {p.resellUnit}
-                </h2>
+                {(p.showResellPrice !== false) && (
+                  <h2
+                    style={{
+                      backgroundColor: p.bgColor || "#add8e6",
+                      color: p.fontColor || "white",
+                      padding: 5,
+                      textAlign: "center",
+                      fontWeight: "normal",
+                      fontSize: 19,
+                      margin: 0,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{p.resell}{" "}
+                    {p.resellUnit === "custom" ? p.customResellUnit : p.resellUnit}
+                  </h2>
+                )}
 
                 <div
                   style={{
