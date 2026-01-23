@@ -872,19 +872,21 @@ setTimeout(async () => {
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
-    {wholesaleUnit}
-  </div>
+  {showWholesalePrice && (
+    <div
+      style={{
+        backgroundColor: overrideColor,
+        color: fontColor,
+        padding: "8px",
+        textAlign: "center",
+        fontWeight: "normal",
+        fontSize: 19,
+      }}
+    >
+      Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
+      {wholesaleUnit}
+    </div>
+  )}
 
   {imagePreview && (
     <div
