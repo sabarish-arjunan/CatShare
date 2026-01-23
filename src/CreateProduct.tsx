@@ -614,25 +614,23 @@ setTimeout(async () => {
               placeholder="Package"
               className="border p-2 w-full rounded"
             />
-            <div className="flex gap-1">
-              <select
-                value={packageUnit}
-                onChange={(e) => setPackageUnit(e.target.value)}
-                className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-              >
-                <option>pcs / set</option>
-                <option>pcs / dozen</option>
-                <option>pcs / pack</option>
-                <option>custom</option>
-              </select>
-            </div>
+            <select
+              value={packageUnit}
+              onChange={(e) => setPackageUnit(e.target.value)}
+              className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
+            >
+              <option>pcs / set</option>
+              <option>pcs / dozen</option>
+              <option>pcs / pack</option>
+              <option>custom</option>
+            </select>
           </div>
           {packageUnit === "custom" && (
             <input
               type="text"
-              value={packageUnit}
-              onChange={(e) => setPackageUnit(e.target.value)}
-              placeholder="Enter custom package unit"
+              value={customPackageUnit}
+              onChange={(e) => setCustomPackageUnit(e.target.value)}
+              placeholder="Enter custom package unit (e.g., 'pcs / carton')"
               className="border p-2 rounded w-full mb-2 text-sm"
             />
           )}
