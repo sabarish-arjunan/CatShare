@@ -323,6 +323,11 @@ export default function CreateProduct() {
         setResellUnit(product.resellUnit || "/ piece");
         setPackageUnit(product.packageUnit || "pcs / set");
         setAgeGroupUnit(product.ageUnit || "months");
+        setShowColour(product.showColour !== false);
+        setShowPackage(product.showPackage !== false);
+        setShowAgeGroup(product.showAgeGroup !== false);
+        setShowWholesalePrice(product.showWholesalePrice !== false);
+        setShowResellPrice(product.showResellPrice !== false);
 
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
