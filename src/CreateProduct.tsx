@@ -815,6 +815,57 @@ setTimeout(async () => {
               </div>
             </div>
           </div>
+
+          <div className="mb-4 p-3 bg-gray-50 rounded border border-gray-200">
+            <label className="block text-sm font-semibold mb-3">Display Options</label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Colour</label>
+                <input
+                  type="checkbox"
+                  checked={showColour}
+                  onChange={(e) => setShowColour(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Package</label>
+                <input
+                  type="checkbox"
+                  checked={showPackage}
+                  onChange={(e) => setShowPackage(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Age Group</label>
+                <input
+                  type="checkbox"
+                  checked={showAgeGroup}
+                  onChange={(e) => setShowAgeGroup(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Wholesale Price</label>
+                <input
+                  type="checkbox"
+                  checked={showWholesalePrice}
+                  onChange={(e) => setShowWholesalePrice(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Resell Price</label>
+                <input
+                  type="checkbox"
+                  checked={showResellPrice}
+                  onChange={(e) => setShowResellPrice(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
 {/* Preview Section */}
 <div
   id="catalogue-preview"
