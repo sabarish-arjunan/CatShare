@@ -327,6 +327,10 @@ export default function CreateProduct() {
         setResellUnit(product.resellUnit || "/ piece");
         setPackageUnit(product.packageUnit || "pcs / set");
         setAgeGroupUnit(product.ageUnit || "months");
+        setCustomWholesaleUnit(product.customWholesaleUnit || "");
+        setCustomResellUnit(product.customResellUnit || "");
+        setCustomPackageUnit(product.customPackageUnit || "");
+        setCustomAgeUnit(product.customAgeUnit || "");
         setShowColour(product.showColour !== false);
         setShowPackage(product.showPackage !== false);
         setShowAgeGroup(product.showAgeGroup !== false);
