@@ -262,6 +262,10 @@ export default function CreateProduct() {
   const [resellUnit, setResellUnit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
+  const [customWholesaleUnit, setCustomWholesaleUnit] = useState("");
+  const [customResellUnit, setCustomResellUnit] = useState("");
+  const [customPackageUnit, setCustomPackageUnit] = useState("");
+  const [customAgeUnit, setCustomAgeUnit] = useState("");
 
   // Visibility toggles for product attributes
   const [showColour, setShowColour] = useState(true);
