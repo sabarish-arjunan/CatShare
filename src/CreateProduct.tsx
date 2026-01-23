@@ -470,6 +470,11 @@ export default function CreateProduct() {
       packageUnit,
       ageUnit: ageGroupUnit,
       stock: formData.stock !== false,
+      showColour,
+      showPackage,
+      showAgeGroup,
+      showWholesalePrice,
+      showResellPrice,
       //image: imagePreview,
     };
 
