@@ -262,6 +262,17 @@ export default function CreateProduct() {
   const [resellUnit, setResellUnit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
+  const [customWholesaleUnit, setCustomWholesaleUnit] = useState("");
+  const [customResellUnit, setCustomResellUnit] = useState("");
+  const [customPackageUnit, setCustomPackageUnit] = useState("");
+  const [customAgeUnit, setCustomAgeUnit] = useState("");
+
+  // Visibility toggles for product attributes
+  const [showColour, setShowColour] = useState(true);
+  const [showPackage, setShowPackage] = useState(true);
+  const [showAgeGroup, setShowAgeGroup] = useState(true);
+  const [showWholesalePrice, setShowWholesalePrice] = useState(true);
+  const [showResellPrice, setShowResellPrice] = useState(true);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -316,6 +327,15 @@ export default function CreateProduct() {
         setResellUnit(product.resellUnit || "/ piece");
         setPackageUnit(product.packageUnit || "pcs / set");
         setAgeGroupUnit(product.ageUnit || "months");
+        setCustomWholesaleUnit(product.customWholesaleUnit || "");
+        setCustomResellUnit(product.customResellUnit || "");
+        setCustomPackageUnit(product.customPackageUnit || "");
+        setCustomAgeUnit(product.customAgeUnit || "");
+        setShowColour(product.showColour !== false);
+        setShowPackage(product.showPackage !== false);
+        setShowAgeGroup(product.showAgeGroup !== false);
+        setShowWholesalePrice(product.showWholesalePrice !== false);
+        setShowResellPrice(product.showResellPrice !== false);
 
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
@@ -422,6 +442,11 @@ export default function CreateProduct() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Helper function to get the actual unit value to display
+  const getDisplayUnit = (unit, customValue) => {
+    return unit === "custom" ? customValue : unit;
+  };
+
   const saveAndNavigate = async () => {
     if (!imagePreview) {
       showToast("Please upload and crop an image before saving.", "warning");
@@ -457,7 +482,16 @@ export default function CreateProduct() {
       resellUnit,
       packageUnit,
       ageUnit: ageGroupUnit,
+      customWholesaleUnit,
+      customResellUnit,
+      customPackageUnit,
+      customAgeUnit,
       stock: formData.stock !== false,
+      showColour,
+      showPackage,
+      showAgeGroup,
+      showWholesalePrice,
+      showResellPrice,
       //image: imagePreview,
     };
 
@@ -597,8 +631,18 @@ setTimeout(async () => {
               <option>pcs / set</option>
               <option>pcs / dozen</option>
               <option>pcs / pack</option>
+              <option>custom</option>
             </select>
           </div>
+          {packageUnit === "custom" && (
+            <input
+              type="text"
+              value={customPackageUnit}
+              onChange={(e) => setCustomPackageUnit(e.target.value)}
+              placeholder="Enter custom package unit (e.g., 'pcs / carton')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <div className="flex gap-2 mb-2">
             <input
@@ -616,8 +660,18 @@ setTimeout(async () => {
               <option>months</option>
               <option>years</option>
               <option>Newborn</option>
+              <option>custom</option>
             </select>
           </div>
+          {ageGroupUnit === "custom" && (
+            <input
+              type="text"
+              value={customAgeUnit}
+              onChange={(e) => setCustomAgeUnit(e.target.value)}
+              placeholder="Enter custom age unit (e.g., 'weeks')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <div className="flex gap-2 mb-2">
             <input
@@ -634,8 +688,18 @@ setTimeout(async () => {
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>custom</option>
             </select>
           </div>
+          {wholesaleUnit === "custom" && (
+            <input
+              type="text"
+              value={customWholesaleUnit}
+              onChange={(e) => setCustomWholesaleUnit(e.target.value)}
+              placeholder="Enter custom wholesale unit (e.g., '/ box')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <div className="flex gap-2 mb-2">
             <input
@@ -652,8 +716,18 @@ setTimeout(async () => {
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>custom</option>
             </select>
           </div>
+          {resellUnit === "custom" && (
+            <input
+              type="text"
+              value={customResellUnit}
+              onChange={(e) => setCustomResellUnit(e.target.value)}
+              placeholder="Enter custom resell unit (e.g., '/ box')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <label className="block text-sm font-medium mb-1">Product Badge</label>
           <input
@@ -798,25 +872,78 @@ setTimeout(async () => {
               </div>
             </div>
           </div>
+
+          <div className="mb-4 p-3 bg-gray-50 rounded border border-gray-200">
+            <label className="block text-sm font-semibold mb-3">Display Options</label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Colour</label>
+                <input
+                  type="checkbox"
+                  checked={showColour}
+                  onChange={(e) => setShowColour(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Package</label>
+                <input
+                  type="checkbox"
+                  checked={showPackage}
+                  onChange={(e) => setShowPackage(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Age Group</label>
+                <input
+                  type="checkbox"
+                  checked={showAgeGroup}
+                  onChange={(e) => setShowAgeGroup(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Wholesale Price</label>
+                <input
+                  type="checkbox"
+                  checked={showWholesalePrice}
+                  onChange={(e) => setShowWholesalePrice(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Resell Price</label>
+                <input
+                  type="checkbox"
+                  checked={showResellPrice}
+                  onChange={(e) => setShowResellPrice(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
 {/* Preview Section */}
 <div
   id="catalogue-preview"
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
-    {wholesaleUnit}
-  </div>
+  {showWholesalePrice && (
+    <div
+      style={{
+        backgroundColor: overrideColor,
+        color: fontColor,
+        padding: "8px",
+        textAlign: "center",
+        fontWeight: "normal",
+        fontSize: 19,
+      }}
+    >
+      Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
+      {getDisplayUnit(wholesaleUnit, customWholesaleUnit)}
+    </div>
+  )}
 
   {imagePreview && (
     <div
@@ -891,24 +1018,26 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {packageUnit}</p>
-      <p>Age Group&nbsp;&nbsp;: {formData.age} {ageGroupUnit}</p>
+      {showColour && <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>}
+      {showPackage && <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {getDisplayUnit(packageUnit, customPackageUnit)}</p>}
+      {showAgeGroup && <p>Age Group&nbsp;&nbsp;: {formData.age} {getDisplayUnit(ageGroupUnit, customAgeUnit)}</p>}
     </div>
   </div>
 
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {resellUnit}
-  </div>
+  {showResellPrice && (
+    <div
+      style={{
+        backgroundColor: overrideColor,
+        color: fontColor,
+        padding: "8px",
+        textAlign: "center",
+        fontWeight: "normal",
+        fontSize: 19,
+      }}
+    >
+      Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {getDisplayUnit(resellUnit, customResellUnit)}
+    </div>
+  )}
 </div>
 
           <div className="flex gap-2 mt-4 mb-6">

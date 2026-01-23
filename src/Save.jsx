@@ -13,6 +13,20 @@ export async function saveRenderedImage(product, type, units = {}) {
       ? "rgba(0, 0, 0, 0.4)"
       : "rgba(255, 255, 255, 0.4)";
 
+  // Helper function to get the actual unit value to display
+  const getDisplayUnit = (unitType) => {
+    const unitValue = unitType === "wholesale" ? product.wholesaleUnit : product.resellUnit;
+    const customValue = unitType === "wholesale" ? product.customWholesaleUnit : product.customResellUnit;
+    return unitValue === "custom" ? customValue : unitValue;
+  };
+
+  // Get visibility settings (default to true if not specified)
+  const showColour = product.showColour !== false;
+  const showPackage = product.showPackage !== false;
+  const showAgeGroup = product.showAgeGroup !== false;
+  const showWholesalePrice = product.showWholesalePrice !== false;
+  const showResellPrice = product.showResellPrice !== false;
+
   const getLighterColor = (color) => {
     if (color.startsWith("#") && color.length === 7) {
       const r = parseInt(color.slice(1, 3), 16);
@@ -71,7 +85,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
-  const priceUnit = type === "resell" ? units.resellUnit : units.wholesaleUnit;
+  const shouldShowPrice = type === "resell" ? showResellPrice : showWholesalePrice;
+  const priceUnit = type === "resell" ? getDisplayUnit("resell") : getDisplayUnit("wholesale");
   const price = type === "resell" ? product.resell : product.wholesale;
 
   const priceBar = document.createElement("h2");
@@ -87,7 +102,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   });
   priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
 
-  if (type === "wholesale") {
+  if (type === "wholesale" && shouldShowPrice) {
     container.appendChild(priceBar); // Price on top
   }
 
@@ -152,20 +167,29 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.color = fontColor;
   details.style.padding = "10px";
   details.style.fontSize = "17px";
+
+  // Build attributes list based on visibility
+  const displayPackageUnit = product.packageUnit === "custom" ? (product.customPackageUnit || "") : units.packageUnit;
+  const displayAgeUnit = product.ageUnit === "custom" ? (product.customAgeUnit || "") : units.ageGroupUnit;
+
+  const attributesHtml = `
+    ${showColour ? `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>` : ""}
+    ${showPackage ? `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${displayPackageUnit}</p>` : ""}
+    ${showAgeGroup ? `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${displayAgeUnit}</p>` : ""}
+  `;
+
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
       <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${product.name}</p>
       ${product.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${product.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${units.packageUnit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${units.ageGroupUnit}</p>
+      ${attributesHtml}
     </div>
   `;
   container.appendChild(details);
 
-  if (type === "resell") {
+  if (type === "resell" && shouldShowPrice) {
     container.appendChild(priceBar); // Price at bottom
   }
 

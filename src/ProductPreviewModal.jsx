@@ -510,7 +510,7 @@ export default function ProductPreviewModal({
             })}
           >
             {/* Top Bar */}
-            {tab !== "resell" && (
+            {tab !== "resell" && (product.showWholesalePrice !== false) && (
               <div
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
@@ -521,7 +521,7 @@ export default function ProductPreviewModal({
                   fontSize: 19,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit === "custom" ? product.customWholesaleUnit : product.wholesaleUnit}
               </div>
             )}
 
@@ -636,20 +636,26 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit}
-                </p>
+                {(product.showColour !== false) && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
+                  </p>
+                )}
+                {(product.showPackage !== false) && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit === "custom" ? product.customPackageUnit : product.packageUnit}
+                  </p>
+                )}
+                {(product.showAgeGroup !== false) && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit === "custom" ? product.customAgeUnit : product.ageUnit}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Bottom Bar */}
-            {tab !== "wholesale" && (
+            {tab !== "wholesale" && (product.showResellPrice !== false) && (
               <div
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
@@ -660,7 +666,7 @@ export default function ProductPreviewModal({
                   fontSize: 19,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit === "custom" ? product.customResellUnit : product.resellUnit}
               </div>
             )}
 
