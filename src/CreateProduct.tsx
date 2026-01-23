@@ -651,8 +651,18 @@ setTimeout(async () => {
               <option>months</option>
               <option>years</option>
               <option>Newborn</option>
+              <option>custom</option>
             </select>
           </div>
+          {ageGroupUnit === "custom" && (
+            <input
+              type="text"
+              value={customAgeUnit}
+              onChange={(e) => setCustomAgeUnit(e.target.value)}
+              placeholder="Enter custom age unit (e.g., 'weeks')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <div className="flex gap-2 mb-2">
             <input
