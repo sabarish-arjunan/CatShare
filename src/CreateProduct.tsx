@@ -263,6 +263,13 @@ export default function CreateProduct() {
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
 
+  // Visibility toggles for product attributes
+  const [showColour, setShowColour] = useState(true);
+  const [showPackage, setShowPackage] = useState(true);
+  const [showAgeGroup, setShowAgeGroup] = useState(true);
+  const [showWholesalePrice, setShowWholesalePrice] = useState(true);
+  const [showResellPrice, setShowResellPrice] = useState(true);
+
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
