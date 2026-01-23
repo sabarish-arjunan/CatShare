@@ -13,6 +13,20 @@ export async function saveRenderedImage(product, type, units = {}) {
       ? "rgba(0, 0, 0, 0.4)"
       : "rgba(255, 255, 255, 0.4)";
 
+  // Helper function to get the actual unit value to display
+  const getDisplayUnit = (unitType) => {
+    const unitValue = unitType === "wholesale" ? product.wholesaleUnit : product.resellUnit;
+    const customValue = unitType === "wholesale" ? product.customWholesaleUnit : product.customResellUnit;
+    return unitValue === "custom" ? customValue : unitValue;
+  };
+
+  // Get visibility settings (default to true if not specified)
+  const showColour = product.showColour !== false;
+  const showPackage = product.showPackage !== false;
+  const showAgeGroup = product.showAgeGroup !== false;
+  const showWholesalePrice = product.showWholesalePrice !== false;
+  const showResellPrice = product.showResellPrice !== false;
+
   const getLighterColor = (color) => {
     if (color.startsWith("#") && color.length === 7) {
       const r = parseInt(color.slice(1, 3), 16);
