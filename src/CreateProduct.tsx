@@ -679,8 +679,18 @@ setTimeout(async () => {
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>custom</option>
             </select>
           </div>
+          {wholesaleUnit === "custom" && (
+            <input
+              type="text"
+              value={customWholesaleUnit}
+              onChange={(e) => setCustomWholesaleUnit(e.target.value)}
+              placeholder="Enter custom wholesale unit (e.g., '/ box')"
+              className="border p-2 rounded w-full mb-2 text-sm"
+            />
+          )}
 
           <div className="flex gap-2 mb-2">
             <input
