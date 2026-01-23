@@ -85,7 +85,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
-  const priceUnit = type === "resell" ? units.resellUnit : units.wholesaleUnit;
+  const shouldShowPrice = type === "resell" ? showResellPrice : showWholesalePrice;
+  const priceUnit = type === "resell" ? getDisplayUnit("resell") : getDisplayUnit("wholesale");
   const price = type === "resell" ? product.resell : product.wholesale;
 
   const priceBar = document.createElement("h2");
@@ -101,7 +102,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   });
   priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
 
-  if (type === "wholesale") {
+  if (type === "wholesale" && shouldShowPrice) {
     container.appendChild(priceBar); // Price on top
   }
 
