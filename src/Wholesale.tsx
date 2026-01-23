@@ -792,19 +792,25 @@ onMouseLeave={handleTouchEnd}
                   </div>
 
                   <div style={{ textAlign: "left", lineHeight: 1.4 }}>
-                    <p style={{ margin: "2px 0" }}>
-                      &nbsp; Colour
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.color}
-                    </p>
-                    <p style={{ margin: "2px 0" }}>
-                      &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.package} {p.packageUnit}
-                    </p>
-                    <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.age}{" "}
-                      {p.ageUnit}
-                    </p>
+                    {(p.showColour !== false) && (
+                      <p style={{ margin: "2px 0" }}>
+                        &nbsp; Colour
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                        &nbsp;&nbsp;{p.color}
+                      </p>
+                    )}
+                    {(p.showPackage !== false) && (
+                      <p style={{ margin: "2px 0" }}>
+                        &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                        &nbsp;&nbsp;{p.package} {p.packageUnit === "custom" ? p.customPackageUnit : p.packageUnit}
+                      </p>
+                    )}
+                    {(p.showAgeGroup !== false) && (
+                      <p style={{ margin: "2px 0" }}>
+                        &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.age}{" "}
+                        {p.ageUnit === "custom" ? p.customAgeUnit : p.ageUnit}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
