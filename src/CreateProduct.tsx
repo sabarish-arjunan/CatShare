@@ -1019,8 +1019,8 @@ setTimeout(async () => {
     )}
     <div className="text-sm mt-2 space-y-1">
       {showColour && <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>}
-      {showPackage && <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {packageUnit}</p>}
-      {showAgeGroup && <p>Age Group&nbsp;&nbsp;: {formData.age} {ageGroupUnit}</p>}
+      {showPackage && <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {getDisplayUnit(packageUnit, customPackageUnit)}</p>}
+      {showAgeGroup && <p>Age Group&nbsp;&nbsp;: {formData.age} {getDisplayUnit(ageGroupUnit, customAgeUnit)}</p>}
     </div>
   </div>
 
