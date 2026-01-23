@@ -961,24 +961,26 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {packageUnit}</p>
-      <p>Age Group&nbsp;&nbsp;: {formData.age} {ageGroupUnit}</p>
+      {showColour && <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>}
+      {showPackage && <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {packageUnit}</p>}
+      {showAgeGroup && <p>Age Group&nbsp;&nbsp;: {formData.age} {ageGroupUnit}</p>}
     </div>
   </div>
 
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {resellUnit}
-  </div>
+  {showResellPrice && (
+    <div
+      style={{
+        backgroundColor: overrideColor,
+        color: fontColor,
+        padding: "8px",
+        textAlign: "center",
+        fontWeight: "normal",
+        fontSize: 19,
+      }}
+    >
+      Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {resellUnit}
+    </div>
+  )}
 </div>
 
           <div className="flex gap-2 mt-4 mb-6">
