@@ -941,7 +941,7 @@ setTimeout(async () => {
       }}
     >
       Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
-      {wholesaleUnit}
+      {getDisplayUnit(wholesaleUnit, customWholesaleUnit)}
     </div>
   )}
 
