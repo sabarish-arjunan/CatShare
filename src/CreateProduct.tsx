@@ -442,6 +442,11 @@ export default function CreateProduct() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Helper function to get the actual unit value to display
+  const getDisplayUnit = (unit, customValue) => {
+    return unit === "custom" ? customValue : unit;
+  };
+
   const saveAndNavigate = async () => {
     if (!imagePreview) {
       showToast("Please upload and crop an image before saving.", "warning");
