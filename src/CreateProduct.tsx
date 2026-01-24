@@ -927,7 +927,7 @@ setTimeout(async () => {
         position: "relative",
         backgroundColor: imageBgOverride,
         textAlign: "center",
-        padding: 10,
+        padding: 16,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
       }}
     >
@@ -936,7 +936,7 @@ setTimeout(async () => {
         alt="Preview"
         style={{
           maxWidth: "100%",
-          maxHeight: 300,
+          maxHeight: "300px",
           objectFit: "contain",
           margin: "0 auto",
         }}
