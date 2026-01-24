@@ -987,19 +987,35 @@ setTimeout(async () => {
       backgroundColor: getLighterColor(overrideColor),
       color: fontColor,
       padding: 10,
+      fontSize: 17,
     }}
   >
-    <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-    {theme.showSubtitle && formData.subtitle && (
-      <p className="text-center italic text-sm">({formData.subtitle})</p>
-    )}
-    <div className="text-sm mt-2 space-y-1">
+    <div style={{ textAlign: "center", marginBottom: 6 }}>
+      <p
+        style={{
+          fontWeight: "normal",
+          textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
+          fontSize: 28,
+          margin: 3,
+        }}
+      >
+        {formData.name}
+      </p>
+      {theme.showSubtitle && formData.subtitle && (
+        <p style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}>
+          ({formData.subtitle})
+        </p>
+      )}
+    </div>
+    <div style={{ textAlign: "left", lineHeight: 1.5 }}>
       {theme.customFields && theme.customFields.map((field) => {
         const fieldValue = customFieldValues[field.id]?.value || "";
         const fieldUnit = customFieldValues[field.id]?.unit || field.defaultUnit;
         const showUnits = field.showUnits ?? true;
         return fieldValue ? (
-          <p key={field.id}>{field.name}: {fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}</p>
+          <p key={field.id} style={{ margin: "3px 0" }}>
+            &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
+          </p>
         ) : null;
       })}
     </div>
