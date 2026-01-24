@@ -525,11 +525,12 @@ export default function CreateProduct() {
       customPackageUnit,
       customAgeUnit,
       stock: formData.stock !== false,
-      showColour,
-      showPackage,
-      showAgeGroup,
-      showWholesalePrice,
-      showResellPrice,
+      // Theme-based visibility settings
+      showSubtitle: theme.showSubtitle,
+      showWholesalePrice: theme.showWholesalePrice,
+      showResellPrice: theme.showResellPrice,
+      // Custom field values from theme
+      customFieldValues,
       //image: imagePreview,
     };
 
