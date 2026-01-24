@@ -162,6 +162,17 @@ export default function ProductThemes() {
             Customize which fields appear when creating products. Show/hide built-in fields and create custom fields with your own units.
           </p>
 
+          {/* Live Preview Section */}
+          <div className="bg-blue-50 rounded-lg border border-blue-200 p-5">
+            <h2 className="text-sm font-semibold text-gray-800 mb-3">
+              Live Preview
+            </h2>
+            <p className="text-xs text-gray-600 mb-4">
+              See how your theme changes will look on a sample product
+            </p>
+            <ProductPreview theme={theme} />
+          </div>
+
           {/* Built-in Fields Section */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
             <h2 className="text-sm font-semibold text-gray-800 mb-4">
