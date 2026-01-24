@@ -101,7 +101,7 @@ export default function ProductPreview({
           position: "relative",
           backgroundColor: SAMPLE_PRODUCT.imageBgColor,
           textAlign: "center",
-          padding: 10,
+          padding: imagePaddingPx,
           boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
         }}
       >
@@ -110,32 +110,34 @@ export default function ProductPreview({
           alt="Sample"
           style={{
             maxWidth: "100%",
-            maxHeight: 300,
+            maxHeight: compact ? 120 : 300,
             objectFit: "contain",
             margin: "0 auto",
           }}
         />
 
         {/* Badge */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 12,
-            right: 12,
-            backgroundColor: badgeBg,
-            color: badgeText,
-            fontSize: 13,
-            fontWeight: 600,
-            padding: "6px 10px",
-            borderRadius: "999px",
-            opacity: 0.95,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-            border: `1px solid ${badgeBorder}`,
-            letterSpacing: "0.5px",
-          }}
-        >
-          {SAMPLE_PRODUCT.badge.toUpperCase()}
-        </div>
+        {!compact && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+              backgroundColor: badgeBg,
+              color: badgeText,
+              fontSize: badgeSize,
+              fontWeight: 600,
+              padding: "6px 10px",
+              borderRadius: "999px",
+              opacity: 0.95,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+              border: `1px solid ${badgeBorder}`,
+              letterSpacing: "0.5px",
+            }}
+          >
+            {SAMPLE_PRODUCT.badge.toUpperCase()}
+          </div>
+        )}
       </div>
 
       {/* Details Section */}
