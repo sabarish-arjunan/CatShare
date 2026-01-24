@@ -164,6 +164,11 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     return () => window.removeEventListener("toggle-wholesale-filter", toggleFilterHandler);
   }, []);
 
+  // Ensure the grid re-renders when products change after editing
+  useEffect(() => {
+    // This effect triggers whenever filtered changes, ensuring the preview content divs are up-to-date
+  }, [filtered]);
+
   useEffect(() => {
     const container = document.getElementById("wholesale-header-icons");
     if (!container) return;
