@@ -1,0 +1,222 @@
+import React from "react";
+
+interface CustomField {
+  id: string;
+  name: string;
+  units: string[];
+  defaultUnit: string;
+  showUnits?: boolean;
+}
+
+interface ProductTheme {
+  showSubtitle: boolean;
+  showWholesalePrice: boolean;
+  showResellPrice: boolean;
+  customFields: CustomField[];
+}
+
+interface ProductPreviewProps {
+  theme: ProductTheme;
+  sampleImage?: string;
+  compact?: boolean;
+}
+
+// Sample product data for preview
+const SAMPLE_PRODUCT = {
+  name: "Sample Product",
+  subtitle: "Premium Quality",
+  wholesale: 150,
+  resell: 299,
+  wholesaleUnit: "per dozen",
+  resellUnit: "per piece",
+  badge: "NEW",
+  imageBgColor: "white",
+  fontColor: "black",
+  bgColor: "#add8e6",
+};
+
+const getLighterColor = (color: string): string => {
+  if (color.startsWith("#") && color.length === 7) {
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    const lighten = (c: number) => Math.min(255, c + 40);
+    return `rgb(${lighten(r)}, ${lighten(g)}, ${lighten(b)})`;
+  }
+  return color;
+};
+
+export default function ProductPreview({
+  theme,
+  sampleImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%23999'%3ESample Image%3C/text%3E%3C/svg%3E",
+  compact = false,
+}: ProductPreviewProps) {
+  const badgeBg = SAMPLE_PRODUCT.imageBgColor.toLowerCase() === "white" ? "#fff" : "#000";
+  const badgeText = SAMPLE_PRODUCT.imageBgColor.toLowerCase() === "white" ? "#000" : "#fff";
+  const badgeBorder =
+    SAMPLE_PRODUCT.imageBgColor.toLowerCase() === "white"
+      ? "rgba(0, 0, 0, 0.4)"
+      : "rgba(255, 255, 255, 0.4)";
+
+  const maxWidth = compact ? 140 : 330;
+  const fontSize = compact ? "14px" : "19px";
+  const imagePadding = compact ? "6px" : "10px";
+  const priceBarPadding = compact ? "4px" : "8px";
+  const detailsPadding = compact ? "6px" : "10px";
+  const titleSize = compact ? "0.875rem" : "1.125rem";
+  const subtitleSize = compact ? "0.625rem" : "0.875rem";
+  const fieldSize = compact ? "0.625rem" : "0.875rem";
+  const badgeSize = compact ? "10px" : "13px";
+  const imagePaddingPx = compact ? 6 : 10;
+
+  return (
+    <div
+      className="border rounded shadow overflow-hidden mx-auto"
+      style={{ maxWidth, width: "100%", marginTop: compact ? 0 : 24 }}
+    >
+      {/* Wholesale Price Bar */}
+      {theme.showWholesalePrice && (
+        <div
+          style={{
+            backgroundColor: SAMPLE_PRODUCT.bgColor,
+            color: SAMPLE_PRODUCT.fontColor,
+            padding: priceBarPadding,
+            textAlign: "center",
+            fontWeight: "normal",
+            fontSize,
+          }}
+        >
+          {compact ? (
+            <div style={{ fontSize: "11px" }}>₹{SAMPLE_PRODUCT.wholesale}</div>
+          ) : (
+            <>Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{SAMPLE_PRODUCT.wholesale}{" "}
+            {SAMPLE_PRODUCT.wholesaleUnit}</>
+          )}
+        </div>
+      )}
+
+      {/* Image Section */}
+      <div
+        style={{
+          position: "relative",
+          backgroundColor: SAMPLE_PRODUCT.imageBgColor,
+          textAlign: "center",
+          padding: imagePaddingPx,
+          boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+        }}
+      >
+        <img
+          src={sampleImage}
+          alt="Sample"
+          style={{
+            maxWidth: "100%",
+            maxHeight: compact ? 120 : 300,
+            objectFit: "contain",
+            margin: "0 auto",
+          }}
+        />
+
+        {/* Badge */}
+        {!compact && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+              backgroundColor: badgeBg,
+              color: badgeText,
+              fontSize: badgeSize,
+              fontWeight: 600,
+              padding: "6px 10px",
+              borderRadius: "999px",
+              opacity: 0.95,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+              border: `1px solid ${badgeBorder}`,
+              letterSpacing: "0.5px",
+            }}
+          >
+            {SAMPLE_PRODUCT.badge.toUpperCase()}
+          </div>
+        )}
+      </div>
+
+      {/* Details Section */}
+      <div
+        style={{
+          backgroundColor: getLighterColor(SAMPLE_PRODUCT.bgColor),
+          color: SAMPLE_PRODUCT.fontColor,
+          padding: detailsPadding,
+        }}
+      >
+        <h2 style={{ fontSize: titleSize, fontWeight: "bold", textAlign: "center", margin: 0 }}>
+          {compact ? "Product" : SAMPLE_PRODUCT.name}
+        </h2>
+
+        {/* Subtitle */}
+        {theme.showSubtitle && !compact && (
+          <p style={{ textAlign: "center", fontStyle: "italic", fontSize: subtitleSize, margin: "3px 0" }}>
+            ({SAMPLE_PRODUCT.subtitle})
+          </p>
+        )}
+
+        {/* Custom Fields */}
+        {theme.customFields && theme.customFields.length > 0 && (
+          <div style={{ fontSize: compact ? "0.55rem" : fieldSize, marginTop: compact ? "2px" : "4px", lineHeight: compact ? "1" : "1.2" }}>
+            {theme.customFields.map((field) => {
+              const showUnits = field.showUnits ?? true;
+              const sampleValue =
+                field.id === "colour"
+                  ? "Red"
+                  : field.id === "package"
+                  ? "10"
+                  : field.id === "agegroup"
+                  ? "6"
+                  : "Sample";
+
+              return (
+                <div key={field.id} style={{ margin: compact ? "0.5px 0" : "1px 0" }}>
+                  {compact ? (
+                    <>
+                      <span style={{ fontWeight: "600" }}>{field.name}:</span> {sampleValue}
+                      {showUnits && field.defaultUnit !== "N/A" && (
+                        <> {field.defaultUnit}</>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {field.name}: {sampleValue}{" "}
+                      {showUnits && field.defaultUnit !== "N/A"
+                        ? field.defaultUnit
+                        : ""}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Resell Price Bar */}
+      {theme.showResellPrice && (
+        <div
+          style={{
+            backgroundColor: SAMPLE_PRODUCT.bgColor,
+            color: SAMPLE_PRODUCT.fontColor,
+            padding: priceBarPadding,
+            textAlign: "center",
+            fontWeight: "normal",
+            fontSize,
+          }}
+        >
+          {compact ? (
+            <div style={{ fontSize: "11px" }}>₹{SAMPLE_PRODUCT.resell}</div>
+          ) : (
+            <>Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{SAMPLE_PRODUCT.resell}{" "}
+            {SAMPLE_PRODUCT.resellUnit}</>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

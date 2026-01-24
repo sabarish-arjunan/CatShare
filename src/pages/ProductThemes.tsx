@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack, MdAdd, MdDelete } from "react-icons/md";
 import { MdCircle } from "react-icons/md";
+import ProductPreview from "../components/ProductPreview";
 
 interface CustomField {
   id: string;
@@ -61,11 +62,27 @@ export default function ProductThemes() {
   const [editFieldName, setEditFieldName] = useState("");
   const [editFieldUnits, setEditFieldUnits] = useState("");
   const [editShowUnits, setEditShowUnits] = useState(true);
+  const [showFloatingButton, setShowFloatingButton] = useState(false);
+  const [expandedPreview, setExpandedPreview] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("productTheme", JSON.stringify(theme));
     window.dispatchEvent(new CustomEvent("themeUpdated", { detail: theme }));
   }, [theme]);
+
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const scrollTop = mainElement.scrollTop;
+      // Show floating button after scrolling down 300px
+      setShowFloatingButton(scrollTop > 300);
+    };
+
+    mainElement.addEventListener("scroll", handleScroll);
+    return () => mainElement.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleToggle = (
     key: "showSubtitle" | "showWholesalePrice" | "showResellPrice"
@@ -160,6 +177,17 @@ export default function ProductThemes() {
           <p className="text-gray-600 text-sm">
             Customize which fields appear when creating products. Show/hide built-in fields and create custom fields with your own units.
           </p>
+
+          {/* Live Preview Section */}
+          <div className="bg-blue-50 rounded-lg border border-blue-200 p-5">
+            <h2 className="text-sm font-semibold text-gray-800 mb-3">
+              Live Preview
+            </h2>
+            <p className="text-xs text-gray-600 mb-4">
+              See how your theme changes will look on a sample product
+            </p>
+            <ProductPreview theme={theme} />
+          </div>
 
           {/* Built-in Fields Section */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
@@ -402,6 +430,27 @@ export default function ProductThemes() {
           </div>
         </div>
       </main>
+
+      {/* Floating Preview Button/Panel */}
+      {showFloatingButton && (
+        <>
+          {/* Preview Panel - Opens Above Button */}
+          {expandedPreview && (
+            <div className="fixed right-4 z-40 p-2" style={{ bottom: "calc(1rem + 3rem + 1rem)", width: "360px", maxHeight: "calc(100vh - 150px)", overflow: "auto" }}>
+              <ProductPreview theme={theme} compact={false} />
+            </div>
+          )}
+
+          {/* Floating Button - Always Visible */}
+          <button
+            onClick={() => setExpandedPreview(!expandedPreview)}
+            className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 text-xl"
+            title={expandedPreview ? "Close preview" : "Open preview"}
+          >
+            👁️
+          </button>
+        </>
+      )}
     </div>
   );
 }
