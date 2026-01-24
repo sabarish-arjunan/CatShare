@@ -8,6 +8,7 @@ interface CustomField {
   name: string;
   units: string[];
   defaultUnit: string;
+  showUnits?: boolean;
 }
 
 interface ProductTheme {
