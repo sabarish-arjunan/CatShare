@@ -444,7 +444,7 @@ export default function ProductThemes() {
           {/* Floating Button - Always Visible */}
           <button
             onClick={() => setExpandedPreview(!expandedPreview)}
-            className="fixed bottom-24 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 text-xl"
+            className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 text-xl"
             title={expandedPreview ? "Close preview" : "Open preview"}
           >
             👁️
