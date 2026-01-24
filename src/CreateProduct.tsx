@@ -651,7 +651,7 @@ setTimeout(async () => {
 
           {/* Dynamic Custom Fields from Theme */}
           {theme.customFields && theme.customFields.map((field) => (
-            <div key={field.id} className="flex gap-2 mb-2">
+            <div key={field.id} className={`${(field.showUnits ?? true) ? "flex gap-2 mb-2" : "mb-2"}`}>
               <input
                 type="text"
                 value={customFieldValues[field.id]?.value || ""}
@@ -665,27 +665,29 @@ setTimeout(async () => {
                   }))
                 }
                 placeholder={field.name}
-                className="border p-2 w-full rounded"
+                className={`border p-2 rounded ${(field.showUnits ?? true) ? "w-full" : "w-full"}`}
               />
-              <select
-                value={customFieldValues[field.id]?.unit || field.defaultUnit}
-                onChange={(e) =>
-                  setCustomFieldValues((prev) => ({
-                    ...prev,
-                    [field.id]: {
-                      ...(prev[field.id] || {}),
-                      unit: e.target.value,
-                    },
-                  }))
-                }
-                className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-              >
-                {field.units.map((unit) => (
-                  <option key={unit} value={unit}>
-                    {unit}
-                  </option>
-                ))}
-              </select>
+              {(field.showUnits ?? true) && (
+                <select
+                  value={customFieldValues[field.id]?.unit || field.defaultUnit}
+                  onChange={(e) =>
+                    setCustomFieldValues((prev) => ({
+                      ...prev,
+                      [field.id]: {
+                        ...(prev[field.id] || {}),
+                        unit: e.target.value,
+                      },
+                    }))
+                  }
+                  className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
+                >
+                  {field.units.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           ))}
 
