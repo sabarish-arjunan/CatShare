@@ -176,6 +176,26 @@ export default function CreateProduct() {
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
+  // Load theme from localStorage
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem("productTheme");
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    return {
+      showSubtitle: true,
+      showWholesalePrice: true,
+      showResellPrice: true,
+      customFields: [
+        { id: "colour", name: "Colour", units: ["N/A"], defaultUnit: "N/A" },
+        { id: "package", name: "Package", units: ["pcs / set", "pcs / dozen", "pcs / pack"], defaultUnit: "pcs / set" },
+        { id: "agegroup", name: "Age Group", units: ["months", "years", "Newborn"], defaultUnit: "months" },
+      ],
+    };
+  });
+
+  const [customFieldValues, setCustomFieldValues] = useState({});
+
   const [formData, setFormData] = useState({
     id: "",
     name: "",
@@ -205,6 +225,19 @@ export default function CreateProduct() {
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
     return localStorage.getItem("watermarkPosition") || "bottom-center";
   });
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const stored = localStorage.getItem("productTheme");
+      if (stored) {
+        setTheme(JSON.parse(stored));
+      }
+    };
+
+    window.addEventListener("themeUpdated", handleThemeChange);
+    return () => window.removeEventListener("themeUpdated", handleThemeChange);
+  }, []);
 
   // Listen for watermark setting changes
   useEffect(() => {
@@ -336,6 +369,11 @@ export default function CreateProduct() {
         setShowAgeGroup(product.showAgeGroup !== false);
         setShowWholesalePrice(product.showWholesalePrice !== false);
         setShowResellPrice(product.showResellPrice !== false);
+
+        // Load custom field values from product
+        if (product.customFieldValues) {
+          setCustomFieldValues(product.customFieldValues);
+        }
 
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
@@ -487,11 +525,12 @@ export default function CreateProduct() {
       customPackageUnit,
       customAgeUnit,
       stock: formData.stock !== false,
-      showColour,
-      showPackage,
-      showAgeGroup,
-      showWholesalePrice,
-      showResellPrice,
+      // Theme-based visibility settings
+      showSubtitle: theme.showSubtitle,
+      showWholesalePrice: theme.showWholesalePrice,
+      showResellPrice: theme.showResellPrice,
+      // Custom field values from theme
+      customFieldValues,
       //image: imagePreview,
     };
 
@@ -600,98 +639,79 @@ setTimeout(async () => {
             placeholder="Model Name"
             className="border p-2 rounded w-full mb-2"
           />
-          <input
-            name="subtitle"
-            value={formData.subtitle}
-            onChange={handleChange}
-            placeholder="Subtitle"
-            className="border p-2 rounded w-full mb-2"
-          />
-          <input
-            name="color"
-            value={formData.color}
-            onChange={handleChange}
-            placeholder="Colour"
-            className="border p-2 rounded w-full mb-2"
-          />
-
-          <div className="flex gap-2 mb-2">
+          {theme.showSubtitle && (
             <input
-              name="package"
-              value={formData.package}
+              name="subtitle"
+              value={formData.subtitle}
               onChange={handleChange}
-              placeholder="Package"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={packageUnit}
-              onChange={(e) => setPackageUnit(e.target.value)}
-              className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-            >
-              <option>pcs / set</option>
-              <option>pcs / dozen</option>
-              <option>pcs / pack</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {packageUnit === "custom" && (
-            <input
-              type="text"
-              value={customPackageUnit}
-              onChange={(e) => setCustomPackageUnit(e.target.value)}
-              placeholder="Enter custom package unit (e.g., 'pcs / carton')"
-              className="border p-2 rounded w-full mb-2 text-sm"
+              placeholder="Subtitle"
+              className="border p-2 rounded w-full mb-2"
             />
           )}
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              placeholder="Age Group"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={ageGroupUnit}
-              onChange={(e) => setAgeGroupUnit(e.target.value)}
-              className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
-            >
-              <option>months</option>
-              <option>years</option>
-              <option>Newborn</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {ageGroupUnit === "custom" && (
-            <input
-              type="text"
-              value={customAgeUnit}
-              onChange={(e) => setCustomAgeUnit(e.target.value)}
-              placeholder="Enter custom age unit (e.g., 'weeks')"
-              className="border p-2 rounded w-full mb-2 text-sm"
-            />
-          )}
+          {/* Dynamic Custom Fields from Theme */}
+          {theme.customFields && theme.customFields.map((field) => (
+            <div key={field.id} className={`${(field.showUnits ?? true) ? "flex gap-2 mb-2" : "mb-2"}`}>
+              <input
+                type="text"
+                value={customFieldValues[field.id]?.value || ""}
+                onChange={(e) =>
+                  setCustomFieldValues((prev) => ({
+                    ...prev,
+                    [field.id]: {
+                      ...(prev[field.id] || {}),
+                      value: e.target.value,
+                    },
+                  }))
+                }
+                placeholder={field.name}
+                className={`border p-2 rounded ${(field.showUnits ?? true) ? "w-full" : "w-full"}`}
+              />
+              {(field.showUnits ?? true) && (
+                <select
+                  value={customFieldValues[field.id]?.unit || field.defaultUnit}
+                  onChange={(e) =>
+                    setCustomFieldValues((prev) => ({
+                      ...prev,
+                      [field.id]: {
+                        ...(prev[field.id] || {}),
+                        unit: e.target.value,
+                      },
+                    }))
+                  }
+                  className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
+                >
+                  {field.units.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          ))}
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="wholesale"
-              value={formData.wholesale}
-              onChange={handleChange}
-              placeholder="Wholesale Price"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={wholesaleUnit}
-              onChange={(e) => setWholesaleUnit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {wholesaleUnit === "custom" && (
+          {theme.showWholesalePrice && (
+            <div className="flex gap-2 mb-2">
+              <input
+                name="wholesale"
+                value={formData.wholesale}
+                onChange={handleChange}
+                placeholder="Wholesale Price"
+                className="border p-2 w-full rounded"
+              />
+              <select
+                value={wholesaleUnit}
+                onChange={(e) => setWholesaleUnit(e.target.value)}
+                className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+              >
+                <option>/ piece</option>
+                <option>/ dozen</option>
+                <option>custom</option>
+              </select>
+            </div>
+          )}
+          {theme.showWholesalePrice && wholesaleUnit === "custom" && (
             <input
               type="text"
               value={customWholesaleUnit}
@@ -701,25 +721,27 @@ setTimeout(async () => {
             />
           )}
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="resell"
-              value={formData.resell}
-              onChange={handleChange}
-              placeholder="Resell Price"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={resellUnit}
-              onChange={(e) => setResellUnit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {resellUnit === "custom" && (
+          {theme.showResellPrice && (
+            <div className="flex gap-2 mb-2">
+              <input
+                name="resell"
+                value={formData.resell}
+                onChange={handleChange}
+                placeholder="Resell Price"
+                className="border p-2 w-full rounded"
+              />
+              <select
+                value={resellUnit}
+                onChange={(e) => setResellUnit(e.target.value)}
+                className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+              >
+                <option>/ piece</option>
+                <option>/ dozen</option>
+                <option>custom</option>
+              </select>
+            </div>
+          )}
+          {theme.showResellPrice && resellUnit === "custom" && (
             <input
               type="text"
               value={customResellUnit}
@@ -873,63 +895,13 @@ setTimeout(async () => {
             </div>
           </div>
 
-          <div className="mb-4 p-3 bg-gray-50 rounded border border-gray-200">
-            <label className="block text-sm font-semibold mb-3">Display Options</label>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Show Colour</label>
-                <input
-                  type="checkbox"
-                  checked={showColour}
-                  onChange={(e) => setShowColour(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Show Package</label>
-                <input
-                  type="checkbox"
-                  checked={showPackage}
-                  onChange={(e) => setShowPackage(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Show Age Group</label>
-                <input
-                  type="checkbox"
-                  checked={showAgeGroup}
-                  onChange={(e) => setShowAgeGroup(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Show Wholesale Price</label>
-                <input
-                  type="checkbox"
-                  checked={showWholesalePrice}
-                  onChange={(e) => setShowWholesalePrice(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Show Resell Price</label>
-                <input
-                  type="checkbox"
-                  checked={showResellPrice}
-                  onChange={(e) => setShowResellPrice(e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
 {/* Preview Section */}
 <div
   id="catalogue-preview"
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  {showWholesalePrice && (
+  {theme.showWholesalePrice && (
     <div
       style={{
         backgroundColor: overrideColor,
@@ -1014,17 +986,22 @@ setTimeout(async () => {
     }}
   >
     <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-    {formData.subtitle && (
+    {theme.showSubtitle && formData.subtitle && (
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      {showColour && <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>}
-      {showPackage && <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {getDisplayUnit(packageUnit, customPackageUnit)}</p>}
-      {showAgeGroup && <p>Age Group&nbsp;&nbsp;: {formData.age} {getDisplayUnit(ageGroupUnit, customAgeUnit)}</p>}
+      {theme.customFields && theme.customFields.map((field) => {
+        const fieldValue = customFieldValues[field.id]?.value || "";
+        const fieldUnit = customFieldValues[field.id]?.unit || field.defaultUnit;
+        const showUnits = field.showUnits ?? true;
+        return fieldValue ? (
+          <p key={field.id}>{field.name}: {fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}</p>
+        ) : null;
+      })}
     </div>
   </div>
 
-  {showResellPrice && (
+  {theme.showResellPrice && (
     <div
       style={{
         backgroundColor: overrideColor,
