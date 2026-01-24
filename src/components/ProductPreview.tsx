@@ -80,14 +80,18 @@ export default function ProductPreview({
           style={{
             backgroundColor: SAMPLE_PRODUCT.bgColor,
             color: SAMPLE_PRODUCT.fontColor,
-            padding: "8px",
+            padding: priceBarPadding,
             textAlign: "center",
             fontWeight: "normal",
-            fontSize: 19,
+            fontSize,
           }}
         >
-          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{SAMPLE_PRODUCT.wholesale}{" "}
-          {SAMPLE_PRODUCT.wholesaleUnit}
+          {compact ? (
+            <div style={{ fontSize: "11px" }}>₹{SAMPLE_PRODUCT.wholesale}</div>
+          ) : (
+            <>Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{SAMPLE_PRODUCT.wholesale}{" "}
+            {SAMPLE_PRODUCT.wholesaleUnit}</>
+          )}
         </div>
       )}
 
