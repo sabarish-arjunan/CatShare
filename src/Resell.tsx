@@ -795,11 +795,11 @@ onMouseLeave={handleTouchEnd}
                       const fieldUnit = p.customFieldValues?.[field.id]?.unit || field.defaultUnit;
                       const showUnits = field.showUnits ?? true;
 
-                      return (
+                      return fieldValue ? (
                         <p key={field.id} style={{ margin: "2px 0" }}>
-                          &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue || "—"} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
+                          &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
                         </p>
-                      );
+                      ) : null;
                     })}
                   </div>
                 </div>
