@@ -370,6 +370,11 @@ export default function CreateProduct() {
         setShowWholesalePrice(product.showWholesalePrice !== false);
         setShowResellPrice(product.showResellPrice !== false);
 
+        // Load custom field values from product
+        if (product.customFieldValues) {
+          setCustomFieldValues(product.customFieldValues);
+        }
+
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
         } else if (product.imagePath) {
