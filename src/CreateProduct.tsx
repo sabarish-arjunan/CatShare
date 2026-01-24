@@ -375,6 +375,17 @@ export default function CreateProduct() {
           setCustomFieldValues(product.customFieldValues);
         }
 
+        // Load product's custom fields structure if available
+        if (product.customFields) {
+          setTheme((prevTheme) => ({
+            ...prevTheme,
+            customFields: product.customFields,
+            showSubtitle: product.showSubtitle !== false,
+            showWholesalePrice: product.showWholesalePrice !== false,
+            showResellPrice: product.showResellPrice !== false,
+          }));
+        }
+
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
         } else if (product.imagePath) {
