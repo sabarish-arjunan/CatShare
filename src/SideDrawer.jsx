@@ -473,6 +473,17 @@ const exportProductsToCSV = (products) => {
 
 <button
   onClick={() => {
+    navigate("/themes");
+    onClose();
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+>
+  <span className="text-gray-500 text-[18px]">🎨</span>
+  <span className="text-sm font-medium">Themes</span>
+</button>
+
+<button
+  onClick={() => {
     navigate("/settings");
     onClose();
   }}
