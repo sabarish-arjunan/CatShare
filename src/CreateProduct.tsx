@@ -983,17 +983,21 @@ setTimeout(async () => {
     }}
   >
     <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-    {formData.subtitle && (
+    {theme.showSubtitle && formData.subtitle && (
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      {showColour && <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>}
-      {showPackage && <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {getDisplayUnit(packageUnit, customPackageUnit)}</p>}
-      {showAgeGroup && <p>Age Group&nbsp;&nbsp;: {formData.age} {getDisplayUnit(ageGroupUnit, customAgeUnit)}</p>}
+      {theme.customFields && theme.customFields.map((field) => {
+        const fieldValue = customFieldValues[field.id]?.value || "";
+        const fieldUnit = customFieldValues[field.id]?.unit || field.defaultUnit;
+        return fieldValue ? (
+          <p key={field.id}>{field.name}: {fieldValue} {fieldUnit !== "N/A" ? fieldUnit : ""}</p>
+        ) : null;
+      })}
     </div>
   </div>
 
-  {showResellPrice && (
+  {theme.showResellPrice && (
     <div
       style={{
         backgroundColor: overrideColor,
