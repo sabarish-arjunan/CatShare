@@ -993,8 +993,9 @@ setTimeout(async () => {
       {theme.customFields && theme.customFields.map((field) => {
         const fieldValue = customFieldValues[field.id]?.value || "";
         const fieldUnit = customFieldValues[field.id]?.unit || field.defaultUnit;
+        const showUnits = field.showUnits ?? true;
         return fieldValue ? (
-          <p key={field.id}>{field.name}: {fieldValue} {fieldUnit !== "N/A" ? fieldUnit : ""}</p>
+          <p key={field.id}>{field.name}: {fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}</p>
         ) : null;
       })}
     </div>
