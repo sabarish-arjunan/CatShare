@@ -434,9 +434,9 @@ export default function ProductThemes() {
       {/* Floating Preview Button/Panel */}
       {showFloatingButton && (
         <>
-          {/* Preview Panel - Only Shows Content, No Background */}
+          {/* Preview Panel - Opens Above Button */}
           {expandedPreview && (
-            <div className="fixed bottom-24 right-4 z-40 max-h-96 overflow-y-auto">
+            <div className="fixed right-4 z-40 max-h-96 overflow-y-auto" style={{ bottom: "calc(96px + 1rem)" }}>
               <ProductPreview theme={theme} compact={true} />
             </div>
           )}
