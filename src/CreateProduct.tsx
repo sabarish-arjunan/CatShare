@@ -526,9 +526,11 @@ export default function CreateProduct() {
       customAgeUnit,
       stock: formData.stock !== false,
       // Theme-based visibility settings
-      // When EDITING: preserve the product's original theme settings
+      // When EDITING: preserve the product's original theme settings but update field values
       // When CREATING: use the current theme settings
-      ...(editingId ? {} : {
+      ...(editingId ? {
+        customFieldValues, // Always update field values when editing
+      } : {
         showSubtitle: theme.showSubtitle,
         showWholesalePrice: theme.showWholesalePrice,
         showResellPrice: theme.showResellPrice,
