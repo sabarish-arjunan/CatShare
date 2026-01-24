@@ -526,11 +526,14 @@ export default function CreateProduct() {
       customAgeUnit,
       stock: formData.stock !== false,
       // Theme-based visibility settings
-      showSubtitle: theme.showSubtitle,
-      showWholesalePrice: theme.showWholesalePrice,
-      showResellPrice: theme.showResellPrice,
-      // Custom field values from theme
-      customFieldValues,
+      // When EDITING: preserve the product's original theme settings
+      // When CREATING: use the current theme settings
+      ...(editingId ? {} : {
+        showSubtitle: theme.showSubtitle,
+        showWholesalePrice: theme.showWholesalePrice,
+        showResellPrice: theme.showResellPrice,
+        customFieldValues,
+      }),
       //image: imagePreview,
     };
 
