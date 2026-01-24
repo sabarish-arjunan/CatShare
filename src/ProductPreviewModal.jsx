@@ -641,11 +641,11 @@ export default function ProductPreviewModal({
                   const fieldUnit = product.customFieldValues?.[field.id]?.unit || field.defaultUnit;
                   const showUnits = field.showUnits ?? true;
 
-                  return fieldValue ? (
+                  return (
                     <p key={field.id} style={{ margin: "3px 0" }}>
-                      &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
+                      &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue || "—"} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
                     </p>
-                  ) : null;
+                  );
                 })}
               </div>
             </div>
