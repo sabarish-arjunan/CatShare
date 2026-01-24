@@ -638,20 +638,15 @@ setTimeout(async () => {
             placeholder="Model Name"
             className="border p-2 rounded w-full mb-2"
           />
-          <input
-            name="subtitle"
-            value={formData.subtitle}
-            onChange={handleChange}
-            placeholder="Subtitle"
-            className="border p-2 rounded w-full mb-2"
-          />
-          <input
-            name="color"
-            value={formData.color}
-            onChange={handleChange}
-            placeholder="Colour"
-            className="border p-2 rounded w-full mb-2"
-          />
+          {theme.showSubtitle && (
+            <input
+              name="subtitle"
+              value={formData.subtitle}
+              onChange={handleChange}
+              placeholder="Subtitle"
+              className="border p-2 rounded w-full mb-2"
+            />
+          )}
 
           <div className="flex gap-2 mb-2">
             <input
