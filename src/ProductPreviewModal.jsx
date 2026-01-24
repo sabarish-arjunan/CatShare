@@ -440,7 +440,7 @@ export default function ProductPreviewModal({
       }
     };
     loadImage();
-  }, [product]);
+  }, [product, product?.id]);
 
   // Handle image click to open full screen
   const handleImageClick = (e) => {
