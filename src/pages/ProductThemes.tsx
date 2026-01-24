@@ -127,6 +127,7 @@ export default function ProductThemes() {
       name: `Field ${theme.customFields.length + 1}`,
       units: ["N/A"],
       defaultUnit: "N/A",
+      showUnits: false,
     };
     setTheme((prev) => ({
       ...prev,
