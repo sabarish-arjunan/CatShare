@@ -69,6 +69,20 @@ export default function ProductThemes() {
     window.dispatchEvent(new CustomEvent("themeUpdated", { detail: theme }));
   }, [theme]);
 
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const scrollTop = mainElement.scrollTop;
+      // Show floating preview after scrolling down 300px
+      setShowFloatingPreview(scrollTop > 300);
+    };
+
+    mainElement.addEventListener("scroll", handleScroll);
+    return () => mainElement.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleToggle = (
     key: "showSubtitle" | "showWholesalePrice" | "showResellPrice"
   ) => {
