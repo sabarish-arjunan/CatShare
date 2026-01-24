@@ -798,7 +798,7 @@ onMouseLeave={handleTouchEnd}
                       return fieldValue ? (
                         <div key={field.id} style={{ display: "flex", margin: "2px 0", paddingLeft: "8px" }}>
                           <span style={{ minWidth: "90px" }}>{field.name}</span>
-                          <span style={{ marginRight: "4px" }}>:</span>
+                          <span style={{ marginRight: "12px" }}>:</span>
                           <span>{fieldValue}</span>
                           {showUnits && fieldUnit !== "N/A" && <span style={{ marginLeft: "4px" }}>{fieldUnit}</span>}
                         </div>
