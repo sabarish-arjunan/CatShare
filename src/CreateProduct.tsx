@@ -648,83 +648,67 @@ setTimeout(async () => {
             />
           )}
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="package"
-              value={formData.package}
-              onChange={handleChange}
-              placeholder="Package"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={packageUnit}
-              onChange={(e) => setPackageUnit(e.target.value)}
-              className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-            >
-              <option>pcs / set</option>
-              <option>pcs / dozen</option>
-              <option>pcs / pack</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {packageUnit === "custom" && (
-            <input
-              type="text"
-              value={customPackageUnit}
-              onChange={(e) => setCustomPackageUnit(e.target.value)}
-              placeholder="Enter custom package unit (e.g., 'pcs / carton')"
-              className="border p-2 rounded w-full mb-2 text-sm"
-            />
-          )}
+          {/* Dynamic Custom Fields from Theme */}
+          {theme.customFields && theme.customFields.map((field) => (
+            <div key={field.id} className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={customFieldValues[field.id]?.value || ""}
+                onChange={(e) =>
+                  setCustomFieldValues((prev) => ({
+                    ...prev,
+                    [field.id]: {
+                      ...(prev[field.id] || {}),
+                      value: e.target.value,
+                    },
+                  }))
+                }
+                placeholder={field.name}
+                className="border p-2 w-full rounded"
+              />
+              <select
+                value={customFieldValues[field.id]?.unit || field.defaultUnit}
+                onChange={(e) =>
+                  setCustomFieldValues((prev) => ({
+                    ...prev,
+                    [field.id]: {
+                      ...(prev[field.id] || {}),
+                      unit: e.target.value,
+                    },
+                  }))
+                }
+                className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
+              >
+                {field.units.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              placeholder="Age Group"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={ageGroupUnit}
-              onChange={(e) => setAgeGroupUnit(e.target.value)}
-              className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
-            >
-              <option>months</option>
-              <option>years</option>
-              <option>Newborn</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {ageGroupUnit === "custom" && (
-            <input
-              type="text"
-              value={customAgeUnit}
-              onChange={(e) => setCustomAgeUnit(e.target.value)}
-              placeholder="Enter custom age unit (e.g., 'weeks')"
-              className="border p-2 rounded w-full mb-2 text-sm"
-            />
+          {theme.showWholesalePrice && (
+            <div className="flex gap-2 mb-2">
+              <input
+                name="wholesale"
+                value={formData.wholesale}
+                onChange={handleChange}
+                placeholder="Wholesale Price"
+                className="border p-2 w-full rounded"
+              />
+              <select
+                value={wholesaleUnit}
+                onChange={(e) => setWholesaleUnit(e.target.value)}
+                className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+              >
+                <option>/ piece</option>
+                <option>/ dozen</option>
+                <option>custom</option>
+              </select>
+            </div>
           )}
-
-          <div className="flex gap-2 mb-2">
-            <input
-              name="wholesale"
-              value={formData.wholesale}
-              onChange={handleChange}
-              placeholder="Wholesale Price"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={wholesaleUnit}
-              onChange={(e) => setWholesaleUnit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {wholesaleUnit === "custom" && (
+          {theme.showWholesalePrice && wholesaleUnit === "custom" && (
             <input
               type="text"
               value={customWholesaleUnit}
@@ -734,25 +718,27 @@ setTimeout(async () => {
             />
           )}
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="resell"
-              value={formData.resell}
-              onChange={handleChange}
-              placeholder="Resell Price"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={resellUnit}
-              onChange={(e) => setResellUnit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>custom</option>
-            </select>
-          </div>
-          {resellUnit === "custom" && (
+          {theme.showResellPrice && (
+            <div className="flex gap-2 mb-2">
+              <input
+                name="resell"
+                value={formData.resell}
+                onChange={handleChange}
+                placeholder="Resell Price"
+                className="border p-2 w-full rounded"
+              />
+              <select
+                value={resellUnit}
+                onChange={(e) => setResellUnit(e.target.value)}
+                className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+              >
+                <option>/ piece</option>
+                <option>/ dozen</option>
+                <option>custom</option>
+              </select>
+            </div>
+          )}
+          {theme.showResellPrice && resellUnit === "custom" && (
             <input
               type="text"
               value={customResellUnit}
