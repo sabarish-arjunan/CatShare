@@ -160,8 +160,8 @@ export default function ProductPreview({
         )}
 
         {/* Custom Fields */}
-        {!compact && theme.customFields && theme.customFields.length > 0 && (
-          <div style={{ fontSize: fieldSize, marginTop: "4px", lineHeight: "1.2" }}>
+        {theme.customFields && theme.customFields.length > 0 && (
+          <div style={{ fontSize: compact ? "0.55rem" : fieldSize, marginTop: compact ? "2px" : "4px", lineHeight: compact ? "1" : "1.2" }}>
             {theme.customFields.map((field) => {
               const showUnits = field.showUnits ?? true;
               const sampleValue =
@@ -174,11 +174,22 @@ export default function ProductPreview({
                   : "Sample";
 
               return (
-                <div key={field.id} style={{ margin: "1px 0" }}>
-                  {field.name}: {sampleValue}{" "}
-                  {showUnits && field.defaultUnit !== "N/A"
-                    ? field.defaultUnit
-                    : ""}
+                <div key={field.id} style={{ margin: compact ? "0.5px 0" : "1px 0" }}>
+                  {compact ? (
+                    <>
+                      <span style={{ fontWeight: "600" }}>{field.name}:</span> {sampleValue}
+                      {showUnits && field.defaultUnit !== "N/A" && (
+                        <> {field.defaultUnit}</>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {field.name}: {sampleValue}{" "}
+                      {showUnits && field.defaultUnit !== "N/A"
+                        ? field.defaultUnit
+                        : ""}
+                    </>
+                  )}
                 </div>
               );
             })}
