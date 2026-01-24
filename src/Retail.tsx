@@ -438,7 +438,7 @@ export default function Retail({ products = [] }) {
       // Use FileSaver or Filesystem API for download
       if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
         try {
-          const handle = await window.showSaveFilePicker({
+          const handle = await (window as any).showSaveFilePicker({
             suggestedName: filename,
             types: [{ description: 'Image', accept: { [mimeType]: [`.${ext}`] } }],
           });
