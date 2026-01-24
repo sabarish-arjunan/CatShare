@@ -1026,9 +1026,12 @@ setTimeout(async () => {
         const fieldUnit = customFieldValues[field.id]?.unit || field.defaultUnit;
         const showUnits = field.showUnits ?? true;
         return fieldValue ? (
-          <p key={field.id} style={{ margin: "3px 0" }}>
-            &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
-          </p>
+          <div key={field.id} style={{ display: "flex", margin: "3px 0", paddingLeft: "8px" }}>
+            <span style={{ minWidth: "120px" }}>{field.name}</span>
+            <span style={{ marginRight: "8px" }}>:</span>
+            <span>{fieldValue}</span>
+            {showUnits && fieldUnit !== "N/A" && <span style={{ marginLeft: "4px" }}>{fieldUnit}</span>}
+          </div>
         ) : null;
       })}
     </div>
