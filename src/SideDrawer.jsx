@@ -460,6 +460,17 @@ const exportProductsToCSV = (products) => {
       <span className="text-gray-500">🖼️</span>
       <span className="text-sm font-medium">Media Library</span>
     </button>
+
+    <button
+      onClick={() => handleDownloadRenderedImages()}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg text-sm font-medium transition shadow-sm bg-blue-600 text-white hover:bg-blue-700"
+      title="Download all rendered product images"
+    >
+      <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+      </svg>
+      <span>Download PNGs</span>
+    </button>
   </>
 )}
 
