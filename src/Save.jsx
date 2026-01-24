@@ -186,9 +186,9 @@ export async function saveRenderedImage(product, type, units = {}) {
     const displayAgeUnit = product.ageUnit === "custom" ? (product.customAgeUnit || "") : units.ageGroupUnit;
 
     attributesHtml = `
-      ${showColour ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:120px">Colour</span><span style="margin-right:8px">:</span><span>${product.color}</span></div>` : ""}
-      ${showPackage ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:120px">Package</span><span style="margin-right:8px">:</span><span>${product.package} ${displayPackageUnit}</span></div>` : ""}
-      ${showAgeGroup ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:120px">Age Group</span><span style="margin-right:8px">:</span><span>${product.age} ${displayAgeUnit}</span></div>` : ""}
+      ${showColour ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:80px">Colour</span><span style="margin-right:8px">:</span><span>${product.color}</span></div>` : ""}
+      ${showPackage ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:80px">Package</span><span style="margin-right:8px">:</span><span>${product.package} ${displayPackageUnit}</span></div>` : ""}
+      ${showAgeGroup ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:80px">Age Group</span><span style="margin-right:8px">:</span><span>${product.age} ${displayAgeUnit}</span></div>` : ""}
     `;
   }
 
