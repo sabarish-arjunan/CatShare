@@ -286,18 +286,38 @@ export default function ProductThemes() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Units (comma-separated)
+                      <div className="flex items-center justify-between p-2 bg-white rounded border border-gray-200">
+                        <label className="block text-xs font-medium text-gray-700">
+                          Enable Units
                         </label>
-                        <textarea
-                          value={editFieldUnits}
-                          onChange={(e) => setEditFieldUnits(e.target.value)}
-                          rows={2}
-                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
-                          placeholder="e.g., N/A or pcs/set, pcs/dozen, pcs/pack"
-                        />
+                        <button
+                          onClick={() => setEditShowUnits(!editShowUnits)}
+                          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                            editShowUnits ? "bg-blue-600" : "bg-gray-300"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                              editShowUnits ? "translate-x-7" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
                       </div>
+
+                      {editShowUnits && (
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Units (comma-separated)
+                          </label>
+                          <textarea
+                            value={editFieldUnits}
+                            onChange={(e) => setEditFieldUnits(e.target.value)}
+                            rows={2}
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
+                            placeholder="e.g., pcs/set, pcs/dozen, pcs/pack"
+                          />
+                        </div>
+                      )}
 
                       <div className="flex gap-2">
                         <button
