@@ -532,6 +532,7 @@ export default function CreateProduct() {
         showSubtitle: theme.showSubtitle,
         showWholesalePrice: theme.showWholesalePrice,
         showResellPrice: theme.showResellPrice,
+        customFields: theme.customFields, // Save theme's custom field structure
         customFieldValues,
       }),
       //image: imagePreview,
