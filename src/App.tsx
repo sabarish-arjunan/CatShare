@@ -331,6 +331,10 @@ function AppWithBackHandler() {
           path="/settings/pro"
           element={<ProInfo />}
         />
+        <Route
+          path="/themes"
+          element={<ProductThemes />}
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
