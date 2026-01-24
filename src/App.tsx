@@ -18,6 +18,7 @@ import Settings from "./Settings";
 import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
 import ProInfo from "./pages/ProInfo";
+import ProductThemes from "./pages/ProductThemes";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import { ToastProvider } from "./context/ToastContext";
