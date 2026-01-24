@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack, MdAdd, MdDelete } from "react-icons/md";
 import { MdCircle } from "react-icons/md";
+import ProductPreview from "../components/ProductPreview";
 
 interface CustomField {
   id: string;
