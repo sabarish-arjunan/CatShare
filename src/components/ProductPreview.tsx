@@ -49,6 +49,7 @@ const getLighterColor = (color: string): string => {
 export default function ProductPreview({
   theme,
   sampleImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='14' fill='%23999'%3ESample Image%3C/text%3E%3C/svg%3E",
+  compact = false,
 }: ProductPreviewProps) {
   const badgeBg = SAMPLE_PRODUCT.imageBgColor.toLowerCase() === "white" ? "#fff" : "#000";
   const badgeText = SAMPLE_PRODUCT.imageBgColor.toLowerCase() === "white" ? "#000" : "#fff";
