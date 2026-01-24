@@ -76,8 +76,8 @@ export default function ProductThemes() {
 
     const handleScroll = () => {
       const scrollTop = mainElement.scrollTop;
-      // Show floating preview after scrolling down 300px
-      setShowFloatingPreview(scrollTop > 300);
+      // Show floating button after scrolling down 300px
+      setShowFloatingButton(scrollTop > 300);
     };
 
     mainElement.addEventListener("scroll", handleScroll);
