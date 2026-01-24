@@ -30,7 +30,7 @@ const SAMPLE_PRODUCT = {
   resellUnit: "per piece",
   badge: "NEW",
   imageBgColor: "white",
-  fontColor: "white",
+  fontColor: "black",
   bgColor: "#add8e6",
 };
 
