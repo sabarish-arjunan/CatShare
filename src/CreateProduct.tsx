@@ -176,6 +176,26 @@ export default function CreateProduct() {
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
+  // Load theme from localStorage
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem("productTheme");
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    return {
+      showSubtitle: true,
+      showWholesalePrice: true,
+      showResellPrice: true,
+      customFields: [
+        { id: "colour", name: "Colour", units: ["N/A"], defaultUnit: "N/A" },
+        { id: "package", name: "Package", units: ["pcs / set", "pcs / dozen", "pcs / pack"], defaultUnit: "pcs / set" },
+        { id: "agegroup", name: "Age Group", units: ["months", "years", "Newborn"], defaultUnit: "months" },
+      ],
+    };
+  });
+
+  const [customFieldValues, setCustomFieldValues] = useState({});
+
   const [formData, setFormData] = useState({
     id: "",
     name: "",
