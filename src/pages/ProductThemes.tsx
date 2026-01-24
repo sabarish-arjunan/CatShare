@@ -80,6 +80,7 @@ export default function ProductThemes() {
     setEditingField(field.id);
     setEditFieldName(field.name);
     setEditFieldUnits(field.units.join(", "));
+    setEditShowUnits(field.showUnits ?? true);
   };
 
   const saveFieldEdit = () => {
