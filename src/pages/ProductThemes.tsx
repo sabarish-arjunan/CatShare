@@ -338,19 +338,30 @@ export default function ProductThemes() {
                     // View Mode
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-gray-800">
-                          {field.name}
-                        </h3>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {field.units.map((unit, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded"
-                            >
-                              {unit}
-                            </span>
-                          ))}
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-medium text-gray-800">
+                            {field.name}
+                          </h3>
+                          <span className={`text-xs font-medium px-2 py-1 rounded ${
+                            (field.showUnits ?? true)
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-600"
+                          }`}>
+                            {(field.showUnits ?? true) ? "Units On" : "Units Off"}
+                          </span>
                         </div>
+                        {(field.showUnits ?? true) && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {field.units.map((unit, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded"
+                              >
+                                {unit}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex gap-1.5 ml-3 shrink-0">
