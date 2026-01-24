@@ -226,6 +226,19 @@ export default function CreateProduct() {
     return localStorage.getItem("watermarkPosition") || "bottom-center";
   });
 
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const stored = localStorage.getItem("productTheme");
+      if (stored) {
+        setTheme(JSON.parse(stored));
+      }
+    };
+
+    window.addEventListener("themeUpdated", handleThemeChange);
+    return () => window.removeEventListener("themeUpdated", handleThemeChange);
+  }, []);
+
   // Listen for watermark setting changes
   useEffect(() => {
     const handleStorageChange = () => {
