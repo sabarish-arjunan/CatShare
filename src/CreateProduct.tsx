@@ -1017,18 +1017,26 @@ setTimeout(async () => {
   )}
 </div>
 
-          <div className="flex gap-2 mt-4 mb-6">
+          <div className="flex gap-2 mt-4 mb-6 flex-col">
+            <div className="flex gap-2">
+              <button
+                onClick={saveAndNavigate}
+                className="bg-blue-600 text-white py-2 px-4 rounded w-full"
+              >
+                {editingId ? "Update Product" : "Save Product"}
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-gray-300 py-2 px-4 rounded w-full"
+              >
+                Cancel
+              </button>
+            </div>
             <button
-              onClick={saveAndNavigate}
-              className="bg-blue-600 text-white py-2 px-4 rounded w-full"
+              onClick={() => navigate("/themes")}
+              className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded w-full transition"
             >
-              {editingId ? "Update Product" : "Save Product"}
-            </button>
-            <button
-              onClick={handleCancel}
-              className="bg-gray-300 py-2 px-4 rounded w-full"
-            >
-              Cancel
+              Edit Theme
             </button>
           </div>
         </>
