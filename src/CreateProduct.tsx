@@ -1029,7 +1029,7 @@ setTimeout(async () => {
         padding: "8px",
         textAlign: "center",
         fontWeight: "normal",
-        fontSize: 19,
+        fontSize: "19px",
       }}
     >
       Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {getDisplayUnit(resellUnit, customResellUnit)}
