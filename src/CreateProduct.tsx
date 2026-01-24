@@ -898,7 +898,7 @@ setTimeout(async () => {
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  {showWholesalePrice && (
+  {theme.showWholesalePrice && (
     <div
       style={{
         backgroundColor: overrideColor,
