@@ -145,22 +145,24 @@ export default function ProductPreview({
         style={{
           backgroundColor: getLighterColor(SAMPLE_PRODUCT.bgColor),
           color: SAMPLE_PRODUCT.fontColor,
-          padding: 10,
+          padding: detailsPadding,
         }}
       >
-        <h2 className="text-lg font-semibold text-center">{SAMPLE_PRODUCT.name}</h2>
+        <h2 style={{ fontSize: titleSize, fontWeight: "bold", textAlign: "center", margin: 0 }}>
+          {compact ? "Product" : SAMPLE_PRODUCT.name}
+        </h2>
 
         {/* Subtitle */}
-        {theme.showSubtitle && (
-          <p className="text-center italic text-sm">
+        {theme.showSubtitle && !compact && (
+          <p style={{ textAlign: "center", fontStyle: "italic", fontSize: subtitleSize, margin: "3px 0" }}>
             ({SAMPLE_PRODUCT.subtitle})
           </p>
         )}
 
         {/* Custom Fields */}
-        <div className="text-sm mt-2 space-y-1">
-          {theme.customFields &&
-            theme.customFields.map((field) => {
+        {!compact && theme.customFields && theme.customFields.length > 0 && (
+          <div style={{ fontSize: fieldSize, marginTop: "4px", lineHeight: "1.2" }}>
+            {theme.customFields.map((field) => {
               const showUnits = field.showUnits ?? true;
               const sampleValue =
                 field.id === "colour"
@@ -172,15 +174,16 @@ export default function ProductPreview({
                   : "Sample";
 
               return (
-                <p key={field.id}>
+                <div key={field.id} style={{ margin: "1px 0" }}>
                   {field.name}: {sampleValue}{" "}
                   {showUnits && field.defaultUnit !== "N/A"
                     ? field.defaultUnit
                     : ""}
-                </p>
+                </div>
               );
             })}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Resell Price Bar */}
