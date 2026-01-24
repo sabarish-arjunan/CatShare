@@ -89,10 +89,12 @@ export default function ProductThemes() {
       return;
     }
 
-    const units = editFieldUnits
-      .split(",")
-      .map((u) => u.trim())
-      .filter((u) => u.length > 0);
+    const units = editShowUnits
+      ? editFieldUnits
+          .split(",")
+          .map((u) => u.trim())
+          .filter((u) => u.length > 0)
+      : ["N/A"];
 
     setTheme((prev) => ({
       ...prev,
@@ -101,8 +103,9 @@ export default function ProductThemes() {
           ? {
               ...f,
               name: editFieldName.trim(),
-              units: units.length > 0 ? units : [editFieldName.trim()],
-              defaultUnit: units[0] || editFieldName.trim(),
+              units: units.length > 0 ? units : ["N/A"],
+              defaultUnit: units[0] || "N/A",
+              showUnits: editShowUnits,
             }
           : f
       ),
