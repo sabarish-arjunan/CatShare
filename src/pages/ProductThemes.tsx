@@ -437,9 +437,7 @@ export default function ProductThemes() {
           {/* Preview Panel - Opens Above Button */}
           {expandedPreview && (
             <div className="fixed right-4 z-40" style={{ bottom: "calc(1rem + 3rem + 1rem)", width: "350px", maxHeight: "calc(100vh - 150px)", overflow: "auto" }}>
-              <div className="p-3">
-                <ProductPreview theme={theme} compact={false} />
-              </div>
+              <ProductPreview theme={theme} compact={false} />
             </div>
           )}
 
