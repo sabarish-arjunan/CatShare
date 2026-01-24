@@ -58,10 +58,21 @@ export default function ProductPreview({
       ? "rgba(0, 0, 0, 0.4)"
       : "rgba(255, 255, 255, 0.4)";
 
+  const maxWidth = compact ? 140 : 330;
+  const fontSize = compact ? "14px" : "19px";
+  const imagePadding = compact ? "6px" : "10px";
+  const priceBarPadding = compact ? "4px" : "8px";
+  const detailsPadding = compact ? "6px" : "10px";
+  const titleSize = compact ? "0.875rem" : "1.125rem";
+  const subtitleSize = compact ? "0.625rem" : "0.875rem";
+  const fieldSize = compact ? "0.625rem" : "0.875rem";
+  const badgeSize = compact ? "10px" : "13px";
+  const imagePaddingPx = compact ? 6 : 10;
+
   return (
     <div
-      className="mt-6 border rounded shadow overflow-hidden mx-auto"
-      style={{ maxWidth: 330, width: "100%" }}
+      className="border rounded shadow overflow-hidden mx-auto"
+      style={{ maxWidth, width: "100%", marginTop: compact ? 0 : 24 }}
     >
       {/* Wholesale Price Bar */}
       {theme.showWholesalePrice && (
