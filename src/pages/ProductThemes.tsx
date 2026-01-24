@@ -62,7 +62,8 @@ export default function ProductThemes() {
   const [editFieldName, setEditFieldName] = useState("");
   const [editFieldUnits, setEditFieldUnits] = useState("");
   const [editShowUnits, setEditShowUnits] = useState(true);
-  const [showFloatingPreview, setShowFloatingPreview] = useState(false);
+  const [showFloatingButton, setShowFloatingButton] = useState(false);
+  const [expandedPreview, setExpandedPreview] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("productTheme", JSON.stringify(theme));
