@@ -429,6 +429,16 @@ export default function ProductThemes() {
           </div>
         </div>
       </main>
+
+      {/* Floating Mini Preview */}
+      {showFloatingPreview && (
+        <div className="fixed bottom-24 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-50 max-w-[140px]">
+          <div className="text-xs font-semibold text-gray-800 mb-2">Preview</div>
+          <div style={{ transform: "scale(0.42)", transformOrigin: "top left", marginLeft: "-95px" }}>
+            <ProductPreview theme={theme} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
