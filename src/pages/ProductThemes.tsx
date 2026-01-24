@@ -434,31 +434,21 @@ export default function ProductThemes() {
       {/* Floating Preview Button/Panel */}
       {showFloatingButton && (
         <>
-          {expandedPreview ? (
-            // Expanded Preview Panel
-            <div className="fixed bottom-24 right-4 bg-white rounded-lg shadow-2xl border border-gray-300 p-4 z-50 w-80 max-h-96 overflow-y-auto">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-semibold text-gray-800">Preview</div>
-                <button
-                  onClick={() => setExpandedPreview(false)}
-                  className="text-gray-500 hover:text-gray-800 text-xl font-bold"
-                  title="Close preview"
-                >
-                  ✕
-                </button>
-              </div>
+          {/* Preview Panel - Only Shows Content, No Background */}
+          {expandedPreview && (
+            <div className="fixed bottom-24 right-4 z-40 max-h-96 overflow-y-auto">
               <ProductPreview theme={theme} compact={true} />
             </div>
-          ) : (
-            // Floating Button
-            <button
-              onClick={() => setExpandedPreview(true)}
-              className="fixed bottom-24 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 text-xl"
-              title="Open preview"
-            >
-              👁️
-            </button>
           )}
+
+          {/* Floating Button - Always Visible */}
+          <button
+            onClick={() => setExpandedPreview(!expandedPreview)}
+            className="fixed bottom-24 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 text-xl"
+            title={expandedPreview ? "Close preview" : "Open preview"}
+          >
+            👁️
+          </button>
         </>
       )}
     </div>
