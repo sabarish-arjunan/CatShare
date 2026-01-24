@@ -168,15 +168,29 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.padding = "10px";
   details.style.fontSize = "17px";
 
-  // Build attributes list based on visibility
-  const displayPackageUnit = product.packageUnit === "custom" ? (product.customPackageUnit || "") : units.packageUnit;
-  const displayAgeUnit = product.ageUnit === "custom" ? (product.customAgeUnit || "") : units.ageGroupUnit;
+  // Build attributes list based on custom fields
+  let attributesHtml = "";
 
-  const attributesHtml = `
-    ${showColour ? `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>` : ""}
-    ${showPackage ? `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${displayPackageUnit}</p>` : ""}
-    ${showAgeGroup ? `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${displayAgeUnit}</p>` : ""}
-  `;
+  if (product.customFields && product.customFields.length > 0) {
+    // Use customFields structure if available (new products)
+    attributesHtml = product.customFields.map((field) => {
+      const fieldValue = product.customFieldValues?.[field.id]?.value || "";
+      const fieldUnit = product.customFieldValues?.[field.id]?.unit || field.defaultUnit;
+      const showUnits = field.showUnits ?? true;
+
+      return fieldValue ? `<p style="margin:2px 0">${field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${fieldValue} ${showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}</p>` : "";
+    }).join("");
+  } else {
+    // Fallback for old products that don't have customFields (legacy support)
+    const displayPackageUnit = product.packageUnit === "custom" ? (product.customPackageUnit || "") : units.packageUnit;
+    const displayAgeUnit = product.ageUnit === "custom" ? (product.customAgeUnit || "") : units.ageGroupUnit;
+
+    attributesHtml = `
+      ${showColour ? `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>` : ""}
+      ${showPackage ? `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${displayPackageUnit}</p>` : ""}
+      ${showAgeGroup ? `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${displayAgeUnit}</p>` : ""}
+    `;
+  }
 
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
