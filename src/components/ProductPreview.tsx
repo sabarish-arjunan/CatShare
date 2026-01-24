@@ -18,6 +18,7 @@ interface ProductTheme {
 interface ProductPreviewProps {
   theme: ProductTheme;
   sampleImage?: string;
+  compact?: boolean;
 }
 
 // Sample product data for preview
