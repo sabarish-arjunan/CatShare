@@ -178,7 +178,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       const fieldUnit = product.customFieldValues?.[field.id]?.unit || field.defaultUnit;
       const showUnits = field.showUnits ?? true;
 
-      return fieldValue ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:120px">${field.name}</span><span style="margin-right:8px">:</span><span>${fieldValue}</span>${showUnits && fieldUnit !== "N/A" ? `<span style="margin-left:4px">${fieldUnit}</span>` : ""}</div>` : "";
+      return fieldValue ? `<div style="display:flex;margin:2px 0;padding-left:8px"><span style="min-width:80px">${field.name}</span><span style="margin-right:8px">:</span><span>${fieldValue}</span>${showUnits && fieldUnit !== "N/A" ? `<span style="margin-left:4px">${fieldUnit}</span>` : ""}</div>` : "";
     }).join("");
   } else {
     // Fallback for old products that don't have customFields (legacy support)
