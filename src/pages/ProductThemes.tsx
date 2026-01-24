@@ -60,6 +60,7 @@ export default function ProductThemes() {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editFieldName, setEditFieldName] = useState("");
   const [editFieldUnits, setEditFieldUnits] = useState("");
+  const [editShowUnits, setEditShowUnits] = useState(true);
 
   useEffect(() => {
     localStorage.setItem("productTheme", JSON.stringify(theme));
