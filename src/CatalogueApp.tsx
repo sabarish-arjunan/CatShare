@@ -118,6 +118,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => window.removeEventListener("open-preview", handler);
   }, [products]);
 
+  // Update previewProduct when products list changes (e.g., after editing)
+  useEffect(() => {
+    if (previewProduct) {
+      const updatedProduct = products.find((p) => p.id === previewProduct.id);
+      if (updatedProduct) {
+        setPreviewProduct(updatedProduct);
+      }
+    }
+  }, [products]);
+
   useEffect(() => {
     const handleNewProduct = () => {
       const updated = JSON.parse(localStorage.getItem("products") || "[]");

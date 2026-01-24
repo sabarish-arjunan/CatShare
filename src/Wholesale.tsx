@@ -792,25 +792,17 @@ onMouseLeave={handleTouchEnd}
                   </div>
 
                   <div style={{ textAlign: "left", lineHeight: 1.4 }}>
-                    {(p.showColour !== false) && (
-                      <p style={{ margin: "2px 0" }}>
-                        &nbsp; Colour
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                        &nbsp;&nbsp;{p.color}
-                      </p>
-                    )}
-                    {(p.showPackage !== false) && (
-                      <p style={{ margin: "2px 0" }}>
-                        &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                        &nbsp;&nbsp;{p.package} {p.packageUnit === "custom" ? p.customPackageUnit : p.packageUnit}
-                      </p>
-                    )}
-                    {(p.showAgeGroup !== false) && (
-                      <p style={{ margin: "2px 0" }}>
-                        &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.age}{" "}
-                        {p.ageUnit === "custom" ? p.customAgeUnit : p.ageUnit}
-                      </p>
-                    )}
+                    {p.customFields && p.customFields.map((field) => {
+                      const fieldValue = p.customFieldValues?.[field.id]?.value || "";
+                      const fieldUnit = p.customFieldValues?.[field.id]?.unit || field.defaultUnit;
+                      const showUnits = field.showUnits ?? true;
+
+                      return fieldValue ? (
+                        <p key={field.id} style={{ margin: "2px 0" }}>
+                          &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
+                        </p>
+                      ) : null;
+                    })}
                   </div>
                 </div>
               </div>

@@ -526,11 +526,15 @@ export default function CreateProduct() {
       customAgeUnit,
       stock: formData.stock !== false,
       // Theme-based visibility settings
-      showSubtitle: theme.showSubtitle,
-      showWholesalePrice: theme.showWholesalePrice,
-      showResellPrice: theme.showResellPrice,
-      // Custom field values from theme
-      customFieldValues,
+      // When EDITING: preserve the product's original theme settings
+      // When CREATING: use the current theme settings
+      ...(editingId ? {} : {
+        showSubtitle: theme.showSubtitle,
+        showWholesalePrice: theme.showWholesalePrice,
+        showResellPrice: theme.showResellPrice,
+        customFields: theme.customFields, // Save theme's custom field structure
+        customFieldValues,
+      }),
       //image: imagePreview,
     };
 
@@ -909,7 +913,7 @@ setTimeout(async () => {
         padding: "8px",
         textAlign: "center",
         fontWeight: "normal",
-        fontSize: 19,
+        fontSize: "19px",
       }}
     >
       Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
@@ -923,7 +927,7 @@ setTimeout(async () => {
         position: "relative",
         backgroundColor: imageBgOverride,
         textAlign: "center",
-        padding: 10,
+        padding: 16,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
       }}
     >
@@ -932,7 +936,7 @@ setTimeout(async () => {
         alt="Preview"
         style={{
           maxWidth: "100%",
-          maxHeight: 300,
+          maxHeight: "300px",
           objectFit: "contain",
           margin: "0 auto",
         }}
@@ -983,19 +987,35 @@ setTimeout(async () => {
       backgroundColor: getLighterColor(overrideColor),
       color: fontColor,
       padding: 10,
+      fontSize: 17,
     }}
   >
-    <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-    {theme.showSubtitle && formData.subtitle && (
-      <p className="text-center italic text-sm">({formData.subtitle})</p>
-    )}
-    <div className="text-sm mt-2 space-y-1">
+    <div style={{ textAlign: "center", marginBottom: 6 }}>
+      <p
+        style={{
+          fontWeight: "normal",
+          textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
+          fontSize: 28,
+          margin: 3,
+        }}
+      >
+        {formData.name}
+      </p>
+      {theme.showSubtitle && formData.subtitle && (
+        <p style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}>
+          ({formData.subtitle})
+        </p>
+      )}
+    </div>
+    <div style={{ textAlign: "left", lineHeight: 1.5 }}>
       {theme.customFields && theme.customFields.map((field) => {
         const fieldValue = customFieldValues[field.id]?.value || "";
         const fieldUnit = customFieldValues[field.id]?.unit || field.defaultUnit;
         const showUnits = field.showUnits ?? true;
         return fieldValue ? (
-          <p key={field.id}>{field.name}: {fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}</p>
+          <p key={field.id} style={{ margin: "3px 0" }}>
+            &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
+          </p>
         ) : null;
       })}
     </div>
@@ -1009,7 +1029,7 @@ setTimeout(async () => {
         padding: "8px",
         textAlign: "center",
         fontWeight: "normal",
-        fontSize: 19,
+        fontSize: "19px",
       }}
     >
       Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {getDisplayUnit(resellUnit, customResellUnit)}

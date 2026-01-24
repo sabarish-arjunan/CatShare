@@ -440,7 +440,7 @@ export default function ProductPreviewModal({
       }
     };
     loadImage();
-  }, [product]);
+  }, [product, product?.id]);
 
   // Handle image click to open full screen
   const handleImageClick = (e) => {
@@ -636,21 +636,17 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
-                {(product.showColour !== false) && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
-                  </p>
-                )}
-                {(product.showPackage !== false) && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit === "custom" ? product.customPackageUnit : product.packageUnit}
-                  </p>
-                )}
-                {(product.showAgeGroup !== false) && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit === "custom" ? product.customAgeUnit : product.ageUnit}
-                  </p>
-                )}
+                {product.customFields && product.customFields.map((field) => {
+                  const fieldValue = product.customFieldValues?.[field.id]?.value || "";
+                  const fieldUnit = product.customFieldValues?.[field.id]?.unit || field.defaultUnit;
+                  const showUnits = field.showUnits ?? true;
+
+                  return fieldValue ? (
+                    <p key={field.id} style={{ margin: "3px 0" }}>
+                      &nbsp; {field.name} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{fieldValue} {showUnits && fieldUnit !== "N/A" ? fieldUnit : ""}
+                    </p>
+                  ) : null;
+                })}
               </div>
             </div>
 
