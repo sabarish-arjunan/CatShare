@@ -24,18 +24,21 @@ const DEFAULT_FIELDS: CustomField[] = [
     name: "Colour",
     units: ["N/A"],
     defaultUnit: "N/A",
+    showUnits: false,
   },
   {
     id: "package",
     name: "Package",
     units: ["pcs / set", "pcs / dozen", "pcs / pack"],
     defaultUnit: "pcs / set",
+    showUnits: true,
   },
   {
     id: "agegroup",
     name: "Age Group",
     units: ["months", "years", "Newborn"],
     defaultUnit: "months",
+    showUnits: true,
   },
 ];
 
