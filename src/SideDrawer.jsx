@@ -342,9 +342,6 @@ const exportProductsToCSV = (products) => {
       setProducts(rebuilt);
       localStorage.setItem("products", JSON.stringify(rebuilt));
 
-      // Run migrations to ensure all products have required fields (price1Unit, price2Unit, etc.)
-      ensureProductsHaveStockFields();
-
       const categories = Array.from(
         new Set(
           rebuilt.flatMap((p) =>
