@@ -815,6 +815,22 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       {showTutorial && (
         <Tutorial onClose={() => setShowTutorial(false)} />
       )}
+
+      {showManageCatalogues && (
+        <ManageCatalogues
+          onClose={() => {
+            setShowManageCatalogues(false);
+            // Refresh catalogues after management
+            const updated = getAllCatalogues();
+            setCatalogues(updated);
+          }}
+          onCataloguesChanged={(newCatalogues) => {
+            setCatalogues(newCatalogues);
+          }}
+          products={products}
+          setProducts={setProducts}
+        />
+      )}
     </div>
   );
 }
