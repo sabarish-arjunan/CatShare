@@ -12,6 +12,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
 import { saveRenderedImage } from "./Save";
+import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 
 export function openPreviewHtml(id, tab = null) {
   const evt = new CustomEvent("open-preview", { detail: { id, tab } });
