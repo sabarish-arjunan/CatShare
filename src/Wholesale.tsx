@@ -2,12 +2,14 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
+import { FiPlus } from "react-icons/fi";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import AddProductsModal from "./components/AddProductsModal";
 
 
 export default function WholesaleTab({
