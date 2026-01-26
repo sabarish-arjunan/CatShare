@@ -992,6 +992,16 @@ onMouseLeave={handleTouchEnd}
     </div>
   </div>
 )}
+
+      <AddProductsModal
+        isOpen={showAddProductsModal}
+        onClose={() => setShowAddProductsModal(false)}
+        catalogueId={catalogueId}
+        catalogueLabel={catalogueLabel}
+        allProducts={allProducts}
+        imageMap={imageMap}
+        onProductsUpdate={setProducts}
+      />
     </div>
     </>
   );
