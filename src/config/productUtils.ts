@@ -215,9 +215,9 @@ export function getCustomFields(): FieldConfig[] {
  * Use this before saving a product to localStorage
  */
 export function normalizeProduct(product: Product): Product {
-  const migrated: Product = migrateProductToNewFormat(product) as unknown as Product;
-  const synced: Product = syncProductFieldNames(migrated) as unknown as Product;
-  return synced;
+  const migrated = migrateProductToNewFormat(product);
+  const synced = syncProductFieldNames(migrated);
+  return synced as Product;
 }
 
 /**
