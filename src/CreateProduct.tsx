@@ -263,6 +263,13 @@ export default function CreateProduct() {
   const [price2Unit, setPrice2Unit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
+  const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
+
+  // Initialize catalogues on mount
+  useEffect(() => {
+    const cats = getAllCatalogues();
+    setCatalogues(cats);
+  }, []);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
