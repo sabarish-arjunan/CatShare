@@ -816,8 +816,8 @@ setTimeout(async () => {
       fontSize: 19,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
-    {wholesaleUnit}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price1}{" "}
+    {price1Unit}
   </div>
 
   {imagePreview && (
