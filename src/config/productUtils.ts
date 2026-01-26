@@ -213,11 +213,16 @@ export function getCustomFields(): FieldConfig[] {
 /**
  * Ensure a product has both new and legacy field names
  * Use this before saving a product to localStorage
+ *
+ * Note: The migrated and synced objects preserve all properties from the input product,
+ * including the required id and name properties, even though TypeScript's type system
+ * can't fully capture this. We safely assert the result is a Product.
  */
 export function normalizeProduct(product: Product): Product {
   const migrated = migrateProductToNewFormat(product);
   const synced = syncProductFieldNames(migrated);
-  return synced as Product;
+  // The product's id and name are preserved through migration and sync operations
+  return synced as unknown as Product;
 }
 
 /**
