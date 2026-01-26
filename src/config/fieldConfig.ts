@@ -52,6 +52,24 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     unitOptions: ['months', 'years', 'Newborn'],
     defaultUnit: 'months',
   },
+  {
+    key: 'price1',
+    label: 'Price 1',
+    type: 'number',
+    legacyKeys: ['wholesale'],
+    unitField: 'price1Unit',
+    unitOptions: ['/ piece', '/ dozen', '/ set'],
+    defaultUnit: '/ piece',
+  },
+  {
+    key: 'price2',
+    label: 'Price 2',
+    type: 'number',
+    legacyKeys: ['resell'],
+    unitField: 'price2Unit',
+    unitOptions: ['/ piece', '/ dozen', '/ set'],
+    defaultUnit: '/ piece',
+  },
 ];
 
 /**
