@@ -909,7 +909,7 @@ setTimeout(async () => {
       fontSize: 19,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {resellUnit}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price2} {price2Unit}
   </div>
 </div>
 
