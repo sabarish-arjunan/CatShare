@@ -432,8 +432,17 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         </>
       )}
 
-      {tab !== "products" && (
-        <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+      {tab === "catalogues" && (
+        <>
+          <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+          <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center px-4">
+            <h1 className="text-xl font-bold text-gray-800">
+              {selectedCatalogueInCataloguesTab
+                ? catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab)?.label || "Catalogue"
+                : "Catalogues"}
+            </h1>
+          </header>
+        </>
       )}
 
       <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
