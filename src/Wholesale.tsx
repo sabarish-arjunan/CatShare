@@ -14,6 +14,8 @@ import AddProductsModal from "./components/AddProductsModal";
 
 export default function WholesaleTab({
   filtered,
+  allProducts,
+  setProducts,
   selected,
   setSelected,
   getLighterColor,
