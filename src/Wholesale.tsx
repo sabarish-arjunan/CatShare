@@ -728,7 +728,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       {/* Grid */}
       <div
         id="capture-area"
-        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none mt-4"
+        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none"
       >
         {visibleProducts.map((p) => {
           const isSelected = selected.includes(p.id);
