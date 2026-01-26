@@ -752,22 +752,20 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           Products
         </button>
 
-        {/* Dynamic catalogue tabs */}
-        {catalogues.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={async () => {
-              await Haptics.impact({ style: ImpactStyle.Light });
-              handleTabChange(cat.id);
-            }}
-            className={`flex-1 py-3.5 text-center transition-all truncate px-1 ${
-              tab === cat.id ? "bg-blue-500 text-white" : "bg-white text-gray-600"
-            }`}
-            title={cat.label}
-          >
-            {cat.label}
-          </button>
-        ))}
+        {/* Catalogues tab */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            handleTabChange("catalogues");
+          }}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            tab === "catalogues"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-gray-600"
+          }`}
+        >
+          Catalogues
+        </button>
       </nav>
 
       <button
