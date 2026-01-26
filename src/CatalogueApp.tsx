@@ -677,6 +677,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       priceField={selectedCat.priceField}
                       priceUnitField={selectedCat.priceUnitField}
                       stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
                     />
                   ) : selectedCat.id === "cat2" ? (
                     <Catalogue2Tab
@@ -690,6 +691,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       priceField={selectedCat.priceField}
                       priceUnitField={selectedCat.priceUnitField}
                       stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
                     />
                   ) : (
                     /* For custom catalogues, use Wholesale component */
@@ -704,6 +706,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       priceField={selectedCat.priceField}
                       priceUnitField={selectedCat.priceUnitField}
                       stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
                     />
                   )}
                 </div>
