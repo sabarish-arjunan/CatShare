@@ -767,8 +767,8 @@ export default function Retail({ products = [] }) {
                       </div>
 
                       <div className="flex gap-2 mb-2">
-                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, package: e.target.value }))} />
-                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, age: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.field2 || editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, field2: e.target.value, package: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.field3 || editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, field3: e.target.value, age: e.target.value }))} />
                       </div>
 
                       <label className="block text-sm font-medium mb-1">Product Badge</label>
