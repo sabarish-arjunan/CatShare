@@ -657,7 +657,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         )}
 
         {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
-          <div className="relative">
+          <div className="relative -mx-4">
+            {/* Black bar for catalogues */}
+            <div className="sticky top-0 h-[40px] bg-black z-50"></div>
             {/* Render the selected catalogue */}
             {(() => {
               const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
