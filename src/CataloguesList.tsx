@@ -47,8 +47,7 @@ export default function CataloguesList({
   return (
     <>
       <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
-      <div className="pt-[40px]"></div>
-      <div className="space-y-3">
+      <div className="space-y-3 pt-[40px]">
         <div className="px-4 py-3">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold text-gray-800">
