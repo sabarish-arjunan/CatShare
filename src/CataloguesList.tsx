@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { type Catalogue } from "./config/catalogueConfig";
+import { isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 interface CataloguesListProps {
