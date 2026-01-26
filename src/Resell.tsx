@@ -2,16 +2,20 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
+import { FiPlus } from "react-icons/fi";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
-import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import AddProductsModal from "./components/AddProductsModal";
 
 
 export default function ResellTab({
   filtered,
+  allProducts,
+  setProducts,
   selected,
   setSelected,
   getLighterColor,
@@ -51,6 +55,7 @@ export default function ResellTab({
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [showAddProductsModal, setShowAddProductsModal] = useState(false);
 
 
 useEffect(() => {
@@ -119,6 +124,10 @@ useEffect(() => {
   const visibleProducts = useMemo(() => {
   return filtered
     .filter((p) => {
+      // Check if product is enabled for this specific catalogue
+      const isEnabled = isProductEnabledForCatalogue(p, catalogueId);
+      if (!isEnabled) return false;
+
       const matchesStock =
         (stockFilter.includes("in") && p.resellStock) ||
         (stockFilter.includes("out") && !p.resellStock);
@@ -132,7 +141,7 @@ useEffect(() => {
         p.subtitle?.toLowerCase().includes(search.toLowerCase());
       return matchesStock && matchesCategory && matchesSearch;
     });
-}, [filtered, stockFilter, categoryFilter, search]);
+}, [filtered, stockFilter, categoryFilter, search, catalogueId]);
 
 
   let touchTimer = null;
@@ -425,6 +434,14 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   >
     {catalogueLabel || "Catalogue"}
   </h1>
+      <button
+        onClick={() => setShowAddProductsModal(true)}
+        className="ml-auto text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0 px-2 py-1 hover:bg-blue-50 rounded"
+        title="Add products to this catalogue"
+      >
+        <FiPlus size={16} />
+        Add
+      </button>
     </div>
   )}
 
@@ -973,6 +990,16 @@ onMouseLeave={handleTouchEnd}
     </div>
   </div>
 )}
+
+      <AddProductsModal
+        isOpen={showAddProductsModal}
+        onClose={() => setShowAddProductsModal(false)}
+        catalogueId={catalogueId}
+        catalogueLabel={catalogueLabel}
+        allProducts={allProducts}
+        imageMap={imageMap}
+        onProductsUpdate={setProducts}
+      />
     </div>
     </>
   );

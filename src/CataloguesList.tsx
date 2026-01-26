@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { type Catalogue } from "./config/catalogueConfig";
+import { isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 interface CataloguesListProps {
@@ -26,8 +27,12 @@ export default function CataloguesList({
     const stats: Record<string, { total: number; inStock: number }> = {};
 
     for (const cat of catalogues) {
-      const total = products.length;
-      const inStock = products.filter((p) => (p as any)[cat.stockField]).length;
+      // Only count products that are enabled for this specific catalogue
+      const enabledProducts = products.filter((p) =>
+        isProductEnabledForCatalogue(p, cat.id)
+      );
+      const total = enabledProducts.length;
+      const inStock = enabledProducts.filter((p) => (p as any)[cat.stockField]).length;
       stats[cat.id] = { total, inStock };
     }
 
@@ -40,7 +45,8 @@ export default function CataloguesList({
   };
 
   return (
-    <div className="space-y-3 mt-4">
+    <div className="space-y-3">
+      <div className="sticky top-0 h-[40px] bg-black z-50"></div>
       <div className="px-4 py-3">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -73,9 +79,9 @@ export default function CataloguesList({
               total: 0,
               inStock: 0,
             };
-            // Get first few product images for this catalogue
+            // Get first few product images for this catalogue (only enabled products)
             const catalogueProducts = products
-              .filter((p) => (p as any)[catalogue.stockField] !== undefined)
+              .filter((p) => isProductEnabledForCatalogue(p, catalogue.id))
               .slice(0, 3);
 
             return (
