@@ -7,6 +7,7 @@ interface CataloguesListProps {
   onSelectCatalogue: (catalogueId: string) => void;
   imageMap: Record<string, string>;
   products: any[];
+  onManageCatalogues: () => void;
 }
 
 export default function CataloguesList({
