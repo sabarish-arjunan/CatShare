@@ -81,7 +81,7 @@ useEffect(() => {
 
 useEffect(() => {
   // Push a fake entry to trap back
-  window.history.pushState({ tab: "resell" }, "");
+  window.history.pushState({ tab: "catalogue2" }, "");
 }, []);
 
 
@@ -153,7 +153,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     if (selectMode) {
       toggleSelection(id);
     } else {
-      openPreviewHtml(id, "resell", visibleProducts);
+      openPreviewHtml(id, "catalogue2", visibleProducts);
     }
   };
 
@@ -391,7 +391,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   }}
   style={{ maxWidth: "50vw" }}
 >
-  Resell
+  Catalogue 2
 </h1>
 
   )}
