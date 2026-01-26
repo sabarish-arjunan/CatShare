@@ -709,15 +709,16 @@ setTimeout(async () => {
               <h3 className="text-base font-semibold">
                 {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
               </h3>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isCatalogueEnabled(selectedCatalogue)}
-                  onChange={() => toggleCatalogueEnabled(selectedCatalogue)}
-                  className="w-5 h-5"
-                />
-                <span className="text-sm font-medium">Show in {catalogues.find((c) => c.id === selectedCatalogue)?.label}</span>
-              </label>
+              <button
+                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                  isCatalogueEnabled(selectedCatalogue)
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                }`}
+              >
+                {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+              </button>
             </div>
 
             {isCatalogueEnabled(selectedCatalogue) && (
