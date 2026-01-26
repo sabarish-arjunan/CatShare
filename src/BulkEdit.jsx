@@ -258,6 +258,44 @@ useEffect(() => {
               </div>
             )}
 
+            {selectedFields.includes("price1") && (
+              <div className="flex gap-2">
+                <input
+                  value={item.price1 || item.wholesale || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price1", e.target.value); handleFieldChange(item.id, "wholesale", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
+                />
+                <select
+                  value={item.price1Unit || item.wholesaleUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price1Unit", e.target.value); handleFieldChange(item.id, "wholesaleUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
+                </select>
+              </div>
+            )}
+
+            {selectedFields.includes("price2") && (
+              <div className="flex gap-2">
+                <input
+                  value={item.price2 || item.resell || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price2", e.target.value); handleFieldChange(item.id, "resell", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
+                />
+                <select
+                  value={item.price2Unit || item.resellUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price2Unit", e.target.value); handleFieldChange(item.id, "resellUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
+                </select>
+              </div>
+            )}
+
             {selectedFields.includes("wholesale") && (
               <div className="flex gap-2">
                 <input
