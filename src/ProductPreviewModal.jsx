@@ -356,17 +356,10 @@ export default function ProductPreviewModal({
   };
 
   useEffect(() => {
-    const handler = () => {
-      // If full screen image is open, close it instead
-      if (showFullScreenImage) {
-        setShowFullScreenImage(false);
-      } else {
-        onClose();
-      }
-    };
+    const handler = () => onClose();
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
-  }, [onClose, showFullScreenImage]);
+  }, [onClose]);
 
   useEffect(() => {
     const esc = (e) => e.key === "Escape" && onClose();
