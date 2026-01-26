@@ -475,7 +475,15 @@ export default function CreateProduct() {
   }, [imagePreview]);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const commonFields = ['id', 'name', 'subtitle', 'category', 'badge'];
+
+    if (commonFields.includes(name)) {
+      // Common fields for all catalogues
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      // Catalogue-specific fields
+      updateCatalogueData({ [name]: value });
+    }
   };
 
   const saveAndNavigate = async () => {
