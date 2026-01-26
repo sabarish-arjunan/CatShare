@@ -1,5 +1,6 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
+import { getCatalogueData } from "./config/catalogueProductUtils";
 
 export async function saveRenderedImage(product, type, units = {}) {
   const id = product.id || "temp-id";
@@ -71,13 +72,29 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
+  // Get catalogue-specific data if catalogueId is provided
+  let catalogueData = product;
+  if (units.catalogueId) {
+    const catData = getCatalogueData(product, units.catalogueId);
+    catalogueData = {
+      ...product,
+      field1: catData.field1 || product.field1 || product.color || "",
+      field2: catData.field2 || product.field2 || product.package || "",
+      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
+      field3: catData.field3 || product.field3 || product.age || "",
+      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
+      price1: catData.price1 || product.price1 || product.wholesale || "",
+      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+    };
+  }
+
   // Support both legacy and dynamic catalogue parameters
   const priceField = units.priceField || (type === "resell" ? "price2" : type === "wholesale" ? "price1" : type);
   const priceUnitField = units.priceUnitField || (type === "resell" ? "price2Unit" : type === "wholesale" ? "price1Unit" : `${type}Unit`);
 
-  // Get price from product using dynamic field
-  const price = product[priceField] !== undefined ? product[priceField] : product[priceField.replace(/\d/g, '')] || 0;
-  const priceUnit = units[priceUnitField] || product[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
+  // Get price from catalogueData using dynamic field
+  const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
+  const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
   const priceBar = document.createElement("h2");
   Object.assign(priceBar.style, {
@@ -118,20 +135,20 @@ export async function saveRenderedImage(product, type, units = {}) {
   imageWrap.id = `image-wrap-${id}`;
 
   const img = document.createElement("img");
-  img.alt = product.name;
+  img.alt = catalogueData.name;
   img.style.maxWidth = "100%";
   img.style.maxHeight = "300px";
   img.style.objectFit = "contain";
   img.style.margin = "0 auto";
   imageWrap.appendChild(img);
-  img.src = product.image;
+  img.src = catalogueData.image || product.image;
 
   await new Promise((resolve) => {
     img.onload = resolve;
     img.onerror = resolve;
   });
 
-  if (product.badge) {
+  if (catalogueData.badge) {
     const badge = document.createElement("div");
     Object.assign(badge.style, {
       position: "absolute",
@@ -148,7 +165,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       border: `1px solid ${badgeBorder}`,
       letterSpacing: "0.5px",
     });
-    badge.innerText = product.badge.toUpperCase();
+    badge.innerText = catalogueData.badge.toUpperCase();
     imageWrap.appendChild(badge);
   }
 
@@ -162,13 +179,13 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.fontSize = "17px";
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${product.name}</p>
-      ${product.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${product.subtitle})</p>` : ""}
+      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
+      ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.field1 !== undefined ? product.field1 : (product.color || '')}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.field2 !== undefined ? product.field2 : (product.package || '')} ${units.packageUnit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.field3 !== undefined ? product.field3 : (product.age || '')} ${units.ageGroupUnit}</p>
+      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>
+      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>
+      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>
     </div>
   `;
   container.appendChild(details);

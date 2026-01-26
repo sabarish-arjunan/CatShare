@@ -382,9 +382,19 @@ export default function CreateProduct() {
   // Toggle catalogue enabled state
   const toggleCatalogueEnabled = (catalogueId: string) => {
     setFormData((prev) => {
-      const updated = { ...prev };
-      setProductEnabledForCatalogue(updated, catalogueId, !isCatalogueEnabled(catalogueId));
-      return updated;
+      const currentlyEnabled = isProductEnabledForCatalogue(prev, catalogueId);
+      const newCatalogueData = { ...prev.catalogueData };
+
+      // Create a new object for the catalogue entry
+      newCatalogueData[catalogueId] = {
+        ...(newCatalogueData[catalogueId] || {}),
+        enabled: !currentlyEnabled
+      };
+
+      return {
+        ...prev,
+        catalogueData: newCatalogueData
+      };
     });
   };
 
@@ -705,15 +715,16 @@ setTimeout(async () => {
               <h3 className="text-base font-semibold">
                 {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
               </h3>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isCatalogueEnabled(selectedCatalogue)}
-                  onChange={() => toggleCatalogueEnabled(selectedCatalogue)}
-                  className="w-5 h-5"
-                />
-                <span className="text-sm font-medium">Show in {catalogues.find((c) => c.id === selectedCatalogue)?.label}</span>
-              </label>
+              <button
+                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                  isCatalogueEnabled(selectedCatalogue)
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                }`}
+              >
+                {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+              </button>
             </div>
 
             {isCatalogueEnabled(selectedCatalogue) && (
@@ -771,32 +782,12 @@ setTimeout(async () => {
                     name="price1"
                     value={getCatalogueFormData().price1 || ""}
                     onChange={handleChange}
-                    placeholder="Price 1"
+                    placeholder="Price"
                     className="border p-2 w-full rounded"
                   />
                   <select
                     name="price1Unit"
                     value={getCatalogueFormData().price1Unit || "/ piece"}
-                    onChange={handleChange}
-                    className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-                  >
-                    <option>/ piece</option>
-                    <option>/ dozen</option>
-                    <option>/ set</option>
-                  </select>
-                </div>
-
-                <div className="flex gap-2 mb-2">
-                  <input
-                    name="price2"
-                    value={getCatalogueFormData().price2 || ""}
-                    onChange={handleChange}
-                    placeholder="Price 2"
-                    className="border p-2 w-full rounded"
-                  />
-                  <select
-                    name="price2Unit"
-                    value={getCatalogueFormData().price2Unit || "/ piece"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
@@ -959,14 +950,13 @@ setTimeout(async () => {
     style={{
       backgroundColor: overrideColor,
       color: fontColor,
-      padding: "8px",
+      padding: "12px 8px",
       textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
+      fontWeight: "600",
+      fontSize: 20,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getCatalogueFormData().price1}{" "}
-    {getCatalogueFormData().price1Unit}
+    ₹{getCatalogueFormData().price1 || "0"} {getCatalogueFormData().price1Unit}
   </div>
 
   {imagePreview && (
@@ -1046,19 +1036,6 @@ setTimeout(async () => {
       <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit}</p>
       <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
     </div>
-  </div>
-
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getCatalogueFormData().price2} {getCatalogueFormData().price2Unit}
   </div>
 </div>
 

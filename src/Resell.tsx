@@ -7,6 +7,7 @@ import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
+import { getCatalogueData } from "./config/catalogueProductUtils";
 
 
 export default function ResellTab({
@@ -16,8 +17,27 @@ export default function ResellTab({
   getLighterColor,
   imageMap,
   catalogueLabel,
+  catalogueId,
+  priceField,
+  priceUnitField,
   onBack,
 }) {
+  // Helper function to get catalogue-specific data for a product
+  const getProductCatalogueData = (product) => {
+    if (!catalogueId) return product; // Fallback to product if no catalogueId
+    const catData = getCatalogueData(product, catalogueId);
+    return {
+      ...product,
+      field1: catData.field1 || product.field1 || product.color || "",
+      field2: catData.field2 || product.field2 || product.package || "",
+      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
+      field3: catData.field3 || product.field3 || product.age || "",
+      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
+      price1: catData.price1 || product.price1 || product.wholesale || "",
+      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+    };
+  };
+
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [allCategories, setAllCategories] = useState([]);
@@ -767,7 +787,7 @@ onMouseLeave={handleTouchEnd}
 <div
   className="absolute top-1.5 right-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
-  ₹{p.price2 || p.resell}
+  ₹{getProductCatalogueData(p).price1}
 </div>
 )}
 
@@ -811,8 +831,8 @@ onMouseLeave={handleTouchEnd}
                     lineHeight: 1.2,
                   }}
                 >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{p.resell}{" "}
-                  {p.resellUnit}
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price1}{" "}
+                  {getProductCatalogueData(p).price1Unit}
                 </h2>
 
                 <div
@@ -917,15 +937,15 @@ onMouseLeave={handleTouchEnd}
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Colour
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.field1 || p.color}
+                      &nbsp;&nbsp;{getProductCatalogueData(p).field1}
                     </p>
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.field2 || p.package} {p.field2Unit || p.packageUnit}
+                      &nbsp;&nbsp;{getProductCatalogueData(p).field2} {getProductCatalogueData(p).field2Unit}
                     </p>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.field3 || p.age}{" "}
-                      {p.field3Unit || p.ageUnit}
+                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{getProductCatalogueData(p).field3}{" "}
+                      {getProductCatalogueData(p).field3Unit}
                     </p>
                   </div>
                 </div>
