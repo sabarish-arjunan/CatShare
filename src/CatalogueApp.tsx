@@ -661,6 +661,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
             imageMap={imageMap}
             products={products}
+            onManageCatalogues={() => setShowManageCatalogues(true)}
           />
         )}
 
