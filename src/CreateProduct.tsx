@@ -8,6 +8,7 @@ import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
+import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
