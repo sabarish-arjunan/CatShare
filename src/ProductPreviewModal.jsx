@@ -654,18 +654,18 @@ export default function ProductPreviewModal({
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.field1 || product.color}
+                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.field2 || product.package} {product.field2Unit || product.packageUnit}
+                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.field3 || product.age} {product.field3Unit || product.ageUnit}
+                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
                 </p>
               </div>
             </div>
 
-            {/* Bottom Bar - Show price based on catalogue, default to price 1 */}
+            {/* Bottom Bar - Show price based on catalogue-specific data */}
             <div
               style={{
                 backgroundColor: product.bgColor || "#add8e6",
@@ -676,7 +676,7 @@ export default function ProductPreviewModal({
                 fontSize: 19,
               }}
             >
-              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{tab === "catalogue2" ? product.resell : product.wholesale} {tab === "catalogue2" ? product.resellUnit : product.wholesaleUnit}
+              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
             </div>
 
             {/* Action Buttons */}
