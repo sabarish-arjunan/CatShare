@@ -71,8 +71,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
-  const priceUnit = type === "resell" ? units.resellUnit : units.wholesaleUnit;
-  const price = type === "resell" ? product.resell : product.wholesale;
+  const priceUnit = type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit);
+  const price = type === "resell" ? (product.price2 !== undefined ? product.price2 : product.resell) : (product.price1 !== undefined ? product.price1 : product.wholesale);
 
   const priceBar = document.createElement("h2");
   Object.assign(priceBar.style, {
@@ -158,9 +158,9 @@ export async function saveRenderedImage(product, type, units = {}) {
       ${product.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${product.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${units.packageUnit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${units.ageGroupUnit}</p>
+      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.field1 !== undefined ? product.field1 : (product.color || '')}</p>
+      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.field2 !== undefined ? product.field2 : (product.package || '')} ${units.packageUnit}</p>
+      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.field3 !== undefined ? product.field3 : (product.age || '')} ${units.ageGroupUnit}</p>
     </div>
   `;
   container.appendChild(details);

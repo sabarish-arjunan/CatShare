@@ -180,11 +180,11 @@ export default function CreateProduct() {
     id: "",
     name: "",
     subtitle: "",
-    color: "",
-    package: "",
-    age: "",
-    wholesale: "",
-    resell: "",
+    field1: "", // Colour
+    field2: "", // Package
+    field3: "", // Age Group
+    price1: "", // Price 1 (wholesale)
+    price2: "", // Price 2 (resell)
     stock: true,
     wholesaleStock: true,
     resellStock: true,
@@ -258,8 +258,8 @@ export default function CreateProduct() {
   const [suggestedColors, setSuggestedColors] = useState([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const [wholesaleUnit, setWholesaleUnit] = useState("/ piece");
-  const [resellUnit, setResellUnit] = useState("/ piece");
+  const [price1Unit, setPrice1Unit] = useState("/ piece");
+  const [price2Unit, setPrice2Unit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
 
@@ -312,10 +312,10 @@ export default function CreateProduct() {
         setOverrideColor(product.bgColor || "#d1b3c4");
         setFontColor(product.fontColor || "white");
         setImageBgOverride(product.imageBgColor || "white");
-        setWholesaleUnit(product.wholesaleUnit || "/ piece");
-        setResellUnit(product.resellUnit || "/ piece");
-        setPackageUnit(product.packageUnit || "pcs / set");
-        setAgeGroupUnit(product.ageUnit || "months");
+        setPrice1Unit(product.price1Unit || product.wholesaleUnit || "/ piece");
+        setPrice2Unit(product.price2Unit || product.resellUnit || "/ piece");
+        setPackageUnit(product.field2Unit || product.packageUnit || "pcs / set");
+        setAgeGroupUnit(product.field3Unit || product.ageUnit || "months");
 
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
@@ -453,10 +453,17 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      wholesaleUnit,
-      resellUnit,
+      price1Unit,
+      price2Unit,
+      field2Unit: packageUnit,
+      field3Unit: ageGroupUnit,
+      // Keep old names for backward compatibility
+      wholesaleUnit: price1Unit,
+      resellUnit: price2Unit,
       packageUnit,
       ageUnit: ageGroupUnit,
+      wholesale: formData.price1,
+      resell: formData.price2,
       stock: formData.stock !== false,
       //image: imagePreview,
     };
@@ -475,16 +482,22 @@ window.dispatchEvent(new CustomEvent("product-added"));
 setTimeout(async () => {
   try {
     await saveRenderedImage(newItem, "resell", {
-      resellUnit,
-      wholesaleUnit,
-      packageUnit,
-      ageGroupUnit,
+      price2Unit,
+      price1Unit,
+      packageUnit: formData.field2Unit || packageUnit,
+      ageGroupUnit: formData.field3Unit || ageGroupUnit,
+      // Also provide old names for backward compat in Save.jsx
+      resellUnit: price2Unit,
+      wholesaleUnit: price1Unit,
     });
     await saveRenderedImage(newItem, "wholesale", {
-      resellUnit,
-      wholesaleUnit,
-      packageUnit,
-      ageGroupUnit,
+      price2Unit,
+      price1Unit,
+      packageUnit: formData.field2Unit || packageUnit,
+      ageGroupUnit: formData.field3Unit || ageGroupUnit,
+      // Also provide old names for backward compat in Save.jsx
+      resellUnit: price2Unit,
+      wholesaleUnit: price1Unit,
     });
   } catch (err) {
     console.warn("⏱️ PNG render failed:", err);
@@ -574,8 +587,8 @@ setTimeout(async () => {
             className="border p-2 rounded w-full mb-2"
           />
           <input
-            name="color"
-            value={formData.color}
+            name="field1"
+            value={formData.field1}
             onChange={handleChange}
             placeholder="Colour"
             className="border p-2 rounded w-full mb-2"
@@ -583,8 +596,8 @@ setTimeout(async () => {
 
           <div className="flex gap-2 mb-2">
             <input
-              name="package"
-              value={formData.package}
+              name="field2"
+              value={formData.field2}
               onChange={handleChange}
               placeholder="Package"
               className="border p-2 w-full rounded"
@@ -602,8 +615,8 @@ setTimeout(async () => {
 
           <div className="flex gap-2 mb-2">
             <input
-              name="age"
-              value={formData.age}
+              name="field3"
+              value={formData.field3}
               onChange={handleChange}
               placeholder="Age Group"
               className="border p-2 w-full rounded"
@@ -621,37 +634,39 @@ setTimeout(async () => {
 
           <div className="flex gap-2 mb-2">
             <input
-              name="wholesale"
-              value={formData.wholesale}
+              name="price1"
+              value={formData.price1}
               onChange={handleChange}
-              placeholder="Wholesale Price"
+              placeholder="Price 1"
               className="border p-2 w-full rounded"
             />
             <select
-              value={wholesaleUnit}
-              onChange={(e) => setWholesaleUnit(e.target.value)}
+              value={price1Unit}
+              onChange={(e) => setPrice1Unit(e.target.value)}
               className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>/ set</option>
             </select>
           </div>
 
           <div className="flex gap-2 mb-2">
             <input
-              name="resell"
-              value={formData.resell}
+              name="price2"
+              value={formData.price2}
               onChange={handleChange}
-              placeholder="Resell Price"
+              placeholder="Price 2"
               className="border p-2 w-full rounded"
             />
             <select
-              value={resellUnit}
-              onChange={(e) => setResellUnit(e.target.value)}
+              value={price2Unit}
+              onChange={(e) => setPrice2Unit(e.target.value)}
               className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>/ set</option>
             </select>
           </div>
 
@@ -814,8 +829,8 @@ setTimeout(async () => {
       fontSize: 19,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.wholesale}{" "}
-    {wholesaleUnit}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price1}{" "}
+    {price1Unit}
   </div>
 
   {imagePreview && (
@@ -891,9 +906,9 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {packageUnit}</p>
-      <p>Age Group&nbsp;&nbsp;: {formData.age} {ageGroupUnit}</p>
+      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field1}</p>
+      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field2} {packageUnit}</p>
+      <p>Age Group&nbsp;&nbsp;: {formData.field3} {ageGroupUnit}</p>
     </div>
   </div>
 
@@ -907,7 +922,7 @@ setTimeout(async () => {
       fontSize: 19,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.resell} {resellUnit}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price2} {price2Unit}
   </div>
 </div>
 

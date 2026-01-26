@@ -637,13 +637,13 @@ export default function ProductPreviewModal({
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
+                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.field1 || product.color}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit}
+                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.field2 || product.package} {product.field2Unit || product.packageUnit}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit}
+                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.field3 || product.age} {product.field3Unit || product.ageUnit}
                 </p>
               </div>
             </div>

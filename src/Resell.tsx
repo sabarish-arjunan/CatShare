@@ -756,7 +756,7 @@ onMouseLeave={handleTouchEnd}
 <div
   className="absolute top-1.5 right-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
-  ₹{p.resell}
+  ₹{p.price2 || p.resell}
 </div>
 )}
 
@@ -906,15 +906,15 @@ onMouseLeave={handleTouchEnd}
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Colour
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.color}
+                      &nbsp;&nbsp;{p.field1 || p.color}
                     </p>
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.package} {p.packageUnit}
+                      &nbsp;&nbsp;{p.field2 || p.package} {p.field2Unit || p.packageUnit}
                     </p>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.age}{" "}
-                      {p.ageUnit}
+                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.field3 || p.age}{" "}
+                      {p.field3Unit || p.ageUnit}
                     </p>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ import {
 import { App as CapacitorApp } from "@capacitor/app";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
+import { initializeFieldSystem } from "./config/initializeFields";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -144,6 +145,11 @@ function AppWithBackHandler() {
       document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
+
+  // Initialize field system with data migration on first load
+  useEffect(() => {
+    initializeFieldSystem();
+  }, []);
 
   // Initialize watermark settings with defaults on first load
   useEffect(() => {

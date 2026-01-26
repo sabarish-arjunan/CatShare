@@ -117,7 +117,7 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
                   </div>
                   <div>
                     <div className="font-semibold">{p.name}</div>
-                    <div className="text-xs text-gray-500">{p.color}</div>
+                    <div className="text-xs text-gray-500">{p.field1 || p.color}</div>
                   </div>
                 </div>
                 <div className="flex gap-2">

@@ -255,8 +255,11 @@ export default function Retail({ products = [] }) {
         id: prod.id,
         name: prod.name || "",
         subtitle: prod.subtitle || "",
-        wholesale: prod.wholesale || 0,
-        resell: prod.resell || prod.retail || 0,
+        price1: prod.price1 || prod.wholesale || 0,
+        price2: prod.price2 || prod.resell || prod.retail || 0,
+        // Keep old names for backward compatibility
+        wholesale: prod.price1 || prod.wholesale || 0,
+        resell: prod.price2 || prod.resell || prod.retail || 0,
         image: prod.image || prod.imagePath || "",
         imagePath: prod.imagePath || prod.image || "",
         category: prod.category || [],
@@ -313,14 +316,17 @@ export default function Retail({ products = [] }) {
   const importSelected = () => {
     const toImport = products.filter((p) => selectedToPull.includes(p.id));
     const copies = toImport.map((p) => {
-      const wholesale = Number(p.wholesale || p.wholesalePrice || 0) || 0;
-      const retailPrice = Math.round(wholesale + (wholesale * markupPercent) / 100);
+      const price1 = Number(p.price1 || p.wholesale || p.wholesalePrice || 0) || 0;
+      const retailPrice = Math.round(price1 + (price1 * markupPercent) / 100);
       return {
         id: uuidv4(),
         sourceId: p.id,
         name: p.name || "",
         subtitle: p.subtitle || "",
-        wholesale: wholesale,
+        price1: price1,
+        price2: retailPrice,
+        // Keep old names for backward compatibility
+        wholesale: price1,
         retail: retailPrice,
         image: p.image || p.imagePath || "",
         imagePath: p.imagePath || (p.image && typeof p.image === 'string' && (p.image.startsWith('retail/') || p.image.startsWith('catalogue/')) ? p.image : undefined),
@@ -352,6 +358,9 @@ export default function Retail({ products = [] }) {
       id: uuidv4(),
       name: "New Product",
       subtitle: "",
+      price1: 0,
+      price2: 0,
+      // Keep old names for backward compatibility
       wholesale: 0,
       retail: 0,
       image: "",
@@ -762,13 +771,13 @@ export default function Retail({ products = [] }) {
                       <input className="border p-2 rounded w-full mb-2" placeholder="Model Name" value={editingProduct.name} onChange={(e) => setEditingProduct((s) => ({ ...s, name: e.target.value }))} />
                       <input className="border p-2 rounded w-full mb-2" placeholder="Subtitle" value={editingProduct.subtitle} onChange={(e) => setEditingProduct((s) => ({ ...s, subtitle: e.target.value }))} />
                       <div className="flex gap-2 mb-2">
-                        <input name="wholesale" value={editingProduct.wholesale} onChange={(e) => setEditingProduct((s) => ({ ...s, wholesale: Number(e.target.value) }))} placeholder="Wholesale Price" className="border p-2 w-full rounded" />
-                        <input name="retail" value={editingProduct.retail} onChange={(e) => setEditingProduct((s) => ({ ...s, retail: Number(e.target.value) }))} placeholder="Retail Price" className="border p-2 w-full rounded" />
+                        <input name="price1" value={editingProduct.price1 || editingProduct.wholesale || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price1: Number(e.target.value), wholesale: Number(e.target.value) }))} placeholder="Price 1" className="border p-2 w-full rounded" />
+                        <input name="price2" value={editingProduct.price2 || editingProduct.retail || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price2: Number(e.target.value), retail: Number(e.target.value) }))} placeholder="Price 2" className="border p-2 w-full rounded" />
                       </div>
 
                       <div className="flex gap-2 mb-2">
-                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, package: e.target.value }))} />
-                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, age: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.field2 || editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, field2: e.target.value, package: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.field3 || editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, field3: e.target.value, age: e.target.value }))} />
                       </div>
 
                       <label className="block text-sm font-medium mb-1">Product Badge</label>
@@ -809,7 +818,7 @@ export default function Retail({ products = [] }) {
                       {/* Preview */}
                       <div id="catalogue-preview" className="mt-6 border rounded shadow overflow-hidden" style={{ maxWidth: 330, width: '100%' }}>
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.wholesale} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price1 || editingProduct.wholesale} / piece
                         </div>
 
                         {imagePreview && (
@@ -822,14 +831,14 @@ export default function Retail({ products = [] }) {
                           <h2 className="text-lg font-semibold text-center">{editingProduct.name}</h2>
                           {editingProduct.subtitle && <p className="text-center italic text-sm">({editingProduct.subtitle})</p>}
                           <div className="text-sm mt-2 space-y-1">
-                            <p>Colour&nbsp;&nbsp;: {editingProduct.color || ''}</p>
-                            <p>Package&nbsp;: {editingProduct.package || ''}</p>
-                            <p>Age Group&nbsp;: {editingProduct.age || ''}</p>
+                            <p>Colour&nbsp;&nbsp;: {editingProduct.field1 || editingProduct.color || ''}</p>
+                            <p>Package&nbsp;: {editingProduct.field2 || editingProduct.package || ''}</p>
+                            <p>Age Group&nbsp;: {editingProduct.field3 || editingProduct.age || ''}</p>
                           </div>
                         </div>
 
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.retail} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price2 || editingProduct.retail} / piece
                         </div>
                       </div>
 

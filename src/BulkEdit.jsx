@@ -5,11 +5,11 @@ import { useToast } from "./context/ToastContext";
 const FIELD_OPTIONS = [
   { key: "name", label: "Name" },
   { key: "subtitle", label: "Subtitle" },
-  { key: "color", label: "Color" },
-  { key: "package", label: "Package" },
-  { key: "age", label: "Age Group" },
-  { key: "wholesale", label: "Wholesale Price" },
-  { key: "resell", label: "Resell Price" },
+  { key: "field1", label: "Colour" },
+  { key: "field2", label: "Package" },
+  { key: "field3", label: "Age Group" },
+  { key: "price1", label: "Price 1" },
+  { key: "price2", label: "Price 2" },
   { key: "badge", label: "Badge" },
   { key: "category", label: "Category" },
   { key: "stock", label: "Stock Update" },
@@ -211,24 +211,24 @@ useEffect(() => {
               />
             )}
 
-            {selectedFields.includes("color") && (
+            {selectedFields.includes("field1") && (
               <input
-                value={item.color || ""}
-                onChange={(e) => handleFieldChange(item.id, "color", e.target.value)}
+                value={item.field1 || item.color || ""}
+                onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
             )}
 
-            {selectedFields.includes("package") && (
+            {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.package || ""}
-      onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
+      value={item.field2 || item.package || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
       className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.packageUnit || ""}
-      onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
+      value={item.field2Unit || item.packageUnit || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
       <option value="pcs / set">pcs / set</option>
@@ -239,21 +239,59 @@ useEffect(() => {
 )}
 
 
-            {selectedFields.includes("age") && (
+            {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.age || ""}
-                  onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
+                  value={item.field3 || item.age || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.ageUnit || ""}
-                  onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
+                  value={item.field3Unit || item.ageUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
                   <option value="Newborn">Newborn</option>
+                </select>
+              </div>
+            )}
+
+            {selectedFields.includes("price1") && (
+              <div className="flex gap-2">
+                <input
+                  value={item.price1 || item.wholesale || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price1", e.target.value); handleFieldChange(item.id, "wholesale", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
+                />
+                <select
+                  value={item.price1Unit || item.wholesaleUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price1Unit", e.target.value); handleFieldChange(item.id, "wholesaleUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
+                </select>
+              </div>
+            )}
+
+            {selectedFields.includes("price2") && (
+              <div className="flex gap-2">
+                <input
+                  value={item.price2 || item.resell || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price2", e.target.value); handleFieldChange(item.id, "resell", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
+                />
+                <select
+                  value={item.price2Unit || item.resellUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price2Unit", e.target.value); handleFieldChange(item.id, "resellUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
                 </select>
               </div>
             )}
