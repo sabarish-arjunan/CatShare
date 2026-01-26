@@ -782,32 +782,12 @@ setTimeout(async () => {
                     name="price1"
                     value={getCatalogueFormData().price1 || ""}
                     onChange={handleChange}
-                    placeholder="Price 1"
+                    placeholder="Price"
                     className="border p-2 w-full rounded"
                   />
                   <select
                     name="price1Unit"
                     value={getCatalogueFormData().price1Unit || "/ piece"}
-                    onChange={handleChange}
-                    className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-                  >
-                    <option>/ piece</option>
-                    <option>/ dozen</option>
-                    <option>/ set</option>
-                  </select>
-                </div>
-
-                <div className="flex gap-2 mb-2">
-                  <input
-                    name="price2"
-                    value={getCatalogueFormData().price2 || ""}
-                    onChange={handleChange}
-                    placeholder="Price 2"
-                    className="border p-2 w-full rounded"
-                  />
-                  <select
-                    name="price2Unit"
-                    value={getCatalogueFormData().price2Unit || "/ piece"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
