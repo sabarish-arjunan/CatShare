@@ -950,14 +950,13 @@ setTimeout(async () => {
     style={{
       backgroundColor: overrideColor,
       color: fontColor,
-      padding: "8px",
+      padding: "12px 8px",
       textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
+      fontWeight: "600",
+      fontSize: 20,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getCatalogueFormData().price1}{" "}
-    {getCatalogueFormData().price1Unit}
+    ₹{getCatalogueFormData().price1 || "0"} {getCatalogueFormData().price1Unit}
   </div>
 
   {imagePreview && (
