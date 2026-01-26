@@ -1037,19 +1037,6 @@ setTimeout(async () => {
       <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
     </div>
   </div>
-
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getCatalogueFormData().price2} {getCatalogueFormData().price2Unit}
-  </div>
 </div>
 
           <div className="flex gap-2 mt-4 mb-6">
