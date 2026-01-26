@@ -6,6 +6,7 @@ import SideDrawer from "./SideDrawer";
 import Catalogue1Tab from "./Wholesale";
 import Catalogue2Tab from "./Resell";
 import CataloguesList from "./CataloguesList";
+import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
 import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
