@@ -258,8 +258,8 @@ export default function CreateProduct() {
   const [suggestedColors, setSuggestedColors] = useState([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const [wholesaleUnit, setWholesaleUnit] = useState("/ piece");
-  const [resellUnit, setResellUnit] = useState("/ piece");
+  const [price1Unit, setPrice1Unit] = useState("/ piece");
+  const [price2Unit, setPrice2Unit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
 
