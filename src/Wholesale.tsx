@@ -119,6 +119,10 @@ useEffect(() => {
   const visibleProducts = useMemo(() => {
   return filtered
     .filter((p) => {
+      // Check if product is enabled for this specific catalogue
+      const isEnabled = isProductEnabledForCatalogue(p, catalogueId);
+      if (!isEnabled) return false;
+
       const matchesStock =
         (stockFilter.includes("in") && p.wholesaleStock) ||
         (stockFilter.includes("out") && !p.wholesaleStock);
@@ -132,7 +136,7 @@ useEffect(() => {
         p.subtitle?.toLowerCase().includes(search.toLowerCase());
       return matchesStock && matchesCategory && matchesSearch;
     });
-}, [filtered, stockFilter, categoryFilter, search]);
+}, [filtered, stockFilter, categoryFilter, search, catalogueId]);
 
 
   let touchTimer = null;
