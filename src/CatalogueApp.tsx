@@ -24,7 +24,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const navigate = useNavigate();
   const scrollRef = useRef(null);
 
+  const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [tab, setTab] = useState("products");
+
+  // Initialize catalogues on component mount
+  useEffect(() => {
+    const cats = getAllCatalogues();
+    setCatalogues(cats);
+  }, []);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
