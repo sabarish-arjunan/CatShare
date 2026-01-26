@@ -179,13 +179,13 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.fontSize = "17px";
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${product.name}</p>
-      ${product.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${product.subtitle})</p>` : ""}
+      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
+      ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.field1 !== undefined ? product.field1 : (product.color || '')}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.field2 !== undefined ? product.field2 : (product.package || '')} ${units.packageUnit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.field3 !== undefined ? product.field3 : (product.age || '')} ${units.ageGroupUnit}</p>
+      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>
+      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>
+      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>
     </div>
   `;
   container.appendChild(details);
