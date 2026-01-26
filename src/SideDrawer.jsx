@@ -14,6 +14,7 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "./config/catalogueConfig";
 
 
 export default function SideDrawer({
