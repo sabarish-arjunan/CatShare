@@ -255,8 +255,11 @@ export default function Retail({ products = [] }) {
         id: prod.id,
         name: prod.name || "",
         subtitle: prod.subtitle || "",
-        wholesale: prod.wholesale || 0,
-        resell: prod.resell || prod.retail || 0,
+        price1: prod.price1 || prod.wholesale || 0,
+        price2: prod.price2 || prod.resell || prod.retail || 0,
+        // Keep old names for backward compatibility
+        wholesale: prod.price1 || prod.wholesale || 0,
+        resell: prod.price2 || prod.resell || prod.retail || 0,
         image: prod.image || prod.imagePath || "",
         imagePath: prod.imagePath || prod.image || "",
         category: prod.category || [],
