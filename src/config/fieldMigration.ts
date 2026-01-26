@@ -168,6 +168,7 @@ export function syncProductFieldNames(product: MigratedProduct): MigratedProduct
  * Prefers new field name if both exist
  */
 export function getProductFieldValue(product: any, fieldKey: string): any {
+  const definition = getFieldsDefinition();
   const fieldConfig = definition.fields.find(f => f.key === fieldKey);
   if (!fieldConfig) return undefined;
 
@@ -192,6 +193,7 @@ export function getProductFieldValue(product: any, fieldKey: string): any {
  * Helper: Get unit value from a product (works with both old and new names)
  */
 export function getProductUnitValue(product: any, fieldKey: string): string | undefined {
+  const definition = getFieldsDefinition();
   const fieldConfig = definition.fields.find(f => f.key === fieldKey);
   if (!fieldConfig?.unitField) return undefined;
 
@@ -210,5 +212,3 @@ export function getProductUnitValue(product: any, fieldKey: string): string | un
 
   return fieldConfig.defaultUnit;
 }
-
-const definition = getFieldsDefinition();
