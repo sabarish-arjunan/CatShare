@@ -678,15 +678,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
         {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
           <div className="relative">
-            {/* Back button to return to catalogues list */}
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-              <button
-                onClick={() => setSelectedCatalogueInCataloguesTab(null)}
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1"
-              >
-                ← Back to Catalogues
-              </button>
-            </div>
             {/* Render the selected catalogue */}
             {(() => {
               const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
