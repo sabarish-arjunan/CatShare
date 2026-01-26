@@ -180,9 +180,9 @@ export default function CreateProduct() {
     id: "",
     name: "",
     subtitle: "",
-    color: "",
-    package: "",
-    age: "",
+    field1: "", // Colour
+    field2: "", // Package
+    field3: "", // Age Group
     wholesale: "",
     resell: "",
     stock: true,
