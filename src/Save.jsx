@@ -71,8 +71,13 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
-  const priceUnit = type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit);
-  const price = type === "resell" ? (product.price2 !== undefined ? product.price2 : product.resell) : (product.price1 !== undefined ? product.price1 : product.wholesale);
+  // Support both legacy and dynamic catalogue parameters
+  const priceField = units.priceField || (type === "resell" ? "price2" : type === "wholesale" ? "price1" : type);
+  const priceUnitField = units.priceUnitField || (type === "resell" ? "price2Unit" : type === "wholesale" ? "price1Unit" : `${type}Unit`);
+
+  // Get price from product using dynamic field
+  const price = product[priceField] !== undefined ? product[priceField] : product[priceField.replace(/\d/g, '')] || 0;
+  const priceUnit = units[priceUnitField] || product[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
   const priceBar = document.createElement("h2");
   Object.assign(priceBar.style, {
