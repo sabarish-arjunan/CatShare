@@ -496,6 +496,22 @@ export default function ProductPreviewModal({
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
+  // Get catalogue data based on which tab is being viewed
+  const getCatalogueIdFromTab = () => {
+    if (tab === "catalogue1") return "cat1";
+    if (tab === "catalogue2") return "cat2";
+    // For products tab, default to cat1
+    return "cat1";
+  };
+
+  const catalogueId = getCatalogueIdFromTab();
+  const catalogueData = getCatalogueData(product, catalogueId);
+
+  // Get the catalogue configuration for price field info
+  const catalogueConfig = getAllCatalogues().find(c => c.id === catalogueId);
+  const priceField = catalogueConfig?.priceField || "price1";
+  const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
+
   return (
     <>
       <div
