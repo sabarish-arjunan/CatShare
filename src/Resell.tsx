@@ -24,6 +24,7 @@ export default function ResellTab({
   catalogueId,
   priceField,
   priceUnitField,
+  stockField,
   onBack,
 }) {
   // Helper function to get catalogue-specific data for a product
