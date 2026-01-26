@@ -46,8 +46,29 @@ export default function CataloguesList({
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
-      <div className="space-y-3 pt-[40px]">
+      <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+      <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+        {/* Menu Button */}
+        <button
+          onClick={() => window.dispatchEvent(new Event("toggle-menu"))}
+          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 transition-opacity duration-200"
+          aria-label="Menu"
+          title="Menu"
+        >
+          <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(-8px)' }} />
+          <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(0px)' }} />
+          <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(8px)' }} />
+        </button>
+
+        {/* Center Title */}
+        <h1 className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200 flex items-center justify-center leading-none">
+          <span className="inline-flex items-center justify-center gap-2">
+            <img src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded object-contain shrink-0" />
+            <span>CatShare</span>
+          </span>
+        </h1>
+      </header>
+      <div className="space-y-3">
         <div className="px-4 py-3">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold text-gray-800">
