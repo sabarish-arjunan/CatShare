@@ -510,26 +510,34 @@ export default function CreateProduct() {
       return;
     }
 
-    const newItem = {
+    // Get data from the first enabled catalogue (usually cat1) for backward compatibility
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+
+    const newItem: ProductWithCatalogueData = {
       ...formData,
       id,
       imagePath,
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      price1Unit,
-      price2Unit,
-      field2Unit: packageUnit,
-      field3Unit: ageGroupUnit,
+      // Keep old names for backward compatibility at product level
+      price1: defaultCatalogueData.price1 || "",
+      price2: defaultCatalogueData.price2 || "",
+      price1Unit: defaultCatalogueData.price1Unit || "/ piece",
+      price2Unit: defaultCatalogueData.price2Unit || "/ piece",
+      field1: defaultCatalogueData.field1 || "",
+      field2: defaultCatalogueData.field2 || "",
+      field3: defaultCatalogueData.field3 || "",
+      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field3Unit: defaultCatalogueData.field3Unit || "months",
       // Keep old names for backward compatibility
-      wholesaleUnit: price1Unit,
-      resellUnit: price2Unit,
-      packageUnit,
-      ageUnit: ageGroupUnit,
-      wholesale: formData.price1,
-      resell: formData.price2,
-      stock: formData.stock !== false,
-      //image: imagePreview,
+      wholesaleUnit: defaultCatalogueData.price1Unit || "/ piece",
+      resellUnit: defaultCatalogueData.price2Unit || "/ piece",
+      packageUnit: defaultCatalogueData.field2Unit || "pcs / set",
+      ageUnit: defaultCatalogueData.field3Unit || "months",
+      wholesale: defaultCatalogueData.price1 || "",
+      resell: defaultCatalogueData.price2 || "",
+      stock: defaultCatalogueData.stock !== false,
     };
 
     try {
