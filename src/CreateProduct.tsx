@@ -891,9 +891,9 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.color}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.package} {packageUnit}</p>
-      <p>Age Group&nbsp;&nbsp;: {formData.age} {ageGroupUnit}</p>
+      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field1}</p>
+      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field2} {packageUnit}</p>
+      <p>Age Group&nbsp;&nbsp;: {formData.field3} {ageGroupUnit}</p>
     </div>
   </div>
 
