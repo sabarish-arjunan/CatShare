@@ -27,8 +27,12 @@ export default function CataloguesList({
     const stats: Record<string, { total: number; inStock: number }> = {};
 
     for (const cat of catalogues) {
-      const total = products.length;
-      const inStock = products.filter((p) => (p as any)[cat.stockField]).length;
+      // Only count products that are enabled for this specific catalogue
+      const enabledProducts = products.filter((p) =>
+        isProductEnabledForCatalogue(p, cat.id)
+      );
+      const total = enabledProducts.length;
+      const inStock = enabledProducts.filter((p) => (p as any)[cat.stockField]).length;
       stats[cat.id] = { total, inStock };
     }
 
