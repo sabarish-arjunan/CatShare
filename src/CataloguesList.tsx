@@ -42,9 +42,21 @@ export default function CataloguesList({
   return (
     <div className="space-y-3 mt-4">
       <div className="px-4 py-3">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">
-          All Catalogues
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold text-gray-800">
+            All Catalogues
+          </h2>
+          <button
+            onClick={async () => {
+              await Haptics.impact({ style: ImpactStyle.Light });
+              onManageCatalogues();
+            }}
+            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+            title="Add, edit, or delete catalogues"
+          >
+            Manage
+          </button>
+        </div>
         <p className="text-sm text-gray-500">
           Tap a catalogue to view and manage its products
         </p>
