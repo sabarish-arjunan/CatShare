@@ -838,7 +838,7 @@ export default function Retail({ products = [] }) {
                         </div>
 
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.retail} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price2 || editingProduct.retail} / piece
                         </div>
                       </div>
 
