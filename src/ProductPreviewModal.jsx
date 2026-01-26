@@ -256,10 +256,17 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
 
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e) => {
+    // Only close if clicking directly on the backdrop, not on children
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" data-fullscreen-image="true">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" data-fullscreen-image="true" onClick={handleBackdropClick}>
       {/* Header with close and share buttons */}
-      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
+      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}
           className="text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-black/30 backdrop-blur-sm"
