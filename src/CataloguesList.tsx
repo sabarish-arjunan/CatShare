@@ -15,6 +15,7 @@ export default function CataloguesList({
   onSelectCatalogue,
   imageMap,
   products,
+  onManageCatalogues,
 }: CataloguesListProps) {
   const [catalogueStats, setCatalogueStats] = useState<
     Record<string, { total: number; inStock: number }>
