@@ -358,6 +358,9 @@ export default function Retail({ products = [] }) {
       id: uuidv4(),
       name: "New Product",
       subtitle: "",
+      price1: 0,
+      price2: 0,
+      // Keep old names for backward compatibility
       wholesale: 0,
       retail: 0,
       image: "",
