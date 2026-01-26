@@ -482,16 +482,22 @@ window.dispatchEvent(new CustomEvent("product-added"));
 setTimeout(async () => {
   try {
     await saveRenderedImage(newItem, "resell", {
-      resellUnit,
-      wholesaleUnit,
-      packageUnit,
-      ageGroupUnit,
+      price2Unit,
+      price1Unit,
+      packageUnit: formData.field2Unit || packageUnit,
+      ageGroupUnit: formData.field3Unit || ageGroupUnit,
+      // Also provide old names for backward compat in Save.jsx
+      resellUnit: price2Unit,
+      wholesaleUnit: price1Unit,
     });
     await saveRenderedImage(newItem, "wholesale", {
-      resellUnit,
-      wholesaleUnit,
-      packageUnit,
-      ageGroupUnit,
+      price2Unit,
+      price1Unit,
+      packageUnit: formData.field2Unit || packageUnit,
+      ageGroupUnit: formData.field3Unit || ageGroupUnit,
+      // Also provide old names for backward compat in Save.jsx
+      resellUnit: price2Unit,
+      wholesaleUnit: price1Unit,
     });
   } catch (err) {
     console.warn("⏱️ PNG render failed:", err);
