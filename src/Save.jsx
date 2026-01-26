@@ -92,7 +92,10 @@ export async function saveRenderedImage(product, type, units = {}) {
   });
   priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
 
-  if (type === "wholesale") {
+  // For backward compatibility: cat1 and "wholesale" go on top, others at bottom
+  const isPriceOnTop = type === "wholesale" || type === "cat1";
+
+  if (isPriceOnTop) {
     container.appendChild(priceBar); // Price on top
   }
 
