@@ -980,7 +980,7 @@ setTimeout(async () => {
       fontSize: 20,
     }}
   >
-    ₹{getCatalogueFormData().price1 || "0"} {getCatalogueFormData().price1Unit}
+    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 
   {imagePreview && (
