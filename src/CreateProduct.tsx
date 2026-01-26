@@ -652,112 +652,168 @@ setTimeout(async () => {
 
       {!cropping && (
         <>
-          <input
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Model Name"
-            className="border p-2 rounded w-full mb-2"
-          />
-          <input
-            name="subtitle"
-            value={formData.subtitle}
-            onChange={handleChange}
-            placeholder="Subtitle"
-            className="border p-2 rounded w-full mb-2"
-          />
-          <input
-            name="field1"
-            value={formData.field1}
-            onChange={handleChange}
-            placeholder="Colour"
-            className="border p-2 rounded w-full mb-2"
-          />
-
-          <div className="flex gap-2 mb-2">
+          {/* COMMON FIELDS */}
+          <div className="border-b pb-4 mb-4">
+            <h2 className="text-lg font-semibold mb-3">Product Details</h2>
             <input
-              name="field2"
-              value={formData.field2}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
-              placeholder="Package"
-              className="border p-2 w-full rounded"
+              placeholder="Model Name"
+              className="border p-2 rounded w-full mb-2"
             />
-            <select
-              value={packageUnit}
-              onChange={(e) => setPackageUnit(e.target.value)}
-              className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-            >
-              <option>pcs / set</option>
-              <option>pcs / dozen</option>
-              <option>pcs / pack</option>
-            </select>
+            <input
+              name="subtitle"
+              value={formData.subtitle}
+              onChange={handleChange}
+              placeholder="Subtitle"
+              className="border p-2 rounded w-full mb-2"
+            />
+            <label className="block text-sm font-medium mb-1">Product Badge</label>
+            <input
+              name="badge"
+              value={formData.badge}
+              onChange={handleChange}
+              placeholder="Enter product badge"
+              className="border p-2 rounded text-sm w-full"
+            />
           </div>
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="field3"
-              value={formData.field3}
-              onChange={handleChange}
-              placeholder="Age Group"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={ageGroupUnit}
-              onChange={(e) => setAgeGroupUnit(e.target.value)}
-              className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
-            >
-              <option>months</option>
-              <option>years</option>
-              <option>Newborn</option>
-            </select>
+          {/* CATALOGUE SELECTOR */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-2">Select Catalogue to Edit:</label>
+            <div className="flex gap-2 flex-wrap">
+              {catalogues.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCatalogue(cat.id)}
+                  className={`px-3 py-2 rounded text-sm font-medium transition ${
+                    selectedCatalogue === cat.id
+                      ? "bg-blue-600 text-white shadow"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="price1"
-              value={formData.price1}
-              onChange={handleChange}
-              placeholder="Price 1"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={price1Unit}
-              onChange={(e) => setPrice1Unit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>/ set</option>
-            </select>
-          </div>
+          {/* CATALOGUE-SPECIFIC FIELDS */}
+          <div className="border-t pt-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-base font-semibold">
+                {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
+              </h3>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isCatalogueEnabled(selectedCatalogue)}
+                  onChange={() => toggleCatalogueEnabled(selectedCatalogue)}
+                  className="w-5 h-5"
+                />
+                <span className="text-sm font-medium">Show in {catalogues.find((c) => c.id === selectedCatalogue)?.label}</span>
+              </label>
+            </div>
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="price2"
-              value={formData.price2}
-              onChange={handleChange}
-              placeholder="Price 2"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={price2Unit}
-              onChange={(e) => setPrice2Unit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>/ set</option>
-            </select>
-          </div>
+            {isCatalogueEnabled(selectedCatalogue) && (
+              <>
+                <input
+                  name="field1"
+                  value={getCatalogueFormData().field1 || ""}
+                  onChange={handleChange}
+                  placeholder="Colour"
+                  className="border p-2 rounded w-full mb-2"
+                />
 
-          <label className="block text-sm font-medium mb-1">Product Badge</label>
-          <input
-            name="badge"
-            value={formData.badge}
-            onChange={handleChange}
-            placeholder="Enter product badge"
-            className="border p-2 rounded text-sm w-full"
-          />
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name="field2"
+                    value={getCatalogueFormData().field2 || ""}
+                    onChange={handleChange}
+                    placeholder="Package"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name="field2Unit"
+                    value={getCatalogueFormData().field2Unit || "pcs / set"}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
+                  >
+                    <option>pcs / set</option>
+                    <option>pcs / dozen</option>
+                    <option>pcs / pack</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name="field3"
+                    value={getCatalogueFormData().field3 || ""}
+                    onChange={handleChange}
+                    placeholder="Age Group"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name="field3Unit"
+                    value={getCatalogueFormData().field3Unit || "months"}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
+                  >
+                    <option>months</option>
+                    <option>years</option>
+                    <option>Newborn</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name="price1"
+                    value={getCatalogueFormData().price1 || ""}
+                    onChange={handleChange}
+                    placeholder="Price 1"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name="price1Unit"
+                    value={getCatalogueFormData().price1Unit || "/ piece"}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+                  >
+                    <option>/ piece</option>
+                    <option>/ dozen</option>
+                    <option>/ set</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name="price2"
+                    value={getCatalogueFormData().price2 || ""}
+                    onChange={handleChange}
+                    placeholder="Price 2"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name="price2Unit"
+                    value={getCatalogueFormData().price2Unit || "/ piece"}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+                  >
+                    <option>/ piece</option>
+                    <option>/ dozen</option>
+                    <option>/ set</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {!isCatalogueEnabled(selectedCatalogue) && (
+              <div className="text-center text-gray-500 py-4">
+                Enable "{catalogues.find((c) => c.id === selectedCatalogue)?.label}" to add details
+              </div>
+            )}
+          </div>
 
           <div className="mb-4">
             <label className="block mb-1 font-semibold">Categories</label>
