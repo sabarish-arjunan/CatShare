@@ -642,39 +642,81 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           </div>
         )}
 
-        {catalogues.map((cat) => (
-          tab === cat.id && (
-            <div key={cat.id}>
-              {cat.id === "cat1" ? (
-                <Catalogue1Tab
-                  filtered={visible}
-                  selected={selected}
-                  setSelected={setSelected}
-                  getLighterColor={getLighterColor}
-                  imageMap={imageMap}
-                  catalogueId={cat.id}
-                  catalogueLabel={cat.label}
-                  priceField={cat.priceField}
-                  priceUnitField={cat.priceUnitField}
-                  stockField={cat.stockField}
-                />
-              ) : cat.id === "cat2" ? (
-                <Catalogue2Tab
-                  filtered={visible}
-                  selected={selected}
-                  setSelected={setSelected}
-                  getLighterColor={getLighterColor}
-                  imageMap={imageMap}
-                  catalogueId={cat.id}
-                  catalogueLabel={cat.label}
-                  priceField={cat.priceField}
-                  priceUnitField={cat.priceUnitField}
-                  stockField={cat.stockField}
-                />
-              ) : null}
+        {tab === "catalogues" && selectedCatalogueInCataloguesTab === null && (
+          <CataloguesList
+            catalogues={catalogues}
+            onSelectCatalogue={(catalogueId) => {
+              setSelectedCatalogueInCataloguesTab(catalogueId);
+            }}
+            imageMap={imageMap}
+            products={products}
+          />
+        )}
+
+        {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
+          <div className="relative">
+            {/* Back button to return to catalogues list */}
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+              <button
+                onClick={() => setSelectedCatalogueInCataloguesTab(null)}
+                className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1"
+              >
+                ← Back to Catalogues
+              </button>
             </div>
-          )
-        ))}
+            {/* Render the selected catalogue */}
+            {(() => {
+              const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
+              if (!selectedCat) return null;
+
+              return (
+                <div key={selectedCat.id}>
+                  {selectedCat.id === "cat1" ? (
+                    <Catalogue1Tab
+                      filtered={visible}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                    />
+                  ) : selectedCat.id === "cat2" ? (
+                    <Catalogue2Tab
+                      filtered={visible}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                    />
+                  ) : (
+                    /* For custom catalogues, use Wholesale component */
+                    <Catalogue1Tab
+                      filtered={visible}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                    />
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {previewProduct && (
           <ProductPreviewModal
