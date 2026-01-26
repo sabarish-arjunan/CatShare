@@ -146,6 +146,11 @@ function AppWithBackHandler() {
     }
   }, [darkMode]);
 
+  // Initialize field system with data migration on first load
+  useEffect(() => {
+    initializeFieldSystem();
+  }, []);
+
   // Initialize watermark settings with defaults on first load
   useEffect(() => {
     const showWatermark = localStorage.getItem("showWatermark");
