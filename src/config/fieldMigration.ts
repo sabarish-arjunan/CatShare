@@ -136,7 +136,7 @@ export function isMigrationDone(): boolean {
  * Sync operation: When writing a product, ensure it has BOTH legacy and new field names
  * This allows the app to work with both old and new naming schemes simultaneously
  */
-export function syncProductFieldNames(product: MigratedProduct & { id?: string; name?: string }): MigratedProduct & { id?: string; name?: string } {
+export function syncProductFieldNames(product: MigratedProduct): MigratedProduct {
   const synced = { ...product };
   const definition = getFieldsDefinition();
 
