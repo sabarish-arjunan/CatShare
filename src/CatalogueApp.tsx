@@ -121,7 +121,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       const list = filtered || products;
       const match = list.find((p) => p.id === id);
       if (match) {
-        setTab(tab || "products");
+        // Only change tab if no filtered list is provided (i.e., not from a catalogue view)
+        if (!filtered) {
+          setTab(tab || "products");
+        }
         setPreviewList(list);
         setPreviewProduct(match);
       }
@@ -434,18 +437,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         </>
       )}
 
-      {tab === "catalogues" && (
-        <>
-          <div className="sticky top-0 h-[40px] bg-black z-50"></div>
-          <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center px-4">
-            <h1 className="text-xl font-bold text-gray-800">
-              {selectedCatalogueInCataloguesTab
-                ? catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab)?.label || "Catalogue"
-                : "Catalogues"}
-            </h1>
-          </header>
-        </>
-      )}
 
       <main ref={scrollRef} className={`flex-1 min-h-0 ${(tab === 'products' || tab === 'catalogues') ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
@@ -666,16 +657,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         )}
 
         {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
-          <div className="relative">
-            {/* Back button to return to catalogues list */}
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-              <button
-                onClick={() => setSelectedCatalogueInCataloguesTab(null)}
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1"
-              >
-                ← Back to Catalogues
-              </button>
-            </div>
+          <div className="relative -mx-4">
+            {/* Black bar for catalogues */}
+            <div className="sticky top-0 h-[40px] bg-black z-50"></div>
             {/* Render the selected catalogue */}
             {(() => {
               const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
@@ -695,6 +679,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       priceField={selectedCat.priceField}
                       priceUnitField={selectedCat.priceUnitField}
                       stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
                     />
                   ) : selectedCat.id === "cat2" ? (
                     <Catalogue2Tab
@@ -708,6 +693,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       priceField={selectedCat.priceField}
                       priceUnitField={selectedCat.priceUnitField}
                       stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
                     />
                   ) : (
                     /* For custom catalogues, use Wholesale component */
@@ -722,6 +708,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       priceField={selectedCat.priceField}
                       priceUnitField={selectedCat.priceUnitField}
                       stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
                     />
                   )}
                 </div>

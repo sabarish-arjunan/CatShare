@@ -257,7 +257,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" data-fullscreen-image="true">
       {/* Header with close and share buttons */}
       <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
         <button
@@ -338,6 +338,7 @@ export default function ProductPreviewModal({
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -355,8 +356,20 @@ export default function ProductPreviewModal({
     }
   };
 
+  // Update ref whenever showFullScreenImage changes
   useEffect(() => {
-    const handler = () => onClose();
+    fullScreenImageRef.current = showFullScreenImage;
+  }, [showFullScreenImage]);
+
+  useEffect(() => {
+    const handler = () => {
+      // If full screen image is open, close it instead of closing the preview
+      if (fullScreenImageRef.current) {
+        setShowFullScreenImage(false);
+      } else {
+        onClose();
+      }
+    };
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
   }, [onClose]);
