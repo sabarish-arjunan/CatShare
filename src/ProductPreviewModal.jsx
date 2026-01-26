@@ -257,9 +257,9 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center cursor-pointer" data-fullscreen-image="true" onClick={onClose}>
       {/* Header with close and share buttons */}
-      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
+      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}
           className="text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-black/30 backdrop-blur-sm"
@@ -278,7 +278,8 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
       {/* Image container */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden touch-none relative"
+        className="flex items-center justify-center overflow-hidden touch-none relative"
+        onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -338,6 +339,7 @@ export default function ProductPreviewModal({
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -355,8 +357,20 @@ export default function ProductPreviewModal({
     }
   };
 
+  // Update ref whenever showFullScreenImage changes
   useEffect(() => {
-    const handler = () => onClose();
+    fullScreenImageRef.current = showFullScreenImage;
+  }, [showFullScreenImage]);
+
+  useEffect(() => {
+    const handler = () => {
+      // If full screen image is open, close it instead of closing the preview
+      if (fullScreenImageRef.current) {
+        setShowFullScreenImage(false);
+      } else {
+        onClose();
+      }
+    };
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
   }, [onClose]);
@@ -509,21 +523,6 @@ export default function ProductPreviewModal({
               transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
             })}
           >
-            {/* Top Bar */}
-            {tab !== "catalogue2" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit}
-              </div>
-            )}
 
             {/* Image Section - Click to open full screen */}
             <div
@@ -648,21 +647,19 @@ export default function ProductPreviewModal({
               </div>
             </div>
 
-            {/* Bottom Bar */}
-            {tab !== "catalogue1" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
-              </div>
-            )}
+            {/* Bottom Bar - Show price based on catalogue, default to price 1 */}
+            <div
+              style={{
+                backgroundColor: product.bgColor || "#add8e6",
+                color: product.fontColor || "white",
+                padding: "8px",
+                textAlign: "center",
+                fontWeight: "normal",
+                fontSize: 19,
+              }}
+            >
+              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{tab === "catalogue2" ? product.resell : product.wholesale} {tab === "catalogue2" ? product.resellUnit : product.wholesaleUnit}
+            </div>
 
             {/* Action Buttons */}
             {tab === "products" && (

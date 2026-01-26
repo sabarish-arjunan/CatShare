@@ -324,7 +324,16 @@ export async function saveRenderedImage(product, type, units = {}) {
 
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
     const filename = `product_${id}_${type}.png`;
-    const folder = type === "wholesale" ? "Wholesale" : "Resell";
+
+    // Use catalogueId if provided, otherwise fall back to legacy type mapping
+    let folder;
+    if (units.catalogueId) {
+      // New catalogue system: use catalogue ID to create folder name
+      folder = units.catalogueId;
+    } else {
+      // Legacy support: map old types to folder names
+      folder = type === "wholesale" ? "Wholesale" : type === "resell" ? "Resell" : type;
+    }
 
     await Filesystem.writeFile({
       path: `${folder}/${filename}`,

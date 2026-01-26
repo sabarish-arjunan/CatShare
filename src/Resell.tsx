@@ -15,6 +15,8 @@ export default function ResellTab({
   setSelected,
   getLighterColor,
   imageMap,
+  catalogueLabel,
+  onBack,
 }) {
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -330,7 +332,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   return (
     <>
     <div className="fixed top-0 left-1/2 -translate-x-1/2 w-screen h-[40px] bg-black z-50" />
-    <header className="fixed left-1/2 -translate-x-1/2 w-screen z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <header className="fixed top-[40px] left-1/2 -translate-x-1/2 w-screen z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Menu Button */}
   <AnimatePresence mode="wait" initial={false}>
   {!showSearch && (
@@ -383,17 +385,26 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   {/* Center Title (hidden while searching) */}
   {!showSearch && !selectMode && (
-    <h1
-  className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
-  onClick={() => {
-    setSelectMode(false);
-    setSelected([]);
-  }}
-  style={{ maxWidth: "50vw" }}
->
-  Catalogue 2
-</h1>
-
+    <div className="flex items-center gap-2">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0"
+        >
+          ←
+        </button>
+      )}
+      <h1
+    className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
+    onClick={() => {
+      setSelectMode(false);
+      setSelected([]);
+    }}
+    style={{ maxWidth: "50vw" }}
+  >
+    {catalogueLabel || "Catalogue"}
+  </h1>
+    </div>
   )}
 
   {/* Expanding Search Box (inline, smooth, fixed) */}

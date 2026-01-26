@@ -5,6 +5,8 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
 import Catalogue1Tab from "./Wholesale";
 import Catalogue2Tab from "./Resell";
+import CataloguesList from "./CataloguesList";
+import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
 import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
@@ -26,6 +28,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [tab, setTab] = useState("products");
+  const [selectedCatalogueInCataloguesTab, setSelectedCatalogueInCataloguesTab] = useState<string | null>(null);
+  const [showManageCatalogues, setShowManageCatalogues] = useState(false);
 
   // Initialize catalogues on component mount
   useEffect(() => {
@@ -117,7 +121,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       const list = filtered || products;
       const match = list.find((p) => p.id === id);
       if (match) {
-        setTab(tab || "products");
+        // Always use the passed tab value if provided
+        if (tab) {
+          setTab(tab);
+        }
         setPreviewList(list);
         setPreviewProduct(match);
       }
@@ -155,6 +162,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setTab(key);
     setSelected([]);
     setSearch("");
+    if (key === "catalogues") {
+      setSelectedCatalogueInCataloguesTab(null);
+    }
   };
 
   const toggleStock = async (id, field) => {
@@ -427,11 +437,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         </>
       )}
 
-      {tab !== "products" && (
-        <div className="sticky top-0 h-[40px] bg-black z-50"></div>
-      )}
 
-      <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${(tab === 'products' || tab === 'catalogues') ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}
@@ -637,39 +644,78 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           </div>
         )}
 
-        {catalogues.map((cat) => (
-          tab === cat.id && (
-            <div key={cat.id}>
-              {cat.id === "cat1" ? (
-                <Catalogue1Tab
-                  filtered={visible}
-                  selected={selected}
-                  setSelected={setSelected}
-                  getLighterColor={getLighterColor}
-                  imageMap={imageMap}
-                  catalogueId={cat.id}
-                  catalogueLabel={cat.label}
-                  priceField={cat.priceField}
-                  priceUnitField={cat.priceUnitField}
-                  stockField={cat.stockField}
-                />
-              ) : cat.id === "cat2" ? (
-                <Catalogue2Tab
-                  filtered={visible}
-                  selected={selected}
-                  setSelected={setSelected}
-                  getLighterColor={getLighterColor}
-                  imageMap={imageMap}
-                  catalogueId={cat.id}
-                  catalogueLabel={cat.label}
-                  priceField={cat.priceField}
-                  priceUnitField={cat.priceUnitField}
-                  stockField={cat.stockField}
-                />
-              ) : null}
-            </div>
-          )
-        ))}
+        {tab === "catalogues" && selectedCatalogueInCataloguesTab === null && (
+          <CataloguesList
+            catalogues={catalogues}
+            onSelectCatalogue={(catalogueId) => {
+              setSelectedCatalogueInCataloguesTab(catalogueId);
+            }}
+            imageMap={imageMap}
+            products={products}
+            onManageCatalogues={() => setShowManageCatalogues(true)}
+          />
+        )}
+
+        {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
+          <div className="relative -mx-4">
+            {/* Black bar for catalogues */}
+            <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+            {/* Render the selected catalogue */}
+            {(() => {
+              const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
+              if (!selectedCat) return null;
+
+              return (
+                <div key={selectedCat.id}>
+                  {selectedCat.id === "cat1" ? (
+                    <Catalogue1Tab
+                      filtered={visible}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    />
+                  ) : selectedCat.id === "cat2" ? (
+                    <Catalogue2Tab
+                      filtered={visible}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    />
+                  ) : (
+                    /* For custom catalogues, use Wholesale component */
+                    <Catalogue1Tab
+                      filtered={visible}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    />
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {previewProduct && (
           <ProductPreviewModal
@@ -705,22 +751,20 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           Products
         </button>
 
-        {/* Dynamic catalogue tabs */}
-        {catalogues.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={async () => {
-              await Haptics.impact({ style: ImpactStyle.Light });
-              handleTabChange(cat.id);
-            }}
-            className={`flex-1 py-3.5 text-center transition-all truncate px-1 ${
-              tab === cat.id ? "bg-blue-500 text-white" : "bg-white text-gray-600"
-            }`}
-            title={cat.label}
-          >
-            {cat.label}
-          </button>
-        ))}
+        {/* Catalogues tab */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            handleTabChange("catalogues");
+          }}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            tab === "catalogues"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-gray-600"
+          }`}
+        >
+          Catalogues
+        </button>
       </nav>
 
       <button
@@ -757,6 +801,22 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       {showTutorial && (
         <Tutorial onClose={() => setShowTutorial(false)} />
+      )}
+
+      {showManageCatalogues && (
+        <ManageCatalogues
+          onClose={() => {
+            setShowManageCatalogues(false);
+            // Refresh catalogues after management
+            const updated = getAllCatalogues();
+            setCatalogues(updated);
+          }}
+          onCataloguesChanged={(newCatalogues) => {
+            setCatalogues(newCatalogues);
+          }}
+          products={products}
+          setProducts={setProducts}
+        />
       )}
     </div>
   );
