@@ -7,6 +7,7 @@ import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
+import { getCatalogueData } from "./config/catalogueProductUtils";
 
 
 export default function WholesaleTab({
@@ -16,6 +17,9 @@ export default function WholesaleTab({
   getLighterColor,
   imageMap,
   catalogueLabel,
+  catalogueId,
+  priceField,
+  priceUnitField,
   onBack,
 }) {
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
