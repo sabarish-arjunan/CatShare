@@ -186,8 +186,9 @@ function AppWithBackHandler() {
     let removeListener: any;
     CapacitorApp.addListener("backButton", () => {
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
-      const modalOpen = document.querySelector(".fixed.z-50");
-      if (fullScreenImageOpen || modalOpen) {
+      // Check for product preview modal backdrop (backdrop-blur-xl with z-50)
+      const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
+      if (fullScreenImageOpen || previewModalOpen) {
         window.dispatchEvent(new CustomEvent("close-preview"));
       } else if (location.pathname !== "/") {
         navigate(-1);

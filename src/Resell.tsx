@@ -24,6 +24,7 @@ export default function ResellTab({
   catalogueId,
   priceField,
   priceUnitField,
+  stockField,
   onBack,
 }) {
   // Helper function to get catalogue-specific data for a product
@@ -361,8 +362,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <div className="fixed top-0 left-1/2 -translate-x-1/2 w-screen h-[40px] bg-black z-50" />
-    <header className="fixed top-[40px] left-1/2 -translate-x-1/2 w-screen z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Menu Button */}
   <AnimatePresence mode="wait" initial={false}>
   {!showSearch && (
@@ -723,7 +723,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="fixed inset-x-0 bottom-0 overflow-y-auto px-0 pb-28" style={{ top: "calc(40px + 56px)" }}>
+<div className="px-0 pb-28">
       {/* Grid */}
       <div
         id="capture-area"

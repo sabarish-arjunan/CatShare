@@ -518,8 +518,9 @@ export default function ProductPreviewModal({
   return (
     <>
       <div
-        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50"
+        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50 pointer-events-auto"
         onClick={onClose}
+        role="presentation"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
