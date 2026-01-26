@@ -27,6 +27,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [tab, setTab] = useState("products");
+  const [selectedCatalogueInCataloguesTab, setSelectedCatalogueInCataloguesTab] = useState<string | null>(null);
 
   // Initialize catalogues on component mount
   useEffect(() => {
