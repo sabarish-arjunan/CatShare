@@ -310,12 +310,23 @@ export default function CreateProduct() {
       const product = products.find((p) => p.id === editingId);
       if (product) {
         setFormData({
-          ...product,
+          id: product.id || "",
+          name: product.name || "",
+          subtitle: product.subtitle || "",
+          field1: product.field1 || "",
+          field2: product.field2 || "",
+          field3: product.field3 || "",
+          price1: product.price1 || "",
+          price2: product.price2 || "",
+          stock: product.stock !== undefined ? product.stock : true,
+          wholesaleStock: product.wholesaleStock !== undefined ? product.wholesaleStock : true,
+          resellStock: product.resellStock !== undefined ? product.resellStock : true,
           category: Array.isArray(product.category)
             ? product.category
             : product.category
             ? [product.category]
             : [],
+          badge: product.badge || "",
         });
         setOverrideColor(product.bgColor || "#d1b3c4");
         setFontColor(product.fontColor || "white");
