@@ -22,6 +22,22 @@ export default function ResellTab({
   priceUnitField,
   onBack,
 }) {
+  // Helper function to get catalogue-specific data for a product
+  const getProductCatalogueData = (product) => {
+    if (!catalogueId) return product; // Fallback to product if no catalogueId
+    const catData = getCatalogueData(product, catalogueId);
+    return {
+      ...product,
+      field1: catData.field1 || product.field1 || product.color || "",
+      field2: catData.field2 || product.field2 || product.package || "",
+      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
+      field3: catData.field3 || product.field3 || product.age || "",
+      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
+      price1: catData.price1 || product.price1 || product.wholesale || "",
+      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+    };
+  };
+
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [allCategories, setAllCategories] = useState([]);
