@@ -72,13 +72,29 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
+  // Get catalogue-specific data if catalogueId is provided
+  let catalogueData = product;
+  if (units.catalogueId) {
+    const catData = getCatalogueData(product, units.catalogueId);
+    catalogueData = {
+      ...product,
+      field1: catData.field1 || product.field1 || product.color || "",
+      field2: catData.field2 || product.field2 || product.package || "",
+      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
+      field3: catData.field3 || product.field3 || product.age || "",
+      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
+      price1: catData.price1 || product.price1 || product.wholesale || "",
+      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+    };
+  }
+
   // Support both legacy and dynamic catalogue parameters
   const priceField = units.priceField || (type === "resell" ? "price2" : type === "wholesale" ? "price1" : type);
   const priceUnitField = units.priceUnitField || (type === "resell" ? "price2Unit" : type === "wholesale" ? "price1Unit" : `${type}Unit`);
 
-  // Get price from product using dynamic field
-  const price = product[priceField] !== undefined ? product[priceField] : product[priceField.replace(/\d/g, '')] || 0;
-  const priceUnit = units[priceUnitField] || product[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
+  // Get price from catalogueData using dynamic field
+  const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
+  const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
   const priceBar = document.createElement("h2");
   Object.assign(priceBar.style, {
