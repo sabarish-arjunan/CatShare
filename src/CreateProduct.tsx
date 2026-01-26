@@ -803,15 +803,15 @@ setTimeout(async () => {
 
                 <div className="flex gap-2 mb-2">
                   <input
-                    name="price1"
-                    value={getCatalogueFormData().price1 || ""}
+                    name={getSelectedCataloguePriceField()}
+                    value={getSelectedCataloguePrice()}
                     onChange={handleChange}
                     placeholder="Price"
                     className="border p-2 w-full rounded"
                   />
                   <select
-                    name="price1Unit"
-                    value={getCatalogueFormData().price1Unit || "/ piece"}
+                    name={getSelectedCataloguePriceUnitField()}
+                    value={getSelectedCataloguePriceUnit()}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
