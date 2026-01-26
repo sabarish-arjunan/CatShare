@@ -832,8 +832,8 @@ onMouseLeave={handleTouchEnd}
                     lineHeight: 1.2,
                   }}
                 >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price1}{" "}
-                  {getProductCatalogueData(p).price1Unit}
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
+                  {getProductCatalogueData(p).priceUnit}
                 </h2>
 
                 <div
