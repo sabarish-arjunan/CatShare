@@ -286,6 +286,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
       <div
         ref={containerRef}
         className="w-full h-full flex items-center justify-center overflow-hidden touch-none relative"
+        onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
