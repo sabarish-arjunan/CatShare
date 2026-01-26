@@ -818,7 +818,7 @@ export default function Retail({ products = [] }) {
                       {/* Preview */}
                       <div id="catalogue-preview" className="mt-6 border rounded shadow overflow-hidden" style={{ maxWidth: 330, width: '100%' }}>
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.wholesale} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price1 || editingProduct.wholesale} / piece
                         </div>
 
                         {imagePreview && (
