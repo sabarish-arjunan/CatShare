@@ -767,16 +767,18 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         </button>
       </nav>
 
-      <button
-        onClick={async () => {
-          await Haptics.impact({ style: ImpactStyle.Medium });
-          navigate("/create");
-        }}
-        className="fixed right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
-      >
-        <FiPlus size={24} />
-      </button>
+      {tab === "products" && (
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Medium });
+            navigate("/create");
+          }}
+          className="fixed right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+        >
+          <FiPlus size={24} />
+        </button>
+      )}
 
       <SideDrawer
         open={menuOpen}
