@@ -498,8 +498,11 @@ export default function ProductPreviewModal({
 
   // Get catalogue data based on which tab is being viewed
   const getCatalogueIdFromTab = () => {
+    // Handle legacy tab names
     if (tab === "catalogue1") return "cat1";
     if (tab === "catalogue2") return "cat2";
+    // Handle direct catalogue IDs (cat1, cat2, cat3, etc.)
+    if (tab && tab.startsWith("cat")) return tab;
     // For products tab, default to cat1
     return "cat1";
   };
