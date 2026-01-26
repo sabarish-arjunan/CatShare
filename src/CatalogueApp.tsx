@@ -504,22 +504,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                 <MdInventory2 className="text-[18px]" />
                               </button>
 
-                              <button
-                                onClick={() => handleStockToggleRequest(p.id, "wholesaleStock")}
-                                className={`text-xs font-semibold px-2 py-1 rounded ${
-                                  p.wholesaleStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
-                                }`}
-                              >
-                                {p.wholesaleStock ? "C1 In" : "C1 Out"}
-                              </button>
-                              <button
-                                onClick={() => handleStockToggleRequest(p.id, "resellStock")}
-                                className={`text-xs font-semibold px-2 py-1 rounded ${
-                                  p.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
-                                }`}
-                              >
-                                {p.resellStock ? "C2 In" : "C2 Out"}
-                              </button>
+                              {catalogues.map((cat) => (
+                                <button
+                                  key={cat.id}
+                                  onClick={() => handleStockToggleRequest(p.id, cat.stockField)}
+                                  className={`text-xs font-semibold px-2 py-1 rounded ${
+                                    (p as any)[cat.stockField]
+                                      ? "bg-green-600 text-white"
+                                      : "bg-gray-300 text-gray-700"
+                                  }`}
+                                >
+                                  {(p as any)[cat.stockField] ? `${cat.label.slice(0, 1)} In` : `${cat.label.slice(0, 1)} Out`}
+                                </button>
+                              ))}
                             </div>
                           </div>
                         </div>
