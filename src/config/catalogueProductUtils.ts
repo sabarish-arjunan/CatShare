@@ -70,35 +70,46 @@ export function initializeCatalogueData(product?: ProductWithCatalogueData): Rec
 
 /**
  * Get catalogue data for a specific catalogue
- * Falls back to cat1 data if the catalogue doesn't have specific data
+ * Falls back to default values if the catalogue doesn't have specific data
  */
 export function getCatalogueData(product: ProductWithCatalogueData, catalogueId: string): CatalogueData {
   if (!product.catalogueData) {
-    return initializeCatalogueData(product)[catalogueId] || {};
+    return initializeCatalogueData(product)[catalogueId] || getDefaultCatalogueData(catalogueId);
   }
 
   const data = product.catalogueData[catalogueId];
-  
-  // If not found, return empty but enabled
+
+  // If not found, return defaults for this catalogue
   if (!data) {
-    return {
-      enabled: catalogueId === 'cat1',
-      field1: "",
-      field2: "",
-      field3: "",
-      price1: "",
-      price1Unit: "/ piece",
-      price2: "",
-      price2Unit: "/ piece",
-      field2Unit: "pcs / set",
-      field3Unit: "months",
-      stock: true,
-      wholesaleStock: true,
-      resellStock: true,
-    };
+    return getDefaultCatalogueData(catalogueId);
   }
 
-  return data;
+  // Ensure all required fields exist by merging with defaults
+  return {
+    ...getDefaultCatalogueData(catalogueId),
+    ...data
+  };
+}
+
+/**
+ * Get default catalogue data structure
+ */
+export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
+  return {
+    enabled: catalogueId === 'cat1',
+    field1: "",
+    field2: "",
+    field3: "",
+    price1: "",
+    price1Unit: "/ piece",
+    price2: "",
+    price2Unit: "/ piece",
+    field2Unit: "pcs / set",
+    field3Unit: "months",
+    stock: true,
+    wholesaleStock: true,
+    resellStock: true,
+  };
 }
 
 /**
