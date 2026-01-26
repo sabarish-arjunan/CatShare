@@ -151,6 +151,7 @@ const { showToast } = useToast();
 
 const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
+  const cataloguesDefinition = getCataloguesDefinition();
   const zip = new JSZip();
 
   const dataForJson = [];
@@ -203,7 +204,12 @@ const handleBackup = async () => {
     deletedForJson.push(product);
   }
 
-  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted: deletedForJson }, null, 2));
+  // Include catalogues definition in backup
+  zip.file("catalogue-data.json", JSON.stringify({
+    products: dataForJson,
+    deleted: deletedForJson,
+    cataloguesDefinition
+  }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
   const reader = new FileReader();
