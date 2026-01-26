@@ -398,6 +398,30 @@ export default function CreateProduct() {
     });
   };
 
+  // Get the price field name for the selected catalogue
+  const getSelectedCataloguePriceField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceField || "price1";
+  };
+
+  // Get the price unit field name for the selected catalogue
+  const getSelectedCataloguePriceUnitField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceUnitField || "price1Unit";
+  };
+
+  // Get the price value for the selected catalogue
+  const getSelectedCataloguePrice = () => {
+    const priceField = getSelectedCataloguePriceField();
+    return getCatalogueFormData()[priceField] || "";
+  };
+
+  // Get the price unit value for the selected catalogue
+  const getSelectedCataloguePriceUnit = () => {
+    const priceUnitField = getSelectedCataloguePriceUnitField();
+    return getCatalogueFormData()[priceUnitField] || "/ piece";
+  };
+
   const handleSelectImage = async () => {
     const defaultFolder = "Phone/Pictures/Photoroom";
     const folder = localStorage.getItem("lastUsedFolder") || defaultFolder;
