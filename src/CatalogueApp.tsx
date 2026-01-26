@@ -670,6 +670,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                   {selectedCat.id === "cat1" ? (
                     <Catalogue1Tab
                       filtered={visible}
+                      allProducts={products}
+                      setProducts={setProducts}
                       selected={selected}
                       setSelected={setSelected}
                       getLighterColor={getLighterColor}
@@ -684,6 +686,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                   ) : selectedCat.id === "cat2" ? (
                     <Catalogue2Tab
                       filtered={visible}
+                      allProducts={products}
+                      setProducts={setProducts}
                       selected={selected}
                       setSelected={setSelected}
                       getLighterColor={getLighterColor}
@@ -699,6 +703,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                     /* For custom catalogues, use Wholesale component */
                     <Catalogue1Tab
                       filtered={visible}
+                      allProducts={products}
+                      setProducts={setProducts}
                       selected={selected}
                       setSelected={setSelected}
                       getLighterColor={getLighterColor}
