@@ -40,6 +40,19 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [lastTouchDistance, setLastTouchDistance] = useState(0);
 
+  // Handle back button in full screen image viewer
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClosePreview = (e) => {
+      e.stopImmediatePropagation();
+      onClose();
+    };
+
+    window.addEventListener("close-preview", handleClosePreview, true);
+    return () => window.removeEventListener("close-preview", handleClosePreview, true);
+  }, [isOpen, onClose]);
+
   // Reset transform when image changes
   useEffect(() => {
     if (isOpen) {
