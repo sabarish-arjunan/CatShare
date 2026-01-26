@@ -15,6 +15,7 @@ import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "./config/catalogueConfig";
+import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 
 
 export default function SideDrawer({
@@ -339,6 +340,10 @@ const exportProductsToCSV = (products) => {
       );
 
       setProducts(rebuilt);
+      localStorage.setItem("products", JSON.stringify(rebuilt));
+
+      // Run migrations to ensure all products have required fields (price1Unit, price2Unit, etc.)
+      ensureProductsHaveStockFields();
 
       const categories = Array.from(
         new Set(
