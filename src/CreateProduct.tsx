@@ -183,8 +183,8 @@ export default function CreateProduct() {
     field1: "", // Colour
     field2: "", // Package
     field3: "", // Age Group
-    wholesale: "",
-    resell: "",
+    price1: "", // Price 1 (wholesale)
+    price2: "", // Price 2 (resell)
     stock: true,
     wholesaleStock: true,
     resellStock: true,
