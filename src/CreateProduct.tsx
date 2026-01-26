@@ -574,8 +574,8 @@ setTimeout(async () => {
             className="border p-2 rounded w-full mb-2"
           />
           <input
-            name="color"
-            value={formData.color}
+            name="field1"
+            value={formData.field1}
             onChange={handleChange}
             placeholder="Colour"
             className="border p-2 rounded w-full mb-2"
@@ -583,8 +583,8 @@ setTimeout(async () => {
 
           <div className="flex gap-2 mb-2">
             <input
-              name="package"
-              value={formData.package}
+              name="field2"
+              value={formData.field2}
               onChange={handleChange}
               placeholder="Package"
               className="border p-2 w-full rounded"
@@ -602,8 +602,8 @@ setTimeout(async () => {
 
           <div className="flex gap-2 mb-2">
             <input
-              name="age"
-              value={formData.age}
+              name="field3"
+              value={formData.field3}
               onChange={handleChange}
               placeholder="Age Group"
               className="border p-2 w-full rounded"
