@@ -382,7 +382,10 @@ export default function CreateProduct() {
   // Toggle catalogue enabled state
   const toggleCatalogueEnabled = (catalogueId: string) => {
     setFormData((prev) => {
-      const updated = { ...prev };
+      const updated = {
+        ...prev,
+        catalogueData: { ...prev.catalogueData }
+      };
       const currentlyEnabled = isProductEnabledForCatalogue(prev, catalogueId);
       setProductEnabledForCatalogue(updated, catalogueId, !currentlyEnabled);
       return updated;
