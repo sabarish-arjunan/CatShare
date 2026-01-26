@@ -157,6 +157,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setTab(key);
     setSelected([]);
     setSearch("");
+    if (key === "catalogues") {
+      setSelectedCatalogueInCataloguesTab(null);
+    }
   };
 
   const toggleStock = async (id, field) => {
