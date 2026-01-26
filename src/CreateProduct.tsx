@@ -315,34 +315,29 @@ export default function CreateProduct() {
       const product = products.find((p) => p.id === editingId);
       if (product) {
         // Migrate product in case it has old field names from backup
-        const migratedProduct = migrateProductToNewFormat(product);
+        const migratedProduct = migrateProductToNewFormat(product) as ProductWithCatalogueData;
+
+        // Initialize catalogue data if not present
+        if (!migratedProduct.catalogueData) {
+          migratedProduct.catalogueData = initializeCatalogueData(migratedProduct);
+        }
 
         setFormData({
           id: migratedProduct.id || "",
           name: migratedProduct.name || "",
           subtitle: migratedProduct.subtitle || "",
-          field1: getProductFieldValue(migratedProduct, 'field1') || "",
-          field2: getProductFieldValue(migratedProduct, 'field2') || "",
-          field3: getProductFieldValue(migratedProduct, 'field3') || "",
-          price1: getProductFieldValue(migratedProduct, 'price1') || "",
-          price2: getProductFieldValue(migratedProduct, 'price2') || "",
-          stock: migratedProduct.stock !== undefined ? migratedProduct.stock : true,
-          wholesaleStock: migratedProduct.wholesaleStock !== undefined ? migratedProduct.wholesaleStock : true,
-          resellStock: migratedProduct.resellStock !== undefined ? migratedProduct.resellStock : true,
           category: Array.isArray(migratedProduct.category)
             ? migratedProduct.category
             : migratedProduct.category
             ? [migratedProduct.category]
             : [],
           badge: migratedProduct.badge || "",
+          catalogueData: migratedProduct.catalogueData,
         });
+
         setOverrideColor(migratedProduct.bgColor || "#d1b3c4");
         setFontColor(migratedProduct.fontColor || "white");
         setImageBgOverride(migratedProduct.imageBgColor || "white");
-        setPrice1Unit(getProductUnitValue(migratedProduct, 'price1') || "/ piece");
-        setPrice2Unit(getProductUnitValue(migratedProduct, 'price2') || "/ piece");
-        setPackageUnit(getProductUnitValue(migratedProduct, 'field2') || "pcs / set");
-        setAgeGroupUnit(getProductUnitValue(migratedProduct, 'field3') || "months");
 
         if (migratedProduct.image && migratedProduct.image.startsWith("data:image")) {
           setImagePreview(migratedProduct.image);
@@ -356,6 +351,12 @@ export default function CreateProduct() {
           });
         }
       }
+    } else {
+      // New product: initialize empty catalogue data
+      setFormData((prev) => ({
+        ...prev,
+        catalogueData: initializeCatalogueData(),
+      }));
     }
   }, [editingId]);
 
