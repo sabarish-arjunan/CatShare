@@ -153,10 +153,11 @@ export function setProductEnabledForCatalogue(
   }
 
   if (!product.catalogueData[catalogueId]) {
-    product.catalogueData[catalogueId] = { enabled };
-  } else {
-    product.catalogueData[catalogueId].enabled = enabled;
+    // Initialize with full default structure
+    product.catalogueData[catalogueId] = getDefaultCatalogueData(catalogueId);
   }
+
+  product.catalogueData[catalogueId].enabled = enabled;
 
   return product;
 }
