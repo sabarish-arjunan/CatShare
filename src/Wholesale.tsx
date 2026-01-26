@@ -362,36 +362,87 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <div className="sticky top-0 h-[40px] bg-black z-50"></div>
-    <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Menu Button */}
-  <button
-    onClick={() => window.dispatchEvent(new Event("toggle-menu"))}
-    className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 transition-opacity duration-200"
-    aria-label="Menu"
-    title="Menu"
-  >
-    <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(-8px)' }} />
-    <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(0px)' }} />
-    <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(8px)' }} />
-  </button>
-
-  {/* Center Title */}
+  <AnimatePresence mode="wait" initial={false}>
   {!showSearch && (
-    <h1
-      className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200 flex items-center justify-center leading-none"
+    <motion.button
+      key="menu-x-toggle"
       onClick={() => {
         if (selectMode) {
           setSelectMode(false);
           setSelected([]);
+        } else {
+          window.dispatchEvent(new Event("toggle-menu"));
         }
       }}
+      className="relative w-8 h-8 shrink-0 flex items-center justify-center"
+      title={selectMode ? "Exit Selection" : "Menu"}
     >
-      <span className="inline-flex items-center justify-center gap-2">
-        <img src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded object-contain shrink-0" />
-        <span>CatShare</span>
-      </span>
-    </h1>
+      {/* Top Line */}
+      <motion.span
+        className="absolute w-6 h-0.5 bg-gray-700"
+        initial={false}
+        animate={{
+          rotate: selectMode ? 45 : 0,
+          y: selectMode ? 0 : -8,
+        }}
+        transition={{ duration: 0.2 }}
+      />
+      {/* Middle Line */}
+      <motion.span
+        className="absolute w-6 h-0.5 bg-gray-700"
+        initial={false}
+        animate={{
+          opacity: selectMode ? 0 : 1,
+        }}
+        transition={{ duration: 0.2 }}
+      />
+      {/* Bottom Line */}
+      <motion.span
+        className="absolute w-6 h-0.5 bg-gray-700"
+        initial={false}
+        animate={{
+          rotate: selectMode ? -45 : 0,
+          y: selectMode ? 0 : 8,
+        }}
+        transition={{ duration: 0.2 }}
+      />
+    </motion.button>
+  )}
+</AnimatePresence>
+
+
+  {/* Center Title (hidden while searching) */}
+  {!showSearch && !selectMode && (
+    <div className="flex items-center gap-2">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0"
+        >
+          ←
+        </button>
+      )}
+      <h1
+    className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
+    onClick={() => {
+      setSelectMode(false);
+      setSelected([]);
+    }}
+    style={{ maxWidth: "50vw" }}
+  >
+    {catalogueLabel || "Catalogue"}
+  </h1>
+      <button
+        onClick={() => setShowAddProductsModal(true)}
+        className="ml-auto text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0 px-2 py-1 hover:bg-blue-50 rounded"
+        title="Add products to this catalogue"
+      >
+        <FiPlus size={16} />
+        Add
+      </button>
+    </div>
   )}
 
   {/* Expanding Search Box (inline, smooth, fixed) */}
