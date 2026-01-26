@@ -46,28 +46,41 @@ export default function CataloguesList({
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
-      <div className="space-y-3 pt-[40px]">
-        <div className="px-4 py-3">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold text-gray-800">
-            All Catalogues
-          </h2>
-          <button
-            onClick={async () => {
-              await Haptics.impact({ style: ImpactStyle.Light });
-              onManageCatalogues();
-            }}
-            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-            title="Add, edit, or delete catalogues"
-          >
-            Manage
-          </button>
-        </div>
-        <p className="text-sm text-gray-500">
-          Tap a catalogue to view and manage its products
-        </p>
-      </div>
+      <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+      <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+        {/* Menu Button */}
+        <button
+          onClick={() => window.dispatchEvent(new Event("toggle-menu"))}
+          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 transition-opacity duration-200"
+          aria-label="Menu"
+          title="Menu"
+        >
+          <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(-8px)' }} />
+          <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(0px)' }} />
+          <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(8px)' }} />
+        </button>
+
+        {/* Title */}
+        <h1 className="text-lg font-semibold text-gray-800">
+          All Catalogues
+        </h1>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Manage Button */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            onManageCatalogues();
+          }}
+          className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shrink-0"
+          title="Add, edit, or delete catalogues"
+        >
+          Manage
+        </button>
+      </header>
+      <div className="space-y-3">
 
       {catalogues.length === 0 ? (
         <div className="text-center py-12">

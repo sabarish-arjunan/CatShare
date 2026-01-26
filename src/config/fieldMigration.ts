@@ -15,10 +15,14 @@ import {
 } from './fieldConfig';
 
 interface LegacyProduct {
+  id?: string;
+  name?: string;
   [key: string]: any;
 }
 
 interface MigratedProduct {
+  id?: string;
+  name?: string;
   [key: string]: any;
 }
 

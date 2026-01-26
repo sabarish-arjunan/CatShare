@@ -121,8 +121,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       const list = filtered || products;
       const match = list.find((p) => p.id === id);
       if (match) {
-        // Always use the passed tab value if provided
-        if (tab) {
+        // Only set tab if it's a valid tab value (products or catalogues)
+        // Ignore catalogue IDs passed from within catalogue views
+        if (tab && (tab === "products" || tab === "catalogues")) {
           setTab(tab);
         }
         setPreviewList(list);
