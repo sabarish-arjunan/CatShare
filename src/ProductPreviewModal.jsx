@@ -356,10 +356,15 @@ export default function ProductPreviewModal({
     }
   };
 
+  // Update ref whenever showFullScreenImage changes
+  useEffect(() => {
+    fullScreenImageRef.current = showFullScreenImage;
+  }, [showFullScreenImage]);
+
   useEffect(() => {
     const handler = () => {
       // If full screen image is open, close it instead of closing the preview
-      if (showFullScreenImage) {
+      if (fullScreenImageRef.current) {
         setShowFullScreenImage(false);
       } else {
         onClose();
@@ -367,7 +372,7 @@ export default function ProductPreviewModal({
     };
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
-  }, [onClose, showFullScreenImage]);
+  }, [onClose]);
 
   useEffect(() => {
     const esc = (e) => e.key === "Escape" && onClose();
