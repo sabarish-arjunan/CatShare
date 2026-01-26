@@ -16,6 +16,7 @@ import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
+import { migrateProductToNewFormat } from "./config/fieldMigration";
 
 
 export default function SideDrawer({
