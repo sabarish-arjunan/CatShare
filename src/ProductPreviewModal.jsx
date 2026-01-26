@@ -646,21 +646,19 @@ export default function ProductPreviewModal({
               </div>
             </div>
 
-            {/* Bottom Bar */}
-            {tab !== "catalogue1" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
-              </div>
-            )}
+            {/* Bottom Bar - Show price based on catalogue, default to price 1 */}
+            <div
+              style={{
+                backgroundColor: product.bgColor || "#add8e6",
+                color: product.fontColor || "white",
+                padding: "8px",
+                textAlign: "center",
+                fontWeight: "normal",
+                fontSize: 19,
+              }}
+            >
+              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{tab === "catalogue2" ? product.resell : product.wholesale} {tab === "catalogue2" ? product.resellUnit : product.wholesaleUnit}
+            </div>
 
             {/* Action Buttons */}
             {tab === "products" && (
