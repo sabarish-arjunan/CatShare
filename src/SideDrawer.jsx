@@ -68,46 +68,38 @@ const { showToast } = useToast();
     const zip = new JSZip();
     let hasImages = false;
 
-    // Try to read Wholesale folder
-    try {
-      const wholesaleFiles = await Filesystem.readdir({
-        path: "Wholesale",
-        directory: Directory.External,
-      });
+    // Get all catalogues dynamically
+    const catalogues = getAllCatalogues();
 
-      for (const file of wholesaleFiles.files) {
-        if (file.name.endsWith(".png")) {
-          const fileData = await Filesystem.readFile({
-            path: `Wholesale/${file.name}`,
-            directory: Directory.External,
-          });
-          zip.file(`Wholesale/${file.name}`, fileData.data, { base64: true });
-          hasImages = true;
+    // Also check for legacy folders for backward compatibility
+    const foldersToCheck = [
+      ...catalogues.map(cat => cat.id),
+      "Wholesale", // Legacy support
+      "Resell"     // Legacy support
+    ];
+
+    // Try to read each catalogue folder
+    for (const folderName of foldersToCheck) {
+      try {
+        const files = await Filesystem.readdir({
+          path: folderName,
+          directory: Directory.External,
+        });
+
+        for (const file of files.files) {
+          if (file.name.endsWith(".png")) {
+            const fileData = await Filesystem.readFile({
+              path: `${folderName}/${file.name}`,
+              directory: Directory.External,
+            });
+            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+            hasImages = true;
+          }
         }
+      } catch (err) {
+        console.warn(`Could not read ${folderName} folder:`, err.message);
+        // Continue to next folder if this one doesn't exist
       }
-    } catch (err) {
-      console.warn("Could not read Wholesale folder:", err.message);
-    }
-
-    // Try to read Resell folder
-    try {
-      const resellFiles = await Filesystem.readdir({
-        path: "Resell",
-        directory: Directory.External,
-      });
-
-      for (const file of resellFiles.files) {
-        if (file.name.endsWith(".png")) {
-          const fileData = await Filesystem.readFile({
-            path: `Resell/${file.name}`,
-            directory: Directory.External,
-          });
-          zip.file(`Resell/${file.name}`, fileData.data, { base64: true });
-          hasImages = true;
-        }
-      }
-    } catch (err) {
-      console.warn("Could not read Resell folder:", err.message);
     }
 
     if (!hasImages) {
