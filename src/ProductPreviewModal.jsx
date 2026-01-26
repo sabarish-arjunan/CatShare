@@ -270,7 +270,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" data-fullscreen-image="true">
       {/* Header with close and share buttons */}
       <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
         <button
