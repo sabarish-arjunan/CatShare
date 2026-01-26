@@ -342,8 +342,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               {[
                 { label: "Original", value: "" },
                 { label: "A - Z", value: "name" },
-                { label: "Catalogue 1 IN", value: "wholesaleStock" },
-                { label: "Catalogue 2 IN", value: "resellStock" },
+                ...catalogues.map((cat) => ({
+                  label: `${cat.label} IN`,
+                  value: cat.stockField,
+                })),
               ].map((option) => (
                 <button
                   key={option.value}
