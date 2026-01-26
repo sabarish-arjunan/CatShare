@@ -15,6 +15,8 @@ export default function WholesaleTab({
   setSelected,
   getLighterColor,
   imageMap,
+  catalogueLabel,
+  onBack,
 }) {
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
   const [categoryFilter, setCategoryFilter] = useState("");
