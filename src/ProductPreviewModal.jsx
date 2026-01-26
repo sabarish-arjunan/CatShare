@@ -6,6 +6,8 @@ import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
+import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
