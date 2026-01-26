@@ -383,6 +383,24 @@ const exportProductsToCSV = (products) => {
         localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
       }
 
+      // Restore catalogues definition from backup
+      // If the backup doesn't have cataloguesDefinition (old backups), use defaults
+      if (parsed.cataloguesDefinition) {
+        setCataloguesDefinition(parsed.cataloguesDefinition);
+      } else {
+        // Backward compatibility: old backups don't have cataloguesDefinition
+        // Use the current one if it exists, otherwise use defaults
+        const currentCatalogues = getCataloguesDefinition();
+        if (!currentCatalogues || currentCatalogues.catalogues.length === 0) {
+          // If no catalogues exist, restore defaults
+          setCataloguesDefinition({
+            version: 1,
+            catalogues: DEFAULT_CATALOGUES,
+            lastUpdated: Date.now(),
+          });
+        }
+      }
+
       setShowRenderAfterRestore(true);
     } catch (err) {
       setBackupResult({
