@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
-import WholesaleTab from "./Wholesale";
-import ResellTab from "./Resell";
+import Catalogue1Tab from "./Wholesale";
+import Catalogue2Tab from "./Resell";
 import ProductPreviewModal from "./ProductPreviewModal";
 import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
@@ -150,7 +150,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   };
 
   const toggleStock = async (id, field) => {
-    const label = field === "wholesaleStock" ? "Wholesale Stock" : "Resell Stock";
+    const label = field === "wholesaleStock" ? "Catalogue 1 Stock" : "Catalogue 2 Stock";
     const confirm = window.confirm(`Do you want to update ${label} for this item?`);
     if (!confirm) return;
 
@@ -334,8 +334,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               {[
                 { label: "Original", value: "" },
                 { label: "A - Z", value: "name" },
-                { label: "Wholesale IN", value: "wholesaleStock" },
-                { label: "Resell IN", value: "resellStock" },
+                { label: "Catalogue 1 IN", value: "wholesaleStock" },
+                { label: "Catalogue 2 IN", value: "resellStock" },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -500,7 +500,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                   p.wholesaleStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
                                 }`}
                               >
-                                {p.wholesaleStock ? "WS In" : "WS Out"}
+                                {p.wholesaleStock ? "C1 In" : "C1 Out"}
                               </button>
                               <button
                                 onClick={() => handleStockToggleRequest(p.id, "resellStock")}
@@ -508,7 +508,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                   p.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
                                 }`}
                               >
-                                {p.resellStock ? "RS In" : "RS Out"}
+                                {p.resellStock ? "C2 In" : "C2 Out"}
                               </button>
                             </div>
                           </div>
@@ -622,8 +622,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           </div>
         )}
 
-        {tab === "wholesale" && (
-          <WholesaleTab
+        {tab === "catalogue1" && (
+          <Catalogue1Tab
             filtered={visible}
             selected={selected}
             setSelected={setSelected}
@@ -632,8 +632,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           />
         )}
 
-        {tab === "resell" && (
-          <ResellTab
+        {tab === "catalogue2" && (
+          <Catalogue2Tab
             filtered={visible}
             selected={selected}
             setSelected={setSelected}
@@ -663,8 +663,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex justify-around text-sm font-medium pb-[env(safe-area-inset-bottom,0px)]">
         {[
           { key: "products", label: "Products", color: "bg-blue-500 text-white" },
-          { key: "wholesale", label: "Wholesale", color: "bg-blue-500 text-white" },
-          { key: "resell", label: "Resell", color: "bg-blue-500 text-white" },
+          { key: "catalogue1", label: "Catalogue 1", color: "bg-blue-500 text-white" },
+          { key: "catalogue2", label: "Catalogue 2", color: "bg-blue-500 text-white" },
         ].map((t) => {
           const isActive = tab === t.key;
           return (
