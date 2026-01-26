@@ -311,39 +311,42 @@ export default function CreateProduct() {
       const products = JSON.parse(localStorage.getItem("products") || "[]");
       const product = products.find((p) => p.id === editingId);
       if (product) {
-        setFormData({
-          id: product.id || "",
-          name: product.name || "",
-          subtitle: product.subtitle || "",
-          field1: product.field1 || "",
-          field2: product.field2 || "",
-          field3: product.field3 || "",
-          price1: product.price1 || "",
-          price2: product.price2 || "",
-          stock: product.stock !== undefined ? product.stock : true,
-          wholesaleStock: product.wholesaleStock !== undefined ? product.wholesaleStock : true,
-          resellStock: product.resellStock !== undefined ? product.resellStock : true,
-          category: Array.isArray(product.category)
-            ? product.category
-            : product.category
-            ? [product.category]
-            : [],
-          badge: product.badge || "",
-        });
-        setOverrideColor(product.bgColor || "#d1b3c4");
-        setFontColor(product.fontColor || "white");
-        setImageBgOverride(product.imageBgColor || "white");
-        setPrice1Unit(product.price1Unit || product.wholesaleUnit || "/ piece");
-        setPrice2Unit(product.price2Unit || product.resellUnit || "/ piece");
-        setPackageUnit(product.field2Unit || product.packageUnit || "pcs / set");
-        setAgeGroupUnit(product.field3Unit || product.ageUnit || "months");
+        // Migrate product in case it has old field names from backup
+        const migratedProduct = migrateProductToNewFormat(product);
 
-        if (product.image && product.image.startsWith("data:image")) {
-          setImagePreview(product.image);
-        } else if (product.imagePath) {
-          setImageFilePath(product.imagePath);
+        setFormData({
+          id: migratedProduct.id || "",
+          name: migratedProduct.name || "",
+          subtitle: migratedProduct.subtitle || "",
+          field1: getProductFieldValue(migratedProduct, 'field1') || "",
+          field2: getProductFieldValue(migratedProduct, 'field2') || "",
+          field3: getProductFieldValue(migratedProduct, 'field3') || "",
+          price1: getProductFieldValue(migratedProduct, 'price1') || "",
+          price2: getProductFieldValue(migratedProduct, 'price2') || "",
+          stock: migratedProduct.stock !== undefined ? migratedProduct.stock : true,
+          wholesaleStock: migratedProduct.wholesaleStock !== undefined ? migratedProduct.wholesaleStock : true,
+          resellStock: migratedProduct.resellStock !== undefined ? migratedProduct.resellStock : true,
+          category: Array.isArray(migratedProduct.category)
+            ? migratedProduct.category
+            : migratedProduct.category
+            ? [migratedProduct.category]
+            : [],
+          badge: migratedProduct.badge || "",
+        });
+        setOverrideColor(migratedProduct.bgColor || "#d1b3c4");
+        setFontColor(migratedProduct.fontColor || "white");
+        setImageBgOverride(migratedProduct.imageBgColor || "white");
+        setPrice1Unit(getProductUnitValue(migratedProduct, 'price1') || "/ piece");
+        setPrice2Unit(getProductUnitValue(migratedProduct, 'price2') || "/ piece");
+        setPackageUnit(getProductUnitValue(migratedProduct, 'field2') || "pcs / set");
+        setAgeGroupUnit(getProductUnitValue(migratedProduct, 'field3') || "months");
+
+        if (migratedProduct.image && migratedProduct.image.startsWith("data:image")) {
+          setImagePreview(migratedProduct.image);
+        } else if (migratedProduct.imagePath) {
+          setImageFilePath(migratedProduct.imagePath);
           Filesystem.readFile({
-            path: product.imagePath,
+            path: migratedProduct.imagePath,
             directory: Directory.Data,
           }).then((res) => {
             setImagePreview(`data:image/png;base64,${res.data}`);
