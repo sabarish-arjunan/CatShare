@@ -1042,9 +1042,9 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field1}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field2} {packageUnit}</p>
-      <p>Age Group&nbsp;&nbsp;: {formData.field3} {ageGroupUnit}</p>
+      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field1}</p>
+      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit}</p>
+      <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
     </div>
   </div>
 
@@ -1058,7 +1058,7 @@ setTimeout(async () => {
       fontSize: 19,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price2} {price2Unit}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getCatalogueFormData().price2} {getCatalogueFormData().price2Unit}
   </div>
 </div>
 
