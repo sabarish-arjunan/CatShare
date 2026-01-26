@@ -71,8 +71,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
 
-  const priceUnit = type === "resell" ? units.resellUnit : units.wholesaleUnit;
-  const price = type === "resell" ? product.resell : product.wholesale;
+  const priceUnit = type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit);
+  const price = type === "resell" ? (product.price2 !== undefined ? product.price2 : product.resell) : (product.price1 !== undefined ? product.price1 : product.wholesale);
 
   const priceBar = document.createElement("h2");
   Object.assign(priceBar.style, {
