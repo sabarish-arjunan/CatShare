@@ -316,14 +316,17 @@ export default function Retail({ products = [] }) {
   const importSelected = () => {
     const toImport = products.filter((p) => selectedToPull.includes(p.id));
     const copies = toImport.map((p) => {
-      const wholesale = Number(p.wholesale || p.wholesalePrice || 0) || 0;
-      const retailPrice = Math.round(wholesale + (wholesale * markupPercent) / 100);
+      const price1 = Number(p.price1 || p.wholesale || p.wholesalePrice || 0) || 0;
+      const retailPrice = Math.round(price1 + (price1 * markupPercent) / 100);
       return {
         id: uuidv4(),
         sourceId: p.id,
         name: p.name || "",
         subtitle: p.subtitle || "",
-        wholesale: wholesale,
+        price1: price1,
+        price2: retailPrice,
+        // Keep old names for backward compatibility
+        wholesale: price1,
         retail: retailPrice,
         image: p.image || p.imagePath || "",
         imagePath: p.imagePath || (p.image && typeof p.image === 'string' && (p.image.startsWith('retail/') || p.image.startsWith('catalogue/')) ? p.image : undefined),
