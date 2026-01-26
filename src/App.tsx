@@ -152,6 +152,11 @@ function AppWithBackHandler() {
     initializeFieldSystem();
   }, []);
 
+  // Initialize catalogue system with data migration
+  useEffect(() => {
+    runMigrations();
+  }, []);
+
   // Initialize watermark settings with defaults on first load
   useEffect(() => {
     const showWatermark = localStorage.getItem("showWatermark");
