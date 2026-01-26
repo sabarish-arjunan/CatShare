@@ -5,9 +5,9 @@ import { useToast } from "./context/ToastContext";
 const FIELD_OPTIONS = [
   { key: "name", label: "Name" },
   { key: "subtitle", label: "Subtitle" },
-  { key: "color", label: "Color" },
-  { key: "package", label: "Package" },
-  { key: "age", label: "Age Group" },
+  { key: "field1", label: "Colour" },
+  { key: "field2", label: "Package" },
+  { key: "field3", label: "Age Group" },
   { key: "wholesale", label: "Wholesale Price" },
   { key: "resell", label: "Resell Price" },
   { key: "badge", label: "Badge" },
