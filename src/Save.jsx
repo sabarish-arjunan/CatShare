@@ -165,7 +165,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       border: `1px solid ${badgeBorder}`,
       letterSpacing: "0.5px",
     });
-    badge.innerText = product.badge.toUpperCase();
+    badge.innerText = catalogueData.badge.toUpperCase();
     imageWrap.appendChild(badge);
   }
 
