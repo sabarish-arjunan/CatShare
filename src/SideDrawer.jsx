@@ -382,7 +382,11 @@ const exportProductsToCSV = (products) => {
             const clean = { ...p };
             delete clean.imageBase64;
             delete clean.imageFilename;
-            return clean;
+
+            // Migrate old field names to new field names
+            const migrated = migrateProductToNewFormat(clean);
+
+            return migrated;
           })
         );
 
