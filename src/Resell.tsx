@@ -7,7 +7,7 @@ import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
-import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 
 
 export default function ResellTab({
