@@ -60,35 +60,27 @@ export default function CataloguesList({
           <span className="absolute w-6 h-0.5 bg-gray-700" style={{ top: '50%', transform: 'translateY(8px)' }} />
         </button>
 
-        {/* Center Title */}
-        <h1 className="text-xl font-bold text-center flex-1 cursor-pointer transition-opacity duration-200 flex items-center justify-center leading-none">
-          <span className="inline-flex items-center justify-center gap-2">
-            <img src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800" alt="Catalogue Share" className="w-10 h-10 sm:w-12 sm:h-12 rounded object-contain shrink-0" />
-            <span>CatShare</span>
-          </span>
+        {/* Title */}
+        <h1 className="text-lg font-semibold text-gray-800">
+          All Catalogues
         </h1>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Manage Button */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            onManageCatalogues();
+          }}
+          className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shrink-0"
+          title="Add, edit, or delete catalogues"
+        >
+          Manage
+        </button>
       </header>
       <div className="space-y-3">
-        <div className="px-4 py-3">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold text-gray-800">
-            All Catalogues
-          </h2>
-          <button
-            onClick={async () => {
-              await Haptics.impact({ style: ImpactStyle.Light });
-              onManageCatalogues();
-            }}
-            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-            title="Add, edit, or delete catalogues"
-          >
-            Manage
-          </button>
-        </div>
-        <p className="text-sm text-gray-500">
-          Tap a catalogue to view and manage its products
-        </p>
-      </div>
 
       {catalogues.length === 0 ? (
         <div className="text-center py-12">
