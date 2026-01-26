@@ -176,7 +176,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     if (selectMode) {
       toggleSelection(id);
     } else {
-      openPreviewHtml(id, "catalogue1", visibleProducts);
+      openPreviewHtml(id, catalogueId, visibleProducts);
     }
   };
 
