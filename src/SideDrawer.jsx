@@ -406,6 +406,10 @@ const exportProductsToCSV = (products) => {
         }
       }
 
+      // Re-run migrations after catalogues definition has been restored
+      // This ensures all products have the proper field structure for the restored catalogues
+      ensureProductsHaveStockFields();
+
       setShowRenderAfterRestore(true);
     } catch (err) {
       setBackupResult({
