@@ -802,8 +802,8 @@ onMouseLeave={handleTouchEnd}
                     lineHeight: 1.2,
                   }}
                 >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{p.wholesale}{" "}
-                  {p.wholesaleUnit}
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{p.price1 || p.wholesale}{" "}
+                  {p.price1Unit || p.wholesaleUnit}
                 </h2>
 
                 <div
