@@ -30,7 +30,7 @@ export default function Tutorial({ onClose }) {
   const [dragItems, setDragItems] = useState(["Item 1", "Item 2", "Item 3"]);
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
-  const [activeTab, setActiveTab] = useState("wholesale");
+  const [activeTab, setActiveTab] = useState("catalogue1");
   const [isProductControlsExpanded, setIsProductControlsExpanded] = useState(false);
   const [isWholesaleFeaturesExpanded, setIsWholesaleFeaturesExpanded] = useState(false);
   const [isBackupExpanded, setIsBackupExpanded] = useState(false);
@@ -137,7 +137,7 @@ export default function Tutorial({ onClose }) {
                   >
                     {wsStock ? "WS In" : "WS Out"}
                   </button>
-                  <span className="text-xs text-gray-600">- Toggle wholesale stock availability</span>
+                  <span className="text-xs text-gray-600">- Toggle Catalogue 1 stock availability</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -148,7 +148,7 @@ export default function Tutorial({ onClose }) {
                   >
                     {rsStock ? "RS In" : "RS Out"}
                   </button>
-                  <span className="text-xs text-gray-600">- Toggle resell stock availability</span>
+                  <span className="text-xs text-gray-600">- Toggle Catalogue 2 stock availability</span>
                 </div>
               </div>
               <div className="p-3 bg-white border border-gray-300 rounded">
@@ -233,49 +233,49 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Wholesale vs Resell",
+      title: "Catalogue 1 vs Catalogue 2",
       description:
-        "Toggle between Wholesale and Resell tabs to view products with different pricing models.",
+        "Toggle between Catalogue 1 and Catalogue 2 tabs to view products with different pricing models.",
       icon: <RiExchangeDollarLine className="w-10 h-10 text-red-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <div className="flex gap-2 mb-4 min-w-0">
             <button
-              onClick={() => setActiveTab("wholesale")}
+              onClick={() => setActiveTab("catalogue1")}
               className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
-                activeTab === "wholesale"
+                activeTab === "catalogue1"
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-600 border border-gray-300"
               }`}
             >
-              Wholesale
+              Catalogue 1
             </button>
             <button
-              onClick={() => setActiveTab("resell")}
+              onClick={() => setActiveTab("catalogue2")}
               className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
-                activeTab === "resell"
+                activeTab === "catalogue2"
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-600 border border-gray-300"
               }`}
             >
-              Resell
+              Catalogue 2
             </button>
           </div>
           <div className="bg-white rounded border border-gray-300 p-3">
-            {activeTab === "wholesale" ? (
+            {activeTab === "catalogue1" ? (
               <div className="space-y-2">
-                <div className="text-xs font-semibold text-gray-700">Wholesale Tab Features:</div>
+                <div className="text-xs font-semibold text-gray-700">Catalogue 1 Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View and share products with <span className="font-semibold">wholesale pricing</span></p>
-                  <p>✓ Manage stock availability of wholesale products separately</p>
+                  <p>✓ View and share products with <span className="font-semibold">Catalogue 1 pricing (Wholesale)</span></p>
+                  <p>✓ Manage stock availability of Catalogue 1 products separately</p>
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="text-xs font-semibold text-gray-700">Resell Tab Features:</div>
+                <div className="text-xs font-semibold text-gray-700">Catalogue 2 Tab Features:</div>
                 <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View and share products with <span className="font-semibold">resell pricing</span></p>
-                  <p>✓ Manage stock availability of resell products separately</p>
+                  <p>✓ View and share products with <span className="font-semibold">Catalogue 2 pricing (Resell)</span></p>
+                  <p>✓ Manage stock availability of Catalogue 2 products separately</p>
                 </div>
               </div>
             )}
@@ -610,7 +610,7 @@ export default function Tutorial({ onClose }) {
             <p className="text-xs text-gray-600 leading-relaxed">
               1️⃣ Create products with +button<br/>
               2️⃣ Manage stock with In/Out buttons<br/>
-              3️⃣ View Wholesale & Resell pricing<br/>
+              3️⃣ View Catalogue 1 & Catalogue 2 pricing<br/>
               4️⃣ Use Render images for catalogs<br/>
               5️⃣ Backup your data regularly
             </p>

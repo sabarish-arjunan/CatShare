@@ -510,7 +510,7 @@ export default function ProductPreviewModal({
             })}
           >
             {/* Top Bar */}
-            {tab !== "resell" && (
+            {tab !== "catalogue2" && (
               <div
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
@@ -649,7 +649,7 @@ export default function ProductPreviewModal({
             </div>
 
             {/* Bottom Bar */}
-            {tab !== "wholesale" && (
+            {tab !== "catalogue1" && (
               <div
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
