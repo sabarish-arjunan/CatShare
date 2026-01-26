@@ -10,6 +10,7 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { initializeFieldSystem } from "./config/initializeFields";
+import { runMigrations } from "./utils/dataMigration";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
