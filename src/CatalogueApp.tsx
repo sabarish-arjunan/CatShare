@@ -683,27 +683,37 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex justify-around text-sm font-medium pb-[env(safe-area-inset-bottom,0px)]">
-        {[
-          { key: "products", label: "Products", color: "bg-blue-500 text-white" },
-          { key: "catalogue1", label: "Catalogue 1", color: "bg-blue-500 text-white" },
-          { key: "catalogue2", label: "Catalogue 2", color: "bg-blue-500 text-white" },
-        ].map((t) => {
-          const isActive = tab === t.key;
-          return (
-            <button
-              key={t.key}
-              onClick={async () => {
-                await Haptics.impact({ style: ImpactStyle.Light });
-                handleTabChange(t.key);
-              }}
-              className={`flex-1 py-3.5 text-center transition-all ${
-                isActive ? t.color : "bg-white text-gray-600"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
+        {/* Products tab */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            handleTabChange("products");
+          }}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            tab === "products"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-gray-600"
+          }`}
+        >
+          Products
+        </button>
+
+        {/* Dynamic catalogue tabs */}
+        {catalogues.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={async () => {
+              await Haptics.impact({ style: ImpactStyle.Light });
+              handleTabChange(cat.id);
+            }}
+            className={`flex-1 py-3.5 text-center transition-all truncate px-1 ${
+              tab === cat.id ? "bg-blue-500 text-white" : "bg-white text-gray-600"
+            }`}
+            title={cat.label}
+          >
+            {cat.label}
+          </button>
+        ))}
       </nav>
 
       <button
