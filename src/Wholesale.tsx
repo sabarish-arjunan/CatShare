@@ -33,8 +33,9 @@ export default function WholesaleTab({
       field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
       field3: catData.field3 || product.field3 || product.age || "",
       field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
-      price1: catData.price1 || product.price1 || product.wholesale || "",
-      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+      // Use dynamic price field based on catalogue configuration
+      price: catData[priceField] || product[priceField] || product.wholesale || product.resell || "",
+      priceUnit: catData[priceUnitField] || product[priceUnitField] || product.wholesaleUnit || product.resellUnit || "/ piece",
     };
   };
 
