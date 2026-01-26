@@ -312,10 +312,10 @@ export default function CreateProduct() {
         setOverrideColor(product.bgColor || "#d1b3c4");
         setFontColor(product.fontColor || "white");
         setImageBgOverride(product.imageBgColor || "white");
-        setWholesaleUnit(product.wholesaleUnit || "/ piece");
-        setResellUnit(product.resellUnit || "/ piece");
-        setPackageUnit(product.packageUnit || "pcs / set");
-        setAgeGroupUnit(product.ageUnit || "months");
+        setPrice1Unit(product.price1Unit || product.wholesaleUnit || "/ piece");
+        setPrice2Unit(product.price2Unit || product.resellUnit || "/ piece");
+        setPackageUnit(product.field2Unit || product.packageUnit || "pcs / set");
+        setAgeGroupUnit(product.field3Unit || product.ageUnit || "months");
 
         if (product.image && product.image.startsWith("data:image")) {
           setImagePreview(product.image);
