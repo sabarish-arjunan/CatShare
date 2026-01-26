@@ -621,37 +621,39 @@ setTimeout(async () => {
 
           <div className="flex gap-2 mb-2">
             <input
-              name="wholesale"
-              value={formData.wholesale}
+              name="price1"
+              value={formData.price1}
               onChange={handleChange}
-              placeholder="Wholesale Price"
+              placeholder="Price 1"
               className="border p-2 w-full rounded"
             />
             <select
-              value={wholesaleUnit}
-              onChange={(e) => setWholesaleUnit(e.target.value)}
+              value={price1Unit}
+              onChange={(e) => setPrice1Unit(e.target.value)}
               className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>/ set</option>
             </select>
           </div>
 
           <div className="flex gap-2 mb-2">
             <input
-              name="resell"
-              value={formData.resell}
+              name="price2"
+              value={formData.price2}
               onChange={handleChange}
-              placeholder="Resell Price"
+              placeholder="Price 2"
               className="border p-2 w-full rounded"
             />
             <select
-              value={resellUnit}
-              onChange={(e) => setResellUnit(e.target.value)}
+              value={price2Unit}
+              onChange={(e) => setPrice2Unit(e.target.value)}
               className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
             >
               <option>/ piece</option>
               <option>/ dozen</option>
+              <option>/ set</option>
             </select>
           </div>
 
