@@ -937,15 +937,15 @@ onMouseLeave={handleTouchEnd}
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Colour
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.field1 || p.color}
+                      &nbsp;&nbsp;{getProductCatalogueData(p).field1}
                     </p>
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.field2 || p.package} {p.field2Unit || p.packageUnit}
+                      &nbsp;&nbsp;{getProductCatalogueData(p).field2} {getProductCatalogueData(p).field2Unit}
                     </p>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.field3 || p.age}{" "}
-                      {p.field3Unit || p.ageUnit}
+                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{getProductCatalogueData(p).field3}{" "}
+                      {getProductCatalogueData(p).field3Unit}
                     </p>
                   </div>
                 </div>
