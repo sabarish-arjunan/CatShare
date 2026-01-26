@@ -185,7 +185,7 @@ function AppWithBackHandler() {
   useEffect(() => {
     let removeListener: any;
     CapacitorApp.addListener("backButton", () => {
-      const fullScreenImageOpen = document.querySelector(".fixed.inset-0.z-\\[60\\]");
+      const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       const modalOpen = document.querySelector(".fixed.z-50");
       if (fullScreenImageOpen || modalOpen) {
         window.dispatchEvent(new CustomEvent("close-preview"));
