@@ -630,25 +630,39 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           </div>
         )}
 
-        {tab === "catalogue1" && (
-          <Catalogue1Tab
-            filtered={visible}
-            selected={selected}
-            setSelected={setSelected}
-            getLighterColor={getLighterColor}
-            imageMap={imageMap}
-          />
-        )}
-
-        {tab === "catalogue2" && (
-          <Catalogue2Tab
-            filtered={visible}
-            selected={selected}
-            setSelected={setSelected}
-            getLighterColor={getLighterColor}
-            imageMap={imageMap}
-          />
-        )}
+        {catalogues.map((cat) => (
+          tab === cat.id && (
+            <div key={cat.id}>
+              {cat.id === "cat1" ? (
+                <Catalogue1Tab
+                  filtered={visible}
+                  selected={selected}
+                  setSelected={setSelected}
+                  getLighterColor={getLighterColor}
+                  imageMap={imageMap}
+                  catalogueId={cat.id}
+                  catalogueLabel={cat.label}
+                  priceField={cat.priceField}
+                  priceUnitField={cat.priceUnitField}
+                  stockField={cat.stockField}
+                />
+              ) : cat.id === "cat2" ? (
+                <Catalogue2Tab
+                  filtered={visible}
+                  selected={selected}
+                  setSelected={setSelected}
+                  getLighterColor={getLighterColor}
+                  imageMap={imageMap}
+                  catalogueId={cat.id}
+                  catalogueLabel={cat.label}
+                  priceField={cat.priceField}
+                  priceUnitField={cat.priceUnitField}
+                  stockField={cat.stockField}
+                />
+              ) : null}
+            </div>
+          )
+        ))}
 
         {previewProduct && (
           <ProductPreviewModal
