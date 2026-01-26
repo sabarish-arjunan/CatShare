@@ -37,7 +37,7 @@ export function isLegacyProduct(product: any): boolean {
  * Migrate a single product from legacy format to new format
  * Preserves all data and creates both new and old field names for compatibility
  */
-export function migrateProductToNewFormat(product: LegacyProduct): MigratedProduct {
+export function migrateProductToNewFormat(product: LegacyProduct): MigratedProduct & { id?: string; name?: string } {
   if (!isLegacyProduct(product)) {
     return product; // Already migrated or new product
   }
