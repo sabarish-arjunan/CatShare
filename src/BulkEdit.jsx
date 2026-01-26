@@ -211,24 +211,24 @@ useEffect(() => {
               />
             )}
 
-            {selectedFields.includes("color") && (
+            {selectedFields.includes("field1") && (
               <input
-                value={item.color || ""}
-                onChange={(e) => handleFieldChange(item.id, "color", e.target.value)}
+                value={item.field1 || item.color || ""}
+                onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
             )}
 
-            {selectedFields.includes("package") && (
+            {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.package || ""}
-      onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
+      value={item.field2 || item.package || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
       className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.packageUnit || ""}
-      onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
+      value={item.field2Unit || item.packageUnit || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
       <option value="pcs / set">pcs / set</option>
@@ -239,16 +239,16 @@ useEffect(() => {
 )}
 
 
-            {selectedFields.includes("age") && (
+            {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.age || ""}
-                  onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
+                  value={item.field3 || item.age || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.ageUnit || ""}
-                  onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
+                  value={item.field3Unit || item.ageUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="months">months</option>
