@@ -11,6 +11,15 @@ import { useToast } from "./context/ToastContext";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
 import { getProductFieldValue, getProductUnitValue } from "./config/fieldMigration";
+import {
+  initializeCatalogueData,
+  getCatalogueData,
+  setCatalogueData,
+  isProductEnabledForCatalogue,
+  setProductEnabledForCatalogue,
+  type CatalogueData,
+  type ProductWithCatalogueData
+} from "./config/catalogueProductUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
