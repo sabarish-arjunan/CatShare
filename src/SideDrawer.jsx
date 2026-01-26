@@ -14,7 +14,9 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
-import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "./config/catalogueConfig";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues } from "./config/catalogueConfig";
+import { ensureProductsHaveStockFields } from "./utils/dataMigration";
+import { migrateProductToNewFormat } from "./config/fieldMigration";
 
 
 export default function SideDrawer({
@@ -66,46 +68,38 @@ const { showToast } = useToast();
     const zip = new JSZip();
     let hasImages = false;
 
-    // Try to read Wholesale folder
-    try {
-      const wholesaleFiles = await Filesystem.readdir({
-        path: "Wholesale",
-        directory: Directory.External,
-      });
+    // Get all catalogues dynamically
+    const catalogues = getAllCatalogues();
 
-      for (const file of wholesaleFiles.files) {
-        if (file.name.endsWith(".png")) {
-          const fileData = await Filesystem.readFile({
-            path: `Wholesale/${file.name}`,
-            directory: Directory.External,
-          });
-          zip.file(`Wholesale/${file.name}`, fileData.data, { base64: true });
-          hasImages = true;
+    // Also check for legacy folders for backward compatibility
+    const foldersToCheck = [
+      ...catalogues.map(cat => cat.id),
+      "Wholesale", // Legacy support
+      "Resell"     // Legacy support
+    ];
+
+    // Try to read each catalogue folder
+    for (const folderName of foldersToCheck) {
+      try {
+        const files = await Filesystem.readdir({
+          path: folderName,
+          directory: Directory.External,
+        });
+
+        for (const file of files.files) {
+          if (file.name.endsWith(".png")) {
+            const fileData = await Filesystem.readFile({
+              path: `${folderName}/${file.name}`,
+              directory: Directory.External,
+            });
+            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+            hasImages = true;
+          }
         }
+      } catch (err) {
+        console.warn(`Could not read ${folderName} folder:`, err.message);
+        // Continue to next folder if this one doesn't exist
       }
-    } catch (err) {
-      console.warn("Could not read Wholesale folder:", err.message);
-    }
-
-    // Try to read Resell folder
-    try {
-      const resellFiles = await Filesystem.readdir({
-        path: "Resell",
-        directory: Directory.External,
-      });
-
-      for (const file of resellFiles.files) {
-        if (file.name.endsWith(".png")) {
-          const fileData = await Filesystem.readFile({
-            path: `Resell/${file.name}`,
-            directory: Directory.External,
-          });
-          zip.file(`Resell/${file.name}`, fileData.data, { base64: true });
-          hasImages = true;
-        }
-      }
-    } catch (err) {
-      console.warn("Could not read Resell folder:", err.message);
     }
 
     if (!hasImages) {
@@ -334,11 +328,16 @@ const exportProductsToCSV = (products) => {
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
-          return clean;
+
+          // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
+          const migrated = migrateProductToNewFormat(clean);
+
+          return migrated;
         })
       );
 
       setProducts(rebuilt);
+      localStorage.setItem("products", JSON.stringify(rebuilt));
 
       const categories = Array.from(
         new Set(
@@ -375,7 +374,11 @@ const exportProductsToCSV = (products) => {
             const clean = { ...p };
             delete clean.imageBase64;
             delete clean.imageFilename;
-            return clean;
+
+            // Migrate old field names to new field names
+            const migrated = migrateProductToNewFormat(clean);
+
+            return migrated;
           })
         );
 
@@ -400,6 +403,10 @@ const exportProductsToCSV = (products) => {
           });
         }
       }
+
+      // Re-run migrations after catalogues definition has been restored
+      // This ensures all products have the proper field structure for the restored catalogues
+      ensureProductsHaveStockFields();
 
       setShowRenderAfterRestore(true);
     } catch (err) {
