@@ -196,6 +196,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setIsRendering(true);
     setRenderProgress(0);
 
+    const cats = getAllCatalogues();
+    const totalRenders = all.length * cats.length;
+    let renderedCount = 0;
+
     for (let i = 0; i < all.length; i++) {
       const product = all[i];
 
@@ -212,31 +216,35 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       }
 
       try {
-        await saveRenderedImage(product, "resell", {
-          resellUnit: product.resellUnit || "/ piece",
-          wholesaleUnit: product.wholesaleUnit || "/ piece",
-          packageUnit: product.packageUnit || "pcs / set",
-          ageGroupUnit: product.ageUnit || "months",
-        });
+        // Render for all catalogues
+        for (const cat of cats) {
+          // For backward compatibility, map cat1->wholesale and cat2->resell
+          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
 
-        await saveRenderedImage(product, "wholesale", {
-          resellUnit: product.resellUnit || "/ piece",
-          wholesaleUnit: product.wholesaleUnit || "/ piece",
-          packageUnit: product.packageUnit || "pcs / set",
-          ageGroupUnit: product.ageUnit || "months",
-        });
+          await saveRenderedImage(product, legacyType, {
+            resellUnit: product.resellUnit || "/ piece",
+            wholesaleUnit: product.wholesaleUnit || "/ piece",
+            packageUnit: product.packageUnit || "pcs / set",
+            ageGroupUnit: product.ageUnit || "months",
+            catalogueId: cat.id,
+            catalogueLabel: cat.label,
+            priceField: cat.priceField,
+            priceUnitField: cat.priceUnitField,
+          });
 
-        console.log(`✅ Rendered PNGs for ${product.name}`);
+          renderedCount++;
+          setRenderProgress(Math.round((renderedCount / totalRenders) * 100));
+        }
+
+        console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
       } catch (err) {
         console.warn(`❌ Failed to render images for ${product.name}`, err);
       }
-
-      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
     }
 
     setRenderResult({
       status: "success",
-      message: "PNG rendering completed for all products",
+      message: `PNG rendering completed for all products and catalogues`,
     });
     setIsRendering(false);
     window.dispatchEvent(new CustomEvent("renderComplete"));
