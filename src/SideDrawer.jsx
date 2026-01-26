@@ -14,6 +14,7 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "./config/catalogueConfig";
 
 
 export default function SideDrawer({
@@ -150,6 +151,7 @@ const { showToast } = useToast();
 
 const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
+  const cataloguesDefinition = getCataloguesDefinition();
   const zip = new JSZip();
 
   const dataForJson = [];
@@ -202,7 +204,12 @@ const handleBackup = async () => {
     deletedForJson.push(product);
   }
 
-  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted: deletedForJson }, null, 2));
+  // Include catalogues definition in backup
+  zip.file("catalogue-data.json", JSON.stringify({
+    products: dataForJson,
+    deleted: deletedForJson,
+    cataloguesDefinition
+  }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
   const reader = new FileReader();
@@ -374,6 +381,24 @@ const exportProductsToCSV = (products) => {
 
         setDeletedProducts(rebuiltDeleted);
         localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
+      }
+
+      // Restore catalogues definition from backup
+      // If the backup doesn't have cataloguesDefinition (old backups), use defaults
+      if (parsed.cataloguesDefinition) {
+        setCataloguesDefinition(parsed.cataloguesDefinition);
+      } else {
+        // Backward compatibility: old backups don't have cataloguesDefinition
+        // Use the current one if it exists, otherwise use defaults
+        const currentCatalogues = getCataloguesDefinition();
+        if (!currentCatalogues || currentCatalogues.catalogues.length === 0) {
+          // If no catalogues exist, restore defaults
+          setCataloguesDefinition({
+            version: 1,
+            catalogues: DEFAULT_CATALOGUES,
+            lastUpdated: Date.now(),
+          });
+        }
       }
 
       setShowRenderAfterRestore(true);
