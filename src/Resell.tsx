@@ -756,7 +756,7 @@ onMouseLeave={handleTouchEnd}
 <div
   className="absolute top-1.5 right-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
-  ₹{p.resell}
+  ₹{p.price2 || p.resell}
 </div>
 )}
 
