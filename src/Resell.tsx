@@ -722,7 +722,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="fixed inset-x-0 bottom-0 overflow-y-auto px-0 pb-28" style={{ top: "calc(40px + 56px)" }}>
+<div className="px-0 pb-28">
       {/* Grid */}
       <div
         id="capture-area"
