@@ -385,17 +385,26 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   {/* Center Title (hidden while searching) */}
   {!showSearch && !selectMode && (
-    <h1
-  className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
-  onClick={() => {
-    setSelectMode(false);
-    setSelected([]);
-  }}
-  style={{ maxWidth: "50vw" }}
->
-  Catalogue 2
-</h1>
-
+    <div className="flex items-center gap-2">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0"
+        >
+          ←
+        </button>
+      )}
+      <h1
+    className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
+    onClick={() => {
+      setSelectMode(false);
+      setSelected([]);
+    }}
+    style={{ maxWidth: "50vw" }}
+  >
+    {catalogueLabel || "Catalogue"}
+  </h1>
+    </div>
   )}
 
   {/* Expanding Search Box (inline, smooth, fixed) */}
