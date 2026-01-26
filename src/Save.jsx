@@ -173,7 +173,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   `;
   container.appendChild(details);
 
-  if (type === "resell") {
+  if (!isPriceOnTop) {
     container.appendChild(priceBar); // Price at bottom
   }
 
