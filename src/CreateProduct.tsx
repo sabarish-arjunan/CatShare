@@ -553,24 +553,32 @@ window.dispatchEvent(new CustomEvent("product-added"));
 
 setTimeout(async () => {
   try {
-    await saveRenderedImage(newItem, "resell", {
-      price2Unit,
-      price1Unit,
-      packageUnit: formData.field2Unit || packageUnit,
-      ageGroupUnit: formData.field3Unit || ageGroupUnit,
-      // Also provide old names for backward compat in Save.jsx
-      resellUnit: price2Unit,
-      wholesaleUnit: price1Unit,
-    });
-    await saveRenderedImage(newItem, "wholesale", {
-      price2Unit,
-      price1Unit,
-      packageUnit: formData.field2Unit || packageUnit,
-      ageGroupUnit: formData.field3Unit || ageGroupUnit,
-      // Also provide old names for backward compat in Save.jsx
-      resellUnit: price2Unit,
-      wholesaleUnit: price1Unit,
-    });
+    // Render images for all enabled catalogues
+    const enabledCats = catalogues.filter(cat => isCatalogueEnabled(cat.id));
+
+    for (const cat of enabledCats) {
+      const catData = getCatalogueData(newItem, cat.id);
+
+      // Create render options for this catalogue
+      const renderOptions = {
+        catalogueId: cat.id,
+        catalogueLabel: cat.label,
+        priceField: cat.priceField,
+        priceUnitField: cat.priceUnitField,
+        price1Unit: catData.price1Unit || "/ piece",
+        price2Unit: catData.price2Unit || "/ piece",
+        packageUnit: catData.field2Unit || "pcs / set",
+        ageGroupUnit: catData.field3Unit || "months",
+        // Legacy compat
+        resellUnit: catData.price2Unit || "/ piece",
+        wholesaleUnit: catData.price1Unit || "/ piece",
+      };
+
+      // Use legacy types for backward compat
+      const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+      await saveRenderedImage(newItem, legacyType, renderOptions);
+    }
   } catch (err) {
     console.warn("⏱️ PNG render failed:", err);
   }
