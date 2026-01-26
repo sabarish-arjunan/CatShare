@@ -135,20 +135,20 @@ export async function saveRenderedImage(product, type, units = {}) {
   imageWrap.id = `image-wrap-${id}`;
 
   const img = document.createElement("img");
-  img.alt = product.name;
+  img.alt = catalogueData.name;
   img.style.maxWidth = "100%";
   img.style.maxHeight = "300px";
   img.style.objectFit = "contain";
   img.style.margin = "0 auto";
   imageWrap.appendChild(img);
-  img.src = product.image;
+  img.src = catalogueData.image || product.image;
 
   await new Promise((resolve) => {
     img.onload = resolve;
     img.onerror = resolve;
   });
 
-  if (product.badge) {
+  if (catalogueData.badge) {
     const badge = document.createElement("div");
     Object.assign(badge.style, {
       position: "absolute",
