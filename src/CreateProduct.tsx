@@ -360,6 +360,34 @@ export default function CreateProduct() {
     }
   }, [editingId]);
 
+  // Get catalogue data for the selected catalogue
+  const getCatalogueFormData = () => {
+    return getCatalogueData(formData, selectedCatalogue);
+  };
+
+  // Update catalogue data for the selected catalogue
+  const updateCatalogueData = (updates: Partial<CatalogueData>) => {
+    setFormData((prev) => {
+      const updated = { ...prev };
+      setCatalogueData(updated, selectedCatalogue, updates);
+      return updated;
+    });
+  };
+
+  // Check if product is enabled for a catalogue
+  const isCatalogueEnabled = (catalogueId: string) => {
+    return isProductEnabledForCatalogue(formData, catalogueId);
+  };
+
+  // Toggle catalogue enabled state
+  const toggleCatalogueEnabled = (catalogueId: string) => {
+    setFormData((prev) => {
+      const updated = { ...prev };
+      setProductEnabledForCatalogue(updated, catalogueId, !isCatalogueEnabled(catalogueId));
+      return updated;
+    });
+  };
+
   const handleSelectImage = async () => {
     const defaultFolder = "Phone/Pictures/Photoroom";
     const folder = localStorage.getItem("lastUsedFolder") || defaultFolder;
