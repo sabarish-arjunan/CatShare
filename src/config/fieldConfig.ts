@@ -27,7 +27,7 @@ export interface FieldsDefinition {
 }
 
 // Default field configuration
-const DEFAULT_FIELDS: FieldConfig[] = [
+export const DEFAULT_FIELDS: FieldConfig[] = [
   {
     key: 'field1',
     label: 'Colour',
