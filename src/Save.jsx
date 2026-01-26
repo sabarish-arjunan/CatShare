@@ -1,5 +1,6 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
+import { getCatalogueData } from "./config/catalogueProductUtils";
 
 export async function saveRenderedImage(product, type, units = {}) {
   const id = product.id || "temp-id";
