@@ -188,22 +188,16 @@ export default function CreateProduct() {
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProductWithCatalogueData>({
     id: "",
     name: "",
     subtitle: "",
-    field1: "", // Colour
-    field2: "", // Package
-    field3: "", // Age Group
-    price1: "", // Price 1 (wholesale)
-    price2: "", // Price 2 (resell)
-    stock: true,
-    wholesaleStock: true,
-    resellStock: true,
     category: [],
     badge: "",
+    catalogueData: {},
   });
 
+  const [selectedCatalogue, setSelectedCatalogue] = useState<string>("cat1");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
