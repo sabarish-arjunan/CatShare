@@ -771,8 +771,8 @@ export default function Retail({ products = [] }) {
                       <input className="border p-2 rounded w-full mb-2" placeholder="Model Name" value={editingProduct.name} onChange={(e) => setEditingProduct((s) => ({ ...s, name: e.target.value }))} />
                       <input className="border p-2 rounded w-full mb-2" placeholder="Subtitle" value={editingProduct.subtitle} onChange={(e) => setEditingProduct((s) => ({ ...s, subtitle: e.target.value }))} />
                       <div className="flex gap-2 mb-2">
-                        <input name="wholesale" value={editingProduct.wholesale} onChange={(e) => setEditingProduct((s) => ({ ...s, wholesale: Number(e.target.value) }))} placeholder="Wholesale Price" className="border p-2 w-full rounded" />
-                        <input name="retail" value={editingProduct.retail} onChange={(e) => setEditingProduct((s) => ({ ...s, retail: Number(e.target.value) }))} placeholder="Retail Price" className="border p-2 w-full rounded" />
+                        <input name="price1" value={editingProduct.price1 || editingProduct.wholesale || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price1: Number(e.target.value), wholesale: Number(e.target.value) }))} placeholder="Price 1" className="border p-2 w-full rounded" />
+                        <input name="price2" value={editingProduct.price2 || editingProduct.retail || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price2: Number(e.target.value), retail: Number(e.target.value) }))} placeholder="Price 2" className="border p-2 w-full rounded" />
                       </div>
 
                       <div className="flex gap-2 mb-2">
