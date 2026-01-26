@@ -522,21 +522,6 @@ export default function ProductPreviewModal({
               transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
             })}
           >
-            {/* Top Bar */}
-            {tab !== "catalogue2" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit}
-              </div>
-            )}
 
             {/* Image Section - Click to open full screen */}
             <div
