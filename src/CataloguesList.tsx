@@ -78,9 +78,9 @@ export default function CataloguesList({
               total: 0,
               inStock: 0,
             };
-            // Get first few product images for this catalogue
+            // Get first few product images for this catalogue (only enabled products)
             const catalogueProducts = products
-              .filter((p) => (p as any)[catalogue.stockField] !== undefined)
+              .filter((p) => isProductEnabledForCatalogue(p, catalogue.id))
               .slice(0, 3);
 
             return (
