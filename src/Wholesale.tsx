@@ -33,8 +33,9 @@ export default function WholesaleTab({
       field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
       field3: catData.field3 || product.field3 || product.age || "",
       field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
-      price1: catData.price1 || product.price1 || product.wholesale || "",
-      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+      // Use dynamic price field based on catalogue configuration
+      price: catData[priceField] || product[priceField] || product.wholesale || product.resell || "",
+      priceUnit: catData[priceUnitField] || product[priceUnitField] || product.wholesaleUnit || product.resellUnit || "/ piece",
     };
   };
 
@@ -175,7 +176,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     if (selectMode) {
       toggleSelection(id);
     } else {
-      openPreviewHtml(id, "catalogue1", visibleProducts);
+      openPreviewHtml(id, catalogueId, visibleProducts);
     }
   };
 
@@ -789,7 +790,7 @@ onMouseLeave={handleTouchEnd}
 <div
   className="absolute top-1.5 left-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
-  ₹{getProductCatalogueData(p).price1}
+  ₹{getProductCatalogueData(p).price}
 </div>
 )}
 
@@ -833,8 +834,8 @@ onMouseLeave={handleTouchEnd}
                     lineHeight: 1.2,
                   }}
                 >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price1}{" "}
-                  {getProductCatalogueData(p).price1Unit}
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
+                  {getProductCatalogueData(p).priceUnit}
                 </h2>
 
                 <div

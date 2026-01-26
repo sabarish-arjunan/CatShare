@@ -398,6 +398,30 @@ export default function CreateProduct() {
     });
   };
 
+  // Get the price field name for the selected catalogue
+  const getSelectedCataloguePriceField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceField || "price1";
+  };
+
+  // Get the price unit field name for the selected catalogue
+  const getSelectedCataloguePriceUnitField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceUnitField || "price1Unit";
+  };
+
+  // Get the price value for the selected catalogue
+  const getSelectedCataloguePrice = () => {
+    const priceField = getSelectedCataloguePriceField();
+    return getCatalogueFormData()[priceField] || "";
+  };
+
+  // Get the price unit value for the selected catalogue
+  const getSelectedCataloguePriceUnit = () => {
+    const priceUnitField = getSelectedCataloguePriceUnitField();
+    return getCatalogueFormData()[priceUnitField] || "/ piece";
+  };
+
   const handleSelectImage = async () => {
     const defaultFolder = "Phone/Pictures/Photoroom";
     const folder = localStorage.getItem("lastUsedFolder") || defaultFolder;
@@ -779,15 +803,15 @@ setTimeout(async () => {
 
                 <div className="flex gap-2 mb-2">
                   <input
-                    name="price1"
-                    value={getCatalogueFormData().price1 || ""}
+                    name={getSelectedCataloguePriceField()}
+                    value={getSelectedCataloguePrice()}
                     onChange={handleChange}
                     placeholder="Price"
                     className="border p-2 w-full rounded"
                   />
                   <select
-                    name="price1Unit"
-                    value={getCatalogueFormData().price1Unit || "/ piece"}
+                    name={getSelectedCataloguePriceUnitField()}
+                    value={getSelectedCataloguePriceUnit()}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
@@ -956,7 +980,7 @@ setTimeout(async () => {
       fontSize: 20,
     }}
   >
-    ₹{getCatalogueFormData().price1 || "0"} {getCatalogueFormData().price1Unit}
+    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 
   {imagePreview && (
