@@ -2,20 +2,30 @@ import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
 
-const FIELD_OPTIONS = [
-  { key: "name", label: "Name" },
-  { key: "subtitle", label: "Subtitle" },
-  { key: "field1", label: "Colour" },
-  { key: "field2", label: "Package" },
-  { key: "field3", label: "Age Group" },
-  { key: "price1", label: "Price 1" },
-  { key: "price2", label: "Price 2" },
-  { key: "badge", label: "Badge" },
-  { key: "category", label: "Category" },
-  { key: "stock", label: "Stock Update" },
-];
+const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
+  const baseFields = [
+    { key: "name", label: "Name" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "field1", label: "Colour" },
+    { key: "field2", label: "Package" },
+    { key: "field3", label: "Age Group" },
+    { key: "badge", label: "Badge" },
+    { key: "category", label: "Category" },
+  ];
 
-export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender }) {
+  // Add price field based on catalogue
+  if (priceField) {
+    const priceLabel = priceField === 'price1' ? 'Price (Wholesale)' :
+                       priceField === 'price2' ? 'Price (Resell)' :
+                       'Price';
+    baseFields.push({ key: priceField, label: priceLabel });
+  }
+
+  baseFields.push({ key: "stock", label: "Stock Update" });
+  return baseFields;
+};
+
+export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender, catalogueId, priceField, priceUnitField, stockField }) {
   const [editedData, setEditedData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
