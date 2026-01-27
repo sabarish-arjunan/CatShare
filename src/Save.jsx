@@ -362,14 +362,32 @@ export async function saveRenderedImage(product, type, units = {}) {
       folder = type;
     }
 
-    await Filesystem.writeFile({
-      path: `${folder}/${filename}`,
-      data: base64,
-      directory: Directory.External,
-      recursive: true,
-    });
+    const filePath = `${folder}/${filename}`;
 
-    console.log("✅ Image saved:", `${folder}/${filename}`);
+    try {
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64,
+        directory: Directory.Documents,
+        recursive: true,
+      });
+
+      console.log("✅ Image saved:", filePath);
+
+      // Verify the file was actually written
+      try {
+        const stat = await Filesystem.stat({
+          path: filePath,
+          directory: Directory.Documents,
+        });
+        console.log(`✅ File verified - exists at: ${filePath}`, stat);
+      } catch (verifyErr) {
+        console.warn(`⚠️ Could not verify file after write: ${filePath}`, verifyErr);
+      }
+    } catch (writeErr) {
+      console.error(`❌ Failed to write file: ${filePath}`, writeErr);
+      throw writeErr;
+    }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
   } finally {
