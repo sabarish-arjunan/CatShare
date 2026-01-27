@@ -981,19 +981,6 @@ setTimeout(async () => {
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "12px 8px",
-      textAlign: "center",
-      fontWeight: "600",
-      fontSize: 20,
-    }}
-  >
-    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
-  </div>
-
   {imagePreview && (
     <div
       style={{
@@ -1071,6 +1058,19 @@ setTimeout(async () => {
       <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit}</p>
       <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
     </div>
+  </div>
+
+  <div
+    style={{
+      backgroundColor: overrideColor,
+      color: fontColor,
+      padding: "12px 8px",
+      textAlign: "center",
+      fontWeight: "600",
+      fontSize: 20,
+    }}
+  >
+    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 </div>
 

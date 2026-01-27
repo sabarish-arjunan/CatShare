@@ -121,10 +121,12 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
-      updateCatalogue(showEditForm.id, {
-        label: formLabel.trim(),
-        folder: formFolder.trim(),
-      });
+      // For default catalogues, only allow changing the label
+      const updates = showEditForm.isDefault
+        ? { label: formLabel.trim() }
+        : { label: formLabel.trim(), folder: formFolder.trim() };
+
+      updateCatalogue(showEditForm.id, updates);
 
       const updated = getAllCatalogues();
       setCatalogues(updated);
@@ -271,9 +273,16 @@ export default function ManageCatalogues({
               onSubmit={handleEditSubmit}
               className="mb-4 p-4 border-2 border-amber-200 bg-amber-50 rounded-lg"
             >
-              <h3 className="font-semibold text-gray-800 mb-3">
-                Edit Catalogue
-              </h3>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-semibold text-gray-800">
+                  Edit Catalogue
+                </h3>
+                {showEditForm.isDefault && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-semibold">
+                    Default
+                  </span>
+                )}
+              </div>
 
               <div className="space-y-3">
                 <div>
@@ -296,8 +305,12 @@ export default function ManageCatalogues({
                     type="text"
                     value={formFolder}
                     onChange={(e) => setFormFolder(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    disabled={showEditForm?.isDefault}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                   />
+                  {showEditForm?.isDefault && (
+                    <p className="text-xs text-gray-500 mt-1">Folder name cannot be changed for default catalogues</p>
+                  )}
                 </div>
 
                 {formError && (
@@ -367,12 +380,7 @@ export default function ManageCatalogues({
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => openEditForm(catalogue)}
-                    disabled={catalogue.isDefault}
-                    className={`flex-1 py-1.5 text-sm rounded font-medium transition ${
-                      catalogue.isDefault
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-amber-500 text-white hover:bg-amber-600"
-                    }`}
+                    className="flex-1 py-1.5 text-sm rounded font-medium transition bg-amber-500 text-white hover:bg-amber-600"
                   >
                     Edit
                   </button>
