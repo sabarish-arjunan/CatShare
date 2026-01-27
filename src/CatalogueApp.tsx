@@ -468,7 +468,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
 
-      <main ref={scrollRef} className={`flex-1 min-h-0 ${(tab === 'products' || tab === 'catalogues') ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}
