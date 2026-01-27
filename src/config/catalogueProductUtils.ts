@@ -99,9 +99,8 @@ export function getCatalogueData(product: ProductWithCatalogueData, catalogueId:
  * Get default catalogue data structure
  */
 export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
-  // Import here to avoid circular dependency
-  const { getCatalogueById } = require('./catalogueConfig');
-  const catalogue = getCatalogueById(catalogueId);
+  const catalogues = getAllCatalogues();
+  const catalogue = catalogues.find(c => c.id === catalogueId);
 
   const defaults: CatalogueData = {
     enabled: catalogueId === 'cat1',
@@ -121,7 +120,7 @@ export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
     defaults[catalogue.priceUnitField] = "/ piece";
     defaults[catalogue.stockField] = true;
   } else {
-    // Fallback for legacy support
+    // Fallback for legacy support (in case catalogue is deleted)
     defaults.price1 = "";
     defaults.price1Unit = "/ piece";
     defaults.price2 = "";
