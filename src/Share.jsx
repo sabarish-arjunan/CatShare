@@ -37,7 +37,7 @@ export async function handleShare({
       try {
         await Filesystem.stat({
           path: filePath,
-          directory: Directory.Documents,
+          directory: Directory.External,
         });
         console.log(`✅ File exists: ${filePath}`);
       } catch (statErr) {
@@ -52,7 +52,7 @@ export async function handleShare({
       try {
         const fileResult = await Filesystem.getUri({
           path: filePath,
-          directory: Directory.Documents,
+          directory: Directory.External,
         });
 
         if (fileResult.uri) {
