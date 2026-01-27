@@ -130,7 +130,7 @@ const { showToast } = useToast();
       await Filesystem.writeFile({
         path: filename,
         data: base64Data,
-        directory: Directory.External,
+        directory: Directory.Documents,
       });
 
       await FileSharer.share({
