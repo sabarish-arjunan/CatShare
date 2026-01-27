@@ -382,7 +382,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       try {
         const stat = await Filesystem.stat({
           path: filePath,
-          directory: Directory.Documents,
+          directory: Directory.External,
         });
         console.log(`✅ File verified - exists at: ${filePath}`, stat);
 
@@ -390,7 +390,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         try {
           const uriResult = await Filesystem.getUri({
             path: filePath,
-            directory: Directory.Documents,
+            directory: Directory.External,
           });
           console.log(`📍 File URI: ${uriResult.uri}`);
         } catch (uriErr) {
