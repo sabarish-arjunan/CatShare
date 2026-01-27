@@ -67,7 +67,7 @@ export async function handleShare({
         try {
           const fileData = await Filesystem.readFile({
             path: filePath,
-            directory: Directory.Documents,
+            directory: Directory.External,
           });
 
           // Create a data URL from the base64
