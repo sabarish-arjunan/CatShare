@@ -688,29 +688,44 @@ export default function ProductPreviewModal({
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="flex justify-between px-4 py-3 bg-gray-100 border-t text-sm">
-                <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white">
-                  Edit
-                </button>
-                <button
-                  onClick={() => onToggleStock("wholesaleStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  WS {product.wholesaleStock ? "In" : "Out"}
-                </button>
-                <button
-                  onClick={() => onToggleStock("resellStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  RS {product.resellStock ? "In" : "Out"}
-                </button>
-                <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white">
-                  Close
-                </button>
+              <div className="px-4 py-3 bg-gray-100 border-t text-sm">
+                {/* First row: Edit, All In/Out, Close */}
+                <div className="flex justify-between gap-2 mb-2">
+                  <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white flex-1">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onToggleMasterStock()}
+                    className={`px-3 py-1 rounded flex-1 ${
+                      getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                    title="Toggle all catalogues"
+                  >
+                    All {getAllStockStatus() ? "In" : "Out"}
+                  </button>
+                  <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white flex-1">
+                    Close
+                  </button>
+                </div>
+                {/* Second row: Individual catalogue toggles */}
+                <div className="flex justify-between gap-2">
+                  <button
+                    onClick={() => onToggleStock("wholesaleStock")}
+                    className={`px-3 py-1 rounded flex-1 text-xs ${
+                      product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    C1 {product.wholesaleStock ? "In" : "Out"}
+                  </button>
+                  <button
+                    onClick={() => onToggleStock("resellStock")}
+                    className={`px-3 py-1 rounded flex-1 text-xs ${
+                      product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    C2 {product.resellStock ? "In" : "Out"}
+                  </button>
+                </div>
               </div>
             )}
           </motion.div>
