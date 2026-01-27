@@ -422,24 +422,50 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
 
   {/* Center Title (hidden while searching) */}
-  {!showSearch && !selectMode && (
+  {!showSearch && (
     <div className="flex items-center gap-2">
       {onBack && (
-        <button
-          onClick={onBack}
+        <motion.button
+          onClick={() => {
+            if (selectMode) {
+              setSelectMode(false);
+              setSelected([]);
+            } else {
+              onBack();
+            }
+          }}
           className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
-          title="Back"
+          title={selectMode ? "Exit Selection" : "Back"}
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+          {selectMode ? (
+            // X shape when in select mode
+            <>
+              <motion.span
+                className="absolute w-6 h-0.5 bg-gray-700"
+                initial={false}
+                animate={{ rotate: 45 }}
+                transition={{ duration: 0.2 }}
+              />
+              <motion.span
+                className="absolute w-6 h-0.5 bg-gray-700"
+                initial={false}
+                animate={{ rotate: -45 }}
+                transition={{ duration: 0.2 }}
+              />
+            </>
+          ) : (
+            // Back arrow when in normal mode
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          )}
+        </motion.button>
       )}
       <h1
     className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
