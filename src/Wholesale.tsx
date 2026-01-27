@@ -421,26 +421,54 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 </AnimatePresence>
 
 
-  {/* Back/Close button that shows in selectMode as X */}
-  {!showSearch && selectMode && onBack && (
+  {/* Back/Close button that animates between arrow and X */}
+  {!showSearch && onBack && (
     <motion.button
       onClick={() => {
-        setSelectMode(false);
-        setSelected([]);
+        if (selectMode) {
+          setSelectMode(false);
+          setSelected([]);
+        } else {
+          onBack();
+        }
       }}
       className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
-      title="Exit Selection"
+      title={selectMode ? "Exit Selection" : "Back"}
     >
+      {/* Arrow (visible when not in selectMode) */}
+      <motion.svg
+        className="w-5 h-5 absolute"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        initial={false}
+        animate={{
+          opacity: selectMode ? 0 : 1,
+          scale: selectMode ? 0.5 : 1,
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      </motion.svg>
+
+      {/* X icon (visible when in selectMode) */}
       <motion.span
         className="absolute w-6 h-0.5 bg-gray-700"
         initial={false}
-        animate={{ rotate: 45 }}
+        animate={{
+          rotate: selectMode ? 45 : 0,
+          opacity: selectMode ? 1 : 0,
+        }}
         transition={{ duration: 0.2 }}
       />
       <motion.span
         className="absolute w-6 h-0.5 bg-gray-700"
         initial={false}
-        animate={{ rotate: -45 }}
+        animate={{
+          rotate: selectMode ? -45 : 0,
+          opacity: selectMode ? 1 : 0,
+        }}
         transition={{ duration: 0.2 }}
       />
     </motion.button>
@@ -449,23 +477,6 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   {/* Center Title (hidden while searching or in selectMode) */}
   {!showSearch && !selectMode && (
     <div className="flex items-center gap-2">
-      {onBack && (
-        <motion.button
-          onClick={onBack}
-          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
-          title="Back"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </motion.button>
-      )}
       <h1
     className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
     onClick={() => {
