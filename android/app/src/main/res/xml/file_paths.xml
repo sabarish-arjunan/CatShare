@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-  <!-- External app-specific directory for documents (e.g., rendered images) -->
+  <!-- External app-specific directory where rendered images are stored -->
+  <!-- This maps to: /storage/emulated/0/Android/data/com.catshare.official/files/ -->
   <external-files-path name="external_files" path="." />
+
   <!-- Cache directory for temporary files -->
   <cache-path name="cache_files" path="." />
-  <!-- External path for public storage -->
-  <external-path name="external" path="." />
 </paths>
