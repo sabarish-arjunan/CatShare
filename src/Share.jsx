@@ -41,18 +41,36 @@ export async function handleShare({
         continue;
       }
 
-      // If file exists, get its URI
-      const fileResult = await Filesystem.getUri({
-        path: filePath,
-        directory: Directory.Documents,
-      });
+      // Try to get file URI for sharing
+      try {
+        const fileResult = await Filesystem.getUri({
+          path: filePath,
+          directory: Directory.Documents,
+        });
 
-      if (fileResult.uri) {
-        fileUris.push(fileResult.uri);
-        console.log(`✅ Got URI for ${fileName}:`, fileResult.uri);
-      } else {
-        console.warn(`❌ Could not get URI for ${fileName}`);
-        filesNotFound.push({ id, path: filePath, reason: "No URI returned" });
+        if (fileResult.uri) {
+          fileUris.push(fileResult.uri);
+          console.log(`✅ Got URI for ${fileName}:`, fileResult.uri);
+        } else {
+          throw new Error("No URI returned from getUri");
+        }
+      } catch (uriErr) {
+        // Fallback: Read file as base64 and use data URL
+        console.warn(`⚠️ Could not get file URI, trying base64 fallback:`, uriErr);
+        try {
+          const fileData = await Filesystem.readFile({
+            path: filePath,
+            directory: Directory.Documents,
+          });
+
+          // Create a data URL from the base64
+          const dataUrl = `data:image/png;base64,${fileData.data}`;
+          fileUris.push(dataUrl);
+          console.log(`✅ Using base64 fallback for ${fileName}`);
+        } catch (readErr) {
+          console.error(`❌ Could not read file as fallback for ${fileName}:`, readErr);
+          filesNotFound.push({ id, path: filePath, reason: "Could not get URI or read file" });
+        }
       }
     } catch (err) {
       console.error(`❌ Error processing image for product ${id}:`, err);
