@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus } from "react-icons/fi";
+import { MdLayers } from "react-icons/md";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
@@ -10,6 +11,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import AddProductsModal from "./components/AddProductsModal";
+import BulkEdit from "./BulkEdit";
 
 
 export default function ResellTab({
@@ -63,6 +65,7 @@ export default function ResellTab({
   const searchInputRef = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
 
 
 useEffect(() => {
@@ -437,14 +440,6 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   >
     {catalogueLabel || "Catalogue"}
   </h1>
-      <button
-        onClick={() => setShowAddProductsModal(true)}
-        className="ml-auto text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0 px-2 py-1 hover:bg-blue-50 rounded"
-        title="Add products to this catalogue"
-      >
-        <FiPlus size={16} />
-        Add
-      </button>
     </div>
   )}
 
@@ -496,6 +491,15 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z"
         />
       </svg>
+    </button>
+
+    {/* Bulk Editor Button */}
+    <button
+      onClick={() => setShowBulkEdit(true)}
+      className="text-xl text-gray-600 hover:text-black"
+      title="Bulk Edit"
+    >
+      <MdLayers className="w-5 h-5" />
     </button>
 
     {/* Filter Button */}
@@ -1003,7 +1007,30 @@ onMouseLeave={handleTouchEnd}
         imageMap={imageMap}
         onProductsUpdate={setProducts}
       />
+
+      {showBulkEdit && (
+        <BulkEdit
+          products={visibleProducts}
+          imageMap={imageMap}
+          setProducts={setProducts}
+          onClose={() => setShowBulkEdit(false)}
+          catalogueId={catalogueId}
+          priceField={priceField}
+          priceUnitField={priceUnitField}
+          stockField={stockField}
+        />
+      )}
     </div>
+
+    {/* Floating Add Button */}
+    <button
+      onClick={() => setShowAddProductsModal(true)}
+      className="fixed right-4 z-40 bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+      title="Add products to this catalogue"
+    >
+      <FiPlus size={24} />
+    </button>
     </>
   );
 }

@@ -2,20 +2,30 @@ import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
 
-const FIELD_OPTIONS = [
-  { key: "name", label: "Name" },
-  { key: "subtitle", label: "Subtitle" },
-  { key: "field1", label: "Colour" },
-  { key: "field2", label: "Package" },
-  { key: "field3", label: "Age Group" },
-  { key: "price1", label: "Price 1" },
-  { key: "price2", label: "Price 2" },
-  { key: "badge", label: "Badge" },
-  { key: "category", label: "Category" },
-  { key: "stock", label: "Stock Update" },
-];
+const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
+  const baseFields = [
+    { key: "name", label: "Name" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "field1", label: "Colour" },
+    { key: "field2", label: "Package" },
+    { key: "field3", label: "Age Group" },
+    { key: "badge", label: "Badge" },
+    { key: "category", label: "Category" },
+  ];
 
-export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender }) {
+  // Add price field based on catalogue
+  if (priceField) {
+    const priceLabel = priceField === 'price1' ? 'Price (Wholesale)' :
+                       priceField === 'price2' ? 'Price (Resell)' :
+                       'Price';
+    baseFields.push({ key: priceField, label: priceLabel });
+  }
+
+  baseFields.push({ key: "stock", label: "Stock Update" });
+  return baseFields;
+};
+
+export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender, catalogueId, priceField, priceUnitField, stockField }) {
   const [editedData, setEditedData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
@@ -23,7 +33,8 @@ export default function BulkEdit({ products, imageMap, setProducts, onClose, tri
   const [showRenderPopup, setShowRenderPopup] = useState(false);
   const { showToast } = useToast();
   const totalProducts = products.length;
-const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
+  const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
+  const FIELD_OPTIONS = getFieldOptions(catalogueId, priceField, priceUnitField);
 
 
 
@@ -31,20 +42,31 @@ useEffect(() => {
   const storedCategories = JSON.parse(localStorage.getItem("categories") || "[]");
   setCategories(storedCategories);
 
-  const normalized = products.map((p) => ({
-    ...p,
-    wholesaleStock:
-      typeof p.wholesaleStock === "boolean"
-        ? p.wholesaleStock ? "in" : "out"
-        : p.wholesaleStock,
-    resellStock:
-      typeof p.resellStock === "boolean"
-        ? p.resellStock ? "in" : "out"
-        : p.resellStock,
-  }));
+  const normalized = products.map((p) => {
+    const normalized = {
+      ...p,
+      wholesaleStock:
+        typeof p.wholesaleStock === "boolean"
+          ? p.wholesaleStock ? "in" : "out"
+          : p.wholesaleStock,
+      resellStock:
+        typeof p.resellStock === "boolean"
+          ? p.resellStock ? "in" : "out"
+          : p.resellStock,
+    };
+
+    // Handle catalogue-specific stock field
+    if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
+      normalized[stockField] = typeof p[stockField] === "boolean"
+        ? p[stockField] ? "in" : "out"
+        : p[stockField];
+    }
+
+    return normalized;
+  });
 
   setEditedData(normalized);
-}, [products]);
+}, [products, stockField]);
 
 
 
@@ -76,12 +98,19 @@ useEffect(() => {
   const copy = { ...p };
   delete copy.image;
 
-  // Convert WS/RS string → boolean
+  // Convert stock fields from string → boolean
   if (typeof copy.wholesaleStock === "string") {
     copy.wholesaleStock = copy.wholesaleStock === "in";
   }
   if (typeof copy.resellStock === "string") {
     copy.resellStock = copy.resellStock === "in";
+  }
+
+  // Handle catalogue-specific stock field
+  if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
+    if (typeof copy[stockField] === "string") {
+      copy[stockField] = copy[stockField] === "in";
+    }
   }
 
   return copy;
@@ -258,35 +287,17 @@ useEffect(() => {
               </div>
             )}
 
-            {selectedFields.includes("price1") && (
+            {priceField && selectedFields.includes(priceField) && (
               <div className="flex gap-2">
                 <input
-                  value={item.price1 || item.wholesale || ""}
-                  onChange={(e) => { handleFieldChange(item.id, "price1", e.target.value); handleFieldChange(item.id, "wholesale", e.target.value); }}
+                  value={item[priceField] || ""}
+                  onChange={(e) => handleFieldChange(item.id, priceField, e.target.value)}
                   className="border rounded px-2 py-1 w-28"
+                  placeholder="Price"
                 />
                 <select
-                  value={item.price1Unit || item.wholesaleUnit || ""}
-                  onChange={(e) => { handleFieldChange(item.id, "price1Unit", e.target.value); handleFieldChange(item.id, "wholesaleUnit", e.target.value); }}
-                  className="border rounded px-2 py-1 pr-8 w-16"
-                >
-                  <option value="/ piece">/ piece</option>
-                  <option value="/ dozen">/ dozen</option>
-                  <option value="/ set">/ set</option>
-                </select>
-              </div>
-            )}
-
-            {selectedFields.includes("price2") && (
-              <div className="flex gap-2">
-                <input
-                  value={item.price2 || item.resell || ""}
-                  onChange={(e) => { handleFieldChange(item.id, "price2", e.target.value); handleFieldChange(item.id, "resell", e.target.value); }}
-                  className="border rounded px-2 py-1 w-28"
-                />
-                <select
-                  value={item.price2Unit || item.resellUnit || ""}
-                  onChange={(e) => { handleFieldChange(item.id, "price2Unit", e.target.value); handleFieldChange(item.id, "resellUnit", e.target.value); }}
+                  value={item[priceUnitField] || ""}
+                  onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>
@@ -373,27 +384,15 @@ useEffect(() => {
   <div className="flex gap-2">
     <button
       onClick={() =>
-        handleFieldChange(item.id, "wholesaleStock", item.wholesaleStock === "in" ? "out" : "in")
+        handleFieldChange(item.id, stockField, item[stockField] === "in" ? "out" : "in")
       }
       className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item.wholesaleStock === "in"
+        item[stockField] === "in"
           ? "bg-green-600 text-white"
           : "bg-gray-300 text-gray-800"
       }`}
     >
-      WS: {item.wholesaleStock === "in" ? "In" : "Out"}
-    </button>
-    <button
-      onClick={() =>
-        handleFieldChange(item.id, "resellStock", item.resellStock === "in" ? "out" : "in")
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item.resellStock === "in"
-          ? "bg-yellow-600 text-white"
-          : "bg-gray-300 text-gray-800"
-      }`}
-    >
-      RS: {item.resellStock === "in" ? "In" : "Out"}
+      {stockField === 'wholesaleStock' ? 'WS' : stockField === 'resellStock' ? 'RS' : 'Stock'}: {item[stockField] === "in" ? "In" : "Out"}
     </button>
   </div>
 )}
