@@ -29,7 +29,6 @@ export default function ManageCatalogues({
   );
 
   const [formLabel, setFormLabel] = useState("");
-  const [formFolder, setFormFolder] = useState("");
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
