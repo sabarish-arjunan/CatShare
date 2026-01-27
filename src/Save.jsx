@@ -231,7 +231,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       try {
         const stat = await Filesystem.stat({
           path: filePath,
-          directory: Directory.External,
+          directory: Directory.Documents,
         });
         console.log(`✅ File verified - exists at: ${filePath}`, stat);
       } catch (verifyErr) {
