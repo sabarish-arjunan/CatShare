@@ -46,8 +46,8 @@ export default function CataloguesList({
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
-      <header className="fixed top-[40px] left-0 right-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+      <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+      <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         {/* Menu Button */}
         <button
           onClick={() => window.dispatchEvent(new Event("toggle-menu"))}
