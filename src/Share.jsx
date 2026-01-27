@@ -24,10 +24,10 @@ export async function handleShare({
   let filesNotFound = [];
 
   console.log(`🔍 Share Debug Info:`);
-  console.log(`📁 Target folder: ${folder}`);
+  console.log(`📁 Target folder: ${targetFolder}`);
   console.log(`🔢 Products to share: ${selected.length}`);
-  console.log(`📍 Looking for files in Directory.External/${folder}/`);
-  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${folder}/`);
+  console.log(`📍 Looking for files in Directory.External/${targetFolder}/`);
+  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${targetFolder}/`);
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
   for (const id of selected) {
