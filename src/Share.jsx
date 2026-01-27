@@ -21,6 +21,12 @@ export async function handleShare({
   let processedCount = 0;
   let filesNotFound = [];
 
+  console.log(`🔍 Share Debug Info:`);
+  console.log(`📁 Target folder: ${folder}`);
+  console.log(`🔢 Products to share: ${selected.length}`);
+  console.log(`📍 Looking for files in Directory.Documents/${folder}/`);
+  console.log(`Selected product IDs: ${selected.join(", ")}`);
+
   for (const id of selected) {
     const fileName = `product_${id}_${mode}.png`;
     const filePath = `${folder}/${fileName}`;
