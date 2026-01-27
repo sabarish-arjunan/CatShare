@@ -734,8 +734,18 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             filteredProducts={previewList}
             onClose={() => setPreviewProduct(null)}
             onEdit={() => navigate(`/create?id=${previewProduct.id}`)}
-            onToggleStock={(field) => {
-              const updated = { ...previewProduct, [field]: !previewProduct[field] };
+            onToggleStock={(fieldOrProduct, isMasterToggle) => {
+              let updated;
+
+              if (isMasterToggle && typeof fieldOrProduct === 'object') {
+                // Master toggle: fieldOrProduct is the complete updated product
+                updated = fieldOrProduct;
+              } else {
+                // Individual toggle: fieldOrProduct is a field string
+                const field = fieldOrProduct;
+                updated = { ...previewProduct, [field]: !previewProduct[field] };
+              }
+
               updateProduct(updated);
               setPreviewProduct(updated);
             }}
