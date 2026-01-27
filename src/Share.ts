@@ -1,14 +1,23 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 
+interface HandleShareParams {
+  selected: any[];
+  setProcessing: React.Dispatch<React.SetStateAction<boolean>>;
+  setProcessingIndex: React.Dispatch<React.SetStateAction<number>>;
+  setProcessingTotal: React.Dispatch<React.SetStateAction<number>>;
+  folder?: string | null;
+  mode?: string;
+}
+
 export async function handleShare({
   selected,
   setProcessing,
   setProcessingIndex,
   setProcessingTotal,
-  folder,
+  folder = null,
   mode = "resell", // or "wholesale" - kept for backward compatibility
-}) {
+}: HandleShareParams) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
     return;
@@ -83,7 +92,7 @@ export async function handleShare({
       }
     } catch (err) {
       console.error(`❌ Error processing image for product ${id}:`, err);
-      filesNotFound.push({ id, path: filePath, error: err.message });
+      filesNotFound.push({ id, path: filePath, error: (err as Error).message });
     }
 
     processedCount++;
@@ -146,6 +155,6 @@ export async function handleShare({
   } catch (err) {
     console.error("❌ Share failed:", err);
     console.log(`\n📊 Share Summary: Successfully prepared ${fileUris.length} files but share was cancelled or failed`);
-    alert("Sharing failed: " + err.message);
+    alert("Sharing failed: " + (err as Error).message);
   }
 }
