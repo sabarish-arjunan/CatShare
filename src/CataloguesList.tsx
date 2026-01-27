@@ -80,6 +80,7 @@ export default function CataloguesList({
           Manage
         </button>
       </header>
+
       {catalogues.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No catalogues available</p>
