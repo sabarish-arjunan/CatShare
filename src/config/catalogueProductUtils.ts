@@ -99,21 +99,36 @@ export function getCatalogueData(product: ProductWithCatalogueData, catalogueId:
  * Get default catalogue data structure
  */
 export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
-  return {
+  // Import here to avoid circular dependency
+  const { getCatalogueById } = require('./catalogueConfig');
+  const catalogue = getCatalogueById(catalogueId);
+
+  const defaults: CatalogueData = {
     enabled: catalogueId === 'cat1',
     field1: "",
     field2: "",
     field3: "",
-    price1: "",
-    price1Unit: "/ piece",
-    price2: "",
-    price2Unit: "/ piece",
     field2Unit: "pcs / set",
     field3Unit: "months",
     stock: true,
     wholesaleStock: true,
     resellStock: true,
   };
+
+  // Add dynamic price fields based on actual catalogue configuration
+  if (catalogue) {
+    defaults[catalogue.priceField] = "";
+    defaults[catalogue.priceUnitField] = "/ piece";
+    defaults[catalogue.stockField] = true;
+  } else {
+    // Fallback for legacy support
+    defaults.price1 = "";
+    defaults.price1Unit = "/ piece";
+    defaults.price2 = "";
+    defaults.price2Unit = "/ piece";
+  }
+
+  return defaults;
 }
 
 /**
