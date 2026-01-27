@@ -81,10 +81,10 @@ export default function CataloguesList({
         </button>
       </header>
       {catalogues.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No catalogues available</p>
-          </div>
-        ) : (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No catalogues available</p>
+        </div>
+      ) : (
           <div className="space-y-3 px-4 pb-4">
             {catalogues.map((catalogue) => {
               const stats = catalogueStats[catalogue.id] || {
