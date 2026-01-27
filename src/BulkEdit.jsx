@@ -27,16 +27,32 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   return baseFields;
 };
 
-export default function BulkEdit({ products, allProducts, imageMap, setProducts, onClose, triggerRender, catalogueId, priceField, priceUnitField, stockField }) {
+export default function BulkEdit({ products, allProducts, imageMap, setProducts, onClose, triggerRender, catalogueId: initialCatalogueId, priceField: initialPriceField, priceUnitField: initialPriceUnitField, stockField: initialStockField }) {
   const [editedData, setEditedData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
-  const [step, setStep] = useState("select");
+  const [step, setStep] = useState(initialCatalogueId ? "select" : "catalogue");
   const [showRenderPopup, setShowRenderPopup] = useState(false);
+  const [selectedCatalogueId, setSelectedCatalogueId] = useState(initialCatalogueId || null);
+  const [selectedCatalogueConfig, setSelectedCatalogueConfig] = useState(null);
+  const [catalogues, setCatalogues] = useState([]);
   const { showToast } = useToast();
+
+  // Use initial values or selected values
+  const catalogueId = selectedCatalogueId || initialCatalogueId;
+  const priceField = selectedCatalogueConfig?.priceField || initialPriceField;
+  const priceUnitField = selectedCatalogueConfig?.priceUnitField || initialPriceUnitField;
+  const stockField = selectedCatalogueConfig?.stockField || initialStockField;
+
   const totalProducts = products.length;
   const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
   const FIELD_OPTIONS = getFieldOptions(catalogueId, priceField, priceUnitField);
+
+  // Load catalogues on mount
+  useEffect(() => {
+    const cats = getAllCatalogues();
+    setCatalogues(cats);
+  }, []);
 
 
 
