@@ -1014,6 +1014,10 @@ onMouseLeave={handleTouchEnd}
           imageMap={imageMap}
           setProducts={setProducts}
           onClose={() => setShowBulkEdit(false)}
+          catalogueId={catalogueId}
+          priceField={priceField}
+          priceUnitField={priceUnitField}
+          stockField={stockField}
         />
       )}
     </div>
