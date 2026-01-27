@@ -75,10 +75,10 @@ export default function CataloguesList({
             await Haptics.impact({ style: ImpactStyle.Light });
             onManageCatalogues();
           }}
-          className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shrink-0"
+          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition shrink-0"
           title="Add, edit, or delete catalogues"
         >
-          Manage
+          <FiSettings size={20} />
         </button>
       </header>
 
