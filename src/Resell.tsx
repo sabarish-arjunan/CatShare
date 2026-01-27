@@ -738,7 +738,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
               key={p.id}
               data-id={p.id}
               className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200 ${
-                !p.resellStock ? "opacity-100" : ""
+                !p[stockField] ? "opacity-100" : ""
               }`}
               onClick={() => handleCardClick(p.id)}
 onTouchStart={(e) => handleTouchStart(e, p.id)}
