@@ -92,11 +92,6 @@ export default function ManageCatalogues({
       return;
     }
 
-    if (!formFolder.trim()) {
-      setFormError("Folder name is required");
-      return;
-    }
-
     if (!showEditForm) return;
 
     // Check for duplicate labels (excluding current catalogue)
@@ -114,11 +109,8 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
-      // For default catalogues, only allow changing the label
-      const updates = showEditForm.isDefault
-        ? { label: formLabel.trim() }
-        : { label: formLabel.trim(), folder: formFolder.trim() };
-
+      // Update label and folder (folder = label for all catalogues)
+      const updates = { label: formLabel.trim(), folder: formLabel.trim() };
       updateCatalogue(showEditForm.id, updates);
 
       const updated = getAllCatalogues();
@@ -127,7 +119,6 @@ export default function ManageCatalogues({
 
       setShowEditForm(null);
       setFormLabel("");
-      setFormFolder("");
     } catch (err) {
       setFormError("Failed to update catalogue: " + (err as Error).message);
     }
