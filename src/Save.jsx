@@ -2,6 +2,49 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 
+/**
+ * Delete all rendered images from a folder
+ * Used when catalogue name changes to clean up old folder
+ */
+export async function deleteRenderedImagesFromFolder(folderName) {
+  if (!folderName) return;
+
+  try {
+    console.log(`🗑️  Cleaning up old rendered images from folder: ${folderName}`);
+
+    // List all files in the folder
+    const result = await Filesystem.readdir({
+      path: folderName,
+      directory: Directory.External,
+    });
+
+    if (!result.files || result.files.length === 0) {
+      console.log(`✅ Folder is empty or doesn't exist: ${folderName}`);
+      return;
+    }
+
+    // Delete each file
+    for (const file of result.files) {
+      try {
+        await Filesystem.deleteFile({
+          path: `${folderName}/${file.name}`,
+          directory: Directory.External,
+        });
+        console.log(`  ✓ Deleted: ${file.name}`);
+      } catch (err) {
+        console.warn(`  ⚠️  Could not delete ${file.name}:`, err.message);
+      }
+    }
+
+    console.log(`✅ Cleanup completed for folder: ${folderName}`);
+  } catch (err) {
+    // Folder might not exist yet, which is fine
+    if (err.code !== 'NotFound') {
+      console.warn(`⚠️  Could not clean up folder ${folderName}:`, err.message);
+    }
+  }
+}
+
 export async function saveRenderedImage(product, type, units = {}) {
   const id = product.id || "temp-id";
   const fontColor = product.fontColor || "white";
