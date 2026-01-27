@@ -509,44 +509,16 @@ export default function ProductPreviewModal({
     const allInStock = getAllStockStatus();
     const newStatus = !allInStock;
 
-    // Create an updated product with all catalogue stock fields toggled
+    // Create updated product with all catalogue stock fields toggled
     const updatedProduct = { ...product };
     allCatalogues.forEach((cat) => {
       updatedProduct[cat.stockField] = newStatus;
     });
 
-    // Update the product via parent component
+    // Update product in parent component
     if (onToggleStock) {
-      // We use a custom approach: update all fields at once
-      // Call onToggleStock for each catalogue to maintain consistency
-      allCatalogues.forEach((cat, index) => {
-        // Only update the preview product immediately for the first one
-        // The parent will handle updating all
-        if (index === 0) {
-          // For master toggle, we'll pass a special flag
-          // But since onToggleStock takes a field, we'll manually update
-        }
-      });
-    }
-
-    // Directly update the product object with all stock fields
-    const fullyUpdatedProduct = { ...product };
-    allCatalogues.forEach((cat) => {
-      fullyUpdatedProduct[cat.stockField] = newStatus;
-    });
-
-    // Call the parent's updateProduct or equivalent
-    // Since we don't have direct access, trigger via onToggleStock for first catalogue
-    // Then manually update the rest
-    if (typeof onToggleStock === 'function') {
-      // Update via parent by modifying the product
-      allCatalogues.forEach((cat) => {
-        fullyUpdatedProduct[cat.stockField] = newStatus;
-      });
-      // We need to pass the fully updated product to parent
-      // Let's create a workaround using the product update pattern
-      onToggleStock(allCatalogues[0].stockField); // Trigger first update
-      setPreviewProduct(fullyUpdatedProduct);
+      // Pass the updated product directly - we'll modify parent signature
+      onToggleStock(updatedProduct, true); // true indicates master toggle
     }
   };
 
