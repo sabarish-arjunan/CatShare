@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import SideDrawer from "./SideDrawer";
 
-export default function Settings({ darkMode = false, setDarkMode = () => {} }) {
+export default function Settings({ darkMode = false, setDarkMode = (value) => {} }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
