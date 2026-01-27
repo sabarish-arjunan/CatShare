@@ -6,9 +6,9 @@ export async function handleShare({
   setProcessing,
   setProcessingIndex,
   setProcessingTotal,
-  folder,
+  folder = null,
   mode = "resell", // or "wholesale" - kept for backward compatibility
-} = {}) {
+}) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
     return;
