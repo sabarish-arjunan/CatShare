@@ -8,7 +8,7 @@ export async function handleShare({
   setProcessingTotal,
   folder,
   mode = "resell", // or "wholesale" - kept for backward compatibility
-}) {
+} = {}) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
     return;
