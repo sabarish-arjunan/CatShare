@@ -121,10 +121,12 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
-      updateCatalogue(showEditForm.id, {
-        label: formLabel.trim(),
-        folder: formFolder.trim(),
-      });
+      // For default catalogues, only allow changing the label
+      const updates = showEditForm.isDefault
+        ? { label: formLabel.trim() }
+        : { label: formLabel.trim(), folder: formFolder.trim() };
+
+      updateCatalogue(showEditForm.id, updates);
 
       const updated = getAllCatalogues();
       setCatalogues(updated);
