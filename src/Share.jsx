@@ -112,7 +112,7 @@ export async function handleShare({
       });
 
       message += `\n✅ SOLUTIONS:\n`;
-      message += `1. Click 'Render All' button in the ${folder} tab\n`;
+      message += `1. Click 'Render All' button to render images for this catalogue\n`;
       message += `2. Wait for all images to finish rendering\n`;
       message += `3. Check the browser console (F12) for errors\n`;
       message += `4. Ensure you have storage permissions granted to the app\n`;
@@ -122,7 +122,7 @@ export async function handleShare({
       message += "\n\nMake sure you have:\n";
       message += "1. Selected at least one product\n";
       message += "2. Rendered the images using the 'Render All' button\n";
-      message += `3. Images should be saved in: ${folder}/ folder`;
+      message += `3. Images should be saved in: ${targetFolder}/ folder`;
     }
 
     alert(message);
