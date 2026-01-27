@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FiSettings } from "react-icons/fi";
 import { type Catalogue } from "./config/catalogueConfig";
 import { isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -74,10 +75,10 @@ export default function CataloguesList({
             await Haptics.impact({ style: ImpactStyle.Light });
             onManageCatalogues();
           }}
-          className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shrink-0"
+          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition shrink-0"
           title="Add, edit, or delete catalogues"
         >
-          Manage
+          <FiSettings size={20} />
         </button>
       </header>
 
@@ -169,11 +170,6 @@ export default function CataloguesList({
                     <p className="text-xs text-gray-400 mt-0.5">
                       Price: <span className="font-mono">{catalogue.priceField}</span>
                     </p>
-                  </div>
-
-                  {/* Arrow indicator */}
-                  <div className="text-gray-400 group-hover:text-blue-600 transition-colors text-xl">
-                    →
                   </div>
                 </div>
               </button>

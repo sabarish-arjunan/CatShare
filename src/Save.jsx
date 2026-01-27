@@ -345,10 +345,16 @@ export async function saveRenderedImage(product, type, units = {}) {
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
     const filename = `product_${id}_${type}.png`;
 
-    // Use catalogueId if provided, otherwise fall back to legacy type mapping
+    // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
-    if (units.catalogueId) {
-      // New catalogue system: use catalogue ID to create folder name
+    if (units.folder) {
+      // Folder name passed directly (set to catalogue name/label)
+      folder = units.folder;
+    } else if (units.catalogueLabel) {
+      // Use catalogue label/name as folder name
+      folder = units.catalogueLabel;
+    } else if (units.catalogueId) {
+      // Fallback: use catalogue ID if label not provided
       folder = units.catalogueId;
     } else {
       // Legacy support: map old types to folder names
