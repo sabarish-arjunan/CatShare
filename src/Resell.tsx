@@ -371,56 +371,6 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   return (
     <>
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
-  {/* Menu Button */}
-  <AnimatePresence mode="wait" initial={false}>
-  {!showSearch && (
-    <motion.button
-      key="menu-x-toggle"
-      onClick={() => {
-        if (selectMode) {
-          setSelectMode(false);
-          setSelected([]);
-        } else {
-          window.dispatchEvent(new Event("toggle-menu"));
-        }
-      }}
-      className="relative w-8 h-8 shrink-0 flex items-center justify-center"
-      title={selectMode ? "Exit Selection" : "Menu"}
-    >
-      {/* Top Line */}
-      <motion.span
-        className="absolute w-6 h-0.5 bg-gray-700"
-        initial={false}
-        animate={{
-          rotate: selectMode ? 45 : 0,
-          y: selectMode ? 0 : -8,
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      {/* Middle Line */}
-      <motion.span
-        className="absolute w-6 h-0.5 bg-gray-700"
-        initial={false}
-        animate={{
-          opacity: selectMode ? 0 : 1,
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      {/* Bottom Line */}
-      <motion.span
-        className="absolute w-6 h-0.5 bg-gray-700"
-        initial={false}
-        animate={{
-          rotate: selectMode ? -45 : 0,
-          y: selectMode ? 0 : 8,
-        }}
-        transition={{ duration: 0.2 }}
-      />
-    </motion.button>
-  )}
-</AnimatePresence>
-
-
   {/* Back/Close button that animates between arrow and X */}
   {!showSearch && onBack && (
     <motion.button
