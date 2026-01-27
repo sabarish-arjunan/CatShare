@@ -32,7 +32,7 @@ export async function handleShare({
 
   for (const id of selected) {
     const fileName = `product_${id}_${mode}.png`;
-    const filePath = `${folder}/${fileName}`;
+    const filePath = `${targetFolder}/${fileName}`;
 
     try {
       // First, verify the file exists
