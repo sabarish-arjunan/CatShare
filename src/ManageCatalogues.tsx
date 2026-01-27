@@ -110,8 +110,18 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
+      const newLabel = formLabel.trim();
+      const oldFolder = showEditForm.folder;
+      const newFolder = newLabel;
+
+      // If folder name is changing, clean up old rendered images
+      if (oldFolder !== newFolder) {
+        console.log(`📁 Catalogue folder changed from "${oldFolder}" to "${newFolder}"`);
+        await deleteRenderedImagesFromFolder(oldFolder);
+      }
+
       // Update label and folder (folder = label for all catalogues)
-      const updates = { label: formLabel.trim(), folder: formLabel.trim() };
+      const updates = { label: newLabel, folder: newFolder };
       updateCatalogue(showEditForm.id, updates);
 
       const updated = getAllCatalogues();
