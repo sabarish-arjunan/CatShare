@@ -497,6 +497,27 @@ export default function ProductPreviewModal({
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
+  // Helper function to check if ALL catalogues have product in stock
+  const getAllStockStatus = () => {
+    const allCatalogues = getAllCatalogues();
+    return allCatalogues.every((cat) => product[cat.stockField]);
+  };
+
+  // Helper function to toggle stock for ALL catalogues
+  const onToggleMasterStock = () => {
+    const allCatalogues = getAllCatalogues();
+    const allInStock = getAllStockStatus();
+
+    // Create an updated product with all catalogue stock fields toggled
+    const updatedProduct = { ...product };
+    allCatalogues.forEach((cat) => {
+      updatedProduct[cat.stockField] = !allInStock;
+    });
+
+    // Call the parent's update function
+    onToggleStock(null, allCatalogues, !allInStock);
+  };
+
   // Get catalogue data based on which tab is being viewed
   const getCatalogueIdFromTab = () => {
     // If a catalogue ID was explicitly passed (from catalogue view), use that
