@@ -14,6 +14,9 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues } from "./config/catalogueConfig";
+import { ensureProductsHaveStockFields } from "./utils/dataMigration";
+import { migrateProductToNewFormat } from "./config/fieldMigration";
 
 
 export default function SideDrawer({
@@ -60,8 +63,90 @@ const { showToast } = useToast();
     }
   };
 
-  const handleBackup = async () => {
+  const handleDownloadRenderedImages = async () => {
+  try {
+    const zip = new JSZip();
+    let hasImages = false;
+
+    // Get all catalogues dynamically
+    const catalogues = getAllCatalogues();
+
+    // Also check for legacy folders for backward compatibility
+    const foldersToCheck = [
+      ...catalogues.map(cat => cat.folder || cat.label), // Use folder name (which is now set to catalogue name)
+      "Wholesale", // Legacy support
+      "Resell"     // Legacy support
+    ];
+
+    // Try to read each catalogue folder
+    for (const folderName of foldersToCheck) {
+      try {
+        const files = await Filesystem.readdir({
+          path: folderName,
+          directory: Directory.External,
+        });
+
+        for (const file of files.files) {
+          if (file.name.endsWith(".png")) {
+            const fileData = await Filesystem.readFile({
+              path: `${folderName}/${file.name}`,
+              directory: Directory.External,
+            });
+            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+            hasImages = true;
+          }
+        }
+      } catch (err) {
+        console.warn(`Could not read ${folderName} folder:`, err.message);
+        // Continue to next folder if this one doesn't exist
+      }
+    }
+
+    if (!hasImages) {
+      showToast("No rendered images found. Please render images first.", "info");
+      return;
+    }
+
+    const blob = await zip.generateAsync({ type: "blob" });
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      const base64Data = reader.result.split(",")[1];
+
+      const now = new Date();
+      const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
+      const filename = `catshare-rendered-images-${timestamp}.zip`;
+
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data: base64Data,
+          directory: Directory.External,
+        });
+
+        await FileSharer.share({
+          filename,
+          base64Data,
+          contentType: "application/zip",
+        });
+
+        showToast("Rendered images downloaded successfully!", "success");
+      } catch (err) {
+        showToast("Failed to download images: " + err.message, "error");
+      }
+    };
+
+    reader.readAsDataURL(blob);
+  } catch (err) {
+    console.error("Download rendered images failed:", err);
+    showToast("Failed to download rendered images", "error");
+  }
+};
+
+const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
+  const cataloguesDefinition = getCataloguesDefinition();
+  const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const zip = new JSZip();
 
   const dataForJson = [];
@@ -114,7 +199,16 @@ const { showToast } = useToast();
     deletedForJson.push(product);
   }
 
-  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted: deletedForJson }, null, 2));
+  // Include catalogues definition and all settings in backup
+  zip.file("catalogue-data.json", JSON.stringify({
+    version: 2, // Increment version for future compatibility
+    products: dataForJson,
+    deleted: deletedForJson,
+    cataloguesDefinition,
+    categories,
+    backupDate: new Date().toISOString(),
+    appVersion: APP_VERSION
+  }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
   const reader = new FileReader();
@@ -211,10 +305,15 @@ const exportProductsToCSV = (products) => {
       const zip = await JSZip.loadAsync(event.target.result);
       const jsonFile = zip.file("catalogue-data.json");
 
-      if (!jsonFile) throw new Error("Missing JSON");
+      if (!jsonFile) throw new Error("Missing catalogue-data.json in backup");
 
       const jsonText = await jsonFile.async("text");
       const parsed = JSON.parse(jsonText);
+
+      // Validate backup format
+      if (!parsed.products || !Array.isArray(parsed.products)) {
+        throw new Error("Invalid backup format: missing products array");
+      }
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
@@ -239,21 +338,30 @@ const exportProductsToCSV = (products) => {
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
-          return clean;
+
+          // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
+          const migrated = migrateProductToNewFormat(clean);
+
+          return migrated;
         })
       );
 
       setProducts(rebuilt);
+      localStorage.setItem("products", JSON.stringify(rebuilt));
 
-      const categories = Array.from(
-        new Set(
-          rebuilt.flatMap((p) =>
-            Array.isArray(p.category) ? p.category : [p.category]
+      // Restore categories from backup if available, otherwise extract from products
+      if (parsed.categories && Array.isArray(parsed.categories)) {
+        localStorage.setItem("categories", JSON.stringify(parsed.categories));
+      } else {
+        const categories = Array.from(
+          new Set(
+            rebuilt.flatMap((p) =>
+              Array.isArray(p.category) ? p.category : [p.category]
+            )
           )
-        )
-      ).filter(Boolean);
-
-      localStorage.setItem("categories", JSON.stringify(categories));
+        ).filter(Boolean);
+        localStorage.setItem("categories", JSON.stringify(categories));
+      }
 
       if (Array.isArray(parsed.deleted)) {
         // Also restore deleted products' images from the ZIP
@@ -280,7 +388,11 @@ const exportProductsToCSV = (products) => {
             const clean = { ...p };
             delete clean.imageBase64;
             delete clean.imageFilename;
-            return clean;
+
+            // Migrate old field names to new field names
+            const migrated = migrateProductToNewFormat(clean);
+
+            return migrated;
           })
         );
 
@@ -288,8 +400,37 @@ const exportProductsToCSV = (products) => {
         localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
       }
 
+      // Restore catalogues definition from backup
+      // If the backup doesn't have cataloguesDefinition (old backups v1), use defaults
+      if (parsed.cataloguesDefinition) {
+        setCataloguesDefinition(parsed.cataloguesDefinition);
+        console.log("✅ Restored catalogues definition from backup");
+      } else {
+        // Backward compatibility: old backups don't have cataloguesDefinition
+        // Use the current one if it exists, otherwise use defaults
+        const currentCatalogues = getCataloguesDefinition();
+        if (!currentCatalogues || currentCatalogues.catalogues.length === 0) {
+          // If no catalogues exist, restore defaults
+          setCataloguesDefinition({
+            version: 1,
+            catalogues: DEFAULT_CATALOGUES,
+            lastUpdated: Date.now(),
+          });
+          console.log("⚠️ Old backup detected - using default catalogues");
+        } else {
+          console.log("ℹ️ Using existing catalogue configuration");
+        }
+      }
+
+      // Re-run migrations after catalogues definition has been restored
+      // This ensures all products have the proper field structure for the restored catalogues
+      ensureProductsHaveStockFields();
+
+      console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+
       setShowRenderAfterRestore(true);
     } catch (err) {
+      console.error("❌ Restore failed:", err);
       setBackupResult({
         status: "error",
         message: "Restore failed: " + err.message,
@@ -417,6 +558,19 @@ const exportProductsToCSV = (products) => {
   <MdImage className={`text-[18px] ${isRendering ? "text-gray-400" : "text-white"}`} />
   <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
+
+{showHiddenFeatures && (
+  <button
+    onClick={() => handleDownloadRenderedImages()}
+    className="w-full flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium transition shadow-sm bg-blue-600 text-white hover:bg-blue-700 mb-2"
+    title="Download all rendered product images"
+  >
+    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+    <span>Download PNGs</span>
+  </button>
+)}
 
 {showBackupPopup && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
@@ -578,37 +732,6 @@ const exportProductsToCSV = (products) => {
   </div>
 )}
 
-{renderResult && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-    <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
-      <div className="flex justify-center mb-4">
-        {renderResult.status === "success" ? (
-          <FiCheckCircle className="w-12 h-12 text-green-500" />
-        ) : (
-          <FiAlertCircle className="w-12 h-12 text-red-500" />
-        )}
-      </div>
-
-      <h2 className="text-lg font-semibold text-gray-800 mb-2">
-        {renderResult.status === "success" ? "Success!" : "Failed"}
-      </h2>
-
-      <p className="text-sm text-gray-600 mb-5">
-        {renderResult.message}
-      </p>
-
-      <button
-        onClick={() => {
-          setRenderResult(null);
-          onClose();
-        }}
-        className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
-      >
-        OK
-      </button>
-    </div>
-  </div>
-)}
 
   {isRendering && (
     <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -656,32 +779,31 @@ const exportProductsToCSV = (products) => {
         </div>
       </div>
 
-{showMediaLibrary && (
-  <MediaLibrary
-    onClose={() => setShowMediaLibrary(false)}
-    onSelect={() => setShowMediaLibrary(false)} // ← temp, will connect to product later
-  />
-)}  
+      {showMediaLibrary && (
+        <MediaLibrary
+          onClose={() => setShowMediaLibrary(false)}
+          onSelect={() => setShowMediaLibrary(false)}
+        />
+      )}
 
-{showBulkEdit && (() => {
-  try {
-    return (
-      <BulkEdit
-  products={products}
-  imageMap={imageMap}   // ✅ this is the missing prop
-  setProducts={setProducts}
-  onClose={() => setShowBulkEdit(false)}
-  triggerRender={handleRenderAllPNGs}
-/>
-
-
-
-    );
-  } catch (err) {
-    console.error("💥 Error in BulkEdit:", err);
-    return <div className='text-red-600'>BulkEdit crashed.</div>;
-  }
-})()}
+      {showBulkEdit && (() => {
+        try {
+          const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+          return (
+            <BulkEdit
+              products={products}
+              allProducts={allProds}
+              imageMap={imageMap}
+              setProducts={setProducts}
+              onClose={() => setShowBulkEdit(false)}
+              triggerRender={handleRenderAllPNGs}
+            />
+          );
+        } catch (err) {
+          console.error("💥 Error in BulkEdit:", err);
+          return <div className='text-red-600'>BulkEdit crashed.</div>;
+        }
+      })()}
 
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />

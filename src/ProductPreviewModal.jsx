@@ -6,9 +6,35 @@ import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
+import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
+
+// Helper function to get CSS styles based on watermark position
+const getWatermarkPositionStyles = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none"
+  };
+
+  const positionMap = {
+    "top-left": { top: 10, left: 10, transform: "none" },
+    "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 10, right: 10, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 10, left: 10, transform: "none" },
+    "bottom-center": { bottom: 10, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
+  };
+
+  return { ...baseStyles, ...positionMap[position] };
+};
 
 // Full Screen Image Viewer Component
-const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
+const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWatermark, watermarkText, watermarkPosition }) => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -233,9 +259,9 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center cursor-pointer" data-fullscreen-image="true" onClick={onClose}>
       {/* Header with close and share buttons */}
-      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
+      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}
           className="text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-black/30 backdrop-blur-sm"
@@ -254,7 +280,8 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       {/* Image container */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden touch-none relative"
+        className="flex items-center justify-center overflow-hidden touch-none relative"
+        onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -282,16 +309,10 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
         {showWatermark && (
           <div
             style={{
-              position: "absolute",
-              bottom: 20,
-              left: "50%",
-              transform: "translateX(-50%)",
+              ...getWatermarkPositionStyles(watermarkPosition),
               fontSize: "14px",
               color: "rgba(255, 255, 255, 0.4)",
-              fontFamily: "Arial, sans-serif",
-              fontWeight: 500,
               letterSpacing: "0.5px",
-              pointerEvents: "none",
               zIndex: 5
             }}
           >
@@ -308,6 +329,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
 export default function ProductPreviewModal({
   product,
   tab,
+  catalogueId: externalCatalogueId,
   onClose,
   onEdit,
   onToggleStock,
@@ -320,6 +342,7 @@ export default function ProductPreviewModal({
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -337,8 +360,20 @@ export default function ProductPreviewModal({
     }
   };
 
+  // Update ref whenever showFullScreenImage changes
   useEffect(() => {
-    const handler = () => onClose();
+    fullScreenImageRef.current = showFullScreenImage;
+  }, [showFullScreenImage]);
+
+  useEffect(() => {
+    const handler = () => {
+      // If full screen image is open, close it instead of closing the preview
+      if (fullScreenImageRef.current) {
+        setShowFullScreenImage(false);
+      } else {
+        onClose();
+      }
+    };
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
   }, [onClose]);
@@ -352,37 +387,55 @@ export default function ProductPreviewModal({
   // Check if watermark should be shown
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
   });
 
   // Get custom watermark text
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "created using CatShare";
+    return localStorage.getItem("watermarkText") || "Created using CatShare";
+  });
+
+  // Get watermark position
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
   });
 
   // Listen for watermark setting changes from Settings modal
   useEffect(() => {
     const handleStorageChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     const handleWatermarkChange = () => {
       const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : true);
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
 
       const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "created using CatShare");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = (e) => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
     };
 
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
     };
   }, []);
 
@@ -444,11 +497,58 @@ export default function ProductPreviewModal({
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
+  // Helper function to check if ALL catalogues have product in stock
+  const getAllStockStatus = () => {
+    const allCatalogues = getAllCatalogues();
+    return allCatalogues.every((cat) => product[cat.stockField]);
+  };
+
+  // Helper function to toggle stock for ALL catalogues
+  const onToggleMasterStock = () => {
+    const allCatalogues = getAllCatalogues();
+    const allInStock = getAllStockStatus();
+    const newStatus = !allInStock;
+
+    // Create updated product with all catalogue stock fields toggled
+    const updatedProduct = { ...product };
+    allCatalogues.forEach((cat) => {
+      updatedProduct[cat.stockField] = newStatus;
+    });
+
+    // Update product in parent component
+    if (onToggleStock) {
+      // Pass the updated product directly - we'll modify parent signature
+      onToggleStock(updatedProduct, true); // true indicates master toggle
+    }
+  };
+
+  // Get catalogue data based on which tab is being viewed
+  const getCatalogueIdFromTab = () => {
+    // If a catalogue ID was explicitly passed (from catalogue view), use that
+    if (externalCatalogueId) return externalCatalogueId;
+    // Handle legacy tab names
+    if (tab === "catalogue1") return "cat1";
+    if (tab === "catalogue2") return "cat2";
+    // Handle direct catalogue IDs (cat1, cat2, cat3, etc.)
+    if (tab && tab.startsWith("cat")) return tab;
+    // For products tab, default to cat1
+    return "cat1";
+  };
+
+  const catalogueId = getCatalogueIdFromTab();
+  const catalogueData = getCatalogueData(product, catalogueId);
+
+  // Get the catalogue configuration for price field info
+  const catalogueConfig = getAllCatalogues().find(c => c.id === catalogueId);
+  const priceField = catalogueConfig?.priceField || "price1";
+  const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
+
   return (
     <>
       <div
-        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50"
+        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50 pointer-events-auto"
         onClick={onClose}
+        role="presentation"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
@@ -473,21 +573,6 @@ export default function ProductPreviewModal({
               transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
             })}
           >
-            {/* Top Bar */}
-            {tab !== "resell" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit}
-              </div>
-            )}
 
             {/* Image Section - Click to open full screen */}
             <div
@@ -516,16 +601,10 @@ export default function ProductPreviewModal({
               {showWatermark && (
                 <div
                   style={{
-                    position: "absolute",
-                    bottom: 8,
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    ...getWatermarkPositionStyles(watermarkPosition),
                     fontSize: "10px",
-                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)",
-                    fontFamily: "Arial, sans-serif",
-                    fontWeight: 500,
                     letterSpacing: "0.3px",
-                    pointerEvents: "none"
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
                   }}
                 >
                   {watermarkText}
@@ -607,58 +686,71 @@ export default function ProductPreviewModal({
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
+                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit}
+                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit}
+                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
                 </p>
               </div>
             </div>
 
-            {/* Bottom Bar */}
-            {tab !== "wholesale" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
-              </div>
-            )}
+            {/* Bottom Bar - Show price based on catalogue-specific data */}
+            <div
+              style={{
+                backgroundColor: product.bgColor || "#add8e6",
+                color: product.fontColor || "white",
+                padding: "8px",
+                textAlign: "center",
+                fontWeight: "normal",
+                fontSize: 19,
+              }}
+            >
+              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
+            </div>
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="flex justify-between px-4 py-3 bg-gray-100 border-t text-sm">
-                <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white">
-                  Edit
-                </button>
-                <button
-                  onClick={() => onToggleStock("wholesaleStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  WS {product.wholesaleStock ? "In" : "Out"}
-                </button>
-                <button
-                  onClick={() => onToggleStock("resellStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  RS {product.resellStock ? "In" : "Out"}
-                </button>
-                <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white">
-                  Close
-                </button>
+              <div className="px-4 py-3 bg-gray-100 border-t text-sm">
+                {/* First row: Edit, All In/Out, Close */}
+                <div className="flex justify-between gap-2 mb-2">
+                  <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white flex-1">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onToggleMasterStock()}
+                    className={`px-3 py-1 rounded flex-1 ${
+                      getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                    title="Toggle all catalogues"
+                  >
+                    All {getAllStockStatus() ? "In" : "Out"}
+                  </button>
+                  <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white flex-1">
+                    Close
+                  </button>
+                </div>
+                {/* Second row: Individual catalogue toggles */}
+                <div className="flex justify-between gap-2">
+                  <button
+                    onClick={() => onToggleStock("wholesaleStock")}
+                    className={`px-3 py-1 rounded flex-1 text-xs ${
+                      product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    C1 {product.wholesaleStock ? "In" : "Out"}
+                  </button>
+                  <button
+                    onClick={() => onToggleStock("resellStock")}
+                    className={`px-3 py-1 rounded flex-1 text-xs ${
+                      product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    C2 {product.resellStock ? "In" : "Out"}
+                  </button>
+                </div>
               </div>
             )}
           </motion.div>
@@ -672,6 +764,9 @@ export default function ProductPreviewModal({
           productName={product.name}
           isOpen={showFullScreenImage}
           onClose={() => setShowFullScreenImage(false)}
+          showWatermark={showWatermark}
+          watermarkText={watermarkText}
+          watermarkPosition={watermarkPosition}
         />
       )}
 

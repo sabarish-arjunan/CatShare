@@ -7,11 +7,11 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : true; // Default: true (show watermark)
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (disabled for new users)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");
-    return stored || "created using CatShare"; // Default text
+    return stored || "Created using CatShare"; // Default text
   });
   const [localDarkMode, setLocalDarkMode] = useState(darkMode);
 
@@ -33,6 +33,11 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
     setShowWatermark(value);
     localStorage.setItem("showWatermark", JSON.stringify(value));
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
+  };
+
+  // Handle render all PNGs
+  const handleRenderAllPNGs = () => {
+    window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
   };
 
   return (
@@ -69,85 +74,69 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="space-y-3 max-w-2xl">
-          {/* Dark Mode Setting */}
-          <button
-            onClick={() => navigate("/settings/appearance")}
-            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
-          >
-            <div className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800">Appearance</h3>
+      <main className="flex-1 overflow-y-auto px-4 py-4 pb-24">
+        <div className="max-w-lg">
+          {/* Settings List */}
+          <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+            {/* Dark Mode Setting */}
+            <div
+              onClick={() => navigate("/settings/appearance")}
+              className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-800">Appearance</h3>
+                  <p className="text-xs text-gray-500 mt-1">Choose between dark and light mode</p>
                 </div>
-                <button
+                <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDarkModeToggle(!localDarkMode);
                   }}
-                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
+                  className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
                     localDarkMode ? "bg-blue-600" : "bg-gray-300"
                   }`}
                 >
                   <span
-                    className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform ${
-                      localDarkMode ? "translate-x-8" : "translate-x-1"
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                      localDarkMode ? "translate-x-6" : "translate-x-0.5"
                     }`}
                   />
-                </button>
-              </div>
-            </div>
-          </button>
-
-          {/* Watermark Setting */}
-          <button
-            onClick={() => navigate("/settings/watermark")}
-            className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-gray-300 transition text-left"
-          >
-            <div className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800">Watermark</h3>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleWatermarkToggle(!showWatermark);
-                  }}
-                  className={`relative inline-flex h-10 w-16 items-center rounded-full transition-colors ml-4 flex-shrink-0 ${
-                    showWatermark ? "bg-blue-600" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform ${
-                      showWatermark ? "translate-x-8" : "translate-x-1"
-                    }`}
-                  />
-                </button>
               </div>
             </div>
-          </button>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
+
+            {/* Watermark Setting */}
+            <div
+              onClick={() => navigate("/settings/watermark")}
+              className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
+            >
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-semibold text-gray-800">Watermark</h3>
+                <p className="text-xs text-gray-500">Add custom text to your product images</p>
+              </div>
+            </div>
+          </div>
 
           {/* Pro Plan Card */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <button
+          <div className="mt-4">
+            <div
               onClick={() => navigate("/settings/pro")}
-              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition text-left"
+              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition cursor-pointer text-left p-4"
             >
-              <div className="p-4 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">🎉</span>
-                      <h3 className="text-lg font-semibold text-green-900">Using Pro for FREE</h3>
-                    </div>
-                    <p className="text-sm text-green-700">Beta access to all premium features</p>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🎉</span>
+                    <h3 className="text-sm font-semibold text-green-900">Using Pro for FREE</h3>
                   </div>
-                  <span className="text-2xl ml-4 flex-shrink-0">→</span>
+                  <p className="text-xs text-green-700">Beta access to all premium features</p>
                 </div>
               </div>
-            </button>
+            </div>
           </div>
         </div>
       </main>
@@ -158,19 +147,19 @@ export default function Settings({ darkMode = false, setDarkMode = (value) => {}
         <SideDrawer
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
-          products={[]}
+          products={products}
           imageMap={{}}
-          setProducts={() => {}}
-          setDeletedProducts={() => {}}
+          setProducts={setProducts}
+          setDeletedProducts={setDeletedProducts}
           selected={[]}
           onShowTutorial={() => {}}
-          darkMode={false}
-          setDarkMode={() => {}}
-          isRendering={false}
-          renderProgress={0}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          isRendering={isRendering}
+          renderProgress={renderProgress}
           renderResult={null}
           setRenderResult={() => {}}
-          handleRenderAllPNGs={() => {}}
+          handleRenderAllPNGs={handleRenderAllPNGs}
         />
       )}
     </div>

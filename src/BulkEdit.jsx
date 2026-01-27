@@ -1,29 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
+import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
-const FIELD_OPTIONS = [
-  { key: "name", label: "Name" },
-  { key: "subtitle", label: "Subtitle" },
-  { key: "color", label: "Color" },
-  { key: "package", label: "Package" },
-  { key: "age", label: "Age Group" },
-  { key: "wholesale", label: "Wholesale Price" },
-  { key: "resell", label: "Resell Price" },
-  { key: "badge", label: "Badge" },
-  { key: "category", label: "Category" },
-  { key: "stock", label: "Stock Update" },
-];
+const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
+  const baseFields = [
+    { key: "name", label: "Name" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "field1", label: "Colour" },
+    { key: "field2", label: "Package" },
+    { key: "field3", label: "Age Group" },
+    { key: "badge", label: "Badge" },
+    { key: "category", label: "Category" },
+  ];
 
-export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender }) {
+  // Add price field based on catalogue
+  if (priceField) {
+    const priceLabel = priceField === 'price1' ? 'Price (Wholesale)' :
+                       priceField === 'price2' ? 'Price (Resell)' :
+                       'Price';
+    baseFields.push({ key: priceField, label: priceLabel });
+  }
+
+  baseFields.push({ key: "stock", label: "Stock Update" });
+  return baseFields;
+};
+
+export default function BulkEdit({ products, allProducts, imageMap, setProducts, onClose, triggerRender, catalogueId: initialCatalogueId, priceField: initialPriceField, priceUnitField: initialPriceUnitField, stockField: initialStockField }) {
   const [editedData, setEditedData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
-  const [step, setStep] = useState("select");
+  const [step, setStep] = useState(initialCatalogueId ? "select" : "catalogue");
   const [showRenderPopup, setShowRenderPopup] = useState(false);
+  const [selectedCatalogueId, setSelectedCatalogueId] = useState(initialCatalogueId || null);
+  const [selectedCatalogueConfig, setSelectedCatalogueConfig] = useState(null);
+  const [catalogues, setCatalogues] = useState([]);
   const { showToast } = useToast();
+
+  // Use initial values or selected values
+  const catalogueId = selectedCatalogueId || initialCatalogueId;
+  const priceField = selectedCatalogueConfig?.priceField || initialPriceField;
+  const priceUnitField = selectedCatalogueConfig?.priceUnitField || initialPriceUnitField;
+  const stockField = selectedCatalogueConfig?.stockField || initialStockField;
+
   const totalProducts = products.length;
-const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
+  const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
+  const FIELD_OPTIONS = getFieldOptions(catalogueId, priceField, priceUnitField);
+
+  // Load catalogues on mount
+  useEffect(() => {
+    const cats = getAllCatalogues();
+    setCatalogues(cats);
+  }, []);
 
 
 
@@ -31,20 +60,46 @@ useEffect(() => {
   const storedCategories = JSON.parse(localStorage.getItem("categories") || "[]");
   setCategories(storedCategories);
 
-  const normalized = products.map((p) => ({
-    ...p,
-    wholesaleStock:
-      typeof p.wholesaleStock === "boolean"
-        ? p.wholesaleStock ? "in" : "out"
-        : p.wholesaleStock,
-    resellStock:
-      typeof p.resellStock === "boolean"
-        ? p.resellStock ? "in" : "out"
-        : p.resellStock,
-  }));
+  const normalized = products.map((p) => {
+    // Get catalogue-specific data for this product
+    const catData = getCatalogueData(p, catalogueId);
+
+    const normalized = {
+      ...p,
+      // Use catalogue-specific field values
+      field1: catData.field1 || p.field1 || p.color || "",
+      field2: catData.field2 || p.field2 || p.package || "",
+      field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
+      field3: catData.field3 || p.field3 || p.age || "",
+      field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+      wholesaleStock:
+        typeof p.wholesaleStock === "boolean"
+          ? p.wholesaleStock ? "in" : "out"
+          : p.wholesaleStock,
+      resellStock:
+        typeof p.resellStock === "boolean"
+          ? p.resellStock ? "in" : "out"
+          : p.resellStock,
+    };
+
+    // Handle catalogue-specific stock field
+    if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
+      normalized[stockField] = typeof p[stockField] === "boolean"
+        ? p[stockField] ? "in" : "out"
+        : p[stockField];
+    }
+
+    // Add price field for the current catalogue
+    if (priceField) {
+      normalized[priceField] = catData[priceField] || p[priceField] || "";
+      normalized[priceUnitField] = catData[priceUnitField] || p[priceUnitField] || "/ piece";
+    }
+
+    return normalized;
+  });
 
   setEditedData(normalized);
-}, [products]);
+}, [products, stockField, catalogueId, priceField, priceUnitField]);
 
 
 
@@ -73,10 +128,10 @@ useEffect(() => {
    const handleSave = () => {
   try {
     const cleanData = editedData.map((p) => {
-  const copy = { ...p };
-  delete copy.image;
+  let copy = { ...p };
+  // Preserve image field to maintain product-to-image associations
 
-  // Convert WS/RS string → boolean
+  // Convert stock fields from string → boolean
   if (typeof copy.wholesaleStock === "string") {
     copy.wholesaleStock = copy.wholesaleStock === "in";
   }
@@ -84,18 +139,115 @@ useEffect(() => {
     copy.resellStock = copy.resellStock === "in";
   }
 
+  // Handle catalogue-specific stock field
+  if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
+    if (typeof copy[stockField] === "string") {
+      copy[stockField] = copy[stockField] === "in";
+    }
+  }
+
+  // Save catalogue-specific data
+  copy = setCatalogueData(copy, catalogueId, {
+    field1: p.field1,
+    field2: p.field2,
+    field3: p.field3,
+    field2Unit: p.field2Unit,
+    field3Unit: p.field3Unit,
+    [priceField]: priceField ? p[priceField] : undefined,
+    [priceUnitField]: priceField ? p[priceUnitField] : undefined,
+    [stockField]: stockField ? (typeof p[stockField] === "string" ? p[stockField] === "in" : p[stockField]) : undefined,
+  });
+
   return copy;
 });
 
+    // Merge edited products back into allProducts to preserve products not in this catalogue
+    const editedIds = new Set(cleanData.map(p => p.id));
+    const mergedData = allProducts ? allProducts.map(p =>
+      editedIds.has(p.id) ? cleanData.find(edited => edited.id === p.id) : p
+    ) : cleanData;
 
-    localStorage.setItem("products", JSON.stringify(cleanData));
-    setProducts(cleanData);
+    localStorage.setItem("products", JSON.stringify(mergedData));
+    setProducts(mergedData);
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
     showToast("Something went wrong during save.", "error");
   }
 };
+
+  // Catalogue selection step
+  if (step === "catalogue") {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
+      onClick={onClose}
+      >
+  <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-md"
+  onClick={(e) => e.stopPropagation()}
+  >
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-bold text-gray-800">Select Catalogue to Edit</h2>
+      <button onClick={onClose} className="text-2xl text-gray-600 hover:text-red-500">×</button>
+    </div>
+
+    <div className="space-y-2 text-gray-700">
+      {catalogues.map((cat) => {
+        // Filter products for this catalogue
+        const productsForCat = allProducts ? allProducts.filter(p => isProductEnabledForCatalogue(p, cat.id)) : [];
+
+        return (
+          <button
+            key={cat.id}
+            onClick={() => {
+              setSelectedCatalogueId(cat.id);
+              setSelectedCatalogueConfig(cat);
+
+              // Filter products to show only those enabled for this catalogue
+              if (allProducts) {
+                const filtered = allProducts.filter(p => isProductEnabledForCatalogue(p, cat.id));
+                // Update editedData with filtered products
+                const normalized = filtered.map((p) => {
+                  const catData = getCatalogueData(p, cat.id);
+                  const normalized = {
+                    ...p,
+                    field1: catData.field1 || p.field1 || p.color || "",
+                    field2: catData.field2 || p.field2 || p.package || "",
+                    field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
+                    field3: catData.field3 || p.field3 || p.age || "",
+                    field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+                    wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
+                    resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
+                  };
+
+                  if (cat.stockField && cat.stockField !== 'wholesaleStock' && cat.stockField !== 'resellStock') {
+                    normalized[cat.stockField] = typeof p[cat.stockField] === "boolean" ? p[cat.stockField] ? "in" : "out" : p[cat.stockField];
+                  }
+
+                  if (cat.priceField) {
+                    normalized[cat.priceField] = catData[cat.priceField] || p[cat.priceField] || "";
+                    normalized[cat.priceUnitField] = catData[cat.priceUnitField] || p[cat.priceUnitField] || "/ piece";
+                  }
+
+                  return normalized;
+                });
+                setEditedData(normalized);
+              }
+
+              setStep("select");
+            }}
+            className="w-full text-left px-4 py-3 rounded-lg border border-gray-300 bg-white hover:bg-blue-50 hover:border-blue-500 transition"
+          >
+            <div className="font-medium text-gray-800">{cat.label}</div>
+            <div className="text-xs text-gray-500 mt-1">{productsForCat.length} products</div>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+    );
+  }
 
   if (step === "select") {
     return (
@@ -106,7 +258,10 @@ useEffect(() => {
   onClick={(e) => e.stopPropagation()}
   >
     <div className="flex justify-between items-center mb-4">
-      <h2 className="text-lg font-bold text-gray-800">Select Fields to Edit</h2>
+      <div>
+        <h2 className="text-lg font-bold text-gray-800">Select Fields to Edit</h2>
+        {selectedCatalogueConfig && <p className="text-xs text-gray-500 mt-1">{selectedCatalogueConfig.label}</p>}
+      </div>
       <button onClick={onClose} className="text-2xl text-gray-600 hover:text-red-500">×</button>
     </div>
 
@@ -130,10 +285,21 @@ useEffect(() => {
       ))}
     </div>
 
-    <div className="flex justify-end gap-3 mt-6">
+    <div className="flex justify-between gap-3 mt-6">
+      {!initialCatalogueId && (
+        <button
+          onClick={() => {
+            setStep("catalogue");
+            setSelectedFields([]);
+          }}
+          className="px-4 py-2 rounded-full text-sm font-medium bg-gray-300 text-gray-800 hover:bg-gray-400 transition shadow"
+        >
+          Back
+        </button>
+      )}
       <button
         onClick={() => setStep("edit")}
-        className={`px-4 py-2 rounded-full text-sm font-medium transition shadow ${
+        className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition shadow ${
           selectedFields.length === 0
             ? "bg-blue-400 text-white cursor-not-allowed"
             : "bg-blue-700 text-white hover:bg-blue-800"
@@ -211,24 +377,24 @@ useEffect(() => {
               />
             )}
 
-            {selectedFields.includes("color") && (
+            {selectedFields.includes("field1") && (
               <input
-                value={item.color || ""}
-                onChange={(e) => handleFieldChange(item.id, "color", e.target.value)}
+                value={item.field1 || item.color || ""}
+                onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
             )}
 
-            {selectedFields.includes("package") && (
+            {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.package || ""}
-      onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
+      value={item.field2 || item.package || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
       className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.packageUnit || ""}
-      onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
+      value={item.field2Unit || item.packageUnit || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
       <option value="pcs / set">pcs / set</option>
@@ -239,21 +405,41 @@ useEffect(() => {
 )}
 
 
-            {selectedFields.includes("age") && (
+            {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.age || ""}
-                  onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
+                  value={item.field3 || item.age || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.ageUnit || ""}
-                  onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
+                  value={item.field3Unit || item.ageUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
                   <option value="Newborn">Newborn</option>
+                </select>
+              </div>
+            )}
+
+            {priceField && selectedFields.includes(priceField) && (
+              <div className="flex gap-2">
+                <input
+                  value={item[priceField] || ""}
+                  onChange={(e) => handleFieldChange(item.id, priceField, e.target.value)}
+                  className="border rounded px-2 py-1 w-28"
+                  placeholder="Price"
+                />
+                <select
+                  value={item[priceUnitField] || ""}
+                  onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
                 </select>
               </div>
             )}
@@ -335,27 +521,15 @@ useEffect(() => {
   <div className="flex gap-2">
     <button
       onClick={() =>
-        handleFieldChange(item.id, "wholesaleStock", item.wholesaleStock === "in" ? "out" : "in")
+        handleFieldChange(item.id, stockField, item[stockField] === "in" ? "out" : "in")
       }
       className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item.wholesaleStock === "in"
+        item[stockField] === "in"
           ? "bg-green-600 text-white"
           : "bg-gray-300 text-gray-800"
       }`}
     >
-      WS: {item.wholesaleStock === "in" ? "In" : "Out"}
-    </button>
-    <button
-      onClick={() =>
-        handleFieldChange(item.id, "resellStock", item.resellStock === "in" ? "out" : "in")
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item.resellStock === "in"
-          ? "bg-yellow-600 text-white"
-          : "bg-gray-300 text-gray-800"
-      }`}
-    >
-      RS: {item.resellStock === "in" ? "In" : "Out"}
+      {stockField === 'wholesaleStock' ? 'WS' : stockField === 'resellStock' ? 'RS' : 'Stock'}: {item[stockField] === "in" ? "In" : "Out"}
     </button>
   </div>
 )}

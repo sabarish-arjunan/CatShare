@@ -47,9 +47,9 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
     {
       id: 'collaborate',
       icon: <RiExchangeDollarLine className="w-6 h-6 text-gray-600" />,
-      title: 'Wholesale & Resell',
+      title: 'Catalogue 1 & Catalogue 2',
       description: 'Manage different pricing for different channels',
-      details: 'Create separate wholesale and resell pricing. Toggle stock status independently for each channel (IN or OUT). Organize products for wholesale distribution and resale.',
+      details: 'Create separate Catalogue 1 and Catalogue 2 pricing. Toggle stock status independently for each channel (IN or OUT). Organize products for different pricing tiers.',
     },
     {
       id: 'backup',
@@ -67,8 +67,8 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
       benefits: ['Bulk editing', 'Professional images', 'Easy sharing'],
     },
     {
-      title: 'Wholesale Distributors',
-      description: 'Manage wholesale and resell separately',
+      title: 'Multi-Catalogue Managers',
+      description: 'Manage multiple catalogues separately',
       benefits: ['Two-tier pricing', 'Stock status tracking', 'Quick sharing'],
     },
     {
@@ -92,7 +92,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
           Create, organize, and share your product catalog
         </p>
         <p className="text-xs text-gray-300">
-          Professional product management for wholesale and resale businesses
+          Professional product management with multiple pricing catalogues
         </p>
       </div>
 
@@ -224,7 +224,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
           {[
             'Create unlimited products',
             'Upload product images',
-            'Set wholesale & resell prices',
+            'Set Catalogue 1 & Catalogue 2 prices',
             'Mark stock IN or OUT',
             'Drag to reorder products',
             'Bulk edit items',
