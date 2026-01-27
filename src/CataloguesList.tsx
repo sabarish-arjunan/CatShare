@@ -89,16 +89,16 @@ export default function CataloguesList({
           <div className="space-y-3 px-4 pb-4">
             {catalogues.map((catalogue) => {
               const stats = catalogueStats[catalogue.id] || {
-              total: 0,
-              inStock: 0,
-            };
-            // Get first few product images for this catalogue (only enabled products)
-            const catalogueProducts = products
-              .filter((p) => isProductEnabledForCatalogue(p, catalogue.id))
-              .slice(0, 3);
+                total: 0,
+                inStock: 0,
+              };
+              // Get first few product images for this catalogue (only enabled products)
+              const catalogueProducts = products
+                .filter((p) => isProductEnabledForCatalogue(p, catalogue.id))
+                .slice(0, 3);
 
-            return (
-              <button
+              return (
+                <button
                 key={catalogue.id}
                 onClick={() => handleCatalogueClick(catalogue.id)}
                 className="w-full group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-200 hover:border-blue-300"
