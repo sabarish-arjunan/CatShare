@@ -144,9 +144,14 @@ useEffect(() => {
   return copy;
 });
 
+    // Merge edited products back into allProducts to preserve products not in this catalogue
+    const editedIds = new Set(cleanData.map(p => p.id));
+    const mergedData = allProducts ? allProducts.map(p =>
+      editedIds.has(p.id) ? cleanData.find(edited => edited.id === p.id) : p
+    ) : cleanData;
 
-    localStorage.setItem("products", JSON.stringify(cleanData));
-    setProducts(cleanData);
+    localStorage.setItem("products", JSON.stringify(mergedData));
+    setProducts(mergedData);
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
