@@ -1007,6 +1007,15 @@ onMouseLeave={handleTouchEnd}
         imageMap={imageMap}
         onProductsUpdate={setProducts}
       />
+
+      {showBulkEdit && (
+        <BulkEdit
+          products={visibleProducts}
+          imageMap={imageMap}
+          setProducts={setProducts}
+          onClose={() => setShowBulkEdit(false)}
+        />
+      )}
     </div>
 
     {/* Floating Add Button */}
