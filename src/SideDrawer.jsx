@@ -767,9 +767,11 @@ const exportProductsToCSV = (products) => {
 
       {showBulkEdit && (() => {
         try {
+          const allProds = JSON.parse(localStorage.getItem("products") || "[]");
           return (
             <BulkEdit
               products={products}
+              allProducts={allProds}
               imageMap={imageMap}
               setProducts={setProducts}
               onClose={() => setShowBulkEdit(false)}

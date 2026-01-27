@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
+import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
@@ -25,16 +27,32 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   return baseFields;
 };
 
-export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender, catalogueId, priceField, priceUnitField, stockField }) {
+export default function BulkEdit({ products, allProducts, imageMap, setProducts, onClose, triggerRender, catalogueId: initialCatalogueId, priceField: initialPriceField, priceUnitField: initialPriceUnitField, stockField: initialStockField }) {
   const [editedData, setEditedData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
-  const [step, setStep] = useState("select");
+  const [step, setStep] = useState(initialCatalogueId ? "select" : "catalogue");
   const [showRenderPopup, setShowRenderPopup] = useState(false);
+  const [selectedCatalogueId, setSelectedCatalogueId] = useState(initialCatalogueId || null);
+  const [selectedCatalogueConfig, setSelectedCatalogueConfig] = useState(null);
+  const [catalogues, setCatalogues] = useState([]);
   const { showToast } = useToast();
+
+  // Use initial values or selected values
+  const catalogueId = selectedCatalogueId || initialCatalogueId;
+  const priceField = selectedCatalogueConfig?.priceField || initialPriceField;
+  const priceUnitField = selectedCatalogueConfig?.priceUnitField || initialPriceUnitField;
+  const stockField = selectedCatalogueConfig?.stockField || initialStockField;
+
   const totalProducts = products.length;
   const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
   const FIELD_OPTIONS = getFieldOptions(catalogueId, priceField, priceUnitField);
+
+  // Load catalogues on mount
+  useEffect(() => {
+    const cats = getAllCatalogues();
+    setCatalogues(cats);
+  }, []);
 
 
 
@@ -43,8 +61,17 @@ useEffect(() => {
   setCategories(storedCategories);
 
   const normalized = products.map((p) => {
+    // Get catalogue-specific data for this product
+    const catData = getCatalogueData(p, catalogueId);
+
     const normalized = {
       ...p,
+      // Use catalogue-specific field values
+      field1: catData.field1 || p.field1 || p.color || "",
+      field2: catData.field2 || p.field2 || p.package || "",
+      field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
+      field3: catData.field3 || p.field3 || p.age || "",
+      field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
       wholesaleStock:
         typeof p.wholesaleStock === "boolean"
           ? p.wholesaleStock ? "in" : "out"
@@ -62,11 +89,17 @@ useEffect(() => {
         : p[stockField];
     }
 
+    // Add price field for the current catalogue
+    if (priceField) {
+      normalized[priceField] = catData[priceField] || p[priceField] || "";
+      normalized[priceUnitField] = catData[priceUnitField] || p[priceUnitField] || "/ piece";
+    }
+
     return normalized;
   });
 
   setEditedData(normalized);
-}, [products, stockField]);
+}, [products, stockField, catalogueId, priceField, priceUnitField]);
 
 
 
@@ -95,7 +128,7 @@ useEffect(() => {
    const handleSave = () => {
   try {
     const cleanData = editedData.map((p) => {
-  const copy = { ...p };
+  let copy = { ...p };
   delete copy.image;
 
   // Convert stock fields from string → boolean
@@ -113,18 +146,108 @@ useEffect(() => {
     }
   }
 
+  // Save catalogue-specific data
+  copy = setCatalogueData(copy, catalogueId, {
+    field1: p.field1,
+    field2: p.field2,
+    field3: p.field3,
+    field2Unit: p.field2Unit,
+    field3Unit: p.field3Unit,
+    [priceField]: priceField ? p[priceField] : undefined,
+    [priceUnitField]: priceField ? p[priceUnitField] : undefined,
+    [stockField]: stockField ? (typeof p[stockField] === "string" ? p[stockField] === "in" : p[stockField]) : undefined,
+  });
+
   return copy;
 });
 
+    // Merge edited products back into allProducts to preserve products not in this catalogue
+    const editedIds = new Set(cleanData.map(p => p.id));
+    const mergedData = allProducts ? allProducts.map(p =>
+      editedIds.has(p.id) ? cleanData.find(edited => edited.id === p.id) : p
+    ) : cleanData;
 
-    localStorage.setItem("products", JSON.stringify(cleanData));
-    setProducts(cleanData);
+    localStorage.setItem("products", JSON.stringify(mergedData));
+    setProducts(mergedData);
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
     showToast("Something went wrong during save.", "error");
   }
 };
+
+  // Catalogue selection step
+  if (step === "catalogue") {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
+      onClick={onClose}
+      >
+  <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-md"
+  onClick={(e) => e.stopPropagation()}
+  >
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-bold text-gray-800">Select Catalogue to Edit</h2>
+      <button onClick={onClose} className="text-2xl text-gray-600 hover:text-red-500">×</button>
+    </div>
+
+    <div className="space-y-2 text-gray-700">
+      {catalogues.map((cat) => {
+        // Filter products for this catalogue
+        const productsForCat = allProducts ? allProducts.filter(p => isProductEnabledForCatalogue(p, cat.id)) : [];
+
+        return (
+          <button
+            key={cat.id}
+            onClick={() => {
+              setSelectedCatalogueId(cat.id);
+              setSelectedCatalogueConfig(cat);
+
+              // Filter products to show only those enabled for this catalogue
+              if (allProducts) {
+                const filtered = allProducts.filter(p => isProductEnabledForCatalogue(p, cat.id));
+                // Update editedData with filtered products
+                const normalized = filtered.map((p) => {
+                  const catData = getCatalogueData(p, cat.id);
+                  const normalized = {
+                    ...p,
+                    field1: catData.field1 || p.field1 || p.color || "",
+                    field2: catData.field2 || p.field2 || p.package || "",
+                    field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
+                    field3: catData.field3 || p.field3 || p.age || "",
+                    field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+                    wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
+                    resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
+                  };
+
+                  if (cat.stockField && cat.stockField !== 'wholesaleStock' && cat.stockField !== 'resellStock') {
+                    normalized[cat.stockField] = typeof p[cat.stockField] === "boolean" ? p[cat.stockField] ? "in" : "out" : p[cat.stockField];
+                  }
+
+                  if (cat.priceField) {
+                    normalized[cat.priceField] = catData[cat.priceField] || p[cat.priceField] || "";
+                    normalized[cat.priceUnitField] = catData[cat.priceUnitField] || p[cat.priceUnitField] || "/ piece";
+                  }
+
+                  return normalized;
+                });
+                setEditedData(normalized);
+              }
+
+              setStep("select");
+            }}
+            className="w-full text-left px-4 py-3 rounded-lg border border-gray-300 bg-white hover:bg-blue-50 hover:border-blue-500 transition"
+          >
+            <div className="font-medium text-gray-800">{cat.label}</div>
+            <div className="text-xs text-gray-500 mt-1">{productsForCat.length} products</div>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+    );
+  }
 
   if (step === "select") {
     return (
@@ -135,7 +258,10 @@ useEffect(() => {
   onClick={(e) => e.stopPropagation()}
   >
     <div className="flex justify-between items-center mb-4">
-      <h2 className="text-lg font-bold text-gray-800">Select Fields to Edit</h2>
+      <div>
+        <h2 className="text-lg font-bold text-gray-800">Select Fields to Edit</h2>
+        {selectedCatalogueConfig && <p className="text-xs text-gray-500 mt-1">{selectedCatalogueConfig.label}</p>}
+      </div>
       <button onClick={onClose} className="text-2xl text-gray-600 hover:text-red-500">×</button>
     </div>
 
@@ -159,10 +285,21 @@ useEffect(() => {
       ))}
     </div>
 
-    <div className="flex justify-end gap-3 mt-6">
+    <div className="flex justify-between gap-3 mt-6">
+      {!initialCatalogueId && (
+        <button
+          onClick={() => {
+            setStep("catalogue");
+            setSelectedFields([]);
+          }}
+          className="px-4 py-2 rounded-full text-sm font-medium bg-gray-300 text-gray-800 hover:bg-gray-400 transition shadow"
+        >
+          Back
+        </button>
+      )}
       <button
         onClick={() => setStep("edit")}
-        className={`px-4 py-2 rounded-full text-sm font-medium transition shadow ${
+        className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition shadow ${
           selectedFields.length === 0
             ? "bg-blue-400 text-white cursor-not-allowed"
             : "bg-blue-700 text-white hover:bg-blue-800"
