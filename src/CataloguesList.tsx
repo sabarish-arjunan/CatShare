@@ -80,12 +80,13 @@ export default function CataloguesList({
           Manage
         </button>
       </header>
-      {catalogues.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No catalogues available</p>
-        </div>
-      ) : (
-        <div className="space-y-3 px-4 pb-4">
+      <main className="pt-[calc(40px+56px)]">
+        {catalogues.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No catalogues available</p>
+          </div>
+        ) : (
+          <div className="space-y-3 px-4 pb-4">
           {catalogues.map((catalogue) => {
             const stats = catalogueStats[catalogue.id] || {
               total: 0,
@@ -160,8 +161,9 @@ export default function CataloguesList({
               </button>
             );
           })}
-        </div>
-      )}
+          </div>
+        )}
+      </main>
     </>
   );
 }
