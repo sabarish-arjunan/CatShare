@@ -196,6 +196,34 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     }
   };
 
+  const handleMasterStockToggleRequest = (id) => {
+    const bypassUntil = parseInt(sessionStorage.getItem("bypassStockWarningUntil") || "0", 10);
+    const now = Date.now();
+
+    if (now < bypassUntil) {
+      // Bypassed within 5 minutes
+      Haptics.impact({ style: ImpactStyle.Medium });
+      setProducts((prev) =>
+        prev.map((p) => {
+          if (p.id === id) {
+            // Check if all catalogues are in stock
+            const allInStock = catalogues.every((cat) => p[cat.stockField]);
+            // Toggle all catalogue stock fields
+            const updated = { ...p };
+            catalogues.forEach((cat) => {
+              updated[cat.stockField] = !allInStock;
+            });
+            return updated;
+          }
+          return p;
+        })
+      );
+    } else {
+      // Show confirmation with special flag for master toggle
+      setConfirmToggleStock({ id, field: "MASTER" });
+    }
+  };
+
   const updateProduct = (item) => {
     setProducts((prev) => prev.map((p) => (p.id === item.id ? item : p)));
   };
