@@ -437,14 +437,6 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   >
     {catalogueLabel || "Catalogue"}
   </h1>
-      <button
-        onClick={() => setShowAddProductsModal(true)}
-        className="ml-auto text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0 px-2 py-1 hover:bg-blue-50 rounded"
-        title="Add products to this catalogue"
-      >
-        <FiPlus size={16} />
-        Add
-      </button>
     </div>
   )}
 
