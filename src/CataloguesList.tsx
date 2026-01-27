@@ -80,8 +80,7 @@ export default function CataloguesList({
           Manage
         </button>
       </header>
-      <main className="pt-[calc(40px+56px)]">
-        {catalogues.length === 0 ? (
+      {catalogues.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">No catalogues available</p>
           </div>
@@ -163,7 +162,6 @@ export default function CataloguesList({
             })}
           </div>
         )}
-      </main>
     </>
   );
 }
