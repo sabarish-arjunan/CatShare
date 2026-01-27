@@ -366,12 +366,13 @@ export async function saveRenderedImage(product, type, units = {}) {
 
     try {
       console.log(`📝 Writing file to: ${filePath}`);
-      console.log(`📁 Using directory: Directory.Documents`);
+      console.log(`📁 Using directory: Directory.External (App-specific external storage)`);
+      console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`);
 
       await Filesystem.writeFile({
         path: filePath,
         data: base64,
-        directory: Directory.Documents,
+        directory: Directory.External,
         recursive: true,
       });
 
