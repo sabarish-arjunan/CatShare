@@ -646,15 +646,17 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         )}
 
         {tab === "catalogues" && selectedCatalogueInCataloguesTab === null && (
-          <CataloguesList
-            catalogues={catalogues}
-            onSelectCatalogue={(catalogueId) => {
-              setSelectedCatalogueInCataloguesTab(catalogueId);
-            }}
-            imageMap={imageMap}
-            products={products}
-            onManageCatalogues={() => setShowManageCatalogues(true)}
-          />
+          <div className="relative -mx-4">
+            <CataloguesList
+              catalogues={catalogues}
+              onSelectCatalogue={(catalogueId) => {
+                setSelectedCatalogueInCataloguesTab(catalogueId);
+              }}
+              imageMap={imageMap}
+              products={products}
+              onManageCatalogues={() => setShowManageCatalogues(true)}
+            />
+          </div>
         )}
 
         {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
