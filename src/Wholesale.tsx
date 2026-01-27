@@ -1047,6 +1047,7 @@ onMouseLeave={handleTouchEnd}
           imageMap={imageMap}
           setProducts={setProducts}
           onClose={() => setShowBulkEdit(false)}
+          triggerRender={() => {}}
           catalogueId={catalogueId}
           priceField={priceField}
           priceUnitField={priceUnitField}
