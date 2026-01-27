@@ -72,7 +72,17 @@ export async function handleShare({
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    alert("No images found to share.");
+    let message = "No rendered images found to share.";
+
+    if (filesNotFound.length > 0) {
+      message += `\n\nProducts not found: ${filesNotFound.map(f => f.id).join(", ")}`;
+      message += "\n\nHint: Make sure you have:";
+      message += "\n1. Selected at least one product";
+      message += "\n2. Rendered the images using the 'Render All' button";
+      message += `\n3. Images should be in: ${folder}/ folder`;
+    }
+
+    alert(message);
     return;
   }
 
