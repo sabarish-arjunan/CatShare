@@ -50,6 +50,34 @@ export default function AddProductsModal({
     onProductsUpdate(updated);
   };
 
+  const handleToggleAllProducts = () => {
+    // Check if all filtered products are enabled
+    const allEnabled = filteredProducts.every((p) =>
+      isProductEnabledForCatalogue(p, catalogueId)
+    );
+
+    // Toggle all filtered products to opposite state
+    const updated = products.map((p) => {
+      // Only toggle products that match current search
+      if (filteredProducts.some((fp) => fp.id === p.id)) {
+        return setProductEnabledForCatalogue(p, catalogueId, allEnabled ? false : true);
+      }
+      return p;
+    });
+
+    setProducts(updated);
+
+    // Save to localStorage
+    localStorage.setItem("products", JSON.stringify(updated));
+
+    // Notify parent component
+    onProductsUpdate(updated);
+  };
+
+  const allFilteredEnabled = filteredProducts.length > 0 && filteredProducts.every((p) =>
+    isProductEnabledForCatalogue(p, catalogueId)
+  );
+
   if (!isOpen) return null;
 
   return (
