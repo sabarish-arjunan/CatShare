@@ -373,12 +373,7 @@ export default function ManageCatalogues({
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => openEditForm(catalogue)}
-                    disabled={catalogue.isDefault}
-                    className={`flex-1 py-1.5 text-sm rounded font-medium transition ${
-                      catalogue.isDefault
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-amber-500 text-white hover:bg-amber-600"
-                    }`}
+                    className="flex-1 py-1.5 text-sm rounded font-medium transition bg-amber-500 text-white hover:bg-amber-600"
                   >
                     Edit
                   </button>
