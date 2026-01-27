@@ -19,23 +19,54 @@ export async function handleShare({
   const folder = mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell";
   const fileUris = [];
   let processedCount = 0;
+  let filesNotFound = [];
 
   for (const id of selected) {
     const fileName = `product_${id}_${mode}.png`;
+    const filePath = `${folder}/${fileName}`;
 
     try {
+      // First, verify the file exists
+      try {
+        await Filesystem.stat({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`✅ File exists: ${filePath}`);
+      } catch (statErr) {
+        console.error(`❌ File does not exist: ${filePath}`, statErr);
+        filesNotFound.push({ id, path: filePath });
+        processedCount++;
+        setProcessingIndex(processedCount);
+        continue;
+      }
+
+      // If file exists, get its URI
       const fileResult = await Filesystem.getUri({
-        path: `${folder}/${fileName}`,
+        path: filePath,
         directory: Directory.External,
       });
 
-      fileUris.push(fileResult.uri);
+      if (fileResult.uri) {
+        fileUris.push(fileResult.uri);
+        console.log(`✅ Got URI for ${fileName}:`, fileResult.uri);
+      } else {
+        console.warn(`❌ Could not get URI for ${fileName}`);
+        filesNotFound.push({ id, path: filePath, reason: "No URI returned" });
+      }
     } catch (err) {
-      console.warn(`❌ Could not find saved image for product ${id}:`, err);
+      console.error(`❌ Error processing image for product ${id}:`, err);
+      filesNotFound.push({ id, path: filePath, error: err.message });
     }
 
     processedCount++;
     setProcessingIndex(processedCount);
+  }
+
+  // Log diagnostic info if files weren't found
+  if (filesNotFound.length > 0) {
+    console.error("📋 Files not found for sharing:", filesNotFound);
+    console.log("💡 Hint: Make sure images have been rendered first by clicking 'Render All' in the Wholesale/Resell views.");
   }
 
   setProcessing(false);
