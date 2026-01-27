@@ -107,32 +107,50 @@ export default function CataloguesList({
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 <div className="relative p-4 flex items-center gap-4">
-                  {/* Image preview thumbnails */}
-                  <div className="flex gap-1">
+                  {/* Image preview - Playing cards style */}
+                  <div className="relative w-20 h-20 flex-shrink-0">
                     {catalogueProducts.length > 0 ? (
-                      catalogueProducts.map((product, idx) => (
-                        <div
-                          key={idx}
-                          className="w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0"
-                        >
-                          {imageMap[product.id] ? (
-                            <img
-                              src={imageMap[product.id]}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          ) : (
-                            <span className="text-[10px] text-gray-400">
-                              No image
-                            </span>
-                          )}
-                        </div>
-                      ))
+                      catalogueProducts.map((product, idx) => {
+                        // Calculate rotation and offset for card fan effect
+                        const totalCards = catalogueProducts.length;
+                        const centerIdx = Math.floor(totalCards / 2);
+                        const offset = idx - centerIdx;
+                        const rotation = offset * 12; // 12 degrees per card
+                        const translateX = offset * 4; // 4px offset horizontally
+                        const translateY = Math.abs(offset) * 2; // Slight vertical spread
+
+                        return (
+                          <div
+                            key={idx}
+                            className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden"
+                            style={{
+                              transform: `rotate(${rotation}deg) translateX(${translateX}px) translateY(${translateY}px)`,
+                              zIndex: totalCards - Math.abs(offset),
+                              transformOrigin: 'center',
+                              left: '2px',
+                              top: '2px',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            }}
+                          >
+                            {imageMap[product.id] ? (
+                              <img
+                                src={imageMap[product.id]}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <span className="text-[10px] text-gray-400">
+                                No image
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })
                     ) : (
-                      <div className="w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      <div className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center">
                         <span className="text-[10px] text-gray-400">
                           No products
                         </span>
