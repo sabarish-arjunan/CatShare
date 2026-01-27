@@ -104,7 +104,7 @@ export async function handleShare({
     if (filesNotFound.length > 0) {
       message += `\n\n🔍 DIAGNOSTIC INFO:\n`;
       message += `Products searched: ${filesNotFound.map(f => f.id).join(", ")}\n`;
-      message += `Folder expected: ${folder}/\n`;
+      message += `Folder expected: ${targetFolder}/\n`;
       message += `Files looked for pattern: product_<ID>_${mode}.png\n`;
       message += `\n📋 Files not found:\n`;
       filesNotFound.forEach(f => {
