@@ -468,7 +468,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
 
-      <main ref={scrollRef} className={`flex-1 min-h-0 ${(tab === 'products' || tab === 'catalogues') ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}
@@ -711,7 +711,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
           <div className="relative -mx-4">
             {/* Black bar for catalogues */}
-            <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+            <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
             {/* Render the selected catalogue */}
             {(() => {
               const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);

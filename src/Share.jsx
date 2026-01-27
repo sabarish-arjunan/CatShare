@@ -6,7 +6,8 @@ export async function handleShare({
   setProcessing,
   setProcessingIndex,
   setProcessingTotal,
-  mode = "resell", // or "wholesale"
+  folder,
+  mode = "resell", // or "wholesale" - kept for backward compatibility
 }) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
@@ -16,21 +17,22 @@ export async function handleShare({
   setProcessing(true);
   setProcessingTotal(selected.length);
 
-  const folder = mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell";
+  // Use the provided folder name, or derive from mode for backward compatibility
+  const targetFolder = folder || (mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell");
   const fileUris = [];
   let processedCount = 0;
   let filesNotFound = [];
 
   console.log(`🔍 Share Debug Info:`);
-  console.log(`📁 Target folder: ${folder}`);
+  console.log(`📁 Target folder: ${targetFolder}`);
   console.log(`🔢 Products to share: ${selected.length}`);
-  console.log(`📍 Looking for files in Directory.External/${folder}/`);
-  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${folder}/`);
+  console.log(`📍 Looking for files in Directory.External/${targetFolder}/`);
+  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${targetFolder}/`);
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
   for (const id of selected) {
     const fileName = `product_${id}_${mode}.png`;
-    const filePath = `${folder}/${fileName}`;
+    const filePath = `${targetFolder}/${fileName}`;
 
     try {
       // First, verify the file exists
@@ -102,7 +104,7 @@ export async function handleShare({
     if (filesNotFound.length > 0) {
       message += `\n\n🔍 DIAGNOSTIC INFO:\n`;
       message += `Products searched: ${filesNotFound.map(f => f.id).join(", ")}\n`;
-      message += `Folder expected: ${folder}/\n`;
+      message += `Folder expected: ${targetFolder}/\n`;
       message += `Files looked for pattern: product_<ID>_${mode}.png\n`;
       message += `\n📋 Files not found:\n`;
       filesNotFound.forEach(f => {
@@ -110,7 +112,7 @@ export async function handleShare({
       });
 
       message += `\n✅ SOLUTIONS:\n`;
-      message += `1. Click 'Render All' button in the ${folder} tab\n`;
+      message += `1. Click 'Render All' button to render images for this catalogue\n`;
       message += `2. Wait for all images to finish rendering\n`;
       message += `3. Check the browser console (F12) for errors\n`;
       message += `4. Ensure you have storage permissions granted to the app\n`;
@@ -120,7 +122,7 @@ export async function handleShare({
       message += "\n\nMake sure you have:\n";
       message += "1. Selected at least one product\n";
       message += "2. Rendered the images using the 'Render All' button\n";
-      message += `3. Images should be saved in: ${folder}/ folder`;
+      message += `3. Images should be saved in: ${targetFolder}/ folder`;
     }
 
     alert(message);

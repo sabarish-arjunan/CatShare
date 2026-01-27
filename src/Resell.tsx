@@ -349,6 +349,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessing,
           setProcessingIndex,
           setProcessingTotal,
+          folder: catalogueLabel,
           mode: "resell",
         });
       };
@@ -373,7 +374,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <header className="fixed inset-x-0 top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Back/Close button that animates between arrow and X */}
   {!showSearch && onBack && (
     <motion.button
@@ -608,6 +609,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessing,
       setProcessingIndex,
       setProcessingTotal,
+      folder: catalogueLabel,
       mode: "resell",
     });
   }}
@@ -760,7 +762,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="px-0 pb-28">
+<div className="px-0 pb-28 pt-24">
       {/* Grid */}
       <div
         id="capture-area"
