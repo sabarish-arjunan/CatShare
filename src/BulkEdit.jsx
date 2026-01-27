@@ -42,20 +42,31 @@ useEffect(() => {
   const storedCategories = JSON.parse(localStorage.getItem("categories") || "[]");
   setCategories(storedCategories);
 
-  const normalized = products.map((p) => ({
-    ...p,
-    wholesaleStock:
-      typeof p.wholesaleStock === "boolean"
-        ? p.wholesaleStock ? "in" : "out"
-        : p.wholesaleStock,
-    resellStock:
-      typeof p.resellStock === "boolean"
-        ? p.resellStock ? "in" : "out"
-        : p.resellStock,
-  }));
+  const normalized = products.map((p) => {
+    const normalized = {
+      ...p,
+      wholesaleStock:
+        typeof p.wholesaleStock === "boolean"
+          ? p.wholesaleStock ? "in" : "out"
+          : p.wholesaleStock,
+      resellStock:
+        typeof p.resellStock === "boolean"
+          ? p.resellStock ? "in" : "out"
+          : p.resellStock,
+    };
+
+    // Handle catalogue-specific stock field
+    if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
+      normalized[stockField] = typeof p[stockField] === "boolean"
+        ? p[stockField] ? "in" : "out"
+        : p[stockField];
+    }
+
+    return normalized;
+  });
 
   setEditedData(normalized);
-}, [products]);
+}, [products, stockField]);
 
 
 
