@@ -329,6 +329,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
 export default function ProductPreviewModal({
   product,
   tab,
+  catalogueId: externalCatalogueId,
   onClose,
   onEdit,
   onToggleStock,
