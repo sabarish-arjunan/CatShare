@@ -559,7 +559,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                 }`}
                                 title="Toggle all catalogues"
                               >
-                                {catalogues.every((cat) => (p as any)[cat.stockField]) ? "All In" : "All Out"}
+                                {catalogues.every((cat) => (p as any)[cat.stockField]) ? "In Stock" : "Out of Stock"}
                               </button>
                             </div>
                           </div>
