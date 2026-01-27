@@ -611,6 +611,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessing,
       setProcessingIndex,
       setProcessingTotal,
+      folder: catalogueLabel,
       mode: "wholesale",
     });
   }}
