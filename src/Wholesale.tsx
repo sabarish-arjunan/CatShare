@@ -905,7 +905,7 @@ onMouseLeave={handleTouchEnd}
 )}
 
 
-                  {!p.wholesaleStock && (
+                  {!p[stockField] && (
                     <div
                       style={{
                         position: "absolute",
