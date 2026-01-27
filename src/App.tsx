@@ -68,21 +68,26 @@ function AppWithBackHandler() {
       }
 
       try {
-        await saveRenderedImage(product, "resell", {
-          resellUnit: product.resellUnit || "/ piece",
-          wholesaleUnit: product.wholesaleUnit || "/ piece",
-          packageUnit: product.packageUnit || "pcs / set",
-          ageGroupUnit: product.ageUnit || "months",
-        });
+        // Render for all catalogues
+        const { getAllCatalogues } = await import("./config/catalogueConfig");
+        const catalogues = getAllCatalogues();
 
-        await saveRenderedImage(product, "wholesale", {
-          resellUnit: product.resellUnit || "/ piece",
-          wholesaleUnit: product.wholesaleUnit || "/ piece",
-          packageUnit: product.packageUnit || "pcs / set",
-          ageGroupUnit: product.ageUnit || "months",
-        });
+        for (const cat of catalogues) {
+          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
 
-        console.log(`✅ Rendered PNGs for ${product.name}`);
+          await saveRenderedImage(product, legacyType, {
+            resellUnit: product.resellUnit || "/ piece",
+            wholesaleUnit: product.wholesaleUnit || "/ piece",
+            packageUnit: product.packageUnit || "pcs / set",
+            ageGroupUnit: product.ageUnit || "months",
+            catalogueId: cat.id,
+            catalogueLabel: cat.label,
+            priceField: cat.priceField,
+            priceUnitField: cat.priceUnitField,
+          });
+        }
+
+        console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
       } catch (err) {
         console.warn(`❌ Failed to render images for ${product.name}`, err);
       }
