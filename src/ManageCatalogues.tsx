@@ -45,11 +45,6 @@ export default function ManageCatalogues({
       return;
     }
 
-    if (!formFolder.trim()) {
-      setFormError("Folder name is required");
-      return;
-    }
-
     // Check for duplicate labels
     if (catalogues.some((c) => c.label.toLowerCase() === formLabel.toLowerCase())) {
       setFormError("A catalogue with this name already exists");
@@ -59,9 +54,9 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
-      // Create new catalogue
+      // Create new catalogue with folder name same as label
       const newCatalogue = addCatalogue(formLabel.trim(), {
-        folder: formFolder.trim(),
+        folder: formLabel.trim(),
       });
 
       if (newCatalogue) {
@@ -82,7 +77,6 @@ export default function ManageCatalogues({
 
         setShowAddForm(false);
         setFormLabel("");
-        setFormFolder("");
       }
     } catch (err) {
       setFormError("Failed to add catalogue: " + (err as Error).message);
