@@ -305,10 +305,15 @@ const exportProductsToCSV = (products) => {
       const zip = await JSZip.loadAsync(event.target.result);
       const jsonFile = zip.file("catalogue-data.json");
 
-      if (!jsonFile) throw new Error("Missing JSON");
+      if (!jsonFile) throw new Error("Missing catalogue-data.json in backup");
 
       const jsonText = await jsonFile.async("text");
       const parsed = JSON.parse(jsonText);
+
+      // Validate backup format
+      if (!parsed.products || !Array.isArray(parsed.products)) {
+        throw new Error("Invalid backup format: missing products array");
+      }
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
@@ -344,15 +349,19 @@ const exportProductsToCSV = (products) => {
       setProducts(rebuilt);
       localStorage.setItem("products", JSON.stringify(rebuilt));
 
-      const categories = Array.from(
-        new Set(
-          rebuilt.flatMap((p) =>
-            Array.isArray(p.category) ? p.category : [p.category]
+      // Restore categories from backup if available, otherwise extract from products
+      if (parsed.categories && Array.isArray(parsed.categories)) {
+        localStorage.setItem("categories", JSON.stringify(parsed.categories));
+      } else {
+        const categories = Array.from(
+          new Set(
+            rebuilt.flatMap((p) =>
+              Array.isArray(p.category) ? p.category : [p.category]
+            )
           )
-        )
-      ).filter(Boolean);
-
-      localStorage.setItem("categories", JSON.stringify(categories));
+        ).filter(Boolean);
+        localStorage.setItem("categories", JSON.stringify(categories));
+      }
 
       if (Array.isArray(parsed.deleted)) {
         // Also restore deleted products' images from the ZIP
@@ -392,9 +401,10 @@ const exportProductsToCSV = (products) => {
       }
 
       // Restore catalogues definition from backup
-      // If the backup doesn't have cataloguesDefinition (old backups), use defaults
+      // If the backup doesn't have cataloguesDefinition (old backups v1), use defaults
       if (parsed.cataloguesDefinition) {
         setCataloguesDefinition(parsed.cataloguesDefinition);
+        console.log("✅ Restored catalogues definition from backup");
       } else {
         // Backward compatibility: old backups don't have cataloguesDefinition
         // Use the current one if it exists, otherwise use defaults
@@ -406,6 +416,9 @@ const exportProductsToCSV = (products) => {
             catalogues: DEFAULT_CATALOGUES,
             lastUpdated: Date.now(),
           });
+          console.log("⚠️ Old backup detected - using default catalogues");
+        } else {
+          console.log("ℹ️ Using existing catalogue configuration");
         }
       }
 
@@ -413,8 +426,11 @@ const exportProductsToCSV = (products) => {
       // This ensures all products have the proper field structure for the restored catalogues
       ensureProductsHaveStockFields();
 
+      console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+
       setShowRenderAfterRestore(true);
     } catch (err) {
+      console.error("❌ Restore failed:", err);
       setBackupResult({
         status: "error",
         message: "Restore failed: " + err.message,
