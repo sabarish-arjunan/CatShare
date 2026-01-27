@@ -374,7 +374,9 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <header className="fixed inset-x-0 top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    {/* Header moved to CatalogueApp level */}
+    <header className="hidden" id="wholesale-header"></header>
+    <header className="fixed inset-x-0 top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative" style={{pointerEvents: 'auto'}}>
   {/* Back/Close button that animates between arrow and X */}
   {!showSearch && onBack && (
     <motion.button
