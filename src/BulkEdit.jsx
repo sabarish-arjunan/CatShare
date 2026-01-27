@@ -129,6 +129,18 @@ useEffect(() => {
     }
   }
 
+  // Save catalogue-specific data
+  copy = setCatalogueData(copy, catalogueId, {
+    field1: p.field1,
+    field2: p.field2,
+    field3: p.field3,
+    field2Unit: p.field2Unit,
+    field3Unit: p.field3Unit,
+    [priceField]: priceField ? p[priceField] : undefined,
+    [priceUnitField]: priceField ? p[priceUnitField] : undefined,
+    [stockField]: stockField ? (typeof p[stockField] === "string" ? p[stockField] === "in" : p[stockField]) : undefined,
+  });
+
   return copy;
 });
 
