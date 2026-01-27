@@ -493,6 +493,15 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       </svg>
     </button>
 
+    {/* Bulk Editor Button */}
+    <button
+      onClick={() => setShowBulkEdit(true)}
+      className="text-xl text-gray-600 hover:text-black"
+      title="Bulk Edit"
+    >
+      <MdLayers className="w-5 h-5" />
+    </button>
+
     {/* Filter Button */}
     <button
       onClick={() => setShowFilters(true)}
