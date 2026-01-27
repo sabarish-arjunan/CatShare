@@ -371,67 +371,62 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   return (
     <>
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
-  {/* Menu Button */}
-  <AnimatePresence mode="wait" initial={false}>
-  {!showSearch && (
+  {/* Back/Close button that animates between arrow and X */}
+  {!showSearch && onBack && (
     <motion.button
-      key="menu-x-toggle"
       onClick={() => {
         if (selectMode) {
           setSelectMode(false);
           setSelected([]);
         } else {
-          window.dispatchEvent(new Event("toggle-menu"));
+          onBack();
         }
       }}
-      className="relative w-8 h-8 shrink-0 flex items-center justify-center"
-      title={selectMode ? "Exit Selection" : "Menu"}
+      className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
+      title={selectMode ? "Exit Selection" : "Back"}
     >
-      {/* Top Line */}
+      {/* Arrow (visible when not in selectMode) */}
+      <motion.svg
+        className="w-5 h-5 absolute"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        initial={false}
+        animate={{
+          opacity: selectMode ? 0 : 1,
+          scale: selectMode ? 0.5 : 1,
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      </motion.svg>
+
+      {/* X icon (visible when in selectMode) */}
       <motion.span
         className="absolute w-6 h-0.5 bg-gray-700"
         initial={false}
         animate={{
           rotate: selectMode ? 45 : 0,
-          y: selectMode ? 0 : -8,
+          opacity: selectMode ? 1 : 0,
         }}
         transition={{ duration: 0.2 }}
       />
-      {/* Middle Line */}
-      <motion.span
-        className="absolute w-6 h-0.5 bg-gray-700"
-        initial={false}
-        animate={{
-          opacity: selectMode ? 0 : 1,
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      {/* Bottom Line */}
       <motion.span
         className="absolute w-6 h-0.5 bg-gray-700"
         initial={false}
         animate={{
           rotate: selectMode ? -45 : 0,
-          y: selectMode ? 0 : 8,
+          opacity: selectMode ? 1 : 0,
         }}
         transition={{ duration: 0.2 }}
       />
     </motion.button>
   )}
-</AnimatePresence>
 
-
-  {/* Center Title (hidden while searching) */}
+  {/* Center Title (hidden while searching or in selectMode) */}
   {!showSearch && !selectMode && (
     <div className="flex items-center gap-2">
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0"
-        >
-          ←
-        </button>
-      )}
       <h1
     className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
     onClick={() => {
