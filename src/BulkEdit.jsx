@@ -176,6 +176,79 @@ useEffect(() => {
   }
 };
 
+  // Catalogue selection step
+  if (step === "catalogue") {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
+      onClick={onClose}
+      >
+  <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-md"
+  onClick={(e) => e.stopPropagation()}
+  >
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-bold text-gray-800">Select Catalogue to Edit</h2>
+      <button onClick={onClose} className="text-2xl text-gray-600 hover:text-red-500">×</button>
+    </div>
+
+    <div className="space-y-2 text-gray-700">
+      {catalogues.map((cat) => {
+        // Filter products for this catalogue
+        const productsForCat = allProducts ? allProducts.filter(p => isProductEnabledForCatalogue(p, cat.id)) : [];
+
+        return (
+          <button
+            key={cat.id}
+            onClick={() => {
+              setSelectedCatalogueId(cat.id);
+              setSelectedCatalogueConfig(cat);
+
+              // Filter products to show only those enabled for this catalogue
+              if (allProducts) {
+                const filtered = allProducts.filter(p => isProductEnabledForCatalogue(p, cat.id));
+                // Update editedData with filtered products
+                const normalized = filtered.map((p) => {
+                  const catData = getCatalogueData(p, cat.id);
+                  const normalized = {
+                    ...p,
+                    field1: catData.field1 || p.field1 || p.color || "",
+                    field2: catData.field2 || p.field2 || p.package || "",
+                    field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
+                    field3: catData.field3 || p.field3 || p.age || "",
+                    field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+                    wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
+                    resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
+                  };
+
+                  if (cat.stockField && cat.stockField !== 'wholesaleStock' && cat.stockField !== 'resellStock') {
+                    normalized[cat.stockField] = typeof p[cat.stockField] === "boolean" ? p[cat.stockField] ? "in" : "out" : p[cat.stockField];
+                  }
+
+                  if (cat.priceField) {
+                    normalized[cat.priceField] = catData[cat.priceField] || p[cat.priceField] || "";
+                    normalized[cat.priceUnitField] = catData[cat.priceUnitField] || p[cat.priceUnitField] || "/ piece";
+                  }
+
+                  return normalized;
+                });
+                setEditedData(normalized);
+              }
+
+              setStep("select");
+            }}
+            className="w-full text-left px-4 py-3 rounded-lg border border-gray-300 bg-white hover:bg-blue-50 hover:border-blue-500 transition"
+          >
+            <div className="font-medium text-gray-800">{cat.label}</div>
+            <div className="text-xs text-gray-500 mt-1">{productsForCat.length} products</div>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+    );
+  }
+
   if (step === "select") {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
@@ -185,7 +258,10 @@ useEffect(() => {
   onClick={(e) => e.stopPropagation()}
   >
     <div className="flex justify-between items-center mb-4">
-      <h2 className="text-lg font-bold text-gray-800">Select Fields to Edit</h2>
+      <div>
+        <h2 className="text-lg font-bold text-gray-800">Select Fields to Edit</h2>
+        {selectedCatalogueConfig && <p className="text-xs text-gray-500 mt-1">{selectedCatalogueConfig.label}</p>}
+      </div>
       <button onClick={onClose} className="text-2xl text-gray-600 hover:text-red-500">×</button>
     </div>
 
@@ -209,10 +285,21 @@ useEffect(() => {
       ))}
     </div>
 
-    <div className="flex justify-end gap-3 mt-6">
+    <div className="flex justify-between gap-3 mt-6">
+      {!initialCatalogueId && (
+        <button
+          onClick={() => {
+            setStep("catalogue");
+            setSelectedFields([]);
+          }}
+          className="px-4 py-2 rounded-full text-sm font-medium bg-gray-300 text-gray-800 hover:bg-gray-400 transition shadow"
+        >
+          Back
+        </button>
+      )}
       <button
         onClick={() => setStep("edit")}
-        className={`px-4 py-2 rounded-full text-sm font-medium transition shadow ${
+        className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition shadow ${
           selectedFields.length === 0
             ? "bg-blue-400 text-white cursor-not-allowed"
             : "bg-blue-700 text-white hover:bg-blue-800"
