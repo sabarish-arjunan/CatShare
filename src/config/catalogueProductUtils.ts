@@ -48,20 +48,24 @@ export function initializeCatalogueData(product?: ProductWithCatalogueData): Rec
   const catalogueData: Record<string, CatalogueData> = {};
 
   catalogues.forEach((cat) => {
+    // Dynamically get price field values based on catalogue configuration
+    const priceValue = product?.[cat.priceField] || "";
+    const priceUnitValue = product?.[cat.priceUnitField] || "/ piece";
+    const stockValue = product?.[cat.stockField] !== false;
+
     catalogueData[cat.id] = {
       enabled: cat.id === 'cat1' ? true : false, // Enable cat1 by default
       field1: product?.field1 || "",
       field2: product?.field2 || "",
       field3: product?.field3 || "",
-      price1: product?.price1 || "",
-      price1Unit: product?.price1Unit || "/ piece",
-      price2: product?.price2 || "",
-      price2Unit: product?.price2Unit || "/ piece",
+      [cat.priceField]: priceValue,
+      [cat.priceUnitField]: priceUnitValue,
       field2Unit: product?.field2Unit || product?.packageUnit || "pcs / set",
       field3Unit: product?.field3Unit || product?.ageUnit || "months",
       stock: product?.stock !== false,
       wholesaleStock: product?.wholesaleStock !== false,
       resellStock: product?.resellStock !== false,
+      [cat.stockField]: stockValue,
     };
   });
 
