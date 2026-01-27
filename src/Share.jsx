@@ -24,7 +24,8 @@ export async function handleShare({
   console.log(`🔍 Share Debug Info:`);
   console.log(`📁 Target folder: ${folder}`);
   console.log(`🔢 Products to share: ${selected.length}`);
-  console.log(`📍 Looking for files in Directory.Documents/${folder}/`);
+  console.log(`📍 Looking for files in Directory.External/${folder}/`);
+  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${folder}/`);
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
   for (const id of selected) {
