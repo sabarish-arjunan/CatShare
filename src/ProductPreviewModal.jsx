@@ -329,6 +329,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
 export default function ProductPreviewModal({
   product,
   tab,
+  catalogueId: externalCatalogueId,
   onClose,
   onEdit,
   onToggleStock,
@@ -498,6 +499,8 @@ export default function ProductPreviewModal({
 
   // Get catalogue data based on which tab is being viewed
   const getCatalogueIdFromTab = () => {
+    // If a catalogue ID was explicitly passed (from catalogue view), use that
+    if (externalCatalogueId) return externalCatalogueId;
     // Handle legacy tab names
     if (tab === "catalogue1") return "cat1";
     if (tab === "catalogue2") return "cat2";

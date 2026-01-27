@@ -728,6 +728,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           <ProductPreviewModal
             product={previewProduct}
             tab={tab}
+            catalogueId={selectedCatalogueInCataloguesTab}
             filteredProducts={previewList}
             onClose={() => setPreviewProduct(null)}
             onEdit={() => navigate(`/create?id=${previewProduct.id}`)}

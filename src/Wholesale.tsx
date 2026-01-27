@@ -31,6 +31,11 @@ export default function WholesaleTab({
   const getProductCatalogueData = (product) => {
     if (!catalogueId) return product; // Fallback to product if no catalogueId
     const catData = getCatalogueData(product, catalogueId);
+
+    // For non-cat1 catalogues, don't fall back to wholesale/resell (those are cat1 fields)
+    // Only use the specific price field for this catalogue
+    const isCat1 = catalogueId === 'cat1';
+
     return {
       ...product,
       field1: catData.field1 || product.field1 || product.color || "",
@@ -39,8 +44,9 @@ export default function WholesaleTab({
       field3: catData.field3 || product.field3 || product.age || "",
       field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
       // Use dynamic price field based on catalogue configuration
-      price: catData[priceField] || product[priceField] || product.wholesale || product.resell || "",
-      priceUnit: catData[priceUnitField] || product[priceUnitField] || product.wholesaleUnit || product.resellUnit || "/ piece",
+      // For cat1, fall back to wholesale for backward compatibility
+      price: catData[priceField] || product[priceField] || (isCat1 ? product.wholesale || product.resell : "") || "",
+      priceUnit: catData[priceUnitField] || product[priceUnitField] || (isCat1 ? product.wholesaleUnit || product.resellUnit : "/ piece") || "/ piece",
     };
   };
 
@@ -129,9 +135,11 @@ useEffect(() => {
       const isEnabled = isProductEnabledForCatalogue(p, catalogueId);
       if (!isEnabled) return false;
 
+      // Use the catalogue's stockField instead of hardcoded wholesaleStock
+      const productStock = p[stockField];
       const matchesStock =
-        (stockFilter.includes("in") && p.wholesaleStock) ||
-        (stockFilter.includes("out") && !p.wholesaleStock);
+        (stockFilter.includes("in") && productStock) ||
+        (stockFilter.includes("out") && !productStock);
       const matchesCategory =
         categoryFilter === "" ||
         (Array.isArray(p.category)
@@ -142,7 +150,7 @@ useEffect(() => {
         p.subtitle?.toLowerCase().includes(search.toLowerCase());
       return matchesStock && matchesCategory && matchesSearch;
     });
-}, [filtered, stockFilter, categoryFilter, search, catalogueId]);
+}, [filtered, stockFilter, categoryFilter, search, catalogueId, stockField]);
 
 
   let touchTimer = null;
@@ -738,7 +746,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
               key={p.id}
               data-id={p.id}
               className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200 ${
-                !p.wholesaleStock ? "opacity-100" : ""
+                !p[stockField] ? "opacity-100" : ""
               }`}
               onClick={() => handleCardClick(p.id)}
 onTouchStart={(e) => handleTouchStart(e, p.id)}
@@ -756,7 +764,7 @@ onMouseLeave={handleTouchEnd}
                   alt={p.name}
                   className="w-full h-full object-cover"
                 />
-                {!p.wholesaleStock && (
+                {!p[stockField] && (
                   <div className="absolute top-1/2 left-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] bg-red-500 bg-opacity-60 text-white text-center py-0.5 shadow-md">
                     <span className="block text-sm font-bold tracking-wider">
                       OUT OF STOCK
@@ -903,7 +911,7 @@ onMouseLeave={handleTouchEnd}
 )}
 
 
-                  {!p.wholesaleStock && (
+                  {!p[stockField] && (
                     <div
                       style={{
                         position: "absolute",
