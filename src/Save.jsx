@@ -1,4 +1,4 @@
-import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Filesystem, Directory, FilesystemDirectory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 
 export async function saveRenderedImage(product, type, units = {}) {
