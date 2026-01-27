@@ -73,7 +73,7 @@ const { showToast } = useToast();
 
     // Also check for legacy folders for backward compatibility
     const foldersToCheck = [
-      ...catalogues.map(cat => cat.id),
+      ...catalogues.map(cat => cat.folder || cat.label), // Use folder name (which is now set to catalogue name)
       "Wholesale", // Legacy support
       "Resell"     // Legacy support
     ];
