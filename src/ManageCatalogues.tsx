@@ -265,22 +265,7 @@ export default function ManageCatalogues({
                     onChange={(e) => setFormLabel(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Folder Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formFolder}
-                    onChange={(e) => setFormFolder(e.target.value)}
-                    disabled={showEditForm?.isDefault}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                  />
-                  {showEditForm?.isDefault && (
-                    <p className="text-xs text-gray-500 mt-1">Folder name cannot be changed for default catalogues</p>
-                  )}
+                  <p className="text-xs text-gray-500 mt-1">Folder name will be set automatically</p>
                 </div>
 
                 {formError && (
@@ -301,7 +286,6 @@ export default function ManageCatalogues({
                     onClick={() => {
                       setShowEditForm(null);
                       setFormLabel("");
-                      setFormFolder("");
                       setFormError("");
                     }}
                     className="flex-1 py-2 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300 transition"
