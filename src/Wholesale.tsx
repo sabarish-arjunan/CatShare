@@ -66,6 +66,7 @@ export default function WholesaleTab({
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
 
 
 useEffect(() => {
