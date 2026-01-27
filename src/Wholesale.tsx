@@ -758,7 +758,7 @@ onMouseLeave={handleTouchEnd}
                   alt={p.name}
                   className="w-full h-full object-cover"
                 />
-                {!p.wholesaleStock && (
+                {!p[stockField] && (
                   <div className="absolute top-1/2 left-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] bg-red-500 bg-opacity-60 text-white text-center py-0.5 shadow-md">
                     <span className="block text-sm font-bold tracking-wider">
                       OUT OF STOCK
