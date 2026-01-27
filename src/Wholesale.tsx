@@ -638,7 +638,8 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
 <button
   onClick={() => {
-    const updated = allProducts.map((p) =>
+    const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+    const updated = allProds.map((p) =>
       selected.includes(p.id) ? { ...p, [stockField]: true } : p
     );
     setProducts(updated);
@@ -652,7 +653,8 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
 <button
   onClick={() => {
-    const updated = allProducts.map((p) =>
+    const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+    const updated = allProds.map((p) =>
       selected.includes(p.id) ? { ...p, [stockField]: false } : p
     );
     setProducts(updated);
