@@ -548,6 +548,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                 <MdInventory2 className="text-[18px]" />
                               </button>
 
+                              {/* Master Toggle Button - All Catalogues */}
+                              <button
+                                onClick={() => handleMasterStockToggleRequest(p.id)}
+                                className={`text-xs font-semibold px-2 py-1 rounded ${
+                                  catalogues.every((cat) => (p as any)[cat.stockField])
+                                    ? "bg-green-600 text-white"
+                                    : "bg-gray-300 text-gray-700"
+                                }`}
+                                title="Toggle all catalogues"
+                              >
+                                {catalogues.every((cat) => (p as any)[cat.stockField]) ? "All In" : "All Out"}
+                              </button>
+
                               {catalogues.map((cat) => (
                                 <button
                                   key={cat.id}
