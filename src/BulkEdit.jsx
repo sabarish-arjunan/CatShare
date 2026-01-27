@@ -44,8 +44,17 @@ useEffect(() => {
   setCategories(storedCategories);
 
   const normalized = products.map((p) => {
+    // Get catalogue-specific data for this product
+    const catData = getCatalogueData(p, catalogueId);
+
     const normalized = {
       ...p,
+      // Use catalogue-specific field values
+      field1: catData.field1 || p.field1 || p.color || "",
+      field2: catData.field2 || p.field2 || p.package || "",
+      field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
+      field3: catData.field3 || p.field3 || p.age || "",
+      field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
       wholesaleStock:
         typeof p.wholesaleStock === "boolean"
           ? p.wholesaleStock ? "in" : "out"
@@ -63,11 +72,17 @@ useEffect(() => {
         : p[stockField];
     }
 
+    // Add price field for the current catalogue
+    if (priceField) {
+      normalized[priceField] = catData[priceField] || p[priceField] || "";
+      normalized[priceUnitField] = catData[priceUnitField] || p[priceUnitField] || "/ piece";
+    }
+
     return normalized;
   });
 
   setEditedData(normalized);
-}, [products, stockField]);
+}, [products, stockField, catalogueId, priceField, priceUnitField]);
 
 
 
