@@ -1013,6 +1013,7 @@ onMouseLeave={handleTouchEnd}
       {showBulkEdit && (
         <BulkEdit
           products={visibleProducts}
+          allProducts={allProducts}
           imageMap={imageMap}
           setProducts={setProducts}
           onClose={() => setShowBulkEdit(false)}
