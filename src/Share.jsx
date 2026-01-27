@@ -96,14 +96,30 @@ export async function handleShare({
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    let message = "No rendered images found to share.";
+    let message = "❌ No rendered images found to share.";
 
     if (filesNotFound.length > 0) {
-      message += `\n\nProducts not found: ${filesNotFound.map(f => f.id).join(", ")}`;
-      message += "\n\nHint: Make sure you have:";
-      message += "\n1. Selected at least one product";
-      message += "\n2. Rendered the images using the 'Render All' button";
-      message += `\n3. Images should be in: ${folder}/ folder`;
+      message += `\n\n🔍 DIAGNOSTIC INFO:\n`;
+      message += `Products searched: ${filesNotFound.map(f => f.id).join(", ")}\n`;
+      message += `Folder expected: ${folder}/\n`;
+      message += `Files looked for pattern: product_<ID>_${mode}.png\n`;
+      message += `\n📋 Files not found:\n`;
+      filesNotFound.forEach(f => {
+        message += `  - ${f.path}${f.reason ? ` (${f.reason})` : ""}\n`;
+      });
+
+      message += `\n✅ SOLUTIONS:\n`;
+      message += `1. Click 'Render All' button in the ${folder} tab\n`;
+      message += `2. Wait for all images to finish rendering\n`;
+      message += `3. Check the browser console (F12) for errors\n`;
+      message += `4. Ensure you have storage permissions granted to the app\n`;
+      message += `5. Check file paths in Android's file manager:\n`;
+      message += `   /storage/emulated/0/ or internal app storage`;
+    } else {
+      message += "\n\nMake sure you have:\n";
+      message += "1. Selected at least one product\n";
+      message += "2. Rendered the images using the 'Render All' button\n";
+      message += `3. Images should be saved in: ${folder}/ folder`;
     }
 
     alert(message);
