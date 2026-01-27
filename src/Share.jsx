@@ -127,13 +127,22 @@ export async function handleShare({
   }
 
   try {
+    console.log(`\n📤 Preparing to share:`);
+    console.log(`   Files collected: ${fileUris.length}`);
+    fileUris.forEach((uri, idx) => {
+      console.log(`   [${idx + 1}] ${uri.substring(0, 100)}${uri.length > 100 ? '...' : ''}`);
+    });
+
     await Share.share({
       files: fileUris,
       dialogTitle: "Share Products",
     });
-    console.log("✅ Shared", fileUris.length, "products");
+
+    console.log("✅ Share successful!", fileUris.length, "products");
+    console.log(`\n📊 Summary: Successfully shared ${fileUris.length} out of ${selected.length} selected products`);
   } catch (err) {
     console.error("❌ Share failed:", err);
+    console.log(`\n📊 Share Summary: Successfully prepared ${fileUris.length} files but share was cancelled or failed`);
     alert("Sharing failed: " + err.message);
   }
 }
