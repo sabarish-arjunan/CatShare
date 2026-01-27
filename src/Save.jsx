@@ -365,6 +365,9 @@ export async function saveRenderedImage(product, type, units = {}) {
     const filePath = `${folder}/${filename}`;
 
     try {
+      console.log(`📝 Writing file to: ${filePath}`);
+      console.log(`📁 Using directory: Directory.Documents`);
+
       await Filesystem.writeFile({
         path: filePath,
         data: base64,
@@ -381,11 +384,31 @@ export async function saveRenderedImage(product, type, units = {}) {
           directory: Directory.Documents,
         });
         console.log(`✅ File verified - exists at: ${filePath}`, stat);
+
+        // Try to get the file URI to see the actual path
+        try {
+          const uriResult = await Filesystem.getUri({
+            path: filePath,
+            directory: Directory.Documents,
+          });
+          console.log(`📍 File URI: ${uriResult.uri}`);
+        } catch (uriErr) {
+          console.log(`⚠️ Could not get file URI: ${uriErr.message}`);
+        }
       } catch (verifyErr) {
-        console.warn(`⚠️ Could not verify file after write: ${filePath}`, verifyErr);
+        console.error(`❌ CRITICAL: File write succeeded but file not found during verification: ${filePath}`, verifyErr);
+        console.error(`This suggests the file was saved to a different location than expected`);
+        throw new Error(`File verification failed - files may not be saved to correct location: ${verifyErr.message}`);
       }
     } catch (writeErr) {
       console.error(`❌ Failed to write file: ${filePath}`, writeErr);
+      console.error(`📋 Error details:`, {
+        message: writeErr.message,
+        code: writeErr.code,
+        folder,
+        filename,
+        directorySetting: "Directory.Documents"
+      });
       throw writeErr;
     }
   } catch (err) {
