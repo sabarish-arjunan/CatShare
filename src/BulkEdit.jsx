@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
+import { getCatalogueData, setCatalogueData } from "./config/catalogueProductUtils";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
