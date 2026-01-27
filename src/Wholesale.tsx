@@ -638,11 +638,11 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
 <button
   onClick={() => {
-    setProducts((prev) =>
-      prev.map((p) =>
-        selected.includes(p.id) ? { ...p, [stockField]: true } : p
-      )
+    const updated = allProducts.map((p) =>
+      selected.includes(p.id) ? { ...p, [stockField]: true } : p
     );
+    setProducts(updated);
+    localStorage.setItem("products", JSON.stringify(updated));
   }}
   className="px-3 py-1.5 text-xs font-semibold rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
   title="Mark as In Stock"
@@ -652,11 +652,11 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
 <button
   onClick={() => {
-    setProducts((prev) =>
-      prev.map((p) =>
-        selected.includes(p.id) ? { ...p, [stockField]: false } : p
-      )
+    const updated = allProducts.map((p) =>
+      selected.includes(p.id) ? { ...p, [stockField]: false } : p
     );
+    setProducts(updated);
+    localStorage.setItem("products", JSON.stringify(updated));
   }}
   className="px-3 py-1.5 text-xs font-semibold rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
   title="Mark as Out of Stock"
