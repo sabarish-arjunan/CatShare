@@ -1,0 +1,117 @@
+import React from "react";
+import { MdClose, MdStar } from "react-icons/md";
+
+export default function ProModal({ isOpen, onClose }) {
+  if (!isOpen) return null;
+
+  const proFeatures = [
+    { name: "Bulk Editor", description: "Edit multiple products at once with batch operations" },
+    { name: "Watermark Customization", description: "Change watermark text and customize it for your brand" },
+    { name: "Manage Categories", description: "Create, edit, and organize unlimited product categories" },
+    { name: "Stock Control", description: "Toggle wholesale and resell stock IN/OUT status" },
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+      <div className="bg-white w-full rounded-t-2xl p-6 max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 sticky top-0 bg-white">
+          <div className="flex items-center gap-2">
+            <MdStar className="text-yellow-500 text-2xl" />
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">CatShare Pro</h2>
+              <p className="text-xs text-green-600 font-medium">You're using Pro for FREE</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+            aria-label="Close"
+          >
+            <MdClose size={24} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-6">
+          {/* Current Status */}
+          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm">
+            <p className="text-sm text-green-900 mb-2">
+              <span className="font-semibold">🎉 Special Offer:</span> Pro Features - Completely Free
+            </p>
+            <p className="text-xs text-green-800 leading-relaxed">
+              You have unlimited access to all CatShare Pro features at no cost. Make the most of it while you can!
+            </p>
+          </div>
+
+          {/* Coming Soon Notice */}
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm font-semibold text-blue-900 mb-2">⏰ Limited Time Offer</p>
+            <p className="text-xs text-blue-800">
+              You're getting Pro features for free during our beta phase. When CatShare Pro officially launches, these premium features will require a subscription. Enjoy everything now!
+            </p>
+          </div>
+
+          {/* Pro Features */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <MdStar className="text-yellow-500" />
+              Pro Features (Available Now - Free!)
+            </h3>
+            <div className="space-y-2">
+              {proFeatures.map((feature, idx) => (
+                <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm font-medium text-gray-800">{feature.name}</p>
+                  <p className="text-xs text-gray-600 mt-1">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Benefits */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-3">Why Upgrade to Pro?</h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex gap-2">
+                <span className="text-blue-600 font-bold">✓</span>
+                <span>Edit bulk products at once to save time</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-blue-600 font-bold">✓</span>
+                <span>Full control over watermark and branding</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-blue-600 font-bold">✓</span>
+                <span>Unlimited categories for organizing products</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-blue-600 font-bold">✓</span>
+                <span>Advanced inventory management with stock control</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* CTA */}
+          <div className="p-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white">
+            <p className="text-sm font-semibold mb-2">🚀 Make the Most of It</p>
+            <p className="text-xs mb-3 opacity-90">
+              Use all these Pro features now while they're free. We'll let you know when pricing takes effect, and you'll have plenty of notice!
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-sm rounded-lg transition font-medium"
+            >
+              Got it, thanks!
+            </button>
+          </div>
+
+          {/* Footer Note */}
+          <p className="text-xs text-center">
+            <span className="text-green-600 font-semibold">✓ Free access to Pro features during beta</span>
+            <span className="text-gray-500 block mt-1">Pricing model coming soon</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -2,12 +2,39 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { FiX, FiShare2 } from "react-icons/fi";
+import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
+import { useToast } from "./context/ToastContext";
+import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
+
+// Helper function to get CSS styles based on watermark position
+const getWatermarkPositionStyles = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none"
+  };
+
+  const positionMap = {
+    "top-left": { top: 10, left: 10, transform: "none" },
+    "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 10, right: 10, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 10, left: 10, transform: "none" },
+    "bottom-center": { bottom: 10, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
+  };
+
+  return { ...baseStyles, ...positionMap[position] };
+};
 
 // Full Screen Image Viewer Component
-const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
+const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWatermark, watermarkText, watermarkPosition }) => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -222,16 +249,19 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error sharing image:', error);
-      alert('Unable to share image. Please try again.');
+      setShareResult({
+        status: "error",
+        message: "Unable to share image. Please try again.",
+      });
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center cursor-pointer" data-fullscreen-image="true" onClick={onClose}>
       {/* Header with close and share buttons */}
-      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
+      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}
           className="text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-black/30 backdrop-blur-sm"
@@ -250,7 +280,8 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       {/* Image container */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden touch-none"
+        className="flex items-center justify-center overflow-hidden touch-none relative"
+        onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -273,6 +304,21 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
           }}
           draggable={false}
         />
+
+        {/* Watermark overlay - White/light for full-screen view against dark background */}
+        {showWatermark && (
+          <div
+            style={{
+              ...getWatermarkPositionStyles(watermarkPosition),
+              fontSize: "14px",
+              color: "rgba(255, 255, 255, 0.4)",
+              letterSpacing: "0.5px",
+              zIndex: 5
+            }}
+          >
+            {watermarkText}
+          </div>
+        )}
       </div>
 
     </div>
@@ -283,6 +329,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
 export default function ProductPreviewModal({
   product,
   tab,
+  catalogueId: externalCatalogueId,
   onClose,
   onEdit,
   onToggleStock,
@@ -290,9 +337,12 @@ export default function ProductPreviewModal({
   onSwipeRight,
   filteredProducts = [],
 }) {
+  const { showToast } = useToast();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
+  const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -310,8 +360,20 @@ export default function ProductPreviewModal({
     }
   };
 
+  // Update ref whenever showFullScreenImage changes
   useEffect(() => {
-    const handler = () => onClose();
+    fullScreenImageRef.current = showFullScreenImage;
+  }, [showFullScreenImage]);
+
+  useEffect(() => {
+    const handler = () => {
+      // If full screen image is open, close it instead of closing the preview
+      if (fullScreenImageRef.current) {
+        setShowFullScreenImage(false);
+      } else {
+        onClose();
+      }
+    };
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
   }, [onClose]);
@@ -321,6 +383,61 @@ export default function ProductPreviewModal({
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [onClose]);
+
+  // Check if watermark should be shown
+  const [showWatermark, setShowWatermark] = useState(() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
+  });
+
+  // Get custom watermark text
+  const [watermarkText, setWatermarkText] = useState(() => {
+    return localStorage.getItem("watermarkText") || "Created using CatShare";
+  });
+
+  // Get watermark position
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
+  });
+
+  // Listen for watermark setting changes from Settings modal
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handleWatermarkChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = (e) => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
+    };
+  }, []);
 
   useEffect(() => {
     const loadImage = async () => {
@@ -380,11 +497,33 @@ export default function ProductPreviewModal({
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
+  // Get catalogue data based on which tab is being viewed
+  const getCatalogueIdFromTab = () => {
+    // If a catalogue ID was explicitly passed (from catalogue view), use that
+    if (externalCatalogueId) return externalCatalogueId;
+    // Handle legacy tab names
+    if (tab === "catalogue1") return "cat1";
+    if (tab === "catalogue2") return "cat2";
+    // Handle direct catalogue IDs (cat1, cat2, cat3, etc.)
+    if (tab && tab.startsWith("cat")) return tab;
+    // For products tab, default to cat1
+    return "cat1";
+  };
+
+  const catalogueId = getCatalogueIdFromTab();
+  const catalogueData = getCatalogueData(product, catalogueId);
+
+  // Get the catalogue configuration for price field info
+  const catalogueConfig = getAllCatalogues().find(c => c.id === catalogueId);
+  const priceField = catalogueConfig?.priceField || "price1";
+  const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
+
   return (
     <>
       <div
-        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50"
+        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50 pointer-events-auto"
         onClick={onClose}
+        role="presentation"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
@@ -409,21 +548,6 @@ export default function ProductPreviewModal({
               transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
             })}
           >
-            {/* Top Bar */}
-            {tab !== "resell" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit}
-              </div>
-            )}
 
             {/* Image Section - Click to open full screen */}
             <div
@@ -448,7 +572,20 @@ export default function ProductPreviewModal({
                 }}
               />
 
-            
+              {/* Watermark - Adaptive color based on background */}
+              {showWatermark && (
+                <div
+                  style={{
+                    ...getWatermarkPositionStyles(watermarkPosition),
+                    fontSize: "10px",
+                    letterSpacing: "0.3px",
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
+                  }}
+                >
+                  {watermarkText}
+                </div>
+              )}
+
               {bothOut && (
                 <div
                   style={{
@@ -471,7 +608,7 @@ export default function ProductPreviewModal({
                   OUT OF STOCK
                 </div>
               )}
-              
+
               {product.badge && (
                 <div
                   style={{
@@ -524,32 +661,30 @@ export default function ProductPreviewModal({
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
+                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit}
+                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit}
+                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
                 </p>
               </div>
             </div>
 
-            {/* Bottom Bar */}
-            {tab !== "wholesale" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
-              </div>
-            )}
+            {/* Bottom Bar - Show price based on catalogue-specific data */}
+            <div
+              style={{
+                backgroundColor: product.bgColor || "#add8e6",
+                color: product.fontColor || "white",
+                padding: "8px",
+                textAlign: "center",
+                fontWeight: "normal",
+                fontSize: 19,
+              }}
+            >
+              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
+            </div>
 
             {/* Action Buttons */}
             {tab === "products" && (
@@ -589,7 +724,40 @@ export default function ProductPreviewModal({
           productName={product.name}
           isOpen={showFullScreenImage}
           onClose={() => setShowFullScreenImage(false)}
+          showWatermark={showWatermark}
+          watermarkText={watermarkText}
+          watermarkPosition={watermarkPosition}
         />
+      )}
+
+      {/* Share Result Modal */}
+      {shareResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+            <div className="flex justify-center mb-4">
+              {shareResult.status === "success" ? (
+                <FiCheckCircle className="w-12 h-12 text-green-500" />
+              ) : (
+                <FiAlertCircle className="w-12 h-12 text-red-500" />
+              )}
+            </div>
+
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              {shareResult.status === "success" ? "Success!" : "Failed"}
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-5">
+              {shareResult.message}
+            </p>
+
+            <button
+              onClick={() => setShareResult(null)}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+            >
+              OK
+            </button>
+          </div>
+        </div>
       )}
     </>
   );

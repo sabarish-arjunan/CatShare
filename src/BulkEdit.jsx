@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { useToast } from "./context/ToastContext";
 
 const FIELD_OPTIONS = [
   { key: "name", label: "Name" },
   { key: "subtitle", label: "Subtitle" },
-  { key: "color", label: "Color" },
-  { key: "package", label: "Package" },
-  { key: "age", label: "Age Group" },
-  { key: "wholesale", label: "Wholesale Price" },
-  { key: "resell", label: "Resell Price" },
+  { key: "field1", label: "Colour" },
+  { key: "field2", label: "Package" },
+  { key: "field3", label: "Age Group" },
+  { key: "price1", label: "Price 1" },
+  { key: "price2", label: "Price 2" },
   { key: "badge", label: "Badge" },
   { key: "category", label: "Category" },
   { key: "stock", label: "Stock Update" },
@@ -20,6 +21,7 @@ export default function BulkEdit({ products, imageMap, setProducts, onClose, tri
   const [selectedFields, setSelectedFields] = useState([]);
   const [step, setStep] = useState("select");
   const [showRenderPopup, setShowRenderPopup] = useState(false);
+  const { showToast } = useToast();
   const totalProducts = products.length;
 const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
 
@@ -91,7 +93,7 @@ useEffect(() => {
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
-    alert("Something went wrong during save.");
+    showToast("Something went wrong during save.", "error");
   }
 };
 
@@ -165,7 +167,7 @@ useEffect(() => {
 
 
     <div className="flex-1 overflow-auto px-4">
-        <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(120px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
+        <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
           <div>#</div>
           <div>Image</div>
           {selectedFields.map((field) => (
@@ -176,7 +178,7 @@ useEffect(() => {
         {editedData.map((item, index) => (
           <div
             key={item.id}
-            className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(120px,1fr))] gap-2 items-center text-sm py-2 border-b"
+            className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 items-center text-sm py-2 border-b"
           >
             <div>{index + 1}</div>
             <div className="w-14 h-14 flex items-center justify-center">
@@ -209,25 +211,25 @@ useEffect(() => {
               />
             )}
 
-            {selectedFields.includes("color") && (
+            {selectedFields.includes("field1") && (
               <input
-                value={item.color || ""}
-                onChange={(e) => handleFieldChange(item.id, "color", e.target.value)}
+                value={item.field1 || item.color || ""}
+                onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
             )}
 
-            {selectedFields.includes("package") && (
+            {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.package || ""}
-      onChange={(e) => handleFieldChange(item.id, "package", e.target.value)}
-      className="border rounded px-2 py-1 w-full"
+      value={item.field2 || item.package || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
+      className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.packageUnit || ""}
-      onChange={(e) => handleFieldChange(item.id, "packageUnit", e.target.value)}
-      className="border rounded px-2 py-1 min-w-[75px]"
+      value={item.field2Unit || item.packageUnit || ""}
+      onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
+      className="border rounded px-2 py-1 pr-8 w-16"
     >
       <option value="pcs / set">pcs / set</option>
       <option value="pcs / dozen">pcs / dozen</option>
@@ -237,21 +239,59 @@ useEffect(() => {
 )}
 
 
-            {selectedFields.includes("age") && (
+            {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.age || ""}
-                  onChange={(e) => handleFieldChange(item.id, "age", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  value={item.field3 || item.age || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.ageUnit || ""}
-                  onChange={(e) => handleFieldChange(item.id, "ageUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  value={item.field3Unit || item.ageUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
                   <option value="Newborn">Newborn</option>
+                </select>
+              </div>
+            )}
+
+            {selectedFields.includes("price1") && (
+              <div className="flex gap-2">
+                <input
+                  value={item.price1 || item.wholesale || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price1", e.target.value); handleFieldChange(item.id, "wholesale", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
+                />
+                <select
+                  value={item.price1Unit || item.wholesaleUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price1Unit", e.target.value); handleFieldChange(item.id, "wholesaleUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
+                </select>
+              </div>
+            )}
+
+            {selectedFields.includes("price2") && (
+              <div className="flex gap-2">
+                <input
+                  value={item.price2 || item.resell || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price2", e.target.value); handleFieldChange(item.id, "resell", e.target.value); }}
+                  className="border rounded px-2 py-1 w-28"
+                />
+                <select
+                  value={item.price2Unit || item.resellUnit || ""}
+                  onChange={(e) => { handleFieldChange(item.id, "price2Unit", e.target.value); handleFieldChange(item.id, "resellUnit", e.target.value); }}
+                  className="border rounded px-2 py-1 pr-8 w-16"
+                >
+                  <option value="/ piece">/ piece</option>
+                  <option value="/ dozen">/ dozen</option>
+                  <option value="/ set">/ set</option>
                 </select>
               </div>
             )}
@@ -261,12 +301,12 @@ useEffect(() => {
                 <input
                   value={item.wholesale || ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesale", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.wholesaleUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>
@@ -280,12 +320,12 @@ useEffect(() => {
                 <input
                   value={item.resell || ""}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
+                  className="border rounded px-2 py-1 w-28"
                 />
                 <select
                   value={item.resellUnit || ""}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
-                  className="border rounded px-2 py-1"
+                  className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>
                   <option value="/ dozen">/ dozen</option>
@@ -295,21 +335,12 @@ useEffect(() => {
             )}
 
             {selectedFields.includes("badge") && (
-              <div className="flex items-center gap-1">
-                <input
-                  value={item.badge || ""}
-                  onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
-                  className="border rounded px-2 py-1 w-full"
-                />
-                <button
-                  onClick={() =>
-                    handleFieldChange(item.id, "badge", item.badge === "Muslin" ? "" : "Muslin")
-                  }
-                  className={`px-2 py-1 text-xs rounded ${item.badge === "Muslin" ? "bg-purple-600 text-white" : "bg-gray-200 text-black"}`}
-                >
-                  Muslin
-                </button>
-              </div>
+              <input
+                value={item.badge || ""}
+                onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
+                placeholder="Enter badge"
+                className="border rounded px-2 py-1 w-full"
+              />
             )}
 
             {selectedFields.includes("category") && (

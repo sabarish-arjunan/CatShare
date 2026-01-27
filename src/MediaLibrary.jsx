@@ -18,8 +18,10 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import MediaEditor from "./MediaEditor";
+import { useToast } from "./context/ToastContext";
 
 export default function MediaLibrary({ onSelect, onClose }) {
+  const { showToast } = useToast();
   const [media, setMedia] = useState([]);
   const [preview, setPreview] = useState(null);
   const [selected, setSelected] = useState([]);
@@ -101,9 +103,9 @@ export default function MediaLibrary({ onSelect, onClose }) {
         directory: FilesystemDirectory.Documents,
       });
       await loadMedia();
-      alert("✅ Image reverted to original.");
+      showToast("Image reverted to original", "success");
     } catch {
-      alert("❌ No original backup found.");
+      showToast("No original backup found", "error");
     }
   };
 
@@ -264,7 +266,7 @@ function FullScreenPreview({ item, onClose, setShowEditor, onRevert }) {
   try {
     await Capacitor.Plugins.GalleryEditor.openEditor({ path: fullPath });
   } catch (err) {
-    alert("❌ Failed to open system editor");
+    showToast("Failed to open system editor", "error");
     console.error("System editor error:", err);
   }
 };

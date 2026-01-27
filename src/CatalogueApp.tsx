@@ -3,26 +3,39 @@ import { useNavigate } from "react-router-dom";
 import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
-import WholesaleTab from "./Wholesale";
-import ResellTab from "./Resell";
+import Catalogue1Tab from "./Wholesale";
+import Catalogue2Tab from "./Resell";
+import CataloguesList from "./CataloguesList";
+import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
 import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { MdInventory2 } from "react-icons/md";
+import { saveRenderedImage } from "./Save";
+import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 
 export function openPreviewHtml(id, tab = null) {
   const evt = new CustomEvent("open-preview", { detail: { id, tab } });
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
 
   const navigate = useNavigate();
   const scrollRef = useRef(null);
 
+  const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [tab, setTab] = useState("products");
+  const [selectedCatalogueInCataloguesTab, setSelectedCatalogueInCataloguesTab] = useState<string | null>(null);
+  const [showManageCatalogues, setShowManageCatalogues] = useState(false);
+
+  // Initialize catalogues on component mount
+  useEffect(() => {
+    const cats = getAllCatalogues();
+    setCatalogues(cats);
+  }, []);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
@@ -38,6 +51,17 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [shelfTarget, setShelfTarget] = useState(null);
   const [confirmToggleStock, setConfirmToggleStock] = useState(null);
   const [bypassChecked, setBypassChecked] = useState(false);
+  const [localIsRendering, setLocalIsRendering] = useState(false);
+  const [localRenderProgress, setLocalRenderProgress] = useState(0);
+  const [localRenderResult, setLocalRenderResult] = useState(null);
+
+  // Use passed props if available, otherwise use local state
+  const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
+  const setIsRendering = propSetIsRendering || setLocalIsRendering;
+  const renderProgress = propRenderProgress !== undefined ? propRenderProgress : localRenderProgress;
+  const setRenderProgress = propSetRenderProgress || setLocalRenderProgress;
+  const renderResult = propRenderResult !== undefined ? propRenderResult : localRenderResult;
+  const setRenderResult = propSetRenderResult || setLocalRenderResult;
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
@@ -59,7 +83,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   useEffect(() => {
     const loadImages = async () => {
       const map = {};
-      for (const p of products) {
+      // Use Promise.all to read all images in parallel instead of sequentially
+      const promises = products.map(async (p) => {
         if (p.imagePath) {
           try {
             const result = await Filesystem.readFile({ path: p.imagePath, directory: Directory.Data });
@@ -70,7 +95,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         } else {
           map[p.id] = p.image || "";
         }
-      }
+      });
+      await Promise.all(promises);
       setImageMap(map);
     };
     loadImages();
@@ -95,7 +121,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       const list = filtered || products;
       const match = list.find((p) => p.id === id);
       if (match) {
-        setTab(tab || "products");
+        // Only set tab if it's a valid tab value (products or catalogues)
+        // Ignore catalogue IDs passed from within catalogue views
+        if (tab && (tab === "products" || tab === "catalogues")) {
+          setTab(tab);
+        }
         setPreviewList(list);
         setPreviewProduct(match);
       }
@@ -133,10 +163,13 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setTab(key);
     setSelected([]);
     setSearch("");
+    if (key === "catalogues") {
+      setSelectedCatalogueInCataloguesTab(null);
+    }
   };
 
   const toggleStock = async (id, field) => {
-    const label = field === "wholesaleStock" ? "Wholesale Stock" : "Resell Stock";
+    const label = field === "wholesaleStock" ? "Catalogue 1 Stock" : "Catalogue 2 Stock";
     const confirm = window.confirm(`Do you want to update ${label} for this item?`);
     if (!confirm) return;
 
@@ -165,6 +198,67 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   const updateProduct = (item) => {
     setProducts((prev) => prev.map((p) => (p.id === item.id ? item : p)));
+  };
+
+  const handleRenderAllPNGs = async () => {
+    const all = JSON.parse(localStorage.getItem("products") || "[]");
+    if (all.length === 0) return;
+
+    setIsRendering(true);
+    setRenderProgress(0);
+
+    const cats = getAllCatalogues();
+    const totalRenders = all.length * cats.length;
+    let renderedCount = 0;
+
+    for (let i = 0; i < all.length; i++) {
+      const product = all[i];
+
+      // Inject base64 from imageMap (used in CatalogueApp)
+      if (!product.image && imageMap[product.id]) {
+        product.image = imageMap[product.id];
+      }
+
+      // Skip products without images - don't error, just skip
+      if (!product.image && !product.imagePath) {
+        console.warn(`⚠️ Skipping ${product.name} - no image available`);
+        setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+        continue;
+      }
+
+      try {
+        // Render for all catalogues
+        for (const cat of cats) {
+          // For backward compatibility, map cat1->wholesale and cat2->resell
+          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+          await saveRenderedImage(product, legacyType, {
+            resellUnit: product.resellUnit || "/ piece",
+            wholesaleUnit: product.wholesaleUnit || "/ piece",
+            packageUnit: product.packageUnit || "pcs / set",
+            ageGroupUnit: product.ageUnit || "months",
+            catalogueId: cat.id,
+            catalogueLabel: cat.label,
+            priceField: cat.priceField,
+            priceUnitField: cat.priceUnitField,
+          });
+
+          renderedCount++;
+          setRenderProgress(Math.round((renderedCount / totalRenders) * 100));
+        }
+
+        console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
+      } catch (err) {
+        console.warn(`❌ Failed to render images for ${product.name}`, err);
+      }
+    }
+
+    setRenderResult({
+      status: "success",
+      message: `PNG rendering completed for all products and catalogues`,
+    });
+    setIsRendering(false);
+    window.dispatchEvent(new CustomEvent("renderComplete"));
   };
 
   const handleDelete = async (id) => {
@@ -219,6 +313,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return aCat.localeCompare(bCat);
   });
 
+
   return (
     <div
       className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
@@ -266,8 +361,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               {[
                 { label: "Original", value: "" },
                 { label: "A - Z", value: "name" },
-                { label: "Wholesale IN", value: "wholesaleStock" },
-                { label: "Resell IN", value: "resellStock" },
+                ...catalogues.map((cat) => ({
+                  label: `${cat.label} IN`,
+                  value: cat.stockField,
+                })),
               ].map((option) => (
                 <button
                   key={option.value}
@@ -341,11 +438,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         </>
       )}
 
-      {tab !== "products" && (
-        <div className="sticky top-0 h-[40px] bg-black z-50"></div>
-      )}
 
-      <main ref={scrollRef} className={`flex-1 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${(tab === 'products' || tab === 'catalogues') ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}
@@ -426,22 +520,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                 <MdInventory2 className="text-[18px]" />
                               </button>
 
-                              <button
-                                onClick={() => handleStockToggleRequest(p.id, "wholesaleStock")}
-                                className={`text-xs font-semibold px-2 py-1 rounded ${
-                                  p.wholesaleStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
-                                }`}
-                              >
-                                {p.wholesaleStock ? "WS In" : "WS Out"}
-                              </button>
-                              <button
-                                onClick={() => handleStockToggleRequest(p.id, "resellStock")}
-                                className={`text-xs font-semibold px-2 py-1 rounded ${
-                                  p.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
-                                }`}
-                              >
-                                {p.resellStock ? "RS In" : "RS Out"}
-                              </button>
+                              {catalogues.map((cat) => (
+                                <button
+                                  key={cat.id}
+                                  onClick={() => handleStockToggleRequest(p.id, cat.stockField)}
+                                  className={`text-xs font-semibold px-2 py-1 rounded ${
+                                    (p as any)[cat.stockField]
+                                      ? "bg-green-600 text-white"
+                                      : "bg-gray-300 text-gray-700"
+                                  }`}
+                                >
+                                  {(p as any)[cat.stockField] ? `${cat.label.slice(0, 1)} In` : `${cat.label.slice(0, 1)} Out`}
+                                </button>
+                              ))}
                             </div>
                           </div>
                         </div>
@@ -554,30 +645,90 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           </div>
         )}
 
-        {tab === "wholesale" && (
-          <WholesaleTab
-            filtered={visible}
-            selected={selected}
-            setSelected={setSelected}
-            getLighterColor={getLighterColor}
+        {tab === "catalogues" && selectedCatalogueInCataloguesTab === null && (
+          <CataloguesList
+            catalogues={catalogues}
+            onSelectCatalogue={(catalogueId) => {
+              setSelectedCatalogueInCataloguesTab(catalogueId);
+            }}
             imageMap={imageMap}
+            products={products}
+            onManageCatalogues={() => setShowManageCatalogues(true)}
           />
         )}
 
-        {tab === "resell" && (
-          <ResellTab
-            filtered={visible}
-            selected={selected}
-            setSelected={setSelected}
-            getLighterColor={getLighterColor}
-            imageMap={imageMap}
-          />
+        {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
+          <div className="relative -mx-4">
+            {/* Black bar for catalogues */}
+            <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+            {/* Render the selected catalogue */}
+            {(() => {
+              const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
+              if (!selectedCat) return null;
+
+              return (
+                <div key={selectedCat.id}>
+                  {selectedCat.id === "cat1" ? (
+                    <Catalogue1Tab
+                      filtered={visible}
+                      allProducts={products}
+                      setProducts={setProducts}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    />
+                  ) : selectedCat.id === "cat2" ? (
+                    <Catalogue2Tab
+                      filtered={visible}
+                      allProducts={products}
+                      setProducts={setProducts}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    />
+                  ) : (
+                    /* For custom catalogues, use Wholesale component */
+                    <Catalogue1Tab
+                      filtered={visible}
+                      allProducts={products}
+                      setProducts={setProducts}
+                      selected={selected}
+                      setSelected={setSelected}
+                      getLighterColor={getLighterColor}
+                      imageMap={imageMap}
+                      catalogueId={selectedCat.id}
+                      catalogueLabel={selectedCat.label}
+                      priceField={selectedCat.priceField}
+                      priceUnitField={selectedCat.priceUnitField}
+                      stockField={selectedCat.stockField}
+                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    />
+                  )}
+                </div>
+              );
+            })()}
+          </div>
         )}
 
         {previewProduct && (
           <ProductPreviewModal
             product={previewProduct}
             tab={tab}
+            catalogueId={selectedCatalogueInCataloguesTab}
             filteredProducts={previewList}
             onClose={() => setPreviewProduct(null)}
             onEdit={() => navigate(`/create?id=${previewProduct.id}`)}
@@ -593,39 +744,49 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex justify-around text-sm font-medium pb-[env(safe-area-inset-bottom,0px)]">
-        {[
-          { key: "products", label: "Products", color: "bg-blue-500 text-white" },
-          { key: "wholesale", label: "Wholesale", color: "bg-blue-500 text-white" },
-          { key: "resell", label: "Resell", color: "bg-blue-500 text-white" },
-        ].map((t) => {
-          const isActive = tab === t.key;
-          return (
-            <button
-              key={t.key}
-              onClick={async () => {
-                await Haptics.impact({ style: ImpactStyle.Light });
-                handleTabChange(t.key);
-              }}
-              className={`flex-1 py-3.5 text-center transition-all ${
-                isActive ? t.color : "bg-white text-gray-600"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
+        {/* Products tab */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            handleTabChange("products");
+          }}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            tab === "products"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-gray-600"
+          }`}
+        >
+          Products
+        </button>
+
+        {/* Catalogues tab */}
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Light });
+            handleTabChange("catalogues");
+          }}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            tab === "catalogues"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-gray-600"
+          }`}
+        >
+          Catalogues
+        </button>
       </nav>
 
-      <button
-        onClick={async () => {
-          await Haptics.impact({ style: ImpactStyle.Medium });
-          navigate("/create");
-        }}
-        className="fixed right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
-      >
-        <FiPlus size={24} />
-      </button>
+      {tab === "products" && (
+        <button
+          onClick={async () => {
+            await Haptics.impact({ style: ImpactStyle.Medium });
+            navigate("/create");
+          }}
+          className="fixed right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+        >
+          <FiPlus size={24} />
+        </button>
+      )}
 
       <SideDrawer
         open={menuOpen}
@@ -641,10 +802,31 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         }}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        isRendering={isRendering}
+        renderProgress={renderProgress}
+        renderResult={renderResult}
+        setRenderResult={setRenderResult}
+        handleRenderAllPNGs={handleRenderAllPNGs}
       />
 
       {showTutorial && (
         <Tutorial onClose={() => setShowTutorial(false)} />
+      )}
+
+      {showManageCatalogues && (
+        <ManageCatalogues
+          onClose={() => {
+            setShowManageCatalogues(false);
+            // Refresh catalogues after management
+            const updated = getAllCatalogues();
+            setCatalogues(updated);
+          }}
+          onCataloguesChanged={(newCatalogues) => {
+            setCatalogues(newCatalogues);
+          }}
+          products={products}
+          setProducts={setProducts}
+        />
       )}
     </div>
   );
