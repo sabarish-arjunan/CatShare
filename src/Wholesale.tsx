@@ -31,6 +31,11 @@ export default function WholesaleTab({
   const getProductCatalogueData = (product) => {
     if (!catalogueId) return product; // Fallback to product if no catalogueId
     const catData = getCatalogueData(product, catalogueId);
+
+    // For non-cat1 catalogues, don't fall back to wholesale/resell (those are cat1 fields)
+    // Only use the specific price field for this catalogue
+    const isCat1 = catalogueId === 'cat1';
+
     return {
       ...product,
       field1: catData.field1 || product.field1 || product.color || "",
@@ -39,8 +44,9 @@ export default function WholesaleTab({
       field3: catData.field3 || product.field3 || product.age || "",
       field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
       // Use dynamic price field based on catalogue configuration
-      price: catData[priceField] || product[priceField] || product.wholesale || product.resell || "",
-      priceUnit: catData[priceUnitField] || product[priceUnitField] || product.wholesaleUnit || product.resellUnit || "/ piece",
+      // For cat1, fall back to wholesale for backward compatibility
+      price: catData[priceField] || product[priceField] || (isCat1 ? product.wholesale || product.resell : "") || "",
+      priceUnit: catData[priceUnitField] || product[priceUnitField] || (isCat1 ? product.wholesaleUnit || product.resellUnit : "/ piece") || "/ piece",
     };
   };
 
