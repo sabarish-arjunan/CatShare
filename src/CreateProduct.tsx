@@ -546,7 +546,9 @@ export default function CreateProduct() {
 
     // Get data from the first enabled catalogue (usually cat1) for backward compatibility
     const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const allCatalogues = getAllCatalogues();
 
+    // Build product with all catalogue price fields saved to root level
     const newItem: ProductWithCatalogueData = {
       ...formData,
       id,
@@ -554,25 +556,34 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      // Keep old names for backward compatibility at product level
-      price1: defaultCatalogueData.price1 || "",
-      price2: defaultCatalogueData.price2 || "",
-      price1Unit: defaultCatalogueData.price1Unit || "/ piece",
-      price2Unit: defaultCatalogueData.price2Unit || "/ piece",
-      field1: defaultCatalogueData.field1 || "",
-      field2: defaultCatalogueData.field2 || "",
-      field3: defaultCatalogueData.field3 || "",
-      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
-      field3Unit: defaultCatalogueData.field3Unit || "months",
-      // Keep old names for backward compatibility
-      wholesaleUnit: defaultCatalogueData.price1Unit || "/ piece",
-      resellUnit: defaultCatalogueData.price2Unit || "/ piece",
-      packageUnit: defaultCatalogueData.field2Unit || "pcs / set",
-      ageUnit: defaultCatalogueData.field3Unit || "months",
-      wholesale: defaultCatalogueData.price1 || "",
-      resell: defaultCatalogueData.price2 || "",
-      stock: defaultCatalogueData.stock !== false,
     };
+
+    // Save price and stock fields for ALL catalogues to the product root level
+    for (const cat of allCatalogues) {
+      const catData = getCatalogueData(formData, cat.id);
+      newItem[cat.priceField] = catData[cat.priceField] || "";
+      newItem[cat.priceUnitField] = catData[cat.priceUnitField] || "/ piece";
+      newItem[cat.stockField] = catData[cat.stockField] !== false;
+    }
+
+    // Keep old names for backward compatibility at product level
+    newItem.price1 = newItem.price1 || "";
+    newItem.price2 = newItem.price2 || "";
+    newItem.price1Unit = newItem.price1Unit || "/ piece";
+    newItem.price2Unit = newItem.price2Unit || "/ piece";
+    newItem.field1 = defaultCatalogueData.field1 || "";
+    newItem.field2 = defaultCatalogueData.field2 || "";
+    newItem.field3 = defaultCatalogueData.field3 || "";
+    newItem.field2Unit = defaultCatalogueData.field2Unit || "pcs / set";
+    newItem.field3Unit = defaultCatalogueData.field3Unit || "months";
+    // Keep old names for backward compatibility
+    newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
+    newItem.resellUnit = defaultCatalogueData.price2Unit || "/ piece";
+    newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
+    newItem.ageUnit = defaultCatalogueData.field3Unit || "months";
+    newItem.wholesale = newItem.price1 || "";
+    newItem.resell = newItem.price2 || "";
+    newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
 
     try {
       const all = JSON.parse(localStorage.getItem("products") || "[]");
