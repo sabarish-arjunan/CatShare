@@ -273,9 +273,16 @@ export default function ManageCatalogues({
               onSubmit={handleEditSubmit}
               className="mb-4 p-4 border-2 border-amber-200 bg-amber-50 rounded-lg"
             >
-              <h3 className="font-semibold text-gray-800 mb-3">
-                Edit Catalogue
-              </h3>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-semibold text-gray-800">
+                  Edit Catalogue
+                </h3>
+                {showEditForm.isDefault && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-semibold">
+                    Default
+                  </span>
+                )}
+              </div>
 
               <div className="space-y-3">
                 <div>
