@@ -26,7 +26,7 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   return baseFields;
 };
 
-export default function BulkEdit({ products, imageMap, setProducts, onClose, triggerRender, catalogueId, priceField, priceUnitField, stockField }) {
+export default function BulkEdit({ products, allProducts, imageMap, setProducts, onClose, triggerRender, catalogueId, priceField, priceUnitField, stockField }) {
   const [editedData, setEditedData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
