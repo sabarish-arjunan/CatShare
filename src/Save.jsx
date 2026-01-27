@@ -408,7 +408,8 @@ export async function saveRenderedImage(product, type, units = {}) {
         code: writeErr.code,
         folder,
         filename,
-        directorySetting: "Directory.Documents"
+        directorySetting: "Directory.External",
+        androidPath: `/storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`
       });
       throw writeErr;
     }
