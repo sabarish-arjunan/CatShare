@@ -357,8 +357,9 @@ export async function saveRenderedImage(product, type, units = {}) {
       // Fallback: use catalogue ID if label not provided
       folder = units.catalogueId;
     } else {
-      // Legacy support: map old types to folder names
-      folder = type === "wholesale" ? "Wholesale" : type === "resell" ? "Resell" : type;
+      // Final fallback: use the type parameter as folder name
+      // This ensures the correct folder is used even for old products
+      folder = type;
     }
 
     await Filesystem.writeFile({
