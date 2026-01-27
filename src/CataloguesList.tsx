@@ -171,11 +171,6 @@ export default function CataloguesList({
                       Price: <span className="font-mono">{catalogue.priceField}</span>
                     </p>
                   </div>
-
-                  {/* Arrow indicator */}
-                  <div className="text-gray-400 group-hover:text-blue-600 transition-colors text-xl">
-                    →
-                  </div>
                 </div>
               </button>
             );
