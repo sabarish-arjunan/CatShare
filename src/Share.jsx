@@ -6,7 +6,8 @@ export async function handleShare({
   setProcessing,
   setProcessingIndex,
   setProcessingTotal,
-  mode = "resell", // or "wholesale"
+  folder,
+  mode = "resell", // or "wholesale" - kept for backward compatibility
 }) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
@@ -16,7 +17,8 @@ export async function handleShare({
   setProcessing(true);
   setProcessingTotal(selected.length);
 
-  const folder = mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell";
+  // Use the provided folder name, or derive from mode for backward compatibility
+  const targetFolder = folder || (mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell");
   const fileUris = [];
   let processedCount = 0;
   let filesNotFound = [];
