@@ -33,7 +33,8 @@ export default function BulkEdit({ products, imageMap, setProducts, onClose, tri
   const [showRenderPopup, setShowRenderPopup] = useState(false);
   const { showToast } = useToast();
   const totalProducts = products.length;
-const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
+  const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
+  const FIELD_OPTIONS = getFieldOptions(catalogueId, priceField, priceUnitField);
 
 
 
