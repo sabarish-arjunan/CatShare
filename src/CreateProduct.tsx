@@ -981,19 +981,6 @@ setTimeout(async () => {
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "12px 8px",
-      textAlign: "center",
-      fontWeight: "600",
-      fontSize: 20,
-    }}
-  >
-    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
-  </div>
-
   {imagePreview && (
     <div
       style={{
