@@ -685,6 +685,7 @@ export default function Retail({ products = [] }) {
         <ProductPreviewModal
           product={previewProductRetail}
           tab="retail"
+          catalogueId={null}
           filteredProducts={retailProducts}
           onClose={() => setPreviewProductRetail(null)}
           onEdit={() => {

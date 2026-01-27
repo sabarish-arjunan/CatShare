@@ -129,7 +129,7 @@ useEffect(() => {
   try {
     const cleanData = editedData.map((p) => {
   let copy = { ...p };
-  delete copy.image;
+  // Preserve image field to maintain product-to-image associations
 
   // Convert stock fields from string → boolean
   if (typeof copy.wholesaleStock === "string") {
