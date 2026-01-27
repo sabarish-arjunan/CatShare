@@ -685,6 +685,7 @@ export default function Retail({ products = [] }) {
         <ProductPreviewModal
           product={previewProductRetail}
           tab="retail"
+          catalogueId={null}
           filteredProducts={retailProducts}
           onClose={() => setPreviewProductRetail(null)}
           onEdit={() => {
@@ -717,7 +718,7 @@ export default function Retail({ products = [] }) {
                       const base64 = imagePreview.split(',')[1];
                       imagePath = `retail/product-${id}.png`;
                       await Filesystem.writeFile({ path: imagePath, data: base64, directory: Directory.Data, recursive: true });
-                      // Also save a copy to external folder for sharing (consistent filename pattern)
+                      // Also save a copy to external storage for sharing (consistent filename pattern)
                       try {
                         const shareFilename = `product_${id}_retail.png`;
                         await Filesystem.writeFile({ path: `Retail/${shareFilename}`, data: base64, directory: Directory.External, recursive: true });

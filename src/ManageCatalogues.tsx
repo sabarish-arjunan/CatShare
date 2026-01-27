@@ -7,6 +7,7 @@ import {
   getAllCatalogues,
 } from "./config/catalogueConfig";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { deleteRenderedImagesFromFolder } from "./Save";
 
 interface ManageCataloguesProps {
   onClose: () => void;
@@ -29,7 +30,6 @@ export default function ManageCatalogues({
   );
 
   const [formLabel, setFormLabel] = useState("");
-  const [formFolder, setFormFolder] = useState("");
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
@@ -46,11 +46,6 @@ export default function ManageCatalogues({
       return;
     }
 
-    if (!formFolder.trim()) {
-      setFormError("Folder name is required");
-      return;
-    }
-
     // Check for duplicate labels
     if (catalogues.some((c) => c.label.toLowerCase() === formLabel.toLowerCase())) {
       setFormError("A catalogue with this name already exists");
@@ -60,9 +55,9 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
-      // Create new catalogue
+      // Create new catalogue with folder name same as label
       const newCatalogue = addCatalogue(formLabel.trim(), {
-        folder: formFolder.trim(),
+        folder: formLabel.trim(),
       });
 
       if (newCatalogue) {
@@ -83,7 +78,6 @@ export default function ManageCatalogues({
 
         setShowAddForm(false);
         setFormLabel("");
-        setFormFolder("");
       }
     } catch (err) {
       setFormError("Failed to add catalogue: " + (err as Error).message);
@@ -96,11 +90,6 @@ export default function ManageCatalogues({
 
     if (!formLabel.trim()) {
       setFormError("Catalogue name is required");
-      return;
-    }
-
-    if (!formFolder.trim()) {
-      setFormError("Folder name is required");
       return;
     }
 
@@ -121,10 +110,19 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
 
-      updateCatalogue(showEditForm.id, {
-        label: formLabel.trim(),
-        folder: formFolder.trim(),
-      });
+      const newLabel = formLabel.trim();
+      const oldFolder = showEditForm.folder;
+      const newFolder = newLabel;
+
+      // If folder name is changing, clean up old rendered images
+      if (oldFolder !== newFolder) {
+        console.log(`📁 Catalogue folder changed from "${oldFolder}" to "${newFolder}"`);
+        await deleteRenderedImagesFromFolder(oldFolder);
+      }
+
+      // Update label and folder (folder = label for all catalogues)
+      const updates = { label: newLabel, folder: newFolder };
+      updateCatalogue(showEditForm.id, updates);
 
       const updated = getAllCatalogues();
       setCatalogues(updated);
@@ -132,7 +130,6 @@ export default function ManageCatalogues({
 
       setShowEditForm(null);
       setFormLabel("");
-      setFormFolder("");
     } catch (err) {
       setFormError("Failed to update catalogue: " + (err as Error).message);
     }
@@ -160,7 +157,6 @@ export default function ManageCatalogues({
 
   const openEditForm = (catalogue: Catalogue) => {
     setFormLabel(catalogue.label);
-    setFormFolder(catalogue.folder);
     setShowEditForm(catalogue);
     setFormError("");
   };
@@ -220,19 +216,7 @@ export default function ManageCatalogues({
                     placeholder="e.g., Distributor, B2B"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Folder Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formFolder}
-                    onChange={(e) => setFormFolder(e.target.value)}
-                    placeholder="e.g., Distributor (for saved images)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <p className="text-xs text-gray-500 mt-1">Folder name will be set automatically</p>
                 </div>
 
                 {formError && (
@@ -253,7 +237,6 @@ export default function ManageCatalogues({
                     onClick={() => {
                       setShowAddForm(false);
                       setFormLabel("");
-                      setFormFolder("");
                       setFormError("");
                     }}
                     className="flex-1 py-2 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300 transition"
@@ -271,9 +254,16 @@ export default function ManageCatalogues({
               onSubmit={handleEditSubmit}
               className="mb-4 p-4 border-2 border-amber-200 bg-amber-50 rounded-lg"
             >
-              <h3 className="font-semibold text-gray-800 mb-3">
-                Edit Catalogue
-              </h3>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-semibold text-gray-800">
+                  Edit Catalogue
+                </h3>
+                {showEditForm.isDefault && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-semibold">
+                    Default
+                  </span>
+                )}
+              </div>
 
               <div className="space-y-3">
                 <div>
@@ -286,18 +276,7 @@ export default function ManageCatalogues({
                     onChange={(e) => setFormLabel(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Folder Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formFolder}
-                    onChange={(e) => setFormFolder(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
+                  <p className="text-xs text-gray-500 mt-1">Folder name will be set automatically</p>
                 </div>
 
                 {formError && (
@@ -318,7 +297,6 @@ export default function ManageCatalogues({
                     onClick={() => {
                       setShowEditForm(null);
                       setFormLabel("");
-                      setFormFolder("");
                       setFormError("");
                     }}
                     className="flex-1 py-2 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300 transition"
@@ -367,12 +345,7 @@ export default function ManageCatalogues({
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => openEditForm(catalogue)}
-                    disabled={catalogue.isDefault}
-                    className={`flex-1 py-1.5 text-sm rounded font-medium transition ${
-                      catalogue.isDefault
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-amber-500 text-white hover:bg-amber-600"
-                    }`}
+                    className="flex-1 py-1.5 text-sm rounded font-medium transition bg-amber-500 text-white hover:bg-amber-600"
                   >
                     Edit
                   </button>

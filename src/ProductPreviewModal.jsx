@@ -6,6 +6,8 @@ import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
+import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -327,6 +329,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
 export default function ProductPreviewModal({
   product,
   tab,
+  catalogueId: externalCatalogueId,
   onClose,
   onEdit,
   onToggleStock,
@@ -494,11 +497,58 @@ export default function ProductPreviewModal({
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
+  // Helper function to check if ALL catalogues have product in stock
+  const getAllStockStatus = () => {
+    const allCatalogues = getAllCatalogues();
+    return allCatalogues.every((cat) => product[cat.stockField]);
+  };
+
+  // Helper function to toggle stock for ALL catalogues
+  const onToggleMasterStock = () => {
+    const allCatalogues = getAllCatalogues();
+    const allInStock = getAllStockStatus();
+    const newStatus = !allInStock;
+
+    // Create updated product with all catalogue stock fields toggled
+    const updatedProduct = { ...product };
+    allCatalogues.forEach((cat) => {
+      updatedProduct[cat.stockField] = newStatus;
+    });
+
+    // Update product in parent component
+    if (onToggleStock) {
+      // Pass the updated product directly - we'll modify parent signature
+      onToggleStock(updatedProduct, true); // true indicates master toggle
+    }
+  };
+
+  // Get catalogue data based on which tab is being viewed
+  const getCatalogueIdFromTab = () => {
+    // If a catalogue ID was explicitly passed (from catalogue view), use that
+    if (externalCatalogueId) return externalCatalogueId;
+    // Handle legacy tab names
+    if (tab === "catalogue1") return "cat1";
+    if (tab === "catalogue2") return "cat2";
+    // Handle direct catalogue IDs (cat1, cat2, cat3, etc.)
+    if (tab && tab.startsWith("cat")) return tab;
+    // For products tab, default to cat1
+    return "cat1";
+  };
+
+  const catalogueId = getCatalogueIdFromTab();
+  const catalogueData = getCatalogueData(product, catalogueId);
+
+  // Get the catalogue configuration for price field info
+  const catalogueConfig = getAllCatalogues().find(c => c.id === catalogueId);
+  const priceField = catalogueConfig?.priceField || "price1";
+  const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
+
   return (
     <>
       <div
-        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50"
+        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50 pointer-events-auto"
         onClick={onClose}
+        role="presentation"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
@@ -636,18 +686,18 @@ export default function ProductPreviewModal({
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.field1 || product.color}
+                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.field2 || product.package} {product.field2Unit || product.packageUnit}
+                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
                 </p>
                 <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.field3 || product.age} {product.field3Unit || product.ageUnit}
+                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
                 </p>
               </div>
             </div>
 
-            {/* Bottom Bar - Show price based on catalogue, default to price 1 */}
+            {/* Bottom Bar - Show price based on catalogue-specific data */}
             <div
               style={{
                 backgroundColor: product.bgColor || "#add8e6",
@@ -658,34 +708,49 @@ export default function ProductPreviewModal({
                 fontSize: 19,
               }}
             >
-              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{tab === "catalogue2" ? product.resell : product.wholesale} {tab === "catalogue2" ? product.resellUnit : product.wholesaleUnit}
+              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
             </div>
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="flex justify-between px-4 py-3 bg-gray-100 border-t text-sm">
-                <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white">
-                  Edit
-                </button>
-                <button
-                  onClick={() => onToggleStock("wholesaleStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  WS {product.wholesaleStock ? "In" : "Out"}
-                </button>
-                <button
-                  onClick={() => onToggleStock("resellStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  RS {product.resellStock ? "In" : "Out"}
-                </button>
-                <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white">
-                  Close
-                </button>
+              <div className="px-4 py-3 bg-gray-100 border-t text-sm">
+                {/* First row: Edit, All In/Out, Close */}
+                <div className="flex justify-between gap-2 mb-2">
+                  <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white flex-1">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onToggleMasterStock()}
+                    className={`px-3 py-1 rounded flex-1 ${
+                      getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                    title="Toggle all catalogues"
+                  >
+                    All {getAllStockStatus() ? "In" : "Out"}
+                  </button>
+                  <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white flex-1">
+                    Close
+                  </button>
+                </div>
+                {/* Second row: Individual catalogue toggles */}
+                <div className="flex justify-between gap-2">
+                  <button
+                    onClick={() => onToggleStock("wholesaleStock")}
+                    className={`px-3 py-1 rounded flex-1 text-xs ${
+                      product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    C1 {product.wholesaleStock ? "In" : "Out"}
+                  </button>
+                  <button
+                    onClick={() => onToggleStock("resellStock")}
+                    className={`px-3 py-1 rounded flex-1 text-xs ${
+                      product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    C2 {product.resellStock ? "In" : "Out"}
+                  </button>
+                </div>
               </div>
             )}
           </motion.div>

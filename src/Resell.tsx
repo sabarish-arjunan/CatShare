@@ -2,22 +2,56 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
+import { FiPlus } from "react-icons/fi";
+import { MdLayers } from "react-icons/md";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
+import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import AddProductsModal from "./components/AddProductsModal";
+import BulkEdit from "./BulkEdit";
 
 
 export default function ResellTab({
   filtered,
+  allProducts,
+  setProducts,
   selected,
   setSelected,
   getLighterColor,
   imageMap,
   catalogueLabel,
+  catalogueId,
+  priceField,
+  priceUnitField,
+  stockField,
   onBack,
 }) {
+  // Helper function to get catalogue-specific data for a product
+  const getProductCatalogueData = (product) => {
+    if (!catalogueId) return product; // Fallback to product if no catalogueId
+    const catData = getCatalogueData(product, catalogueId);
+
+    // For non-cat1/cat2 catalogues, don't fall back to wholesale/resell (those are legacy fields)
+    // Only use the specific price field for this catalogue
+    const isLegacyCatalogue = catalogueId === 'cat1' || catalogueId === 'cat2';
+
+    return {
+      ...product,
+      field1: catData.field1 || product.field1 || product.color || "",
+      field2: catData.field2 || product.field2 || product.package || "",
+      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
+      field3: catData.field3 || product.field3 || product.age || "",
+      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
+      // Use dynamic price field based on catalogue configuration
+      // For legacy catalogues (cat1/cat2), fall back to wholesale/resell for backward compatibility
+      price: catData[priceField] || product[priceField] || (isLegacyCatalogue ? product.wholesale || product.resell : "") || "",
+      priceUnit: catData[priceUnitField] || product[priceUnitField] || (isLegacyCatalogue ? product.wholesaleUnit || product.resellUnit : "/ piece") || "/ piece",
+    };
+  };
+
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [allCategories, setAllCategories] = useState([]);
@@ -30,6 +64,8 @@ export default function ResellTab({
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [showAddProductsModal, setShowAddProductsModal] = useState(false);
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
 
 
 useEffect(() => {
@@ -98,9 +134,15 @@ useEffect(() => {
   const visibleProducts = useMemo(() => {
   return filtered
     .filter((p) => {
+      // Check if product is enabled for this specific catalogue
+      const isEnabled = isProductEnabledForCatalogue(p, catalogueId);
+      if (!isEnabled) return false;
+
+      // Use the catalogue's stockField instead of hardcoded resellStock
+      const productStock = p[stockField];
       const matchesStock =
-        (stockFilter.includes("in") && p.resellStock) ||
-        (stockFilter.includes("out") && !p.resellStock);
+        (stockFilter.includes("in") && productStock) ||
+        (stockFilter.includes("out") && !productStock);
       const matchesCategory =
         categoryFilter === "" ||
         (Array.isArray(p.category)
@@ -111,7 +153,7 @@ useEffect(() => {
         p.subtitle?.toLowerCase().includes(search.toLowerCase());
       return matchesStock && matchesCategory && matchesSearch;
     });
-}, [filtered, stockFilter, categoryFilter, search]);
+}, [filtered, stockFilter, categoryFilter, search, catalogueId, stockField]);
 
 
   let touchTimer = null;
@@ -155,7 +197,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     if (selectMode) {
       toggleSelection(id);
     } else {
-      openPreviewHtml(id, "catalogue2", visibleProducts);
+      openPreviewHtml(id, catalogueId, visibleProducts);
     }
   };
 
@@ -307,6 +349,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessing,
           setProcessingIndex,
           setProcessingTotal,
+          folder: catalogueLabel,
           mode: "resell",
         });
       };
@@ -331,69 +374,63 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <div className="fixed top-0 left-1/2 -translate-x-1/2 w-screen h-[40px] bg-black z-50" />
-    <header className="fixed top-[40px] left-1/2 -translate-x-1/2 w-screen z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
-  {/* Menu Button */}
-  <AnimatePresence mode="wait" initial={false}>
-  {!showSearch && (
+    <header className="fixed inset-x-0 top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+  {/* Back/Close button that animates between arrow and X */}
+  {!showSearch && onBack && (
     <motion.button
-      key="menu-x-toggle"
       onClick={() => {
         if (selectMode) {
           setSelectMode(false);
           setSelected([]);
         } else {
-          window.dispatchEvent(new Event("toggle-menu"));
+          onBack();
         }
       }}
-      className="relative w-8 h-8 shrink-0 flex items-center justify-center"
-      title={selectMode ? "Exit Selection" : "Menu"}
+      className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
+      title={selectMode ? "Exit Selection" : "Back"}
     >
-      {/* Top Line */}
+      {/* Arrow (visible when not in selectMode) */}
+      <motion.svg
+        className="w-5 h-5 absolute"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        initial={false}
+        animate={{
+          opacity: selectMode ? 0 : 1,
+          scale: selectMode ? 0.5 : 1,
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      </motion.svg>
+
+      {/* X icon (visible when in selectMode) */}
       <motion.span
         className="absolute w-6 h-0.5 bg-gray-700"
         initial={false}
         animate={{
           rotate: selectMode ? 45 : 0,
-          y: selectMode ? 0 : -8,
+          opacity: selectMode ? 1 : 0,
         }}
         transition={{ duration: 0.2 }}
       />
-      {/* Middle Line */}
-      <motion.span
-        className="absolute w-6 h-0.5 bg-gray-700"
-        initial={false}
-        animate={{
-          opacity: selectMode ? 0 : 1,
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      {/* Bottom Line */}
       <motion.span
         className="absolute w-6 h-0.5 bg-gray-700"
         initial={false}
         animate={{
           rotate: selectMode ? -45 : 0,
-          y: selectMode ? 0 : 8,
+          opacity: selectMode ? 1 : 0,
         }}
         transition={{ duration: 0.2 }}
       />
     </motion.button>
   )}
-</AnimatePresence>
 
-
-  {/* Center Title (hidden while searching) */}
+  {/* Center Title (hidden while searching or in selectMode) */}
   {!showSearch && !selectMode && (
     <div className="flex items-center gap-2">
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1 shrink-0"
-        >
-          ←
-        </button>
-      )}
       <h1
     className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
     onClick={() => {
@@ -455,6 +492,15 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z"
         />
       </svg>
+    </button>
+
+    {/* Bulk Editor Button */}
+    <button
+      onClick={() => setShowBulkEdit(true)}
+      className="text-xl text-gray-600 hover:text-black"
+      title="Bulk Edit"
+    >
+      <MdLayers className="w-5 h-5" />
     </button>
 
     {/* Filter Button */}
@@ -563,6 +609,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessing,
       setProcessingIndex,
       setProcessingTotal,
+      folder: catalogueLabel,
       mode: "resell",
     });
   }}
@@ -587,6 +634,36 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       d="M22 2L15 22L11 13L2 9L22 2Z"
     />
   </svg>
+</button>
+
+<button
+  onClick={() => {
+    const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+    const updated = allProds.map((p) =>
+      selected.includes(p.id) ? { ...p, [stockField]: true } : p
+    );
+    setProducts(updated);
+    localStorage.setItem("products", JSON.stringify(updated));
+  }}
+  className="px-3 py-1.5 text-xs font-semibold rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
+  title="Mark as In Stock"
+>
+  In Stock
+</button>
+
+<button
+  onClick={() => {
+    const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+    const updated = allProds.map((p) =>
+      selected.includes(p.id) ? { ...p, [stockField]: false } : p
+    );
+    setProducts(updated);
+    localStorage.setItem("products", JSON.stringify(updated));
+  }}
+  className="px-3 py-1.5 text-xs font-semibold rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
+  title="Mark as Out of Stock"
+>
+  Out of Stock
 </button>
 
       </>
@@ -685,7 +762,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="fixed inset-x-0 bottom-0 overflow-y-auto px-0 pb-28" style={{ top: "calc(40px + 56px)" }}>
+<div className="px-0 pb-28 pt-24">
       {/* Grid */}
       <div
         id="capture-area"
@@ -698,7 +775,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
               key={p.id}
               data-id={p.id}
               className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200 ${
-                !p.resellStock ? "opacity-100" : ""
+                !p[stockField] ? "opacity-100" : ""
               }`}
               onClick={() => handleCardClick(p.id)}
 onTouchStart={(e) => handleTouchStart(e, p.id)}
@@ -716,7 +793,7 @@ onMouseLeave={handleTouchEnd}
                   alt={p.name}
                   className="w-full h-full object-cover"
                 />
-                {!p.resellStock && (
+                {!p[stockField] && (
                   <div className="absolute top-1/2 left-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] bg-red-500 bg-opacity-60 text-white text-center py-0.5 shadow-md">
                     <span className="block text-sm font-bold tracking-wider">
                       OUT OF STOCK
@@ -767,7 +844,7 @@ onMouseLeave={handleTouchEnd}
 <div
   className="absolute top-1.5 right-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
-  ₹{p.price2 || p.resell}
+  ₹{getProductCatalogueData(p).price}
 </div>
 )}
 
@@ -811,8 +888,8 @@ onMouseLeave={handleTouchEnd}
                     lineHeight: 1.2,
                   }}
                 >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{p.resell}{" "}
-                  {p.resellUnit}
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
+                  {getProductCatalogueData(p).priceUnit}
                 </h2>
 
                 <div
@@ -863,7 +940,7 @@ onMouseLeave={handleTouchEnd}
 )}
 
 
-                  {!p.resellStock && (
+                  {!p[stockField] && (
                     <div
                       style={{
                         position: "absolute",
@@ -917,15 +994,15 @@ onMouseLeave={handleTouchEnd}
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Colour
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.field1 || p.color}
+                      &nbsp;&nbsp;{getProductCatalogueData(p).field1}
                     </p>
                     <p style={{ margin: "2px 0" }}>
                       &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{p.field2 || p.package} {p.field2Unit || p.packageUnit}
+                      &nbsp;&nbsp;{getProductCatalogueData(p).field2} {getProductCatalogueData(p).field2Unit}
                     </p>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{p.field3 || p.age}{" "}
-                      {p.field3Unit || p.ageUnit}
+                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{getProductCatalogueData(p).field3}{" "}
+                      {getProductCatalogueData(p).field3Unit}
                     </p>
                   </div>
                 </div>
@@ -952,7 +1029,43 @@ onMouseLeave={handleTouchEnd}
     </div>
   </div>
 )}
+
+      <AddProductsModal
+        isOpen={showAddProductsModal}
+        onClose={() => setShowAddProductsModal(false)}
+        catalogueId={catalogueId}
+        catalogueLabel={catalogueLabel}
+        allProducts={allProducts}
+        imageMap={imageMap}
+        onProductsUpdate={setProducts}
+      />
+
+      {showBulkEdit && (
+        <BulkEdit
+          products={visibleProducts}
+          allProducts={allProducts}
+          imageMap={imageMap}
+          setProducts={setProducts}
+          onClose={() => setShowBulkEdit(false)}
+          triggerRender={() => {}}
+          catalogueId={catalogueId}
+          priceField={priceField}
+          priceUnitField={priceUnitField}
+          stockField={stockField}
+        />
+      )}
     </div>
+
+    {/* Floating Add Button */}
+    <button
+      onClick={() => setShowAddProductsModal(true)}
+      className="fixed right-4 z-40 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-blue-300 bg-white text-blue-600 hover:bg-blue-50 hover:border-blue-400 shadow-sm hover:shadow-md transition-all"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+      title="Add products to this catalogue"
+    >
+      <FiPlus size={20} />
+      <span className="text-sm font-medium">Add</span>
+    </button>
     </>
   );
 }

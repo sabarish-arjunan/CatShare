@@ -14,7 +14,9 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
-import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "./config/catalogueConfig";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues } from "./config/catalogueConfig";
+import { ensureProductsHaveStockFields } from "./utils/dataMigration";
+import { migrateProductToNewFormat } from "./config/fieldMigration";
 
 
 export default function SideDrawer({
@@ -66,46 +68,38 @@ const { showToast } = useToast();
     const zip = new JSZip();
     let hasImages = false;
 
-    // Try to read Wholesale folder
-    try {
-      const wholesaleFiles = await Filesystem.readdir({
-        path: "Wholesale",
-        directory: Directory.External,
-      });
+    // Get all catalogues dynamically
+    const catalogues = getAllCatalogues();
 
-      for (const file of wholesaleFiles.files) {
-        if (file.name.endsWith(".png")) {
-          const fileData = await Filesystem.readFile({
-            path: `Wholesale/${file.name}`,
-            directory: Directory.External,
-          });
-          zip.file(`Wholesale/${file.name}`, fileData.data, { base64: true });
-          hasImages = true;
+    // Also check for legacy folders for backward compatibility
+    const foldersToCheck = [
+      ...catalogues.map(cat => cat.folder || cat.label), // Use folder name (which is now set to catalogue name)
+      "Wholesale", // Legacy support
+      "Resell"     // Legacy support
+    ];
+
+    // Try to read each catalogue folder
+    for (const folderName of foldersToCheck) {
+      try {
+        const files = await Filesystem.readdir({
+          path: folderName,
+          directory: Directory.External,
+        });
+
+        for (const file of files.files) {
+          if (file.name.endsWith(".png")) {
+            const fileData = await Filesystem.readFile({
+              path: `${folderName}/${file.name}`,
+              directory: Directory.External,
+            });
+            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+            hasImages = true;
+          }
         }
+      } catch (err) {
+        console.warn(`Could not read ${folderName} folder:`, err.message);
+        // Continue to next folder if this one doesn't exist
       }
-    } catch (err) {
-      console.warn("Could not read Wholesale folder:", err.message);
-    }
-
-    // Try to read Resell folder
-    try {
-      const resellFiles = await Filesystem.readdir({
-        path: "Resell",
-        directory: Directory.External,
-      });
-
-      for (const file of resellFiles.files) {
-        if (file.name.endsWith(".png")) {
-          const fileData = await Filesystem.readFile({
-            path: `Resell/${file.name}`,
-            directory: Directory.External,
-          });
-          zip.file(`Resell/${file.name}`, fileData.data, { base64: true });
-          hasImages = true;
-        }
-      }
-    } catch (err) {
-      console.warn("Could not read Resell folder:", err.message);
     }
 
     if (!hasImages) {
@@ -152,6 +146,7 @@ const { showToast } = useToast();
 const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
   const cataloguesDefinition = getCataloguesDefinition();
+  const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const zip = new JSZip();
 
   const dataForJson = [];
@@ -204,11 +199,15 @@ const handleBackup = async () => {
     deletedForJson.push(product);
   }
 
-  // Include catalogues definition in backup
+  // Include catalogues definition and all settings in backup
   zip.file("catalogue-data.json", JSON.stringify({
+    version: 2, // Increment version for future compatibility
     products: dataForJson,
     deleted: deletedForJson,
-    cataloguesDefinition
+    cataloguesDefinition,
+    categories,
+    backupDate: new Date().toISOString(),
+    appVersion: APP_VERSION
   }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
@@ -225,7 +224,7 @@ const handleBackup = async () => {
       await Filesystem.writeFile({
         path: filename,
         data: base64Data,
-        directory: Directory.External,
+        directory: Directory.Documents,
       });
 
       await FileSharer.share({
@@ -306,10 +305,15 @@ const exportProductsToCSV = (products) => {
       const zip = await JSZip.loadAsync(event.target.result);
       const jsonFile = zip.file("catalogue-data.json");
 
-      if (!jsonFile) throw new Error("Missing JSON");
+      if (!jsonFile) throw new Error("Missing catalogue-data.json in backup");
 
       const jsonText = await jsonFile.async("text");
       const parsed = JSON.parse(jsonText);
+
+      // Validate backup format
+      if (!parsed.products || !Array.isArray(parsed.products)) {
+        throw new Error("Invalid backup format: missing products array");
+      }
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
@@ -334,21 +338,30 @@ const exportProductsToCSV = (products) => {
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
-          return clean;
+
+          // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
+          const migrated = migrateProductToNewFormat(clean);
+
+          return migrated;
         })
       );
 
       setProducts(rebuilt);
+      localStorage.setItem("products", JSON.stringify(rebuilt));
 
-      const categories = Array.from(
-        new Set(
-          rebuilt.flatMap((p) =>
-            Array.isArray(p.category) ? p.category : [p.category]
+      // Restore categories from backup if available, otherwise extract from products
+      if (parsed.categories && Array.isArray(parsed.categories)) {
+        localStorage.setItem("categories", JSON.stringify(parsed.categories));
+      } else {
+        const categories = Array.from(
+          new Set(
+            rebuilt.flatMap((p) =>
+              Array.isArray(p.category) ? p.category : [p.category]
+            )
           )
-        )
-      ).filter(Boolean);
-
-      localStorage.setItem("categories", JSON.stringify(categories));
+        ).filter(Boolean);
+        localStorage.setItem("categories", JSON.stringify(categories));
+      }
 
       if (Array.isArray(parsed.deleted)) {
         // Also restore deleted products' images from the ZIP
@@ -375,7 +388,11 @@ const exportProductsToCSV = (products) => {
             const clean = { ...p };
             delete clean.imageBase64;
             delete clean.imageFilename;
-            return clean;
+
+            // Migrate old field names to new field names
+            const migrated = migrateProductToNewFormat(clean);
+
+            return migrated;
           })
         );
 
@@ -384,9 +401,10 @@ const exportProductsToCSV = (products) => {
       }
 
       // Restore catalogues definition from backup
-      // If the backup doesn't have cataloguesDefinition (old backups), use defaults
+      // If the backup doesn't have cataloguesDefinition (old backups v1), use defaults
       if (parsed.cataloguesDefinition) {
         setCataloguesDefinition(parsed.cataloguesDefinition);
+        console.log("✅ Restored catalogues definition from backup");
       } else {
         // Backward compatibility: old backups don't have cataloguesDefinition
         // Use the current one if it exists, otherwise use defaults
@@ -398,11 +416,21 @@ const exportProductsToCSV = (products) => {
             catalogues: DEFAULT_CATALOGUES,
             lastUpdated: Date.now(),
           });
+          console.log("⚠️ Old backup detected - using default catalogues");
+        } else {
+          console.log("ℹ️ Using existing catalogue configuration");
         }
       }
 
+      // Re-run migrations after catalogues definition has been restored
+      // This ensures all products have the proper field structure for the restored catalogues
+      ensureProductsHaveStockFields();
+
+      console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+
       setShowRenderAfterRestore(true);
     } catch (err) {
+      console.error("❌ Restore failed:", err);
       setBackupResult({
         status: "error",
         message: "Restore failed: " + err.message,
@@ -760,9 +788,11 @@ const exportProductsToCSV = (products) => {
 
       {showBulkEdit && (() => {
         try {
+          const allProds = JSON.parse(localStorage.getItem("products") || "[]");
           return (
             <BulkEdit
               products={products}
+              allProducts={allProds}
               imageMap={imageMap}
               setProducts={setProducts}
               onClose={() => setShowBulkEdit(false)}

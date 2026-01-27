@@ -9,6 +9,17 @@ import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
+import { migrateProductToNewFormat } from "./config/fieldMigration";
+import { getProductFieldValue, getProductUnitValue } from "./config/fieldMigration";
+import {
+  initializeCatalogueData,
+  getCatalogueData,
+  setCatalogueData,
+  isProductEnabledForCatalogue,
+  setProductEnabledForCatalogue,
+  type CatalogueData,
+  type ProductWithCatalogueData
+} from "./config/catalogueProductUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -177,22 +188,16 @@ export default function CreateProduct() {
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProductWithCatalogueData>({
     id: "",
     name: "",
     subtitle: "",
-    field1: "", // Colour
-    field2: "", // Package
-    field3: "", // Age Group
-    price1: "", // Price 1 (wholesale)
-    price2: "", // Price 2 (resell)
-    stock: true,
-    wholesaleStock: true,
-    resellStock: true,
     category: [],
     badge: "",
+    catalogueData: {},
   });
 
+  const [selectedCatalogue, setSelectedCatalogue] = useState<string>("cat1");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
@@ -309,36 +314,113 @@ export default function CreateProduct() {
       const products = JSON.parse(localStorage.getItem("products") || "[]");
       const product = products.find((p) => p.id === editingId);
       if (product) {
-        setFormData({
-          ...product,
-          category: Array.isArray(product.category)
-            ? product.category
-            : product.category
-            ? [product.category]
-            : [],
-        });
-        setOverrideColor(product.bgColor || "#d1b3c4");
-        setFontColor(product.fontColor || "white");
-        setImageBgOverride(product.imageBgColor || "white");
-        setPrice1Unit(product.price1Unit || product.wholesaleUnit || "/ piece");
-        setPrice2Unit(product.price2Unit || product.resellUnit || "/ piece");
-        setPackageUnit(product.field2Unit || product.packageUnit || "pcs / set");
-        setAgeGroupUnit(product.field3Unit || product.ageUnit || "months");
+        // Migrate product in case it has old field names from backup
+        const migratedProduct = migrateProductToNewFormat(product) as ProductWithCatalogueData;
 
-        if (product.image && product.image.startsWith("data:image")) {
-          setImagePreview(product.image);
-        } else if (product.imagePath) {
-          setImageFilePath(product.imagePath);
+        // Initialize catalogue data if not present
+        if (!migratedProduct.catalogueData) {
+          migratedProduct.catalogueData = initializeCatalogueData(migratedProduct);
+        }
+
+        setFormData({
+          id: migratedProduct.id || "",
+          name: migratedProduct.name || "",
+          subtitle: migratedProduct.subtitle || "",
+          category: Array.isArray(migratedProduct.category)
+            ? migratedProduct.category
+            : migratedProduct.category
+            ? [migratedProduct.category]
+            : [],
+          badge: migratedProduct.badge || "",
+          catalogueData: migratedProduct.catalogueData,
+        });
+
+        setOverrideColor(migratedProduct.bgColor || "#d1b3c4");
+        setFontColor(migratedProduct.fontColor || "white");
+        setImageBgOverride(migratedProduct.imageBgColor || "white");
+
+        if (migratedProduct.image && migratedProduct.image.startsWith("data:image")) {
+          setImagePreview(migratedProduct.image);
+        } else if (migratedProduct.imagePath) {
+          setImageFilePath(migratedProduct.imagePath);
           Filesystem.readFile({
-            path: product.imagePath,
+            path: migratedProduct.imagePath,
             directory: Directory.Data,
           }).then((res) => {
             setImagePreview(`data:image/png;base64,${res.data}`);
           });
         }
       }
+    } else {
+      // New product: initialize empty catalogue data
+      setFormData((prev) => ({
+        ...prev,
+        catalogueData: initializeCatalogueData(),
+      }));
     }
   }, [editingId]);
+
+  // Get catalogue data for the selected catalogue
+  const getCatalogueFormData = () => {
+    return getCatalogueData(formData, selectedCatalogue);
+  };
+
+  // Update catalogue data for the selected catalogue
+  const updateCatalogueData = (updates: Partial<CatalogueData>) => {
+    setFormData((prev) => {
+      const updated = { ...prev };
+      setCatalogueData(updated, selectedCatalogue, updates);
+      return updated;
+    });
+  };
+
+  // Check if product is enabled for a catalogue
+  const isCatalogueEnabled = (catalogueId: string) => {
+    return isProductEnabledForCatalogue(formData, catalogueId);
+  };
+
+  // Toggle catalogue enabled state
+  const toggleCatalogueEnabled = (catalogueId: string) => {
+    setFormData((prev) => {
+      const currentlyEnabled = isProductEnabledForCatalogue(prev, catalogueId);
+      const newCatalogueData = { ...prev.catalogueData };
+
+      // Create a new object for the catalogue entry
+      newCatalogueData[catalogueId] = {
+        ...(newCatalogueData[catalogueId] || {}),
+        enabled: !currentlyEnabled
+      };
+
+      return {
+        ...prev,
+        catalogueData: newCatalogueData
+      };
+    });
+  };
+
+  // Get the price field name for the selected catalogue
+  const getSelectedCataloguePriceField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceField || "price1";
+  };
+
+  // Get the price unit field name for the selected catalogue
+  const getSelectedCataloguePriceUnitField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceUnitField || "price1Unit";
+  };
+
+  // Get the price value for the selected catalogue
+  const getSelectedCataloguePrice = () => {
+    const priceField = getSelectedCataloguePriceField();
+    return getCatalogueFormData()[priceField] || "";
+  };
+
+  // Get the price unit value for the selected catalogue
+  const getSelectedCataloguePriceUnit = () => {
+    const priceUnitField = getSelectedCataloguePriceUnitField();
+    return getCatalogueFormData()[priceUnitField] || "/ piece";
+  };
 
   const handleSelectImage = async () => {
     const defaultFolder = "Phone/Pictures/Photoroom";
@@ -427,7 +509,15 @@ export default function CreateProduct() {
   }, [imagePreview]);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const commonFields = ['id', 'name', 'subtitle', 'category', 'badge'];
+
+    if (commonFields.includes(name)) {
+      // Common fields for all catalogues
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      // Catalogue-specific fields
+      updateCatalogueData({ [name]: value });
+    }
   };
 
   const saveAndNavigate = async () => {
@@ -454,27 +544,46 @@ export default function CreateProduct() {
       return;
     }
 
-    const newItem = {
+    // Get data from the first enabled catalogue (usually cat1) for backward compatibility
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const allCatalogues = getAllCatalogues();
+
+    // Build product with all catalogue price fields saved to root level
+    const newItem: ProductWithCatalogueData = {
       ...formData,
       id,
       imagePath,
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      price1Unit,
-      price2Unit,
-      field2Unit: packageUnit,
-      field3Unit: ageGroupUnit,
-      // Keep old names for backward compatibility
-      wholesaleUnit: price1Unit,
-      resellUnit: price2Unit,
-      packageUnit,
-      ageUnit: ageGroupUnit,
-      wholesale: formData.price1,
-      resell: formData.price2,
-      stock: formData.stock !== false,
-      //image: imagePreview,
     };
+
+    // Save price and stock fields for ALL catalogues to the product root level
+    for (const cat of allCatalogues) {
+      const catData = getCatalogueData(formData, cat.id);
+      newItem[cat.priceField] = catData[cat.priceField] || "";
+      newItem[cat.priceUnitField] = catData[cat.priceUnitField] || "/ piece";
+      newItem[cat.stockField] = catData[cat.stockField] !== false;
+    }
+
+    // Keep old names for backward compatibility at product level
+    newItem.price1 = newItem.price1 || "";
+    newItem.price2 = newItem.price2 || "";
+    newItem.price1Unit = newItem.price1Unit || "/ piece";
+    newItem.price2Unit = newItem.price2Unit || "/ piece";
+    newItem.field1 = defaultCatalogueData.field1 || "";
+    newItem.field2 = defaultCatalogueData.field2 || "";
+    newItem.field3 = defaultCatalogueData.field3 || "";
+    newItem.field2Unit = defaultCatalogueData.field2Unit || "pcs / set";
+    newItem.field3Unit = defaultCatalogueData.field3Unit || "months";
+    // Keep old names for backward compatibility
+    newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
+    newItem.resellUnit = defaultCatalogueData.price2Unit || "/ piece";
+    newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
+    newItem.ageUnit = defaultCatalogueData.field3Unit || "months";
+    newItem.wholesale = newItem.price1 || "";
+    newItem.resell = newItem.price2 || "";
+    newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
 
     try {
       const all = JSON.parse(localStorage.getItem("products") || "[]");
@@ -489,24 +598,33 @@ window.dispatchEvent(new CustomEvent("product-added"));
 
 setTimeout(async () => {
   try {
-    await saveRenderedImage(newItem, "resell", {
-      price2Unit,
-      price1Unit,
-      packageUnit: formData.field2Unit || packageUnit,
-      ageGroupUnit: formData.field3Unit || ageGroupUnit,
-      // Also provide old names for backward compat in Save.jsx
-      resellUnit: price2Unit,
-      wholesaleUnit: price1Unit,
-    });
-    await saveRenderedImage(newItem, "wholesale", {
-      price2Unit,
-      price1Unit,
-      packageUnit: formData.field2Unit || packageUnit,
-      ageGroupUnit: formData.field3Unit || ageGroupUnit,
-      // Also provide old names for backward compat in Save.jsx
-      resellUnit: price2Unit,
-      wholesaleUnit: price1Unit,
-    });
+    // Render images for all enabled catalogues
+    const enabledCats = catalogues.filter(cat => isCatalogueEnabled(cat.id));
+
+    for (const cat of enabledCats) {
+      const catData = getCatalogueData(newItem, cat.id);
+
+      // Create render options for this catalogue
+      const renderOptions = {
+        catalogueId: cat.id,
+        catalogueLabel: cat.label,
+        folder: cat.folder || cat.label, // Use folder from catalogue config
+        priceField: cat.priceField,
+        priceUnitField: cat.priceUnitField,
+        price1Unit: catData.price1Unit || "/ piece",
+        price2Unit: catData.price2Unit || "/ piece",
+        packageUnit: catData.field2Unit || "pcs / set",
+        ageGroupUnit: catData.field3Unit || "months",
+        // Legacy compat
+        resellUnit: catData.price2Unit || "/ piece",
+        wholesaleUnit: catData.price1Unit || "/ piece",
+      };
+
+      // Use legacy types for backward compat
+      const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+      await saveRenderedImage(newItem, legacyType, renderOptions);
+    }
   } catch (err) {
     console.warn("⏱️ PNG render failed:", err);
   }
@@ -580,112 +698,149 @@ setTimeout(async () => {
 
       {!cropping && (
         <>
-          <input
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Model Name"
-            className="border p-2 rounded w-full mb-2"
-          />
-          <input
-            name="subtitle"
-            value={formData.subtitle}
-            onChange={handleChange}
-            placeholder="Subtitle"
-            className="border p-2 rounded w-full mb-2"
-          />
-          <input
-            name="field1"
-            value={formData.field1}
-            onChange={handleChange}
-            placeholder="Colour"
-            className="border p-2 rounded w-full mb-2"
-          />
-
-          <div className="flex gap-2 mb-2">
+          {/* COMMON FIELDS */}
+          <div className="border-b pb-4 mb-4">
+            <h2 className="text-lg font-semibold mb-3">Product Details</h2>
             <input
-              name="field2"
-              value={formData.field2}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
-              placeholder="Package"
-              className="border p-2 w-full rounded"
+              placeholder="Model Name"
+              className="border p-2 rounded w-full mb-2"
             />
-            <select
-              value={packageUnit}
-              onChange={(e) => setPackageUnit(e.target.value)}
-              className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-            >
-              <option>pcs / set</option>
-              <option>pcs / dozen</option>
-              <option>pcs / pack</option>
-            </select>
+            <input
+              name="subtitle"
+              value={formData.subtitle}
+              onChange={handleChange}
+              placeholder="Subtitle"
+              className="border p-2 rounded w-full mb-2"
+            />
+            <label className="block text-sm font-medium mb-1">Product Badge</label>
+            <input
+              name="badge"
+              value={formData.badge}
+              onChange={handleChange}
+              placeholder="Enter product badge"
+              className="border p-2 rounded text-sm w-full"
+            />
           </div>
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="field3"
-              value={formData.field3}
-              onChange={handleChange}
-              placeholder="Age Group"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={ageGroupUnit}
-              onChange={(e) => setAgeGroupUnit(e.target.value)}
-              className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
-            >
-              <option>months</option>
-              <option>years</option>
-              <option>Newborn</option>
-            </select>
+          {/* CATALOGUE SELECTOR */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold mb-2">Select Catalogue to Edit:</label>
+            <div className="flex gap-2 flex-wrap">
+              {catalogues.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCatalogue(cat.id)}
+                  className={`px-3 py-2 rounded text-sm font-medium transition ${
+                    selectedCatalogue === cat.id
+                      ? "bg-blue-600 text-white shadow"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="price1"
-              value={formData.price1}
-              onChange={handleChange}
-              placeholder="Price 1"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={price1Unit}
-              onChange={(e) => setPrice1Unit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>/ set</option>
-            </select>
-          </div>
+          {/* CATALOGUE-SPECIFIC FIELDS */}
+          <div className="border-t pt-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-base font-semibold">
+                {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
+              </h3>
+              <button
+                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                  isCatalogueEnabled(selectedCatalogue)
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                }`}
+              >
+                {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+              </button>
+            </div>
 
-          <div className="flex gap-2 mb-2">
-            <input
-              name="price2"
-              value={formData.price2}
-              onChange={handleChange}
-              placeholder="Price 2"
-              className="border p-2 w-full rounded"
-            />
-            <select
-              value={price2Unit}
-              onChange={(e) => setPrice2Unit(e.target.value)}
-              className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-            >
-              <option>/ piece</option>
-              <option>/ dozen</option>
-              <option>/ set</option>
-            </select>
-          </div>
+            {isCatalogueEnabled(selectedCatalogue) && (
+              <>
+                <input
+                  name="field1"
+                  value={getCatalogueFormData().field1 || ""}
+                  onChange={handleChange}
+                  placeholder="Colour"
+                  className="border p-2 rounded w-full mb-2"
+                />
 
-          <label className="block text-sm font-medium mb-1">Product Badge</label>
-          <input
-            name="badge"
-            value={formData.badge}
-            onChange={handleChange}
-            placeholder="Enter product badge"
-            className="border p-2 rounded text-sm w-full"
-          />
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name="field2"
+                    value={getCatalogueFormData().field2 || ""}
+                    onChange={handleChange}
+                    placeholder="Package"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name="field2Unit"
+                    value={getCatalogueFormData().field2Unit || "pcs / set"}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
+                  >
+                    <option>pcs / set</option>
+                    <option>pcs / dozen</option>
+                    <option>pcs / pack</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name="field3"
+                    value={getCatalogueFormData().field3 || ""}
+                    onChange={handleChange}
+                    placeholder="Age Group"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name="field3Unit"
+                    value={getCatalogueFormData().field3Unit || "months"}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
+                  >
+                    <option>months</option>
+                    <option>years</option>
+                    <option>Newborn</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 mb-2">
+                  <input
+                    name={getSelectedCataloguePriceField()}
+                    value={getSelectedCataloguePrice()}
+                    onChange={handleChange}
+                    placeholder="Price"
+                    className="border p-2 w-full rounded"
+                  />
+                  <select
+                    name={getSelectedCataloguePriceUnitField()}
+                    value={getSelectedCataloguePriceUnit()}
+                    onChange={handleChange}
+                    className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
+                  >
+                    <option>/ piece</option>
+                    <option>/ dozen</option>
+                    <option>/ set</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {!isCatalogueEnabled(selectedCatalogue) && (
+              <div className="text-center text-gray-500 py-4">
+                Enable "{catalogues.find((c) => c.id === selectedCatalogue)?.label}" to add details
+              </div>
+            )}
+          </div>
 
           <div className="mb-4">
             <label className="block mb-1 font-semibold">Categories</label>
@@ -827,20 +982,6 @@ setTimeout(async () => {
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
-    }}
-  >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price1}{" "}
-    {price1Unit}
-  </div>
-
   {imagePreview && (
     <div
       style={{
@@ -914,9 +1055,9 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field1}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {formData.field2} {packageUnit}</p>
-      <p>Age Group&nbsp;&nbsp;: {formData.field3} {ageGroupUnit}</p>
+      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field1}</p>
+      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit}</p>
+      <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
     </div>
   </div>
 
@@ -924,13 +1065,13 @@ setTimeout(async () => {
     style={{
       backgroundColor: overrideColor,
       color: fontColor,
-      padding: "8px",
+      padding: "12px 8px",
       textAlign: "center",
-      fontWeight: "normal",
-      fontSize: 19,
+      fontWeight: "600",
+      fontSize: 20,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{formData.price2} {price2Unit}
+    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 </div>
 
