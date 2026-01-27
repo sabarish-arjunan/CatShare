@@ -1055,11 +1055,12 @@ onMouseLeave={handleTouchEnd}
     {/* Floating Add Button */}
     <button
       onClick={() => setShowAddProductsModal(true)}
-      className="fixed right-4 z-40 bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition"
+      className="fixed right-4 z-40 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-blue-300 bg-white text-blue-600 hover:bg-blue-50 hover:border-blue-400 shadow-sm hover:shadow-md transition-all"
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
       title="Add products to this catalogue"
     >
-      <FiPlus size={24} />
+      <FiPlus size={20} />
+      <span className="text-sm font-medium">Add</span>
     </button>
     </>
   );

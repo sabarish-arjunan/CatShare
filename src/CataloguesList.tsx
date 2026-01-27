@@ -167,9 +167,6 @@ export default function CataloguesList({
                     <p className="text-xs text-gray-500 mt-1">
                       {stats.total} products · {stats.inStock} in stock
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      Price: <span className="font-mono">{catalogue.priceField}</span>
-                    </p>
                   </div>
                 </div>
               </button>

@@ -608,6 +608,7 @@ setTimeout(async () => {
       const renderOptions = {
         catalogueId: cat.id,
         catalogueLabel: cat.label,
+        folder: cat.folder || cat.label, // Use folder from catalogue config
         priceField: cat.priceField,
         priceUnitField: cat.priceUnitField,
         price1Unit: catData.price1Unit || "/ piece",

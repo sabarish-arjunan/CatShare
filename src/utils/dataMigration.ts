@@ -47,31 +47,54 @@ export function initializeCataloguesIfNeeded(): void {
 export function ensureProductsHaveStockFields(): void {
   try {
     const products = JSON.parse(localStorage.getItem("products") || "[]");
-    const catalogues = JSON.parse(
+    const definition = JSON.parse(
       localStorage.getItem("cataloguesDefinition") || JSON.stringify({
         catalogues: DEFAULT_CATALOGUES,
       })
-    ).catalogues;
+    );
+    const catalogues = definition.catalogues || DEFAULT_CATALOGUES;
 
     let modified = false;
 
     for (const product of products) {
+      // Ensure catalogueData structure exists (for new multi-catalogue system)
+      if (!product.catalogueData) {
+        product.catalogueData = {};
+        modified = true;
+      }
+
       for (const cat of catalogues) {
-        // Ensure stock field exists
+        // Initialize catalogueData for this catalogue if missing
+        if (!product.catalogueData[cat.id]) {
+          product.catalogueData[cat.id] = {
+            enabled: cat.id === 'cat1' ? true : false, // Enable cat1 by default for old products
+            field1: product.field1 || "",
+            field2: product.field2 || "",
+            field3: product.field3 || "",
+            field2Unit: product.field2Unit || product.packageUnit || "pcs / set",
+            field3Unit: product.field3Unit || product.ageUnit || "months",
+            [cat.priceField]: product[cat.priceField] || "",
+            [cat.priceUnitField]: product[cat.priceUnitField] || "/ piece",
+            [cat.stockField]: product[cat.stockField] !== undefined ? product[cat.stockField] : true,
+          };
+          modified = true;
+        }
+
+        // Ensure stock field exists on product level (for backward compatibility)
         if (product[cat.stockField] === undefined) {
-          product[cat.stockField] = true; // Default to in-stock
+          product[cat.stockField] = product.catalogueData[cat.id]?.[cat.stockField] ?? true;
           modified = true;
         }
 
         // Ensure price field exists (at least empty string)
         if (product[cat.priceField] === undefined) {
-          product[cat.priceField] = "";
+          product[cat.priceField] = product.catalogueData[cat.id]?.[cat.priceField] ?? "";
           modified = true;
         }
 
         // Ensure unit field exists
         if (product[cat.priceUnitField] === undefined) {
-          product[cat.priceUnitField] = "/ piece";
+          product[cat.priceUnitField] = product.catalogueData[cat.id]?.[cat.priceUnitField] ?? "/ piece";
           modified = true;
         }
       }
@@ -79,7 +102,7 @@ export function ensureProductsHaveStockFields(): void {
 
     if (modified) {
       localStorage.setItem("products", JSON.stringify(products));
-      console.log("✅ Ensured all products have required stock fields");
+      console.log("✅ Ensured all products have required stock fields and catalogueData structure");
     }
   } catch (err) {
     console.error("❌ Failed to ensure stock fields:", err);
