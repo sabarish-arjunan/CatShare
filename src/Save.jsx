@@ -221,7 +221,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       await Filesystem.writeFile({
         path: filePath,
         data: base64,
-        directory: Directory.External,
+        directory: Directory.Documents,
         recursive: true,
       });
 
