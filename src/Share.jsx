@@ -21,6 +21,13 @@ export async function handleShare({
   let processedCount = 0;
   let filesNotFound = [];
 
+  console.log(`🔍 Share Debug Info:`);
+  console.log(`📁 Target folder: ${folder}`);
+  console.log(`🔢 Products to share: ${selected.length}`);
+  console.log(`📍 Looking for files in Directory.External/${folder}/`);
+  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${folder}/`);
+  console.log(`Selected product IDs: ${selected.join(", ")}`);
+
   for (const id of selected) {
     const fileName = `product_${id}_${mode}.png`;
     const filePath = `${folder}/${fileName}`;
@@ -30,7 +37,7 @@ export async function handleShare({
       try {
         await Filesystem.stat({
           path: filePath,
-          directory: Directory.Documents,
+          directory: Directory.External,
         });
         console.log(`✅ File exists: ${filePath}`);
       } catch (statErr) {
@@ -45,7 +52,7 @@ export async function handleShare({
       try {
         const fileResult = await Filesystem.getUri({
           path: filePath,
-          directory: Directory.Documents,
+          directory: Directory.External,
         });
 
         if (fileResult.uri) {
@@ -60,7 +67,7 @@ export async function handleShare({
         try {
           const fileData = await Filesystem.readFile({
             path: filePath,
-            directory: Directory.Documents,
+            directory: Directory.External,
           });
 
           // Create a data URL from the base64
@@ -90,14 +97,30 @@ export async function handleShare({
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    let message = "No rendered images found to share.";
+    let message = "❌ No rendered images found to share.";
 
     if (filesNotFound.length > 0) {
-      message += `\n\nProducts not found: ${filesNotFound.map(f => f.id).join(", ")}`;
-      message += "\n\nHint: Make sure you have:";
-      message += "\n1. Selected at least one product";
-      message += "\n2. Rendered the images using the 'Render All' button";
-      message += `\n3. Images should be in: ${folder}/ folder`;
+      message += `\n\n🔍 DIAGNOSTIC INFO:\n`;
+      message += `Products searched: ${filesNotFound.map(f => f.id).join(", ")}\n`;
+      message += `Folder expected: ${folder}/\n`;
+      message += `Files looked for pattern: product_<ID>_${mode}.png\n`;
+      message += `\n📋 Files not found:\n`;
+      filesNotFound.forEach(f => {
+        message += `  - ${f.path}${f.reason ? ` (${f.reason})` : ""}\n`;
+      });
+
+      message += `\n✅ SOLUTIONS:\n`;
+      message += `1. Click 'Render All' button in the ${folder} tab\n`;
+      message += `2. Wait for all images to finish rendering\n`;
+      message += `3. Check the browser console (F12) for errors\n`;
+      message += `4. Ensure you have storage permissions granted to the app\n`;
+      message += `5. Check file paths in Android's file manager:\n`;
+      message += `   /storage/emulated/0/ or internal app storage`;
+    } else {
+      message += "\n\nMake sure you have:\n";
+      message += "1. Selected at least one product\n";
+      message += "2. Rendered the images using the 'Render All' button\n";
+      message += `3. Images should be saved in: ${folder}/ folder`;
     }
 
     alert(message);
@@ -105,13 +128,22 @@ export async function handleShare({
   }
 
   try {
+    console.log(`\n📤 Preparing to share:`);
+    console.log(`   Files collected: ${fileUris.length}`);
+    fileUris.forEach((uri, idx) => {
+      console.log(`   [${idx + 1}] ${uri.substring(0, 100)}${uri.length > 100 ? '...' : ''}`);
+    });
+
     await Share.share({
       files: fileUris,
       dialogTitle: "Share Products",
     });
-    console.log("✅ Shared", fileUris.length, "products");
+
+    console.log("✅ Share successful!", fileUris.length, "products");
+    console.log(`\n📊 Summary: Successfully shared ${fileUris.length} out of ${selected.length} selected products`);
   } catch (err) {
     console.error("❌ Share failed:", err);
+    console.log(`\n📊 Share Summary: Successfully prepared ${fileUris.length} files but share was cancelled or failed`);
     alert("Sharing failed: " + err.message);
   }
 }
