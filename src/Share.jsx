@@ -24,12 +24,27 @@ export async function handleShare({
     const fileName = `product_${id}_${mode}.png`;
 
     try {
-      const fileResult = await Filesystem.getUri({
+      // Step 1: Read the file from External storage
+      const fileResult = await Filesystem.readFile({
         path: `${folder}/${fileName}`,
         directory: Directory.External,
       });
 
-      fileUris.push(fileResult.uri);
+      // Step 2: Write to Cache directory for sharing (this ensures native Share API can access it)
+      const cacheFileName = `share_${id}_${mode}_${Date.now()}.png`;
+      await Filesystem.writeFile({
+        path: cacheFileName,
+        data: fileResult.data,
+        directory: Directory.Cache,
+      });
+
+      // Step 3: Get the URI from Cache directory
+      const cacheFileUri = await Filesystem.getUri({
+        path: cacheFileName,
+        directory: Directory.Cache,
+      });
+
+      fileUris.push(cacheFileUri.uri);
     } catch (err) {
       console.warn(`❌ Could not find saved image for product ${id}:`, err);
     }
