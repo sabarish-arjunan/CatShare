@@ -65,6 +65,7 @@ export default function WholesaleTab({
   const searchInputRef = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
 
 
 useEffect(() => {
