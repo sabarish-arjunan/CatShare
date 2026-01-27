@@ -158,10 +158,10 @@ export default function CataloguesList({
                   </div>
                 </div>
               </button>
-              );
-            })}
-          </div>
-        )}
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }
