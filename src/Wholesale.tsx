@@ -616,6 +616,105 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
       </>
     )}
+
+    {/* Tools Menu Button (3 dots) - Always on the right */}
+    <div className="relative ml-auto">
+      <button
+        onClick={() => setShowToolsMenu((prev) => !prev)}
+        className="text-xl text-gray-600 hover:text-black p-1"
+        title="More options"
+      >
+        <svg
+          className="w-5 h-5"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="5" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="19" r="2" />
+        </svg>
+      </button>
+
+      {/* Dropdown Menu */}
+      {showToolsMenu && (
+        <div className="absolute right-0 top-10 z-50 bg-white rounded-lg shadow-xl border border-gray-200 min-w-max py-1">
+          <button
+            onClick={() => {
+              setShowBulkEdit(true);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            title="Bulk Edit"
+          >
+            <MdLayers className="w-4 h-4" />
+            Bulk Edit
+          </button>
+
+          <button
+            onClick={() => {
+              setShowFilters(true);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            title="Filter"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
+            </svg>
+            Filter
+          </button>
+
+          {selectMode && (
+            <>
+              <div className="border-t border-gray-200 my-1" />
+              <button
+                onClick={() => {
+                  const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+                  const updated = allProds.map((p) =>
+                    selected.includes(p.id) ? { ...p, [stockField]: true } : p
+                  );
+                  setProducts(updated);
+                  localStorage.setItem("products", JSON.stringify(updated));
+                  setShowToolsMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                title="Mark as In Stock"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+                In Stock
+              </button>
+
+              <button
+                onClick={() => {
+                  const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+                  const updated = allProds.map((p) =>
+                    selected.includes(p.id) ? { ...p, [stockField]: false } : p
+                  );
+                  setProducts(updated);
+                  localStorage.setItem("products", JSON.stringify(updated));
+                  setShowToolsMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                title="Mark as Out of Stock"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+                Out of Stock
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   </div>
 </header>
 
