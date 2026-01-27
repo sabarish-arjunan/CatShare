@@ -626,7 +626,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
               <h2 className="text-lg font-semibold text-gray-800 mb-3">Heads up!</h2>
               <p className="text-sm text-gray-600 mb-2">
-                You're about to change stock status. Are you sure?
+                You're about to change stock status{confirmToggleStock.field === "MASTER" ? " for all catalogues" : ""}. Are you sure?
               </p>
 
               <label className="flex items-center justify-center gap-2 mt-2 text-sm text-gray-600">
@@ -658,9 +658,30 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                     }
 
                     Haptics.impact({ style: ImpactStyle.Medium });
-                    setProducts((prev) =>
-                      prev.map((p) => (p.id === id ? { ...p, [field]: !p[field] } : p))
-                    );
+
+                    if (field === "MASTER") {
+                      // Master toggle: toggle all catalogues
+                      setProducts((prev) =>
+                        prev.map((p) => {
+                          if (p.id === id) {
+                            // Check if all catalogues are in stock
+                            const allInStock = catalogues.every((cat) => p[cat.stockField]);
+                            // Toggle all catalogue stock fields
+                            const updated = { ...p };
+                            catalogues.forEach((cat) => {
+                              updated[cat.stockField] = !allInStock;
+                            });
+                            return updated;
+                          }
+                          return p;
+                        })
+                      );
+                    } else {
+                      // Individual catalogue toggle
+                      setProducts((prev) =>
+                        prev.map((p) => (p.id === id ? { ...p, [field]: !p[field] } : p))
+                      );
+                    }
 
                     setConfirmToggleStock(null);
                     setBypassChecked(false);
