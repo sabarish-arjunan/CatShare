@@ -98,12 +98,19 @@ useEffect(() => {
   const copy = { ...p };
   delete copy.image;
 
-  // Convert WS/RS string → boolean
+  // Convert stock fields from string → boolean
   if (typeof copy.wholesaleStock === "string") {
     copy.wholesaleStock = copy.wholesaleStock === "in";
   }
   if (typeof copy.resellStock === "string") {
     copy.resellStock = copy.resellStock === "in";
+  }
+
+  // Handle catalogue-specific stock field
+  if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
+    if (typeof copy[stockField] === "string") {
+      copy[stockField] = copy[stockField] === "in";
+    }
   }
 
   return copy;
