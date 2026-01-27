@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FiSettings } from "react-icons/fi";
 import { type Catalogue } from "./config/catalogueConfig";
 import { isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
