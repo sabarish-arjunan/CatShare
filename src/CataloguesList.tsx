@@ -88,7 +88,7 @@ export default function CataloguesList({
         ) : (
           <div className="space-y-3 px-4 pb-4">
             {catalogues.map((catalogue) => {
-            const stats = catalogueStats[catalogue.id] || {
+              const stats = catalogueStats[catalogue.id] || {
               total: 0,
               inStock: 0,
             };
