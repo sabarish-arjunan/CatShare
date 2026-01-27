@@ -111,7 +111,7 @@ useEffect(() => {
    const handleSave = () => {
   try {
     const cleanData = editedData.map((p) => {
-  const copy = { ...p };
+  let copy = { ...p };
   delete copy.image;
 
   // Convert stock fields from string → boolean
