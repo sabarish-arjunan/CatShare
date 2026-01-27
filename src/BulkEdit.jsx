@@ -384,27 +384,15 @@ useEffect(() => {
   <div className="flex gap-2">
     <button
       onClick={() =>
-        handleFieldChange(item.id, "wholesaleStock", item.wholesaleStock === "in" ? "out" : "in")
+        handleFieldChange(item.id, stockField, item[stockField] === "in" ? "out" : "in")
       }
       className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item.wholesaleStock === "in"
+        item[stockField] === "in"
           ? "bg-green-600 text-white"
           : "bg-gray-300 text-gray-800"
       }`}
     >
-      WS: {item.wholesaleStock === "in" ? "In" : "Out"}
-    </button>
-    <button
-      onClick={() =>
-        handleFieldChange(item.id, "resellStock", item.resellStock === "in" ? "out" : "in")
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item.resellStock === "in"
-          ? "bg-yellow-600 text-white"
-          : "bg-gray-300 text-gray-800"
-      }`}
-    >
-      RS: {item.resellStock === "in" ? "In" : "Out"}
+      {stockField === 'wholesaleStock' ? 'WS' : stockField === 'resellStock' ? 'RS' : 'Stock'}: {item[stockField] === "in" ? "In" : "Out"}
     </button>
   </div>
 )}
