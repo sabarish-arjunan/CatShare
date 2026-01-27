@@ -146,7 +146,6 @@ export default function ManageCatalogues({
 
   const openEditForm = (catalogue: Catalogue) => {
     setFormLabel(catalogue.label);
-    setFormFolder(catalogue.folder);
     setShowEditForm(catalogue);
     setFormError("");
   };
