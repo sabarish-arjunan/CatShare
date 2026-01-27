@@ -82,6 +82,7 @@ function AppWithBackHandler() {
             ageGroupUnit: product.ageUnit || "months",
             catalogueId: cat.id,
             catalogueLabel: cat.label,
+            folder: cat.folder || cat.label,
             priceField: cat.priceField,
             priceUnitField: cat.priceUnitField,
           });
