@@ -95,14 +95,28 @@ export default function AddProductsModal({
             </button>
           </div>
 
-          {/* Search Input */}
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+          {/* Search Input and Toggle All Button */}
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            {filteredProducts.length > 0 && (
+              <button
+                onClick={handleToggleAllProducts}
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap ${
+                  allFilteredEnabled
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                }`}
+              >
+                {allFilteredEnabled ? "Hide All" : "Show All"}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Products List */}
