@@ -30,29 +30,17 @@ export interface CataloguesDefinition {
   lastUpdated: number;
 }
 
-// Default catalogues (matching the current structure)
+// Default catalogues - now only Master catalogue
+// Old Wholesale/Resell catalogues are auto-created on restore if legacy data exists
 export const DEFAULT_CATALOGUES: Catalogue[] = [
   {
     id: "cat1",
-    label: "Catalogue 1",
+    label: "Master",
     priceField: "price1",
     priceUnitField: "price1Unit",
     stockField: "wholesaleStock",
-    folder: "Catalogue 1",
+    folder: "Master",
     order: 1,
-    createdAt: Date.now(),
-    isDefault: true,
-    heroImage: "",
-    description: "",
-  },
-  {
-    id: "cat2",
-    label: "Catalogue 2",
-    priceField: "price2",
-    priceUnitField: "price2Unit",
-    stockField: "resellStock",
-    folder: "Catalogue 2",
-    order: 2,
     createdAt: Date.now(),
     isDefault: true,
     heroImage: "",
