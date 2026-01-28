@@ -867,7 +867,7 @@ onMouseLeave={handleTouchEnd}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      const evt = new CustomEvent("edit-product", { detail: { id: p.id } });
+                      const evt = new CustomEvent("edit-product", { detail: { id: p.id, catalogueId } });
                       window.dispatchEvent(evt);
                     }}
                     className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200 z-10"
