@@ -4,6 +4,7 @@ import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
+import { RiEdit2Line } from "react-icons/ri";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
