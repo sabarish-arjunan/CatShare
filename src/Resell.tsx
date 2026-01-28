@@ -821,7 +821,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="px-0 pb-28 pt-10" ref={contentRef}>
+<div className="px-0 pb-28 pt-10">
       {/* Grid */}
       <div
         id="capture-area"
