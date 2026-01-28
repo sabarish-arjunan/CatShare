@@ -239,23 +239,29 @@ export async function saveRenderedImage(product, type, units = {}) {
   const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
   const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
-  const priceBar = document.createElement("h2");
-  Object.assign(priceBar.style, {
-    backgroundColor: bgColor,
-    color: fontColor,
-    padding: "8px",
-    textAlign: "center",
-    fontWeight: "normal",
-    fontSize: "19px",
-    margin: 0,
-    lineHeight: 1.2,
-  });
-  priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
+  // Only create and append price bar if product has a price for this catalogue
+  const hasPriceValue = price !== undefined && price !== null && price !== "" && price !== 0;
+
+  let priceBar = null;
+  if (hasPriceValue) {
+    priceBar = document.createElement("h2");
+    Object.assign(priceBar.style, {
+      backgroundColor: bgColor,
+      color: fontColor,
+      padding: "8px",
+      textAlign: "center",
+      fontWeight: "normal",
+      fontSize: "19px",
+      margin: 0,
+      lineHeight: 1.2,
+    });
+    priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
+  }
 
   // Price bar at bottom for all catalogues
   const isPriceOnTop = false;
 
-  if (isPriceOnTop) {
+  if (isPriceOnTop && priceBar) {
     container.appendChild(priceBar); // Price on top
   }
 
