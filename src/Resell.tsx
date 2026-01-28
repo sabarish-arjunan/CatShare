@@ -646,7 +646,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
             className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
             title="Bulk Edit"
           >
-            <MdLayers className="w-4 h-4" />
+            <RiEdit2Line className="w-4 h-4" />
             Bulk Edit
           </button>
 
