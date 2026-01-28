@@ -339,7 +339,7 @@ export default function ManageCatalogues({
                   )}
                 </div>
 
-                <form onSubmit={handleEditSubmit} className="space-y-3">
+                <form onSubmit={handleEditSubmit} className="space-y-4">
                   {/* Catalogue Name */}
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
