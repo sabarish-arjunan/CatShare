@@ -20,6 +20,8 @@ export interface Catalogue {
   order: number; // Display order in tabs
   createdAt: number;
   isDefault?: boolean; // True for default catalogues (can't be deleted)
+  heroImage?: string; // Hero image URL or base64 data
+  description?: string; // Catalogue description
 }
 
 export interface CataloguesDefinition {
