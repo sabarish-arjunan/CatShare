@@ -32,15 +32,22 @@ export async function handleShare({
   let processedCount = 0;
   let filesNotFound = [];
 
+  // Extract catalogue label from folder (folder is the catalogue name/label)
+  // Used for filename pattern: product_<id>_<catalogueLabel>.png
+  const catalogueLabel = targetFolder;
+
   console.log(`🔍 Share Debug Info:`);
   console.log(`📁 Target folder: ${targetFolder}`);
+  console.log(`📁 Catalogue label (for filename): ${catalogueLabel}`);
   console.log(`🔢 Products to share: ${selected.length}`);
   console.log(`📍 Looking for files in Directory.External/${targetFolder}/`);
   console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${targetFolder}/`);
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
   for (const id of selected) {
-    const fileName = `product_${id}_${mode}.png`;
+    // Use catalogue label (folder name) for filename pattern instead of mode
+    // This matches the rendering logic: product_<id>_<catalogueLabel>.png
+    const fileName = `product_${id}_${catalogueLabel}.png`;
     const filePath = `${targetFolder}/${fileName}`;
 
     try {
