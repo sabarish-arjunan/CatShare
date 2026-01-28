@@ -298,7 +298,7 @@ export function createLegacyResellCatalogueIfNeeded(products: any[]): void {
     folder: "Resell",
     order: 2,
     createdAt: Date.now(),
-    isDefault: true, // Keep as default so it can't be accidentally deleted
+    isDefault: false, // Not a default catalogue, only for backward compatibility
     heroImage: "",
     description: "",
   };
