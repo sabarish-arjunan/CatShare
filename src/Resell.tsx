@@ -4,6 +4,7 @@ import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
+import { RiEdit2Line } from "react-icons/ri";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { AnimatePresence, motion } from "framer-motion";
@@ -645,7 +646,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
             className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
             title="Bulk Edit"
           >
-            <MdLayers className="w-4 h-4" />
+            <RiEdit2Line className="w-4 h-4" />
             Bulk Edit
           </button>
 
@@ -920,7 +921,7 @@ onMouseLeave={handleTouchEnd}
 {/* Price Badge Over Image */}
 {showInfo && (
 <div
-  className="absolute top-1.5 right-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
+  className="absolute top-1.5 left-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
   ₹{getProductCatalogueData(p).price}
 </div>

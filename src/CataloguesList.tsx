@@ -174,7 +174,7 @@ export default function CataloguesList({
                       </div>
                     ) : catalogueProducts.length === 0 ? (
                       /* No hero image and no products */
-                      <div className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center" style={{ zIndex: 100 }}>
+                      <div className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center">
                         <span className="text-[10px] text-gray-400">
                           No products
                         </span>

@@ -196,27 +196,26 @@ export default function ManageCatalogues({
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="bg-white w-full max-w-lg max-h-[90vh] rounded-lg shadow-lg overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modern Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-6 flex items-center justify-between">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">Manage Catalogues</h2>
-            <p className="text-blue-100 text-sm mt-1">Create, edit, and organize your catalogues</p>
+            <h2 className="text-lg font-semibold text-white">Manage Catalogues</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-lg transition text-white"
+            className="p-1.5 hover:bg-white/20 rounded-lg transition text-white"
             title="Close"
           >
-            <FiX size={24} />
+            <FiX size={20} />
           </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {/* Add New Catalogue Button */}
             {!showAddForm && !showEditForm && (
               <button
@@ -224,22 +223,22 @@ export default function ManageCatalogues({
                   setShowAddForm(true);
                   setFormError("");
                 }}
-                className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 text-sm"
               >
-                <FiPlus size={20} />
+                <FiPlus size={18} />
                 Add New Catalogue
               </button>
             )}
 
             {/* Add Form */}
             {showAddForm && (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 space-y-4">
-                <h3 className="text-lg font-bold text-gray-800">Create New Catalogue</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                <h3 className="text-base font-semibold text-gray-800">Create New Catalogue</h3>
 
-                <form onSubmit={handleAddSubmit} className="space-y-4">
+                <form onSubmit={handleAddSubmit} className="space-y-3">
                   {/* Catalogue Name */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Catalogue Name *
                     </label>
                     <input
@@ -247,32 +246,31 @@ export default function ManageCatalogues({
                       value={formLabel}
                       onChange={(e) => setFormLabel(e.target.value)}
                       placeholder="e.g., Distributor, B2B, Retail"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Folder name will be set automatically</p>
                   </div>
 
                   {/* Hero Image */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Hero Image
                     </label>
                     {formHeroImage ? (
                       <div className="relative rounded-lg overflow-hidden mb-2">
-                        <img src={formHeroImage} alt="Preview" className="w-full h-40 object-cover" />
+                        <img src={formHeroImage} alt="Preview" className="w-full h-32 object-cover" />
                         <button
                           type="button"
                           onClick={() => setFormHeroImage("")}
-                          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition"
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition"
                         >
-                          <FiX size={16} />
+                          <FiX size={14} />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-6 bg-blue-50 cursor-pointer hover:bg-blue-100 transition">
-                        <FiImage size={24} className="text-blue-500 mb-2" />
-                        <span className="text-sm font-medium text-gray-700">Click to upload image</span>
-                        <span className="text-xs text-gray-500 mt-1">Max 2MB</span>
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-4 bg-blue-50 cursor-pointer hover:bg-blue-100 transition">
+                        <FiImage size={20} className="text-blue-500 mb-1.5" />
+                        <span className="text-xs font-medium text-gray-700">Click to upload image</span>
+                        <span className="text-xs text-gray-500 mt-0.5">Max 2MB</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -285,32 +283,32 @@ export default function ManageCatalogues({
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Description
                     </label>
                     <textarea
                       value={formDescription}
                       onChange={(e) => setFormDescription(e.target.value)}
                       placeholder="Add a description for this catalogue..."
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                      rows={3}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                      rows={2}
                     />
                   </div>
 
                   {/* Error Message */}
                   {formError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex gap-3">
-                      <span className="text-red-600 text-sm">{formError}</span>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-2.5 flex gap-3">
+                      <span className="text-red-600 text-xs">{formError}</span>
                     </div>
                   )}
 
                   {/* Form Actions */}
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-2 pt-1">
                     <button
                       type="submit"
-                      className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95"
+                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95"
                     >
-                      <FiCheck size={18} />
+                      <FiCheck size={16} />
                       Create
                     </button>
                     <button
@@ -319,7 +317,7 @@ export default function ManageCatalogues({
                         setShowAddForm(false);
                         resetFormFields();
                       }}
-                      className="flex-1 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition active:scale-95"
+                      className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-300 transition active:scale-95"
                     >
                       Cancel
                     </button>
@@ -330,11 +328,11 @@ export default function ManageCatalogues({
 
             {/* Edit Form */}
             {showEditForm && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-6 space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-bold text-gray-800">Edit Catalogue</h3>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+                  <h3 className="text-base font-semibold text-gray-800">Edit Catalogue</h3>
                   {showEditForm.isDefault && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">
                       Default
                     </span>
                   )}
@@ -343,39 +341,38 @@ export default function ManageCatalogues({
                 <form onSubmit={handleEditSubmit} className="space-y-4">
                   {/* Catalogue Name */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Catalogue Name *
                     </label>
                     <input
                       type="text"
                       value={formLabel}
                       onChange={(e) => setFormLabel(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Folder name will be set automatically</p>
                   </div>
 
                   {/* Hero Image */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Hero Image
                     </label>
                     {formHeroImage ? (
                       <div className="relative rounded-lg overflow-hidden mb-2">
-                        <img src={formHeroImage} alt="Preview" className="w-full h-40 object-cover" />
+                        <img src={formHeroImage} alt="Preview" className="w-full h-32 object-cover" />
                         <button
                           type="button"
                           onClick={() => setFormHeroImage("")}
-                          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition"
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition"
                         >
-                          <FiX size={16} />
+                          <FiX size={14} />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-amber-300 rounded-lg p-6 bg-amber-50 cursor-pointer hover:bg-amber-100 transition">
-                        <FiImage size={24} className="text-amber-500 mb-2" />
-                        <span className="text-sm font-medium text-gray-700">Click to upload image</span>
-                        <span className="text-xs text-gray-500 mt-1">Max 2MB</span>
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-slate-100 cursor-pointer hover:bg-slate-200 transition">
+                        <FiImage size={20} className="text-slate-500 mb-1.5" />
+                        <span className="text-xs font-medium text-gray-700">Click to upload image</span>
+                        <span className="text-xs text-gray-500 mt-0.5">Max 2MB</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -388,32 +385,32 @@ export default function ManageCatalogues({
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Description
                     </label>
                     <textarea
                       value={formDescription}
                       onChange={(e) => setFormDescription(e.target.value)}
                       placeholder="Add a description for this catalogue..."
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition resize-none"
-                      rows={3}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                      rows={2}
                     />
                   </div>
 
                   {/* Error Message */}
                   {formError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex gap-3">
-                      <span className="text-red-600 text-sm">{formError}</span>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-2.5 flex gap-3">
+                      <span className="text-red-600 text-xs">{formError}</span>
                     </div>
                   )}
 
                   {/* Form Actions */}
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-2 pt-1">
                     <button
                       type="submit"
-                      className="flex-1 py-2.5 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition flex items-center justify-center gap-2 active:scale-95"
+                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95"
                     >
-                      <FiCheck size={18} />
+                      <FiCheck size={16} />
                       Save Changes
                     </button>
                     <button
@@ -422,7 +419,7 @@ export default function ManageCatalogues({
                         setShowEditForm(null);
                         resetFormFields();
                       }}
-                      className="flex-1 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition active:scale-95"
+                      className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-300 transition active:scale-95"
                     >
                       Cancel
                     </button>
@@ -434,23 +431,23 @@ export default function ManageCatalogues({
             {/* Catalogues List */}
             {!showAddForm && !showEditForm && (
               <div>
-                <h3 className="text-lg font-bold text-gray-800 mb-4">
+                <h3 className="text-base font-semibold text-gray-800 mb-3">
                   Your Catalogues ({catalogues.length})
                 </h3>
 
                 {catalogues.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 rounded-xl">
-                    <p className="text-gray-500">No catalogues yet. Create one to get started!</p>
+                  <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500 text-sm">No catalogues yet. Create one to get started!</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {catalogues.map((catalogue) => (
                       <div
                         key={catalogue.id}
-                        className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white flex items-center gap-4 p-4 group"
+                        className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-sm transition-shadow bg-white flex items-center gap-3 p-3 group"
                       >
                         {/* Image - Left side */}
-                        <div className="w-20 h-20 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
+                        <div className="w-16 h-16 flex-shrink-0 rounded-md bg-gray-200 overflow-hidden">
                           {catalogue.heroImage ? (
                             <img
                               src={catalogue.heroImage}
@@ -459,19 +456,19 @@ export default function ManageCatalogues({
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                              <FiImage size={24} className="text-gray-400" />
+                              <FiImage size={20} className="text-gray-400" />
                             </div>
                           )}
                         </div>
 
                         {/* Content - Middle */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-gray-900 truncate">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h4 className="font-semibold text-gray-900 truncate text-sm">
                               {catalogue.label}
                             </h4>
                             {catalogue.isDefault && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
+                              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">
                                 Default
                               </span>
                             )}
@@ -484,25 +481,25 @@ export default function ManageCatalogues({
                         </div>
 
                         {/* Action Icons - Right side */}
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex gap-1.5 flex-shrink-0">
                           <button
                             onClick={() => openEditForm(catalogue)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                             title="Edit"
                           >
-                            <FiEdit2 size={18} />
+                            <FiEdit2 size={16} />
                           </button>
                           <button
                             onClick={() => setShowDeleteConfirm(catalogue)}
                             disabled={catalogue.isDefault}
-                            className={`p-2 rounded-lg transition ${
+                            className={`p-1.5 rounded-lg transition ${
                               catalogue.isDefault
                                 ? "text-gray-400 cursor-not-allowed"
                                 : "text-red-600 hover:bg-red-50"
                             }`}
                             title={catalogue.isDefault ? "Cannot delete default catalogue" : "Delete"}
                           >
-                            <FiTrash2 size={18} />
+                            <FiTrash2 size={16} />
                           </button>
                         </div>
                       </div>
@@ -522,38 +519,38 @@ export default function ManageCatalogues({
           onClick={() => setShowDeleteConfirm(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-sm w-11/12"
+            className="bg-white rounded-lg shadow-lg max-w-sm w-11/12"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-red-50 px-6 py-6 border-b border-red-200">
-              <h3 className="text-xl font-bold text-red-700">Delete Catalogue?</h3>
+            <div className="bg-red-50 px-4 py-3 border-b border-red-200">
+              <h3 className="text-base font-semibold text-red-700">Delete Catalogue?</h3>
             </div>
 
-            <div className="p-6 space-y-4">
-              <p className="text-gray-700">
+            <div className="p-4 space-y-3">
+              <p className="text-gray-700 text-sm">
                 Are you sure you want to delete{" "}
-                <span className="font-bold text-gray-900">"{showDeleteConfirm.label}"</span>?
+                <span className="font-semibold text-gray-900">"{showDeleteConfirm.label}"</span>?
               </p>
 
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <p className="text-sm text-amber-900">
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded">
+                <p className="text-xs text-amber-900">
                   <span className="font-semibold">⚠️ Note:</span> Product data will not be deleted, but this
                   catalogue will no longer be accessible.
                 </p>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-2 pt-1">
                 <button
                   onClick={() => setShowDeleteConfirm(null)}
-                  className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition active:scale-95"
+                  className="flex-1 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-200 transition active:scale-95"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDeleteConfirm(showDeleteConfirm)}
-                  className="flex-1 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2 active:scale-95"
+                  className="flex-1 py-2 bg-red-600 text-white rounded-lg font-semibold text-sm hover:bg-red-700 transition flex items-center justify-center gap-2 active:scale-95"
                 >
-                  <FiTrash2 size={16} />
+                  <FiTrash2 size={14} />
                   Delete
                 </button>
               </div>
