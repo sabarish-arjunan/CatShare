@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
@@ -67,6 +67,7 @@ export default function WholesaleTab({
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
 
 useEffect(() => {
@@ -670,6 +671,19 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
             Filter
           </button>
 
+          <div className="border-t border-gray-200 my-1" />
+          <button
+            onClick={() => {
+              setShowEdit((prev) => !prev);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+            title={showEdit ? "Hide Edit Icons" : "Show Edit Icons"}
+          >
+            <FiEdit className="w-4 h-4" />
+            {showEdit ? "Hide Edit" : "Show Edit"}
+          </button>
+
           {selectMode && (
             <>
               <div className="border-t border-gray-200 my-1" />
@@ -834,7 +848,7 @@ onMouseUp={handleTouchEnd}
 onMouseLeave={handleTouchEnd}
 
             >
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
+              <div className="relative aspect-square overflow-hidden bg-gray-100 group">
                 <img
                   src={imageMap[p.id]}
                   alt={p.name}
@@ -847,7 +861,21 @@ onMouseLeave={handleTouchEnd}
                     </span>
                   </div>
                 )}
-                
+
+                {/* Edit Icon Button */}
+                {showEdit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const evt = new CustomEvent("edit-product", { detail: { id: p.id, catalogueId, fromCatalogue: catalogueId } });
+                      window.dispatchEvent(evt);
+                    }}
+                    className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200 z-10"
+                    title="Edit product"
+                  >
+                    <FiEdit className="w-4 h-4 text-blue-600" />
+                  </button>
+                )}
 
 <AnimatePresence>
   {isSelected && (

@@ -184,6 +184,8 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const catalogueParam = searchParams.get("catalogue");
+  const fromParam = searchParams.get("from");
   const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
@@ -197,7 +199,7 @@ export default function CreateProduct() {
     catalogueData: {},
   });
 
-  const [selectedCatalogue, setSelectedCatalogue] = useState<string>("cat1");
+  const [selectedCatalogue, setSelectedCatalogue] = useState<string>(catalogueParam || "cat1");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
@@ -629,14 +631,18 @@ setTimeout(async () => {
     console.warn("⏱️ PNG render failed:", err);
   }
 
-  navigate("/");
+  const navigationPath = fromParam ? `/?tab=${fromParam}` : "/";
+  navigate(navigationPath);
 }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
     }
   };
 
-  const handleCancel = () => navigate("/");
+  const handleCancel = () => {
+    const navigationPath = fromParam ? `/?tab=${fromParam}` : "/";
+    navigate(navigationPath);
+  };
   return (
     <div className="px-4 max-w-lg mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>

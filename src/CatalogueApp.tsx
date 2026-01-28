@@ -135,6 +135,21 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   }, [products]);
 
   useEffect(() => {
+    const handleEditProduct = (e) => {
+      const { id, catalogueId, fromCatalogue } = e.detail || {};
+      if (id) {
+        localStorage.setItem("productScroll", scrollRef.current?.scrollTop || 0);
+        let url = `/create?id=${id}`;
+        if (catalogueId) url += `&catalogue=${catalogueId}`;
+        if (fromCatalogue) url += `&from=${fromCatalogue}`;
+        navigate(url);
+      }
+    };
+    window.addEventListener("edit-product", handleEditProduct);
+    return () => window.removeEventListener("edit-product", handleEditProduct);
+  }, [navigate, scrollRef]);
+
+  useEffect(() => {
     const handleNewProduct = () => {
       const updated = JSON.parse(localStorage.getItem("products") || "[]");
       setProducts(updated);
