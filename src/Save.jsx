@@ -3,14 +3,98 @@ import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 
 /**
+ * Rename rendered images when catalogue name changes
+ * Moves files from old folder/name pattern to new folder/name pattern
+ */
+export async function renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel) {
+  if (!oldFolder || !newFolder) return;
+
+  try {
+    console.log(`📁 Renaming rendered images from folder "${oldFolder}" (label: "${oldLabel}") to folder "${newFolder}" (label: "${newLabel}")`);
+
+    // List all files in the old folder
+    let oldFiles = [];
+    try {
+      const result = await Filesystem.readdir({
+        path: oldFolder,
+        directory: Directory.External,
+      });
+      oldFiles = result.files || [];
+    } catch (err) {
+      // Old folder might not exist (no images rendered yet)
+      if (err.code !== 'NotFound') {
+        console.warn(`⚠️  Could not read old folder ${oldFolder}:`, err.message);
+      }
+      return;
+    }
+
+    if (oldFiles.length === 0) {
+      console.log(`✅ No files found in old folder: ${oldFolder}`);
+      return;
+    }
+
+    // Process each file
+    for (const file of oldFiles) {
+      try {
+        const oldPath = `${oldFolder}/${file.name}`;
+
+        // Extract product ID from filename pattern: product_<id>_<label>.png
+        const fileMatch = file.name.match(/^product_([^_]+)_.*\.png$/);
+        if (!fileMatch) {
+          console.warn(`  ⚠️  Skipping file with unexpected format: ${file.name}`);
+          continue;
+        }
+
+        const productId = fileMatch[1];
+        const newFileName = `product_${productId}_${newLabel}.png`;
+        const newPath = `${newFolder}/${newFileName}`;
+
+        // Read the file from old location
+        const fileData = await Filesystem.readFile({
+          path: oldPath,
+          directory: Directory.External,
+        });
+
+        // Write to new location with new filename
+        await Filesystem.writeFile({
+          path: newPath,
+          data: fileData.data,
+          directory: Directory.External,
+          recursive: true,
+        });
+
+        console.log(`  ✓ Renamed: ${file.name} → ${newFileName}`);
+
+        // Delete the old file
+        try {
+          await Filesystem.deleteFile({
+            path: oldPath,
+            directory: Directory.External,
+          });
+          console.log(`    ✓ Cleaned up old file: ${file.name}`);
+        } catch (delErr) {
+          console.warn(`    ⚠️  Could not delete old file ${file.name}:`, delErr.message);
+        }
+      } catch (err) {
+        console.warn(`  ⚠️  Could not process file ${file.name}:`, err.message);
+      }
+    }
+
+    console.log(`✅ Renaming completed for catalogue images`);
+  } catch (err) {
+    console.warn(`⚠️  Could not rename catalogue images:`, err.message);
+  }
+}
+
+/**
  * Delete all rendered images from a folder
- * Used when catalogue name changes to clean up old folder
+ * Used when catalogue is deleted
  */
 export async function deleteRenderedImagesFromFolder(folderName) {
   if (!folderName) return;
 
   try {
-    console.log(`🗑️  Cleaning up old rendered images from folder: ${folderName}`);
+    console.log(`🗑️  Cleaning up rendered images from folder: ${folderName}`);
 
     // List all files in the folder
     const result = await Filesystem.readdir({
