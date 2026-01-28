@@ -310,6 +310,8 @@ export default function ManageCatalogues({
                     onClick={() => {
                       setShowAddForm(false);
                       setFormLabel("");
+                      setFormDescription("");
+                      setFormHeroImage("");
                       setFormError("");
                     }}
                     className="flex-1 py-2 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300 transition"
