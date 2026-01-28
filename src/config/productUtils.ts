@@ -216,7 +216,8 @@ export function getCustomFields(): FieldConfig[] {
  */
 export function normalizeProduct(product: Product): Product {
   const migrated = migrateProductToNewFormat(product);
-  return syncProductFieldNames(migrated);
+  const synced = syncProductFieldNames(migrated);
+  return synced as Product;
 }
 
 /**

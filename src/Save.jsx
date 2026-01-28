@@ -2,6 +2,146 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 
+/**
+ * Rename rendered images when catalogue name changes
+ * Moves files from old folder/name pattern to new folder/name pattern
+ */
+export async function renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel) {
+  if (!oldFolder || !newFolder) return;
+
+  try {
+    console.log(`📁 Renaming rendered images from folder "${oldFolder}" (label: "${oldLabel}") to folder "${newFolder}" (label: "${newLabel}")`);
+
+    // List all files in the old folder
+    let oldFiles = [];
+    try {
+      const result = await Filesystem.readdir({
+        path: oldFolder,
+        directory: Directory.External,
+      });
+      oldFiles = result.files || [];
+    } catch (err) {
+      // Old folder might not exist (no images rendered yet)
+      if (err.code !== 'NotFound') {
+        console.warn(`⚠️  Could not read old folder ${oldFolder}:`, err.message);
+      }
+      return;
+    }
+
+    if (oldFiles.length === 0) {
+      console.log(`✅ No files found in old folder: ${oldFolder}`);
+      return;
+    }
+
+    // Process each file
+    for (const file of oldFiles) {
+      try {
+        const oldPath = `${oldFolder}/${file.name}`;
+
+        // Extract product ID from filename pattern: product_<id>_<label>.png
+        const fileMatch = file.name.match(/^product_([^_]+)_.*\.png$/);
+        if (!fileMatch) {
+          console.warn(`  ⚠️  Skipping file with unexpected format: ${file.name}`);
+          continue;
+        }
+
+        const productId = fileMatch[1];
+        const newFileName = `product_${productId}_${newLabel}.png`;
+        const newPath = `${newFolder}/${newFileName}`;
+
+        // Read the file from old location
+        const fileData = await Filesystem.readFile({
+          path: oldPath,
+          directory: Directory.External,
+        });
+
+        // Write to new location with new filename
+        await Filesystem.writeFile({
+          path: newPath,
+          data: fileData.data,
+          directory: Directory.External,
+          recursive: true,
+        });
+
+        console.log(`  ✓ Renamed: ${file.name} → ${newFileName}`);
+
+        // Delete the old file
+        try {
+          await Filesystem.deleteFile({
+            path: oldPath,
+            directory: Directory.External,
+          });
+          console.log(`    ✓ Cleaned up old file: ${file.name}`);
+        } catch (delErr) {
+          console.warn(`    ⚠️  Could not delete old file ${file.name}:`, delErr.message);
+        }
+      } catch (err) {
+        console.warn(`  ⚠️  Could not process file ${file.name}:`, err.message);
+      }
+    }
+
+    // Delete the now-empty old folder
+    try {
+      await Filesystem.rmdir({
+        path: oldFolder,
+        directory: Directory.External,
+        recursive: false, // Only delete if folder is empty
+      });
+      console.log(`✅ Deleted empty old folder: ${oldFolder}`);
+    } catch (rmErr) {
+      // Folder might not be empty or other issues, but this is not critical
+      console.warn(`⚠️  Could not delete old folder ${oldFolder}:`, rmErr.message);
+    }
+
+    console.log(`✅ Renaming completed for catalogue images`);
+  } catch (err) {
+    console.warn(`⚠️  Could not rename catalogue images:`, err.message);
+  }
+}
+
+/**
+ * Delete all rendered images from a folder
+ * Used when catalogue is deleted
+ */
+export async function deleteRenderedImagesFromFolder(folderName) {
+  if (!folderName) return;
+
+  try {
+    console.log(`🗑️  Cleaning up rendered images from folder: ${folderName}`);
+
+    // List all files in the folder
+    const result = await Filesystem.readdir({
+      path: folderName,
+      directory: Directory.External,
+    });
+
+    if (!result.files || result.files.length === 0) {
+      console.log(`✅ Folder is empty or doesn't exist: ${folderName}`);
+      return;
+    }
+
+    // Delete each file
+    for (const file of result.files) {
+      try {
+        await Filesystem.deleteFile({
+          path: `${folderName}/${file.name}`,
+          directory: Directory.External,
+        });
+        console.log(`  ✓ Deleted: ${file.name}`);
+      } catch (err) {
+        console.warn(`  ⚠️  Could not delete ${file.name}:`, err.message);
+      }
+    }
+
+    console.log(`✅ Cleanup completed for folder: ${folderName}`);
+  } catch (err) {
+    // Folder might not exist yet, which is fine
+    if (err.code !== 'NotFound') {
+      console.warn(`⚠️  Could not clean up folder ${folderName}:`, err.message);
+    }
+  }
+}
+
 export async function saveRenderedImage(product, type, units = {}) {
   const id = product.id || "temp-id";
   const fontColor = product.fontColor || "white";
@@ -83,8 +223,11 @@ export async function saveRenderedImage(product, type, units = {}) {
       field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
       field3: catData.field3 || product.field3 || product.age || "",
       field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
+      // Include all catalogue price fields
       price1: catData.price1 || product.price1 || product.wholesale || "",
       price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
+      price2: catData.price2 || product.price2 || product.resell || "",
+      price2Unit: catData.price2Unit || product.price2Unit || product.resellUnit || "/ piece",
     };
   }
 
@@ -109,8 +252,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   });
   priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
 
-  // For backward compatibility: cat1 and "wholesale" go on top, others at bottom
-  const isPriceOnTop = type === "wholesale" || type === "cat1";
+  // Price bar at bottom for all catalogues
+  const isPriceOnTop = false;
 
   if (isPriceOnTop) {
     container.appendChild(priceBar); // Price on top
@@ -340,26 +483,83 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
 
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
-    const filename = `product_${id}_${type}.png`;
 
-    // Use catalogueId if provided, otherwise fall back to legacy type mapping
+    // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
-    if (units.catalogueId) {
-      // New catalogue system: use catalogue ID to create folder name
+    let catalogueLabel;
+    if (units.folder) {
+      // Folder name passed directly (set to catalogue name/label)
+      folder = units.folder;
+      catalogueLabel = units.folder;
+    } else if (units.catalogueLabel) {
+      // Use catalogue label/name as folder name
+      folder = units.catalogueLabel;
+      catalogueLabel = units.catalogueLabel;
+    } else if (units.catalogueId) {
+      // Fallback: use catalogue ID if label not provided
       folder = units.catalogueId;
+      catalogueLabel = units.catalogueId;
     } else {
-      // Legacy support: map old types to folder names
-      folder = type === "wholesale" ? "Wholesale" : type === "resell" ? "Resell" : type;
+      // Final fallback: use the type parameter as folder name
+      // This ensures the correct folder is used even for old products
+      folder = type;
+      catalogueLabel = type;
     }
 
-    await Filesystem.writeFile({
-      path: `${folder}/${filename}`,
-      data: base64,
-      directory: Directory.External,
-      recursive: true,
-    });
+    // Filename includes catalogue label for proper identification and organization
+    const filename = `product_${id}_${catalogueLabel}.png`;
 
-    console.log("✅ Image saved:", `${folder}/${filename}`);
+    const filePath = `${folder}/${filename}`;
+
+    try {
+      console.log(`📝 Writing file to: ${filePath}`);
+      console.log(`📁 Using directory: Directory.External (App-specific external storage)`);
+      console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`);
+
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64,
+        directory: Directory.External,
+        recursive: true,
+      });
+
+      console.log("✅ Image saved:", filePath);
+
+      // Verify the file was actually written
+      try {
+        const stat = await Filesystem.stat({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`✅ File verified - exists at: ${filePath}`, stat);
+
+        // Try to get the file URI to see the actual path
+        try {
+          const uriResult = await Filesystem.getUri({
+            path: filePath,
+            directory: Directory.External,
+          });
+          console.log(`📍 File URI: ${uriResult.uri}`);
+        } catch (uriErr) {
+          console.log(`⚠️ Could not get file URI: ${uriErr.message}`);
+        }
+      } catch (verifyErr) {
+        console.error(`❌ CRITICAL: File write succeeded but file not found during verification: ${filePath}`, verifyErr);
+        console.error(`This suggests the file was saved to a different location than expected`);
+        throw new Error(`File verification failed - files may not be saved to correct location: ${verifyErr.message}`);
+      }
+    } catch (writeErr) {
+      console.error(`❌ Failed to write file: ${filePath}`, writeErr);
+      console.error(`📋 Error details:`, {
+        message: writeErr.message,
+        code: writeErr.code,
+        folder,
+        filename,
+        directorySetting: "Directory.External",
+        androidPath: `/storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`
+      });
+      throw writeErr;
+    }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
   } finally {

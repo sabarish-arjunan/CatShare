@@ -398,6 +398,30 @@ export default function CreateProduct() {
     });
   };
 
+  // Get the price field name for the selected catalogue
+  const getSelectedCataloguePriceField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceField || "price1";
+  };
+
+  // Get the price unit field name for the selected catalogue
+  const getSelectedCataloguePriceUnitField = () => {
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    return selectedCat?.priceUnitField || "price1Unit";
+  };
+
+  // Get the price value for the selected catalogue
+  const getSelectedCataloguePrice = () => {
+    const priceField = getSelectedCataloguePriceField();
+    return getCatalogueFormData()[priceField] || "";
+  };
+
+  // Get the price unit value for the selected catalogue
+  const getSelectedCataloguePriceUnit = () => {
+    const priceUnitField = getSelectedCataloguePriceUnitField();
+    return getCatalogueFormData()[priceUnitField] || "/ piece";
+  };
+
   const handleSelectImage = async () => {
     const defaultFolder = "Phone/Pictures/Photoroom";
     const folder = localStorage.getItem("lastUsedFolder") || defaultFolder;
@@ -522,7 +546,9 @@ export default function CreateProduct() {
 
     // Get data from the first enabled catalogue (usually cat1) for backward compatibility
     const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const allCatalogues = getAllCatalogues();
 
+    // Build product with all catalogue price fields saved to root level
     const newItem: ProductWithCatalogueData = {
       ...formData,
       id,
@@ -530,25 +556,34 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      // Keep old names for backward compatibility at product level
-      price1: defaultCatalogueData.price1 || "",
-      price2: defaultCatalogueData.price2 || "",
-      price1Unit: defaultCatalogueData.price1Unit || "/ piece",
-      price2Unit: defaultCatalogueData.price2Unit || "/ piece",
-      field1: defaultCatalogueData.field1 || "",
-      field2: defaultCatalogueData.field2 || "",
-      field3: defaultCatalogueData.field3 || "",
-      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
-      field3Unit: defaultCatalogueData.field3Unit || "months",
-      // Keep old names for backward compatibility
-      wholesaleUnit: defaultCatalogueData.price1Unit || "/ piece",
-      resellUnit: defaultCatalogueData.price2Unit || "/ piece",
-      packageUnit: defaultCatalogueData.field2Unit || "pcs / set",
-      ageUnit: defaultCatalogueData.field3Unit || "months",
-      wholesale: defaultCatalogueData.price1 || "",
-      resell: defaultCatalogueData.price2 || "",
-      stock: defaultCatalogueData.stock !== false,
     };
+
+    // Save price and stock fields for ALL catalogues to the product root level
+    for (const cat of allCatalogues) {
+      const catData = getCatalogueData(formData, cat.id);
+      newItem[cat.priceField] = catData[cat.priceField] || "";
+      newItem[cat.priceUnitField] = catData[cat.priceUnitField] || "/ piece";
+      newItem[cat.stockField] = catData[cat.stockField] !== false;
+    }
+
+    // Keep old names for backward compatibility at product level
+    newItem.price1 = newItem.price1 || "";
+    newItem.price2 = newItem.price2 || "";
+    newItem.price1Unit = newItem.price1Unit || "/ piece";
+    newItem.price2Unit = newItem.price2Unit || "/ piece";
+    newItem.field1 = defaultCatalogueData.field1 || "";
+    newItem.field2 = defaultCatalogueData.field2 || "";
+    newItem.field3 = defaultCatalogueData.field3 || "";
+    newItem.field2Unit = defaultCatalogueData.field2Unit || "pcs / set";
+    newItem.field3Unit = defaultCatalogueData.field3Unit || "months";
+    // Keep old names for backward compatibility
+    newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
+    newItem.resellUnit = defaultCatalogueData.price2Unit || "/ piece";
+    newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
+    newItem.ageUnit = defaultCatalogueData.field3Unit || "months";
+    newItem.wholesale = newItem.price1 || "";
+    newItem.resell = newItem.price2 || "";
+    newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
 
     try {
       const all = JSON.parse(localStorage.getItem("products") || "[]");
@@ -573,6 +608,7 @@ setTimeout(async () => {
       const renderOptions = {
         catalogueId: cat.id,
         catalogueLabel: cat.label,
+        folder: cat.folder || cat.label, // Use folder from catalogue config
         priceField: cat.priceField,
         priceUnitField: cat.priceUnitField,
         price1Unit: catData.price1Unit || "/ piece",
@@ -779,15 +815,15 @@ setTimeout(async () => {
 
                 <div className="flex gap-2 mb-2">
                   <input
-                    name="price1"
-                    value={getCatalogueFormData().price1 || ""}
+                    name={getSelectedCataloguePriceField()}
+                    value={getSelectedCataloguePrice()}
                     onChange={handleChange}
                     placeholder="Price"
                     className="border p-2 w-full rounded"
                   />
                   <select
-                    name="price1Unit"
-                    value={getCatalogueFormData().price1Unit || "/ piece"}
+                    name={getSelectedCataloguePriceUnitField()}
+                    value={getSelectedCataloguePriceUnit()}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
@@ -946,19 +982,6 @@ setTimeout(async () => {
   className="mt-6 border rounded shadow overflow-hidden"
    style={{ maxWidth: 330, width: "100%" }}
 >
-  <div
-    style={{
-      backgroundColor: overrideColor,
-      color: fontColor,
-      padding: "12px 8px",
-      textAlign: "center",
-      fontWeight: "600",
-      fontSize: 20,
-    }}
-  >
-    ₹{getCatalogueFormData().price1 || "0"} {getCatalogueFormData().price1Unit}
-  </div>
-
   {imagePreview && (
     <div
       style={{
@@ -1036,6 +1059,19 @@ setTimeout(async () => {
       <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit}</p>
       <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
     </div>
+  </div>
+
+  <div
+    style={{
+      backgroundColor: overrideColor,
+      color: fontColor,
+      padding: "12px 8px",
+      textAlign: "center",
+      fontWeight: "600",
+      fontSize: 20,
+    }}
+  >
+    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 </div>
 

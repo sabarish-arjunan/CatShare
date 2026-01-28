@@ -68,21 +68,27 @@ function AppWithBackHandler() {
       }
 
       try {
-        await saveRenderedImage(product, "resell", {
-          resellUnit: product.resellUnit || "/ piece",
-          wholesaleUnit: product.wholesaleUnit || "/ piece",
-          packageUnit: product.packageUnit || "pcs / set",
-          ageGroupUnit: product.ageUnit || "months",
-        });
+        // Render for all catalogues
+        const { getAllCatalogues } = await import("./config/catalogueConfig");
+        const catalogues = getAllCatalogues();
 
-        await saveRenderedImage(product, "wholesale", {
-          resellUnit: product.resellUnit || "/ piece",
-          wholesaleUnit: product.wholesaleUnit || "/ piece",
-          packageUnit: product.packageUnit || "pcs / set",
-          ageGroupUnit: product.ageUnit || "months",
-        });
+        for (const cat of catalogues) {
+          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
 
-        console.log(`✅ Rendered PNGs for ${product.name}`);
+          await saveRenderedImage(product, legacyType, {
+            resellUnit: product.resellUnit || "/ piece",
+            wholesaleUnit: product.wholesaleUnit || "/ piece",
+            packageUnit: product.packageUnit || "pcs / set",
+            ageGroupUnit: product.ageUnit || "months",
+            catalogueId: cat.id,
+            catalogueLabel: cat.label,
+            folder: cat.folder || cat.label,
+            priceField: cat.priceField,
+            priceUnitField: cat.priceUnitField,
+          });
+        }
+
+        console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
       } catch (err) {
         console.warn(`❌ Failed to render images for ${product.name}`, err);
       }
@@ -186,8 +192,9 @@ function AppWithBackHandler() {
     let removeListener: any;
     CapacitorApp.addListener("backButton", () => {
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
-      const modalOpen = document.querySelector(".fixed.z-50");
-      if (fullScreenImageOpen || modalOpen) {
+      // Check for product preview modal backdrop (backdrop-blur-xl with z-50)
+      const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
+      if (fullScreenImageOpen || previewModalOpen) {
         window.dispatchEvent(new CustomEvent("close-preview"));
       } else if (location.pathname !== "/") {
         navigate(-1);
