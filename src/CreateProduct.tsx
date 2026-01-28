@@ -631,14 +631,18 @@ setTimeout(async () => {
     console.warn("⏱️ PNG render failed:", err);
   }
 
-  navigate("/");
+  const navigationPath = fromParam ? `/?tab=${fromParam}` : "/";
+  navigate(navigationPath);
 }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
     }
   };
 
-  const handleCancel = () => navigate("/");
+  const handleCancel = () => {
+    const navigationPath = fromParam ? `/?tab=${fromParam}` : "/";
+    navigate(navigationPath);
+  };
   return (
     <div className="px-4 max-w-lg mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
