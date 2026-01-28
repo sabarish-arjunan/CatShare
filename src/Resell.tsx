@@ -861,17 +861,19 @@ onMouseLeave={handleTouchEnd}
                 )}
 
                 {/* Edit Icon Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const evt = new CustomEvent("edit-product", { detail: { id: p.id } });
-                    window.dispatchEvent(evt);
-                  }}
-                  className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100 z-10"
-                  title="Edit product"
-                >
-                  <FiEdit className="w-4 h-4 text-blue-600" />
-                </button>
+                {showEdit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const evt = new CustomEvent("edit-product", { detail: { id: p.id } });
+                      window.dispatchEvent(evt);
+                    }}
+                    className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200 z-10"
+                    title="Edit product"
+                  >
+                    <FiEdit className="w-4 h-4 text-blue-600" />
+                  </button>
+                )}
 
 <AnimatePresence>
   {isSelected && (
