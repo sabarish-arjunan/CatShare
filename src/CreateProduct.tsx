@@ -640,7 +640,9 @@ setTimeout(async () => {
   };
 
   const handleCancel = () => {
-    const navigationPath = fromParam ? `/?tab=${fromParam}` : "/";
+    // If fromParam is a catalogue ID (cat1, cat2, etc.), navigate to catalogues tab with that catalogue selected
+    const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+    const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
     navigate(navigationPath);
   };
   return (
