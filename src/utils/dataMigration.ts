@@ -5,7 +5,7 @@
  * Ensures backward compatibility - old data works without any changes
  */
 
-import { getCataloguesDefinition, DEFAULT_CATALOGUES } from "../config/catalogueConfig";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "../config/catalogueConfig";
 
 /**
  * Check if this is the first time the app is running with the new catalogue system
