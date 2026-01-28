@@ -386,24 +386,31 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
 
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
-    const filename = `product_${id}_${type}.png`;
 
     // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
+    let catalogueLabel;
     if (units.folder) {
       // Folder name passed directly (set to catalogue name/label)
       folder = units.folder;
+      catalogueLabel = units.folder;
     } else if (units.catalogueLabel) {
       // Use catalogue label/name as folder name
       folder = units.catalogueLabel;
+      catalogueLabel = units.catalogueLabel;
     } else if (units.catalogueId) {
       // Fallback: use catalogue ID if label not provided
       folder = units.catalogueId;
+      catalogueLabel = units.catalogueId;
     } else {
       // Final fallback: use the type parameter as folder name
       // This ensures the correct folder is used even for old products
       folder = type;
+      catalogueLabel = type;
     }
+
+    // Filename includes catalogue label for proper identification and organization
+    const filename = `product_${id}_${catalogueLabel}.png`;
 
     const filePath = `${folder}/${filename}`;
 
