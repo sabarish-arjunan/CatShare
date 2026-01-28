@@ -37,6 +37,21 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     const cats = getAllCatalogues();
     setCatalogues(cats);
   }, []);
+
+  // Handle catalogue query parameter - when returning from edit view
+  useEffect(() => {
+    const catalogueParam = searchParams.get("catalogue");
+    const tabParam = searchParams.get("tab");
+
+    if (tabParam === "catalogues" && catalogueParam) {
+      // Set the tab and selected catalogue
+      setTab("catalogues");
+      setSelectedCatalogueInCataloguesTab(catalogueParam);
+
+      // Clean up the URL to remove the query parameters
+      navigate("/?tab=catalogues", { replace: true });
+    }
+  }, [searchParams, navigate]);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
