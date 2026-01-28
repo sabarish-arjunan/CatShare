@@ -50,22 +50,23 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       // Clean up the URL to remove the query parameters
       navigate("/?tab=catalogues", { replace: true });
-
-      // Restore scroll position after rendering is complete (use requestAnimationFrame for better timing)
-      const restoreScroll = () => {
-        const savedY = localStorage.getItem(`catalogueScroll-${catalogueParam}`);
-        if (savedY && scrollRef.current) {
-          scrollRef.current.scrollTop = parseInt(savedY, 10);
-          localStorage.removeItem(`catalogueScroll-${catalogueParam}`);
-        }
-      };
-
-      // Use multiple frames to ensure content is fully rendered
-      requestAnimationFrame(() => {
-        requestAnimationFrame(restoreScroll);
-      });
     }
   }, [searchParams, navigate]);
+
+  // Restore scroll position when a catalogue is displayed
+  useEffect(() => {
+    if (selectedCatalogueInCataloguesTab && tab === "catalogues") {
+      const savedY = localStorage.getItem(`catalogueScroll-${selectedCatalogueInCataloguesTab}`);
+      if (savedY && scrollRef.current) {
+        // Use a timeout to ensure the DOM has fully rendered
+        const timeout = setTimeout(() => {
+          scrollRef.current.scrollTop = parseInt(savedY, 10);
+          localStorage.removeItem(`catalogueScroll-${selectedCatalogueInCataloguesTab}`);
+        }, 150);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [selectedCatalogueInCataloguesTab, tab]);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
