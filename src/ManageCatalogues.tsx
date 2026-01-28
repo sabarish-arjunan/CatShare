@@ -443,81 +443,67 @@ export default function ManageCatalogues({
                     <p className="text-gray-500">No catalogues yet. Create one to get started!</p>
                   </div>
                 ) : (
-                  <div className="grid gap-4">
+                  <div className="space-y-3">
                     {catalogues.map((catalogue) => (
                       <div
                         key={catalogue.id}
-                        className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white group"
+                        className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white flex items-center gap-4 p-4 group"
                       >
-                        {/* Hero Image */}
-                        {catalogue.heroImage && (
-                          <div className="w-full h-40 bg-gray-200 overflow-hidden">
+                        {/* Image - Left side */}
+                        <div className="w-20 h-20 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
+                          {catalogue.heroImage ? (
                             <img
                               src={catalogue.heroImage}
                               alt={catalogue.label}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                             />
-                          </div>
-                        )}
-
-                        {/* Content */}
-                        <div className="p-5">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-bold text-lg text-gray-900">
-                                  {catalogue.label}
-                                </h4>
-                                {catalogue.isDefault && (
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full font-semibold">
-                                    Default
-                                  </span>
-                                )}
-                              </div>
-                              {catalogue.description && (
-                                <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                                  {catalogue.description}
-                                </p>
-                              )}
-                              <div className="text-xs text-gray-500 space-y-0.5">
-                                <p>
-                                  <span className="font-medium">Folder:</span>{" "}
-                                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                                    {catalogue.folder}
-                                  </span>
-                                </p>
-                                <p>
-                                  <span className="font-medium">Fields:</span>{" "}
-                                  <span className="font-mono">
-                                    {catalogue.priceField}, {catalogue.stockField}
-                                  </span>
-                                </p>
-                              </div>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                              <FiImage size={24} className="text-gray-400" />
                             </div>
-                          </div>
+                          )}
+                        </div>
 
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 pt-4 border-t border-gray-100">
-                            <button
-                              onClick={() => openEditForm(catalogue)}
-                              className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 transition flex items-center justify-center gap-2 active:scale-95"
-                            >
-                              <FiEdit2 size={16} />
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => setShowDeleteConfirm(catalogue)}
-                              disabled={catalogue.isDefault}
-                              className={`flex-1 py-2 px-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 active:scale-95 ${
-                                catalogue.isDefault
-                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                  : "bg-red-50 text-red-600 hover:bg-red-100"
-                              }`}
-                            >
-                              <FiTrash2 size={16} />
-                              Delete
-                            </button>
+                        {/* Content - Middle */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-bold text-gray-900 truncate">
+                              {catalogue.label}
+                            </h4>
+                            {catalogue.isDefault && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
+                                Default
+                              </span>
+                            )}
                           </div>
+                          {catalogue.description && (
+                            <p className="text-xs text-gray-600 line-clamp-1">
+                              {catalogue.description}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Action Icons - Right side */}
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => openEditForm(catalogue)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            title="Edit"
+                          >
+                            <FiEdit2 size={18} />
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(catalogue)}
+                            disabled={catalogue.isDefault}
+                            className={`p-2 rounded-lg transition ${
+                              catalogue.isDefault
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-red-600 hover:bg-red-50"
+                            }`}
+                            title={catalogue.isDefault ? "Cannot delete default catalogue" : "Delete"}
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
                         </div>
                       </div>
                     ))}
