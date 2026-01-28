@@ -136,10 +136,12 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   useEffect(() => {
     const handleEditProduct = (e) => {
-      const { id, catalogueId } = e.detail || {};
+      const { id, catalogueId, fromCatalogue } = e.detail || {};
       if (id) {
         localStorage.setItem("productScroll", scrollRef.current?.scrollTop || 0);
-        const url = catalogueId ? `/create?id=${id}&catalogue=${catalogueId}` : `/create?id=${id}`;
+        let url = `/create?id=${id}`;
+        if (catalogueId) url += `&catalogue=${catalogueId}`;
+        if (fromCatalogue) url += `&from=${fromCatalogue}`;
         navigate(url);
       }
     };
