@@ -14,7 +14,7 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
-import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues } from "./config/catalogueConfig";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
 
@@ -421,6 +421,10 @@ const exportProductsToCSV = (products) => {
           console.log("ℹ️ Using existing catalogue configuration");
         }
       }
+
+      // Auto-create legacy Resell catalogue if the backup has resell data (backward compatibility)
+      // This ensures old data from the 2-catalogue system is accessible in the new single-catalogue system
+      createLegacyResellCatalogueIfNeeded(rebuilt);
 
       // Re-run migrations after catalogues definition has been restored
       // This ensures all products have the proper field structure for the restored catalogues

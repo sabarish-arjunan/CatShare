@@ -30,29 +30,17 @@ export interface CataloguesDefinition {
   lastUpdated: number;
 }
 
-// Default catalogues (matching the current structure)
+// Default catalogues - now only Master catalogue
+// Old Wholesale/Resell catalogues are auto-created on restore if legacy data exists
 export const DEFAULT_CATALOGUES: Catalogue[] = [
   {
     id: "cat1",
-    label: "Catalogue 1",
+    label: "Master",
     priceField: "price1",
     priceUnitField: "price1Unit",
     stockField: "wholesaleStock",
-    folder: "Catalogue 1",
+    folder: "Master",
     order: 1,
-    createdAt: Date.now(),
-    isDefault: true,
-    heroImage: "",
-    description: "",
-  },
-  {
-    id: "cat2",
-    label: "Catalogue 2",
-    priceField: "price2",
-    priceUnitField: "price2Unit",
-    stockField: "resellStock",
-    folder: "Catalogue 2",
-    order: 2,
     createdAt: Date.now(),
     isDefault: true,
     heroImage: "",
@@ -264,4 +252,61 @@ export function hasLegacyProducts(): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Check if products have resell/catalogue 2 data
+ * Used during restore to auto-create legacy Resell catalogue if needed
+ * @param products Array of products to check
+ * @returns true if any product has resellStock or price2 data
+ */
+export function hasLegacyResellData(products: any[]): boolean {
+  return products.some(
+    (p: any) =>
+      (p.resellStock !== undefined && p.resellStock !== null) ||
+      (p.price2 !== undefined && p.price2 !== null) ||
+      (p.catalogueData?.cat2 !== undefined && p.catalogueData?.cat2 !== null) ||
+      (p.catalogueData?.cat2?.enabled === true)
+  );
+}
+
+/**
+ * Auto-create legacy Resell catalogue if restoring old backup with resell data
+ * This ensures backward compatibility without affecting data
+ */
+export function createLegacyResellCatalogueIfNeeded(products: any[]): void {
+  // Check if Resell catalogue already exists
+  const definition = getCataloguesDefinition();
+  const hasResellCatalogue = definition.catalogues.some((c) => c.id === "cat2");
+
+  if (hasResellCatalogue) {
+    return; // Already exists, nothing to do
+  }
+
+  // Check if there's actual resell data in the products
+  if (!hasLegacyResellData(products)) {
+    return; // No resell data, no need to create
+  }
+
+  // Create the legacy Resell catalogue
+  const resellCatalogue: Catalogue = {
+    id: "cat2",
+    label: "Resell",
+    priceField: "price2",
+    priceUnitField: "price2Unit",
+    stockField: "resellStock",
+    folder: "Resell",
+    order: 2,
+    createdAt: Date.now(),
+    isDefault: false, // Not a default catalogue, only for backward compatibility
+    heroImage: "",
+    description: "",
+  };
+
+  definition.catalogues.push(resellCatalogue);
+  setCataloguesDefinition(definition);
+
+  console.log(
+    "✅ Auto-created legacy Resell catalogue for backward compatibility with restored backup"
+  );
 }
