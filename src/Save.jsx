@@ -3,14 +3,111 @@ import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 
 /**
+ * Rename rendered images when catalogue name changes
+ * Moves files from old folder/name pattern to new folder/name pattern
+ */
+export async function renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel) {
+  if (!oldFolder || !newFolder) return;
+
+  try {
+    console.log(`📁 Renaming rendered images from folder "${oldFolder}" (label: "${oldLabel}") to folder "${newFolder}" (label: "${newLabel}")`);
+
+    // List all files in the old folder
+    let oldFiles = [];
+    try {
+      const result = await Filesystem.readdir({
+        path: oldFolder,
+        directory: Directory.External,
+      });
+      oldFiles = result.files || [];
+    } catch (err) {
+      // Old folder might not exist (no images rendered yet)
+      if (err.code !== 'NotFound') {
+        console.warn(`⚠️  Could not read old folder ${oldFolder}:`, err.message);
+      }
+      return;
+    }
+
+    if (oldFiles.length === 0) {
+      console.log(`✅ No files found in old folder: ${oldFolder}`);
+      return;
+    }
+
+    // Process each file
+    for (const file of oldFiles) {
+      try {
+        const oldPath = `${oldFolder}/${file.name}`;
+
+        // Extract product ID from filename pattern: product_<id>_<label>.png
+        const fileMatch = file.name.match(/^product_([^_]+)_.*\.png$/);
+        if (!fileMatch) {
+          console.warn(`  ⚠️  Skipping file with unexpected format: ${file.name}`);
+          continue;
+        }
+
+        const productId = fileMatch[1];
+        const newFileName = `product_${productId}_${newLabel}.png`;
+        const newPath = `${newFolder}/${newFileName}`;
+
+        // Read the file from old location
+        const fileData = await Filesystem.readFile({
+          path: oldPath,
+          directory: Directory.External,
+        });
+
+        // Write to new location with new filename
+        await Filesystem.writeFile({
+          path: newPath,
+          data: fileData.data,
+          directory: Directory.External,
+          recursive: true,
+        });
+
+        console.log(`  ✓ Renamed: ${file.name} → ${newFileName}`);
+
+        // Delete the old file
+        try {
+          await Filesystem.deleteFile({
+            path: oldPath,
+            directory: Directory.External,
+          });
+          console.log(`    ✓ Cleaned up old file: ${file.name}`);
+        } catch (delErr) {
+          console.warn(`    ⚠️  Could not delete old file ${file.name}:`, delErr.message);
+        }
+      } catch (err) {
+        console.warn(`  ⚠️  Could not process file ${file.name}:`, err.message);
+      }
+    }
+
+    // Delete the now-empty old folder
+    try {
+      await Filesystem.rmdir({
+        path: oldFolder,
+        directory: Directory.External,
+        recursive: false, // Only delete if folder is empty
+      });
+      console.log(`✅ Deleted empty old folder: ${oldFolder}`);
+    } catch (rmErr) {
+      // Folder might not be empty or other issues, but this is not critical
+      console.warn(`⚠️  Could not delete old folder ${oldFolder}:`, rmErr.message);
+    }
+
+    console.log(`✅ Renaming completed for catalogue images`);
+  } catch (err) {
+    console.warn(`⚠️  Could not rename catalogue images:`, err.message);
+  }
+}
+
+/**
  * Delete all rendered images from a folder
- * Used when catalogue name changes to clean up old folder
+ * Used when catalogue is deleted
  */
 export async function deleteRenderedImagesFromFolder(folderName) {
   if (!folderName) return;
 
   try {
-    console.log(`🗑️  Cleaning up old rendered images from folder: ${folderName}`);
+    console.log(`🗑️  Cleaning up rendered images from folder: ${folderName}`);
 
     // List all files in the folder
     const result = await Filesystem.readdir({
@@ -386,24 +483,31 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
 
     const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
-    const filename = `product_${id}_${type}.png`;
 
     // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
+    let catalogueLabel;
     if (units.folder) {
       // Folder name passed directly (set to catalogue name/label)
       folder = units.folder;
+      catalogueLabel = units.folder;
     } else if (units.catalogueLabel) {
       // Use catalogue label/name as folder name
       folder = units.catalogueLabel;
+      catalogueLabel = units.catalogueLabel;
     } else if (units.catalogueId) {
       // Fallback: use catalogue ID if label not provided
       folder = units.catalogueId;
+      catalogueLabel = units.catalogueId;
     } else {
       // Final fallback: use the type parameter as folder name
       // This ensures the correct folder is used even for old products
       folder = type;
+      catalogueLabel = type;
     }
+
+    // Filename includes catalogue label for proper identification and organization
+    const filename = `product_${id}_${catalogueLabel}.png`;
 
     const filePath = `${folder}/${filename}`;
 
