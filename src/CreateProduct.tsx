@@ -184,6 +184,7 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const catalogueParam = searchParams.get("catalogue");
   const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
@@ -197,7 +198,7 @@ export default function CreateProduct() {
     catalogueData: {},
   });
 
-  const [selectedCatalogue, setSelectedCatalogue] = useState<string>("cat1");
+  const [selectedCatalogue, setSelectedCatalogue] = useState<string>(catalogueParam || "cat1");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
