@@ -543,6 +543,10 @@ export default function ProductPreviewModal({
   const priceField = catalogueConfig?.priceField || "price1";
   const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
 
+  // Check if product has a valid price for this catalogue
+  const priceValue = catalogueData[priceField] || product[priceField];
+  const hasPriceValue = priceValue !== undefined && priceValue !== null && priceValue !== "" && priceValue !== 0;
+
   return (
     <>
       <div
