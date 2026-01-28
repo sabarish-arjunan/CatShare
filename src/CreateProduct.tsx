@@ -185,6 +185,7 @@ export default function CreateProduct() {
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
   const catalogueParam = searchParams.get("catalogue");
+  const fromParam = searchParams.get("from");
   const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
