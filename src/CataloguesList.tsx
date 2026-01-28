@@ -108,9 +108,22 @@ export default function CataloguesList({
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 <div className="relative p-4 flex items-center gap-4">
-                  {/* Image preview - Playing cards style */}
+                  {/* Image preview - Hero image or product cards */}
                   <div className="relative w-20 h-20 flex-shrink-0">
-                    {catalogueProducts.length > 0 ? (
+                    {catalogue.heroImage ? (
+                      /* Display hero image */
+                      <div className="absolute w-20 h-20 rounded border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img
+                          src={catalogue.heroImage}
+                          alt={catalogue.label}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    ) : catalogueProducts.length > 0 ? (
+                      /* Display product images in playing cards style */
                       catalogueProducts.map((product, idx) => {
                         // Calculate rotation and offset for card fan effect
                         const totalCards = catalogueProducts.length;
@@ -151,6 +164,7 @@ export default function CataloguesList({
                         );
                       })
                     ) : (
+                      /* No hero image and no products */
                       <div className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center">
                         <span className="text-[10px] text-gray-400">
                           No products
