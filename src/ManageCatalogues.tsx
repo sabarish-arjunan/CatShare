@@ -428,49 +428,67 @@ export default function ManageCatalogues({
             {catalogues.map((catalogue) => (
               <div
                 key={catalogue.id}
-                className="p-3 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+                className="border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition overflow-hidden"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800">
-                      {catalogue.label}
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Folder: <span className="font-mono">{catalogue.folder}</span>
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Fields:{" "}
-                      <span className="font-mono">
-                        {catalogue.priceField}, {catalogue.stockField}
+                {/* Hero Image */}
+                {catalogue.heroImage && (
+                  <div className="w-full h-32 bg-gray-200 overflow-hidden">
+                    <img
+                      src={catalogue.heroImage}
+                      alt={catalogue.label}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800">
+                        {catalogue.label}
+                      </h4>
+                      {catalogue.description && (
+                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                          {catalogue.description}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Folder: <span className="font-mono">{catalogue.folder}</span>
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Fields:{" "}
+                        <span className="font-mono">
+                          {catalogue.priceField}, {catalogue.stockField}
+                        </span>
+                      </p>
+                    </div>
+
+                    {catalogue.isDefault && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-semibold">
+                        Default
                       </span>
-                    </p>
+                    )}
                   </div>
 
-                  {catalogue.isDefault && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-semibold">
-                      Default
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => openEditForm(catalogue)}
-                    className="flex-1 py-1.5 text-sm rounded font-medium transition bg-amber-500 text-white hover:bg-amber-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteConfirm(catalogue)}
-                    disabled={catalogue.isDefault}
-                    className={`flex-1 py-1.5 text-sm rounded font-medium transition ${
-                      catalogue.isDefault
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-red-500 text-white hover:bg-red-600"
-                    }`}
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => openEditForm(catalogue)}
+                      className="flex-1 py-1.5 text-sm rounded font-medium transition bg-amber-500 text-white hover:bg-amber-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteConfirm(catalogue)}
+                      disabled={catalogue.isDefault}
+                      className={`flex-1 py-1.5 text-sm rounded font-medium transition ${
+                        catalogue.isDefault
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-red-500 text-white hover:bg-red-600"
+                      }`}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
