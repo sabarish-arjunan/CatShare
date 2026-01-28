@@ -79,6 +79,8 @@ export default function ManageCatalogues({
       // Create new catalogue with folder name same as label
       const newCatalogue = addCatalogue(formLabel.trim(), {
         folder: formLabel.trim(),
+        heroImage: formHeroImage,
+        description: formDescription.trim(),
       });
 
       if (newCatalogue) {
@@ -99,6 +101,8 @@ export default function ManageCatalogues({
 
         setShowAddForm(false);
         setFormLabel("");
+        setFormDescription("");
+        setFormHeroImage("");
       }
     } catch (err) {
       setFormError("Failed to add catalogue: " + (err as Error).message);
