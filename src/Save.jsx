@@ -339,7 +339,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   `;
   container.appendChild(details);
 
-  if (!isPriceOnTop) {
+  if (!isPriceOnTop && priceBar) {
     container.appendChild(priceBar); // Price at bottom
   }
 
