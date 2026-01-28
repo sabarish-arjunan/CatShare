@@ -669,6 +669,19 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
             Filter
           </button>
 
+          <div className="border-t border-gray-200 my-1" />
+          <button
+            onClick={() => {
+              setShowEdit((prev) => !prev);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+            title={showEdit ? "Hide Edit Icons" : "Show Edit Icons"}
+          >
+            <FiEdit className="w-4 h-4" />
+            {showEdit ? "Hide Edit" : "Show Edit"}
+          </button>
+
           {selectMode && (
             <>
               <div className="border-t border-gray-200 my-1" />
