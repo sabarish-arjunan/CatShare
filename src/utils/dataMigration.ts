@@ -168,8 +168,8 @@ export function migrateFromTwoCataloguesToOne(): void {
     const products = JSON.parse(localStorage.getItem("products") || "[]");
 
     // Check if cat2 (Resell) exists
-    const hasCat2 = definition.catalogues.some((c) => c.id === "cat2");
-    if (!hasCat2) {
+    const cat2Index = definition.catalogues.findIndex((c) => c.id === "cat2");
+    if (cat2Index === -1) {
       return; // Nothing to migrate
     }
 
@@ -187,7 +187,14 @@ export function migrateFromTwoCataloguesToOne(): void {
       setCataloguesDefinition(definition);
       console.log("✅ Migrated from 2-catalogue to 1-catalogue system (removed empty Resell catalogue)");
     } else {
-      console.log("ℹ️ Keeping Resell catalogue - resell data found in products");
+      // Resell data exists, but make sure it's NOT marked as default
+      if (definition.catalogues[cat2Index].isDefault === true) {
+        definition.catalogues[cat2Index].isDefault = false;
+        setCataloguesDefinition(definition);
+        console.log("✅ Resell catalogue kept for backward compatibility, but unmarked as default");
+      } else {
+        console.log("ℹ️ Keeping Resell catalogue - resell data found in products");
+      }
     }
   } catch (err) {
     console.error("❌ Failed to migrate catalogue structure:", err);
