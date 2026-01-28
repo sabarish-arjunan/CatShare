@@ -108,11 +108,12 @@ export default function CataloguesList({
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 <div className="relative p-4 flex items-center gap-4">
-                  {/* Image preview - Playing cards style */}
+                  {/* Image preview - Hero image front with product images layered behind */}
                   <div className="relative w-20 h-20 flex-shrink-0">
-                    {catalogueProducts.length > 0 ? (
+                    {/* Product images layered behind (fan effect) */}
+                    {catalogueProducts.length > 0 &&
                       catalogueProducts.map((product, idx) => {
-                        // Calculate rotation and offset for card fan effect
+                        // Calculate rotation and offset for card fan effect (behind hero)
                         const totalCards = catalogueProducts.length;
                         const centerIdx = Math.floor(totalCards / 2);
                         const offset = idx - centerIdx;
@@ -122,11 +123,11 @@ export default function CataloguesList({
 
                         return (
                           <div
-                            key={idx}
+                            key={`product-${idx}`}
                             className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden"
                             style={{
                               transform: `rotate(${rotation}deg) translateX(${translateX}px) translateY(${translateY}px)`,
-                              zIndex: totalCards - Math.abs(offset),
+                              zIndex: Math.max(0, totalCards - Math.abs(offset) - 1), // Keep behind hero image
                               transformOrigin: 'center',
                               left: '2px',
                               top: '2px',
@@ -149,14 +150,36 @@ export default function CataloguesList({
                             )}
                           </div>
                         );
-                      })
-                    ) : (
-                      <div className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center">
+                      })}
+
+                    {/* Hero image as front card (highest z-index) */}
+                    {catalogue.heroImage ? (
+                      <div
+                        className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden"
+                        style={{
+                          zIndex: 100, // Front layer
+                          left: '2px',
+                          top: '2px',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        <img
+                          src={catalogue.heroImage}
+                          alt={catalogue.label}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    ) : catalogueProducts.length === 0 ? (
+                      /* No hero image and no products */
+                      <div className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center" style={{ zIndex: 100 }}>
                         <span className="text-[10px] text-gray-400">
                           No products
                         </span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Catalogue info */}
