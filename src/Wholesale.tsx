@@ -29,6 +29,20 @@ export default function WholesaleTab({
   stockField,
   onBack,
 }) {
+  const contentRef = useRef(null);
+
+  // Restore scroll position when component mounts
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const savedY = localStorage.getItem(`catalogueScroll-${catalogueId}`);
+      if (savedY && contentRef.current) {
+        contentRef.current.scrollTop = parseInt(savedY, 10);
+        localStorage.removeItem(`catalogueScroll-${catalogueId}`);
+      }
+    }, 100);
+    return () => clearTimeout(timeout);
+  }, [catalogueId]);
+
   // Helper function to get catalogue-specific data for a product
   const getProductCatalogueData = (product) => {
     if (!catalogueId) return product; // Fallback to product if no catalogueId
