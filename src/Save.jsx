@@ -80,6 +80,19 @@ export async function renameRenderedImagesForCatalogue(oldFolder, newFolder, old
       }
     }
 
+    // Delete the now-empty old folder
+    try {
+      await Filesystem.rmdir({
+        path: oldFolder,
+        directory: Directory.External,
+        recursive: false, // Only delete if folder is empty
+      });
+      console.log(`✅ Deleted empty old folder: ${oldFolder}`);
+    } catch (rmErr) {
+      // Folder might not be empty or other issues, but this is not critical
+      console.warn(`⚠️  Could not delete old folder ${oldFolder}:`, rmErr.message);
+    }
+
     console.log(`✅ Renaming completed for catalogue images`);
   } catch (err) {
     console.warn(`⚠️  Could not rename catalogue images:`, err.message);
