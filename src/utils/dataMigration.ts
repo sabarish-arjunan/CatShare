@@ -158,6 +158,43 @@ export function validateCatalogueConfig(): boolean {
 }
 
 /**
+ * Migrate from old 2-catalogue system to new single-catalogue default
+ * For existing users: remove cat2 (Resell) if there's no resell data in products
+ * This ensures users see "Master" as the default, not "Catalogue 2"
+ */
+export function migrateFromTwoCataloguesToOne(): void {
+  try {
+    const definition = getCataloguesDefinition();
+    const products = JSON.parse(localStorage.getItem("products") || "[]");
+
+    // Check if cat2 (Resell) exists
+    const hasCat2 = definition.catalogues.some((c) => c.id === "cat2");
+    if (!hasCat2) {
+      return; // Nothing to migrate
+    }
+
+    // Check if there's any resell data in products
+    const hasResellData = products.some(
+      (p: any) =>
+        (p.resellStock !== undefined && p.resellStock !== null) ||
+        (p.price2 !== undefined && p.price2 !== null) ||
+        (p.catalogueData?.cat2?.enabled === true)
+    );
+
+    // If no resell data, remove cat2 from catalogues
+    if (!hasResellData) {
+      definition.catalogues = definition.catalogues.filter((c) => c.id !== "cat2");
+      setCataloguesDefinition(definition);
+      console.log("✅ Migrated from 2-catalogue to 1-catalogue system (removed empty Resell catalogue)");
+    } else {
+      console.log("ℹ️ Keeping Resell catalogue - resell data found in products");
+    }
+  } catch (err) {
+    console.error("❌ Failed to migrate catalogue structure:", err);
+  }
+}
+
+/**
  * Run all migration and validation steps
  * Should be called on app startup
  */
@@ -167,10 +204,13 @@ export function runMigrations(): void {
   // Step 1: Initialize catalogues if needed
   initializeCataloguesIfNeeded();
 
-  // Step 2: Ensure all products have required fields
+  // Step 2: Migrate from old 2-catalogue to 1-catalogue system if applicable
+  migrateFromTwoCataloguesToOne();
+
+  // Step 3: Ensure all products have required fields
   ensureProductsHaveStockFields();
 
-  // Step 3: Validate configuration
+  // Step 4: Validate configuration
   const isValid = validateCatalogueConfig();
 
   if (isValid) {
