@@ -834,7 +834,7 @@ onMouseUp={handleTouchEnd}
 onMouseLeave={handleTouchEnd}
 
             >
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
+              <div className="relative aspect-square overflow-hidden bg-gray-100 group">
                 <img
                   src={imageMap[p.id]}
                   alt={p.name}
@@ -847,7 +847,19 @@ onMouseLeave={handleTouchEnd}
                     </span>
                   </div>
                 )}
-                
+
+                {/* Edit Icon Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const evt = new CustomEvent("edit-product", { detail: { id: p.id } });
+                    window.dispatchEvent(evt);
+                  }}
+                  className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100 z-10"
+                  title="Edit product"
+                >
+                  <FiEdit className="w-4 h-4 text-blue-600" />
+                </button>
 
 <AnimatePresence>
   {isSelected && (
