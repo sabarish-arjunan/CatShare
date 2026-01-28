@@ -764,56 +764,21 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
               return (
                 <div key={selectedCat.id}>
-                  {selectedCat.id === "cat1" ? (
-                    <Catalogue1Tab
-                      filtered={visible}
-                      allProducts={products}
-                      setProducts={setProducts}
-                      selected={selected}
-                      setSelected={setSelected}
-                      getLighterColor={getLighterColor}
-                      imageMap={imageMap}
-                      catalogueId={selectedCat.id}
-                      catalogueLabel={selectedCat.label}
-                      priceField={selectedCat.priceField}
-                      priceUnitField={selectedCat.priceUnitField}
-                      stockField={selectedCat.stockField}
-                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
-                    />
-                  ) : selectedCat.id === "cat2" ? (
-                    <Catalogue2Tab
-                      filtered={visible}
-                      allProducts={products}
-                      setProducts={setProducts}
-                      selected={selected}
-                      setSelected={setSelected}
-                      getLighterColor={getLighterColor}
-                      imageMap={imageMap}
-                      catalogueId={selectedCat.id}
-                      catalogueLabel={selectedCat.label}
-                      priceField={selectedCat.priceField}
-                      priceUnitField={selectedCat.priceUnitField}
-                      stockField={selectedCat.stockField}
-                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
-                    />
-                  ) : (
-                    /* For custom catalogues, use Wholesale component */
-                    <Catalogue1Tab
-                      filtered={visible}
-                      allProducts={products}
-                      setProducts={setProducts}
-                      selected={selected}
-                      setSelected={setSelected}
-                      getLighterColor={getLighterColor}
-                      imageMap={imageMap}
-                      catalogueId={selectedCat.id}
-                      catalogueLabel={selectedCat.label}
-                      priceField={selectedCat.priceField}
-                      priceUnitField={selectedCat.priceUnitField}
-                      stockField={selectedCat.stockField}
-                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
-                    />
-                  )}
+                  <CatalogueView
+                    filtered={visible}
+                    allProducts={products}
+                    setProducts={setProducts}
+                    selected={selected}
+                    setSelected={setSelected}
+                    getLighterColor={getLighterColor}
+                    imageMap={imageMap}
+                    catalogueId={selectedCat.id}
+                    catalogueLabel={selectedCat.label}
+                    priceField={selectedCat.priceField}
+                    priceUnitField={selectedCat.priceUnitField}
+                    stockField={selectedCat.stockField}
+                    onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                  />
                 </div>
               );
             })()}
