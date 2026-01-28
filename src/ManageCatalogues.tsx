@@ -349,7 +349,7 @@ export default function ManageCatalogues({
                       type="text"
                       value={formLabel}
                       onChange={(e) => setFormLabel(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
                     <p className="text-xs text-gray-500 mt-0.5">Folder name will be set automatically</p>
                   </div>
