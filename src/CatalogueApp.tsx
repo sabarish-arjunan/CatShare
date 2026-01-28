@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
@@ -24,6 +24,7 @@ export function openPreviewHtml(id, tab = null) {
 export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const scrollRef = useRef(null);
 
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
@@ -36,6 +37,36 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     const cats = getAllCatalogues();
     setCatalogues(cats);
   }, []);
+
+  // Handle catalogue query parameter - when returning from edit view
+  useEffect(() => {
+    const catalogueParam = searchParams.get("catalogue");
+    const tabParam = searchParams.get("tab");
+
+    if (tabParam === "catalogues" && catalogueParam) {
+      // Set the tab and selected catalogue
+      setTab("catalogues");
+      setSelectedCatalogueInCataloguesTab(catalogueParam);
+
+      // Clean up the URL to remove the query parameters
+      navigate("/?tab=catalogues", { replace: true });
+    }
+  }, [searchParams, navigate]);
+
+  // Restore scroll position when a catalogue is displayed
+  useEffect(() => {
+    if (selectedCatalogueInCataloguesTab && tab === "catalogues") {
+      const savedY = localStorage.getItem(`catalogueScroll-${selectedCatalogueInCataloguesTab}`);
+      if (savedY && scrollRef.current) {
+        // Use a timeout to ensure the DOM has fully rendered
+        const timeout = setTimeout(() => {
+          scrollRef.current.scrollTop = parseInt(savedY, 10);
+          localStorage.removeItem(`catalogueScroll-${selectedCatalogueInCataloguesTab}`);
+        }, 150);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [selectedCatalogueInCataloguesTab, tab]);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");

@@ -867,6 +867,11 @@ onMouseLeave={handleTouchEnd}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      // Save scroll position before navigating - use window scroll
+                      const mainElement = document.querySelector('main');
+                      if (mainElement) {
+                        localStorage.setItem(`catalogueScroll-${catalogueId}`, mainElement.scrollTop.toString());
+                      }
                       const evt = new CustomEvent("edit-product", { detail: { id: p.id, catalogueId, fromCatalogue: catalogueId } });
                       window.dispatchEvent(evt);
                     }}
