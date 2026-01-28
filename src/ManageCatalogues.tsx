@@ -147,7 +147,12 @@ export default function ManageCatalogues({
       }
 
       // Update label and folder (folder = label for all catalogues)
-      const updates = { label: newLabel, folder: newFolder };
+      const updates = {
+        label: newLabel,
+        folder: newFolder,
+        heroImage: formHeroImage,
+        description: formDescription.trim(),
+      };
       updateCatalogue(showEditForm.id, updates);
 
       const updated = getAllCatalogues();
@@ -156,6 +161,8 @@ export default function ManageCatalogues({
 
       setShowEditForm(null);
       setFormLabel("");
+      setFormDescription("");
+      setFormHeroImage("");
     } catch (err) {
       setFormError("Failed to update catalogue: " + (err as Error).message);
     }
