@@ -42,6 +42,8 @@ export const DEFAULT_CATALOGUES: Catalogue[] = [
     order: 1,
     createdAt: Date.now(),
     isDefault: true,
+    heroImage: "",
+    description: "",
   },
   {
     id: "cat2",
@@ -53,6 +55,8 @@ export const DEFAULT_CATALOGUES: Catalogue[] = [
     order: 2,
     createdAt: Date.now(),
     isDefault: true,
+    heroImage: "",
+    description: "",
   },
 ];
 
