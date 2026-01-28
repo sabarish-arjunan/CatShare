@@ -17,10 +17,7 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
 
   // Add price field based on catalogue
   if (priceField) {
-    const priceLabel = priceField === 'price1' ? 'Price (Wholesale)' :
-                       priceField === 'price2' ? 'Price (Resell)' :
-                       'Price';
-    baseFields.push({ key: priceField, label: priceLabel });
+    baseFields.push({ key: priceField, label: 'Price' });
   }
 
   baseFields.push({ key: "stock", label: "Stock Update" });
