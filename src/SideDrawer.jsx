@@ -422,6 +422,10 @@ const exportProductsToCSV = (products) => {
         }
       }
 
+      // Auto-create legacy Resell catalogue if the backup has resell data (backward compatibility)
+      // This ensures old data from the 2-catalogue system is accessible in the new single-catalogue system
+      createLegacyResellCatalogueIfNeeded(rebuilt);
+
       // Re-run migrations after catalogues definition has been restored
       // This ensures all products have the proper field structure for the restored catalogues
       ensureProductsHaveStockFields();
