@@ -51,14 +51,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       // Clean up the URL to remove the query parameters
       navigate("/?tab=catalogues", { replace: true });
 
-      // Restore scroll position after a brief delay to allow rendering
-      setTimeout(() => {
+      // Restore scroll position after rendering is complete (use requestAnimationFrame for better timing)
+      const restoreScroll = () => {
         const savedY = localStorage.getItem(`catalogueScroll-${catalogueParam}`);
         if (savedY && scrollRef.current) {
           scrollRef.current.scrollTop = parseInt(savedY, 10);
           localStorage.removeItem(`catalogueScroll-${catalogueParam}`);
         }
-      }, 100);
+      };
+
+      // Use multiple frames to ensure content is fully rendered
+      requestAnimationFrame(() => {
+        requestAnimationFrame(restoreScroll);
+      });
     }
   }, [searchParams, navigate]);
   const [selected, setSelected] = useState([]);
