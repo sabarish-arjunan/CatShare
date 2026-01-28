@@ -30,6 +30,8 @@ export default function ManageCatalogues({
   );
 
   const [formLabel, setFormLabel] = useState("");
+  const [formDescription, setFormDescription] = useState("");
+  const [formHeroImage, setFormHeroImage] = useState("");
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
