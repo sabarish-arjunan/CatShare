@@ -371,8 +371,8 @@ export default function ManageCatalogues({
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-amber-300 rounded-lg p-4 bg-amber-50 cursor-pointer hover:bg-amber-100 transition">
-                        <FiImage size={20} className="text-amber-500 mb-1.5" />
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-4 bg-blue-50 cursor-pointer hover:bg-blue-100 transition">
+                        <FiImage size={20} className="text-blue-500 mb-1.5" />
                         <span className="text-xs font-medium text-gray-700">Click to upload image</span>
                         <span className="text-xs text-gray-500 mt-0.5">Max 2MB</span>
                         <input
