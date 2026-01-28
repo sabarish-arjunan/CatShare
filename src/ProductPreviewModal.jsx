@@ -701,19 +701,21 @@ export default function ProductPreviewModal({
               </div>
             </div>
 
-            {/* Bottom Bar - Show price based on catalogue-specific data */}
-            <div
-              style={{
-                backgroundColor: product.bgColor || "#add8e6",
-                color: product.fontColor || "white",
-                padding: "8px",
-                textAlign: "center",
-                fontWeight: "normal",
-                fontSize: 19,
-              }}
-            >
-              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
-            </div>
+            {/* Bottom Bar - Show price based on catalogue-specific data (only if price exists) */}
+            {hasPriceValue && (
+              <div
+                style={{
+                  backgroundColor: product.bgColor || "#add8e6",
+                  color: product.fontColor || "white",
+                  padding: "8px",
+                  textAlign: "center",
+                  fontWeight: "normal",
+                  fontSize: 19,
+                }}
+              >
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
+              </div>
+            )}
 
             {/* Action Buttons */}
             {tab === "products" && (
