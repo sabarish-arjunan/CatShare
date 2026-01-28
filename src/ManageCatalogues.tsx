@@ -112,12 +112,13 @@ export default function ManageCatalogues({
 
       const newLabel = formLabel.trim();
       const oldFolder = showEditForm.folder;
+      const oldLabel = showEditForm.label;
       const newFolder = newLabel;
 
-      // If folder name is changing, clean up old rendered images
-      if (oldFolder !== newFolder) {
-        console.log(`📁 Catalogue folder changed from "${oldFolder}" to "${newFolder}"`);
-        await deleteRenderedImagesFromFolder(oldFolder);
+      // If folder/label is changing, rename rendered images
+      if (oldFolder !== newFolder || oldLabel !== newLabel) {
+        console.log(`📁 Catalogue changed from "${oldLabel}" to "${newLabel}"`);
+        await renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel);
       }
 
       // Update label and folder (folder = label for all catalogues)
