@@ -410,7 +410,7 @@ export default function ManageCatalogues({
                   <div className="flex gap-2 pt-1">
                     <button
                       type="submit"
-                      className="flex-1 py-2 bg-amber-600 text-white rounded-lg font-semibold text-sm hover:bg-amber-700 transition flex items-center justify-center gap-2 active:scale-95"
+                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95"
                     >
                       <FiCheck size={16} />
                       Save Changes
