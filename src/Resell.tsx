@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
