@@ -232,7 +232,7 @@ export default function ManageCatalogues({
 
             {/* Add Form */}
             {showAddForm && (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-4 space-y-3">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
                 <h3 className="text-base font-semibold text-gray-800">Create New Catalogue</h3>
 
                 <form onSubmit={handleAddSubmit} className="space-y-3">
