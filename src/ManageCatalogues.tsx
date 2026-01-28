@@ -7,7 +7,7 @@ import {
   getAllCatalogues,
 } from "./config/catalogueConfig";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { deleteRenderedImagesFromFolder } from "./Save";
+import { deleteRenderedImagesFromFolder, renameRenderedImagesForCatalogue } from "./Save";
 
 interface ManageCataloguesProps {
   onClose: () => void;
