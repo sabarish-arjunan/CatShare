@@ -136,10 +136,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   useEffect(() => {
     const handleEditProduct = (e) => {
-      const { id } = e.detail || {};
+      const { id, catalogueId } = e.detail || {};
       if (id) {
         localStorage.setItem("productScroll", scrollRef.current?.scrollTop || 0);
-        navigate(`/create?id=${id}`);
+        const url = catalogueId ? `/create?id=${id}&catalogue=${catalogueId}` : `/create?id=${id}`;
+        navigate(url);
       }
     };
     window.addEventListener("edit-product", handleEditProduct);
