@@ -608,7 +608,8 @@ export default function ProductPreviewModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                flex: 1,
+                aspectRatio: product.cropAspectRatio || 1,
+                width: "100%",
               }}
               onClick={handleImageClick}
             >
