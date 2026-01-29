@@ -291,6 +291,7 @@ export default function CreateProduct() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [cropping, setCropping] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1); // 1 for 1:1, 1.333 for 3:4
+  const [appliedAspectRatio, setAppliedAspectRatio] = useState(1); // Track which ratio was applied to current image
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
