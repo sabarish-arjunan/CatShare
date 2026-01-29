@@ -769,35 +769,35 @@ setTimeout(async () => {
           <div className="flex gap-2 mb-4 justify-center">
             <button
               onClick={() => setAspectRatio(1)}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
+              className={`px-4 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 ${
                 aspectRatio === 1
                   ? "bg-blue-600 text-white shadow-lg scale-105"
                   : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400 hover:text-blue-600"
               }`}
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M3 3h18v18H3z" />
               </svg>
-              1:1 (Square)
+              Square
             </button>
             <button
               onClick={() => setAspectRatio(3 / 4)}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
+              className={`px-4 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 ${
                 aspectRatio === 3 / 4
                   ? "bg-blue-600 text-white shadow-lg scale-105"
                   : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400 hover:text-blue-600"
               }`}
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M4 3h16v18H4z" />
               </svg>
-              3:4 (Portrait)
+              Portrait
             </button>
           </div>
 
           {/* Cropper Container */}
-          <div className="mb-6 rounded-xl overflow-hidden shadow-md border-2 border-blue-200 bg-white">
-            <div style={{ height: 400, position: "relative" }}>
+          <div className="mb-4 rounded-lg overflow-hidden shadow-md border-2 border-blue-200 bg-white">
+            <div style={{ height: 300, position: "relative" }}>
               <Cropper
                 image={imagePreview}
                 crop={crop}
