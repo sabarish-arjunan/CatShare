@@ -288,6 +288,8 @@ export async function saveRenderedImage(product, type, units = {}) {
     boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
     marginBottom: "1px",
     borderRadius: "0",
+    width: "100%",
+    flexShrink: 0,
   });
   imageShadowWrap.id = `image-shadow-wrap-${id}`;
 
