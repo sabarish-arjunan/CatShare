@@ -702,15 +702,21 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
-                </p>
+                {hasField1 && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field1Value}
+                  </p>
+                )}
+                {hasField2 && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field2Value} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
+                  </p>
+                )}
+                {hasField3 && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{field3Value} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
+                  </p>
+                )}
               </div>
             </div>
 
