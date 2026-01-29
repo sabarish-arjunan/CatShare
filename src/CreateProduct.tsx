@@ -637,6 +637,7 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
+      cropAspectRatio: appliedAspectRatio, // Save the aspect ratio used for cropping
     };
 
     // Save price and stock fields for ALL catalogues to the product root level
