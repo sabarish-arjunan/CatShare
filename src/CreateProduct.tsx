@@ -855,20 +855,20 @@ setTimeout(async () => {
                         type="checkbox"
                         checked={fetchFieldsChecked}
                         onChange={(e) => handleFetchFieldsChange(e.target.checked)}
-                        title="Fetch fields (Colour, Package, Age Group) from default catalogue"
+                        title="Fill fields (Colour, Package, Age Group) from default catalogue"
                         className="w-4 h-4 rounded border-gray-300"
                       />
-                      <span className="text-gray-700">Fetch fields from default</span>
+                      <span className="text-gray-700">Fill Fields</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         checked={fetchPriceChecked}
                         onChange={(e) => handleFetchPriceChange(e.target.checked)}
-                        title="Fetch price from default catalogue"
+                        title="Fill price from default catalogue"
                         className="w-4 h-4 rounded border-gray-300"
                       />
-                      <span className="text-gray-700">Fetch price from default</span>
+                      <span className="text-gray-700">Fill Price</span>
                     </label>
                   </div>
                 )}
