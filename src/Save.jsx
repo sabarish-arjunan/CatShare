@@ -354,6 +354,9 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.color = fontColor;
   details.style.padding = "10px";
   details.style.fontSize = "17px";
+  details.style.width = "100%";
+  details.style.boxSizing = "border-box";
+  details.style.flexShrink = 0;
 
   // Build field rows conditionally - only include fields that have values
   let fieldRowsHTML = "";
