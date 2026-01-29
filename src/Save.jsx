@@ -217,6 +217,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.className = `full-detail-${id}-${type}`;
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
 
   // Get catalogue-specific data if catalogueId is provided
   let catalogueData = product;
