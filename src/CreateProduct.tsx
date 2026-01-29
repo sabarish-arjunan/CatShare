@@ -755,12 +755,34 @@ setTimeout(async () => {
 
       {cropping && imagePreview && (
         <div className="mb-4">
+          <div className="flex gap-2 mb-2 justify-center">
+            <button
+              onClick={() => setAspectRatio(1)}
+              className={`px-4 py-2 rounded font-medium transition ${
+                aspectRatio === 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              1:1 (Square)
+            </button>
+            <button
+              onClick={() => setAspectRatio(3 / 4)}
+              className={`px-4 py-2 rounded font-medium transition ${
+                aspectRatio === 3 / 4
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              3:4 (Portrait)
+            </button>
+          </div>
           <div style={{ height: 300, position: "relative" }}>
             <Cropper
               image={imagePreview}
               crop={crop}
               zoom={zoom}
-              aspect={1}
+              aspect={aspectRatio}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
