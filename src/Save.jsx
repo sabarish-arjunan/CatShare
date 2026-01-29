@@ -413,7 +413,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       if (imageWrapEl && imageShadowWrapEl && containerEl) {
         // html2canvas renders at 3x scale
         const scale = 3;
-        const containerWidth = 330; // wrapper width in px
+        const containerWidth = baseWidth; // wrapper width in px
         const scaledContainerWidth = containerWidth * scale;
 
         // Get the computed dimensions of the image wrap
