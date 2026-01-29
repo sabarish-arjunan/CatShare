@@ -1215,7 +1215,7 @@ setTimeout(async () => {
       fontSize: 20,
     }}
   >
-    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 </div>
 
