@@ -578,11 +578,11 @@ export default function ProductPreviewModal({
             onDragEnd={handleDragEnd}
             custom={direction}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white max-w-[300px] w-[85%] rounded-xl overflow-hidden shadow-xl relative"
+            className="bg-white w-[75%] rounded-xl overflow-hidden shadow-xl relative"
             style={{
               display: "flex",
               flexDirection: "column",
-              maxHeight: "85vh",
+              maxWidth: "260px",
             }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
