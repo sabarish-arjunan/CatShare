@@ -361,13 +361,13 @@ export async function saveRenderedImage(product, type, units = {}) {
   // Build field rows conditionally - only include fields that have values
   let fieldRowsHTML = "";
   if (hasField1) {
-    fieldRowsHTML += `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>`;
+    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Colour</span><span>:</span><span style="margin-left:8px">${catalogueData.field1}</span></p>`;
   }
   if (hasField2) {
-    fieldRowsHTML += `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>`;
+    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Package</span><span>:</span><span style="margin-left:8px">${catalogueData.field2} ${catalogueData.field2Unit}</span></p>`;
   }
   if (hasField3) {
-    fieldRowsHTML += `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>`;
+    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Age Group</span><span>:</span><span style="margin-left:8px">${catalogueData.field3} ${catalogueData.field3Unit}</span></p>`;
   }
 
   details.innerHTML = `
