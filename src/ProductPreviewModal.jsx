@@ -693,8 +693,8 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
-                padding: 10,
-                fontSize: 17,
+                padding: 8,
+                fontSize: 13,
                 overflow: "auto",
                 flex: 1,
                 minHeight: 0,
