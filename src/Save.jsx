@@ -300,7 +300,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   Object.assign(imageWrap.style, {
     backgroundColor: imageBg,
     textAlign: "center",
-    padding: "16px",
+    padding: "0",
     position: "relative",
     overflow: "visible",
     width: "100%",
@@ -313,8 +313,8 @@ export async function saveRenderedImage(product, type, units = {}) {
 
   const img = document.createElement("img");
   img.alt = catalogueData.name;
-  img.style.maxWidth = "100%";
-  img.style.maxHeight = "100%";
+  img.style.width = "100%";
+  img.style.height = "100%";
   img.style.objectFit = "contain";
   img.style.margin = "0 auto";
   imageWrap.appendChild(img);
