@@ -193,12 +193,18 @@ export async function saveRenderedImage(product, type, units = {}) {
     return;
   }
 
+  // Calculate dimensions based on crop aspect ratio
+  const cropAspectRatio = product.cropAspectRatio || 1;
+  const baseWidth = 330;
+  const baseHeight = baseWidth / cropAspectRatio;
+
   const wrapper = document.createElement("div");
   Object.assign(wrapper.style, {
     position: "absolute",
     top: "0",
     left: "0",
-    width: "330px",
+    width: `${baseWidth}px`,
+    height: `${baseHeight + 100}px`, // Extra space for details and price
     backgroundColor: "transparent",
     opacity: "0",
     pointerEvents: "none",
