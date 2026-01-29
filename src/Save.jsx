@@ -334,15 +334,26 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.color = fontColor;
   details.style.padding = "10px";
   details.style.fontSize = "17px";
+
+  // Build field rows conditionally - only include fields that have values
+  let fieldRowsHTML = "";
+  if (hasField1) {
+    fieldRowsHTML += `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>`;
+  }
+  if (hasField2) {
+    fieldRowsHTML += `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>`;
+  }
+  if (hasField3) {
+    fieldRowsHTML += `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>`;
+  }
+
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
       <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
       ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>
+      ${fieldRowsHTML}
     </div>
   `;
   container.appendChild(details);
