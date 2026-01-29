@@ -732,7 +732,7 @@ export default function ProductPreviewModal({
                 )}
                 {hasField3 && (
                   <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>Age</span>
+                    <span style={{ width: "90px" }}>Age Group</span>
                     <span>:</span>
                     <span style={{ marginLeft: "8px" }}>{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}</span>
                   </p>
