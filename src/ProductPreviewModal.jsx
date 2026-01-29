@@ -602,7 +602,7 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: product.imageBgColor || "white",
                 textAlign: "center",
-                padding: 12,
+                padding: 0,
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
                 cursor: "pointer",
@@ -618,8 +618,8 @@ export default function ProductPreviewModal({
                 src={imageUrl}
                 alt={product.name}
                 style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
+                  width: "100%",
+                  height: "100%",
                   objectFit: "contain",
                   margin: "0 auto",
                 }}
