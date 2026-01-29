@@ -25,14 +25,13 @@ const tutorialStyles = `
 
 export default function Tutorial({ onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [wsStock, setWsStock] = useState(true);
-  const [rsStock, setRsStock] = useState(false);
+  const [catalogueStockState, setCatalogueStockState] = useState({ master: true, custom: false });
   const [dragItems, setDragItems] = useState(["Item 1", "Item 2", "Item 3"]);
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
-  const [activeTab, setActiveTab] = useState("catalogue1");
+  const [activeTab, setActiveTab] = useState("products");
   const [isProductControlsExpanded, setIsProductControlsExpanded] = useState(false);
-  const [isWholesaleFeaturesExpanded, setIsWholesaleFeaturesExpanded] = useState(false);
+  const [isCatalogueManagementExpanded, setIsCatalogueManagementExpanded] = useState(false);
   const [isBackupExpanded, setIsBackupExpanded] = useState(false);
   const [isRestoreExpanded, setIsRestoreExpanded] = useState(false);
   const [isShelfExpanded, setIsShelfExpanded] = useState(false);
@@ -78,7 +77,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Welcome to CatShare",
       description:
-        "Learn about the key features that help you manage your product catalogue effectively.",
+        "Learn about the key features that help you manage your product catalogues effectively.",
       icon: <RiShoppingBag3Line className="w-10 h-10 text-purple-600" />,
       visualElements: null,
     },
@@ -101,7 +100,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Manage Products",
       description:
-        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle WS/RS (Wholesale/Resell) In/Out stock status for each product.",
+        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle stock status for each catalogue independently.",
       icon: <RiLayout4Line className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
@@ -128,28 +127,30 @@ export default function Tutorial({ onClose }) {
                 <span>Move to shelf (can restore)</span>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
+                <div className="text-xs font-semibold text-gray-700 mb-2">Stock status per catalogue:</div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setWsStock(!wsStock)}
+                    onClick={() => setCatalogueStockState({...catalogueStockState, master: !catalogueStockState.master})}
                     className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
-                      wsStock ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
+                      catalogueStockState.master ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
                     }`}
                   >
-                    {wsStock ? "WS In" : "WS Out"}
+                    {catalogueStockState.master ? "In" : "Out"}
                   </button>
-                  <span className="text-xs text-gray-600">- Toggle Catalogue 1 stock availability</span>
+                  <span className="text-xs text-gray-600">- Master catalogue</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setRsStock(!rsStock)}
+                    onClick={() => setCatalogueStockState({...catalogueStockState, custom: !catalogueStockState.custom})}
                     className={`text-xs font-semibold px-2 py-1 rounded cursor-pointer transition whitespace-nowrap ${
-                      rsStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
+                      catalogueStockState.custom ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-700"
                     }`}
                   >
-                    {rsStock ? "RS In" : "RS Out"}
+                    {catalogueStockState.custom ? "In" : "Out"}
                   </button>
-                  <span className="text-xs text-gray-600">- Toggle Catalogue 2 stock availability</span>
+                  <span className="text-xs text-gray-600">- Custom catalogue (example)</span>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">Each catalogue has independent stock status</p>
               </div>
               <div className="p-3 bg-white border border-gray-300 rounded">
                 <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
@@ -181,105 +182,94 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Tab Actions",
+      title: "Catalogues Tab",
       description:
-        "Use action buttons in Wholesale and Resell tabs to filter, search, view details, and share product images.",
-      icon: <RiSearchLine className="w-10 h-10 text-orange-600" />,
+        "Switch to the Catalogues tab to view all your catalogues and manage them. Create new catalogues for different channels, customers, or pricing strategies.",
+      icon: <RiLayout4Line className="w-10 h-10 text-blue-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <button
-            onClick={() => setIsWholesaleFeaturesExpanded(!isWholesaleFeaturesExpanded)}
-            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-blue-100 hover:text-blue-900 cursor-pointer transition"
-          >
-            <span>Tab Features:</span>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <FiChevronDown
-                className={`transition-transform ${isWholesaleFeaturesExpanded ? "rotate-180" : "pulse-chevron"}`}
-                size={18}
-              />
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab("products")}
+                className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
+                  activeTab === "products"
+                    ? "bg-white text-gray-600 border border-gray-300"
+                    : "bg-gray-300 text-gray-700"
+                }`}
+              >
+                Products
+              </button>
+              <button
+                onClick={() => setActiveTab("catalogues")}
+                className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
+                  activeTab === "catalogues"
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-600 border border-gray-300"
+                }`}
+              >
+                Catalogues
+              </button>
             </div>
-          </button>
-          {isWholesaleFeaturesExpanded && (
-            <div className="space-y-2">
-              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M16.5 16.5A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012 12z" />
-                </svg>
-                <span>Find products by name</span>
-              </div>
-              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
-                </svg>
-                <span>Filter by stock & category</span>
-              </div>
-              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>Show product information</span>
-              </div>
-              <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L15 22L11 13L2 9L22 2Z" />
-                </svg>
-                <span>Export product images</span>
+            <div className="bg-white rounded border border-gray-300 p-3">
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-700">Catalogues Tab Features:</div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>✓ View all your catalogues in one place</p>
+                  <p>✓ Create unlimited custom catalogues</p>
+                  <p>✓ Each catalogue has its own pricing & stock settings</p>
+                  <p>✓ View products filtered by catalogue</p>
+                  <p>✓ See pricing and fields specific to each catalogue</p>
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       ),
     },
     {
-      title: "Catalogue 1 vs Catalogue 2",
+      title: "Manage Catalogues",
       description:
-        "Toggle between Catalogue 1 and Catalogue 2 tabs to view products with different pricing models.",
+        "Create, edit, delete, and reorder multiple catalogues. Default 'Master' catalogue is always available. Create custom ones for different pricing models or channels.",
       icon: <RiExchangeDollarLine className="w-10 h-10 text-red-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <div className="flex gap-2 mb-4 min-w-0">
-            <button
-              onClick={() => setActiveTab("catalogue1")}
-              className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
-                activeTab === "catalogue1"
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-600 border border-gray-300"
-              }`}
-            >
-              Catalogue 1
-            </button>
-            <button
-              onClick={() => setActiveTab("catalogue2")}
-              className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
-                activeTab === "catalogue2"
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-600 border border-gray-300"
-              }`}
-            >
-              Catalogue 2
-            </button>
-          </div>
-          <div className="bg-white rounded border border-gray-300 p-3">
-            {activeTab === "catalogue1" ? (
-              <div className="space-y-2">
-                <div className="text-xs font-semibold text-gray-700">Catalogue 1 Tab Features:</div>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View and share products with <span className="font-semibold">Catalogue 1 pricing (Wholesale)</span></p>
-                  <p>✓ Manage stock availability of Catalogue 1 products separately</p>
-                </div>
+          <button
+            onClick={() => setIsCatalogueManagementExpanded(!isCatalogueManagementExpanded)}
+            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-blue-100 hover:text-blue-900 cursor-pointer transition"
+          >
+            <span>Catalogue Management:</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <FiChevronDown
+                className={`transition-transform ${isCatalogueManagementExpanded ? "rotate-180" : "pulse-chevron"}`}
+                size={18}
+              />
+            </div>
+          </button>
+          {isCatalogueManagementExpanded && (
+            <div className="space-y-2">
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+                <p className="font-semibold text-gray-700 mb-1">📋 Master Catalogue (Default)</p>
+                <p className="text-gray-600">Always available. Cannot be deleted. Use for your primary pricing/channel.</p>
               </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="text-xs font-semibold text-gray-700">Catalogue 2 Tab Features:</div>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p>✓ View and share products with <span className="font-semibold">Catalogue 2 pricing (Resell)</span></p>
-                  <p>✓ Manage stock availability of Catalogue 2 products separately</p>
-                </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+                <p className="font-semibold text-gray-700 mb-1">➕ Create New</p>
+                <p className="text-gray-600">Click the '+' button in Catalogues tab to create a new catalogue with custom pricing fields.</p>
               </div>
-            )}
-          </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+                <p className="font-semibold text-gray-700 mb-1">✏️ Edit Catalogue</p>
+                <p className="text-gray-600">Click edit to change name, pricing fields, and other settings for a catalogue.</p>
+              </div>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs">
+                <p className="font-semibold text-gray-700 mb-1">🗑️ Delete Catalogue</p>
+                <p className="text-gray-600">Remove custom catalogues. Master cannot be deleted.</p>
+              </div>
+              <div className="p-2 bg-green-50 border border-green-300 rounded text-xs">
+                <p className="font-semibold text-green-700">💡 Tip:</p>
+                <p className="text-green-700">Create separate catalogues for Wholesale, Resell, Distributor, or any other pricing model you need!</p>
+              </div>
+            </div>
+          )}
         </div>
       ),
     },
@@ -322,6 +312,7 @@ export default function Tutorial({ onClose }) {
                   <ul className="ml-3 space-y-1">
                     <li>✓ All product data (names, prices, details)</li>
                     <li>✓ All product images in images/ folder</li>
+                    <li>✓ All catalogues configuration</li>
                     <li>✓ Deleted products list</li>
                   </ul>
                 </div>
@@ -356,6 +347,7 @@ export default function Tutorial({ onClose }) {
                   <ul className="ml-3 space-y-1">
                     <li>✓ All products with original details</li>
                     <li>✓ All product images</li>
+                    <li>✓ Catalogues configuration</li>
                     <li>✓ Categories and deleted products</li>
                   </ul>
                   <p className="text-yellow-700 bg-yellow-50 p-2 rounded mt-2">
@@ -489,9 +481,9 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "Forge Images",
+      title: "Render Images",
       description:
-        "Render images to share products. Auto-renders after add/edit, but manual render needed after Restore or Bulk Edit.",
+        "Generate professional product images to share. Auto-renders after add/edit, but manual render needed after Restore or Bulk Edit. Renders for all catalogues automatically.",
       icon: <RiImage2Line className="w-10 h-10 text-pink-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
@@ -501,7 +493,7 @@ export default function Tutorial({ onClose }) {
               onClick={() => setIsHowItWorksExpanded(!isHowItWorksExpanded)}
               className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
             >
-              <p className="font-semibold text-sm text-gray-800">💾 What Render images Does:</p>
+              <p className="font-semibold text-sm text-gray-800">💾 What Render Does:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
                   className={`transition-transform ${isHowItWorksExpanded ? "rotate-180" : ""}`}
@@ -512,12 +504,13 @@ export default function Tutorial({ onClose }) {
             {isHowItWorksExpanded && (
               <div className="mt-3">
                 <p className="text-xs text-gray-700 mb-2">
-                  Generates professional product images with pricing, names, and details overlaid on each product image.
+                  Generates professional product images for each catalogue with pricing, names, and details overlaid on each product image.
                 </p>
                 <ul className="text-xs text-gray-700 space-y-1 ml-3">
                   <li>✓ Product name overlaid on image</li>
-                  <li>✓ Pricing information included</li>
-                  <li>✓ Product details displayed</li>
+                  <li>✓ Pricing information from each catalogue</li>
+                  <li>✓ Product details and specifications</li>
+                  <li>✓ One image per product per catalogue</li>
                   <li>✓ Shareable with customers</li>
                 </ul>
               </div>
@@ -540,7 +533,7 @@ export default function Tutorial({ onClose }) {
             </button>
             {isAutoRenderExpanded && (
               <p className="text-xs text-gray-700 mt-3">
-                When you <span className="font-medium">Add or Edit</span> a single product, images render automatically.
+                When you <span className="font-medium">Add or Edit</span> a single product, images render automatically for all catalogues.
               </p>
             )}
           </div>
@@ -562,7 +555,7 @@ export default function Tutorial({ onClose }) {
             {isManualRenderExpanded && (
               <div className="mt-3">
                 <p className="text-xs text-gray-700 mb-2">
-                  You <span className="font-medium">MUST click Render images</span> from the side menu after:
+                  You <span className="font-medium">MUST click "Render images"</span> from the side menu after:
                 </p>
                 <ul className="text-xs text-gray-700 space-y-1 ml-3">
                   <li>🔄 Restoring from a backup</li>
@@ -591,7 +584,7 @@ export default function Tutorial({ onClose }) {
             </button>
             {isProTipExpanded && (
               <p className="text-xs text-gray-700 mt-3">
-                Always render images after bulk operations - it takes minutes to render everything at once instead of hours editing individually!
+                Always render images after bulk operations - it takes minutes to render everything at once instead of hours editing individually! Rendering happens for all catalogues automatically.
               </p>
             )}
           </div>
@@ -601,7 +594,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "You're All Set!",
       description:
-        "You now know all the main features. Start creating products, organizing them with categories, managing stock for different channels, and use Render images to create professional catalogs!",
+        "You now know all the main features. Start creating products, organizing them with categories, managing multiple catalogues with different pricing, and use Render images to create professional catalogs!",
       icon: <RiCheckDoubleLine className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
@@ -609,10 +602,11 @@ export default function Tutorial({ onClose }) {
             <p className="font-semibold text-gray-800 mb-2">Quick Summary:</p>
             <p className="text-xs text-gray-600 leading-relaxed">
               1️⃣ Create products with +button<br/>
-              2️⃣ Manage stock with In/Out buttons<br/>
-              3️⃣ View Catalogue 1 & Catalogue 2 pricing<br/>
-              4️⃣ Use Render images for catalogs<br/>
-              5️⃣ Backup your data regularly
+              2️⃣ Manage catalogues with different pricing<br/>
+              3️⃣ Toggle stock status per catalogue<br/>
+              4️⃣ Use Render images for all catalogues<br/>
+              5️⃣ Backup your data regularly<br/>
+              6️⃣ Scale your business with multiple pricing models!
             </p>
           </div>
         </div>
