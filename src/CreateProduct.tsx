@@ -812,13 +812,22 @@ setTimeout(async () => {
                   {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
                 </button>
                 {selectedCatalogue !== 'cat1' && (
-                  <button
-                    onClick={fetchFromDefaultCatalogue}
-                    className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white"
-                    title="Copy fields and price from default catalogue"
-                  >
-                    Fetch from Default
-                  </button>
+                  <>
+                    <button
+                      onClick={fetchFieldsFromDefault}
+                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+                      title="Copy fields (Colour, Package, Age Group) from default catalogue"
+                    >
+                      Fetch Fields
+                    </button>
+                    <button
+                      onClick={fetchPriceFromDefault}
+                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-purple-500 hover:bg-purple-600 text-white"
+                      title="Copy price from default catalogue"
+                    >
+                      Fetch Price
+                    </button>
+                  </>
                 )}
               </div>
             </div>
