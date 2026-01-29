@@ -242,6 +242,14 @@ export async function saveRenderedImage(product, type, units = {}) {
   // Only create and append price bar if product has a price for this catalogue
   const hasPriceValue = price !== undefined && price !== null && price !== "" && price !== 0;
 
+  // Helper function to check if a field has a valid value
+  const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
+
+  // Check each field for values
+  const hasField1 = hasFieldValue(catalogueData.field1);
+  const hasField2 = hasFieldValue(catalogueData.field2);
+  const hasField3 = hasFieldValue(catalogueData.field3);
+
   let priceBar = null;
   if (hasPriceValue) {
     priceBar = document.createElement("h2");
