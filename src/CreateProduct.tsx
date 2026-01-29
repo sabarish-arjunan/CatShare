@@ -350,6 +350,7 @@ export default function CreateProduct() {
         setOverrideColor(migratedProduct.bgColor || "#d1b3c4");
         setFontColor(migratedProduct.fontColor || "white");
         setImageBgOverride(migratedProduct.imageBgColor || "white");
+        setAppliedAspectRatio(migratedProduct.cropAspectRatio || 1);
 
         if (migratedProduct.image && migratedProduct.image.startsWith("data:image")) {
           setImagePreview(migratedProduct.image);
