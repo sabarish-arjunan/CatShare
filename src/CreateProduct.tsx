@@ -729,7 +729,7 @@ setTimeout(async () => {
     navigate(navigationPath);
   };
   return (
-    <div className="px-4 max-w-lg mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
+    <div className="px-3 max-w-md mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
       <div className="h-[40px]"></div>
       <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-center px-4 relative">
@@ -737,10 +737,10 @@ setTimeout(async () => {
       </header>
 
 
-      <div className="mb-3">
+      <div className="mb-2">
         <button
           onClick={handleSelectImage}
-          className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+          className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 text-sm"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -758,51 +758,76 @@ setTimeout(async () => {
       </div>
 
       {cropping && imagePreview && (
-        <div className="mb-4">
-          <div className="flex gap-2 mb-2 justify-center">
+        <div className="mb-4 bg-gradient-to-b from-blue-50 to-white rounded-xl shadow-lg border border-blue-100 p-4">
+          {/* Header */}
+          <div className="mb-4 text-center">
+            <h2 className="text-lg font-bold text-gray-800 mb-1">Crop Image</h2>
+            <p className="text-gray-500 text-xs">Adjust your product image to the perfect dimensions</p>
+          </div>
+
+          {/* Aspect Ratio Buttons */}
+          <div className="flex gap-2 mb-4 justify-center">
             <button
               onClick={() => setAspectRatio(1)}
-              className={`px-4 py-2 rounded font-medium transition ${
+              className={`px-4 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 ${
                 aspectRatio === 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-blue-600 text-white shadow-lg scale-105"
+                  : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400 hover:text-blue-600"
               }`}
             >
-              1:1 (Square)
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 3h18v18H3z" />
+              </svg>
+              Square
             </button>
             <button
               onClick={() => setAspectRatio(3 / 4)}
-              className={`px-4 py-2 rounded font-medium transition ${
+              className={`px-4 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 ${
                 aspectRatio === 3 / 4
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-blue-600 text-white shadow-lg scale-105"
+                  : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400 hover:text-blue-600"
               }`}
             >
-              3:4 (Portrait)
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 3h16v18H4z" />
+              </svg>
+              Portrait
             </button>
           </div>
-          <div style={{ height: 300, position: "relative" }}>
-            <Cropper
-              image={imagePreview}
-              crop={crop}
-              zoom={zoom}
-              aspect={aspectRatio}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
+
+          {/* Cropper Container */}
+          <div className="mb-4 rounded-lg overflow-hidden shadow-md border-2 border-blue-200 bg-white">
+            <div style={{ height: 300, position: "relative" }}>
+              <Cropper
+                image={imagePreview}
+                crop={crop}
+                zoom={zoom}
+                aspect={aspectRatio}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
           </div>
-          <div className="flex gap-4 mt-2 justify-center">
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-center">
             <button
               onClick={applyCrop}
-              className="bg-blue-500 text-white px-4 py-1 rounded"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 text-sm"
             >
-              Apply Crop
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Apply
             </button>
             <button
               onClick={() => setCropping(false)}
-              className="bg-gray-300 px-4 py-1 rounded"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-sm"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
               Cancel
             </button>
           </div>
@@ -1127,7 +1152,7 @@ setTimeout(async () => {
         position: "relative",
         backgroundColor: imageBgOverride,
         textAlign: "center",
-        padding: 10,
+        padding: 0,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
         aspectRatio: appliedAspectRatio,
         display: "flex",
@@ -1140,8 +1165,8 @@ setTimeout(async () => {
         src={imagePreview}
         alt="Preview"
         style={{
-          maxWidth: "100%",
-          maxHeight: "100%",
+          width: "100%",
+          height: "100%",
           objectFit: "contain",
           margin: "0 auto",
         }}
