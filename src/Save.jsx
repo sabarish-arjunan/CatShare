@@ -296,13 +296,18 @@ export async function saveRenderedImage(product, type, units = {}) {
     padding: "16px",
     position: "relative",
     overflow: "visible",
+    width: "100%",
+    aspectRatio: `${cropAspectRatio}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   });
   imageWrap.id = `image-wrap-${id}`;
 
   const img = document.createElement("img");
   img.alt = catalogueData.name;
   img.style.maxWidth = "100%";
-  img.style.maxHeight = "300px";
+  img.style.maxHeight = "100%";
   img.style.objectFit = "contain";
   img.style.margin = "0 auto";
   imageWrap.appendChild(img);
