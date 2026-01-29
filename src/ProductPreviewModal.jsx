@@ -550,14 +550,15 @@ export default function ProductPreviewModal({
   // Helper function to check if a field has a valid value
   const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
 
-  // Check each field
-  const field1Value = catalogueData.field1 || product.field1 || product.color;
+  // Check each field - use only catalogue-specific data, not fallback to other catalogues
+  // Only fall back to legacy field names (product.color, product.package, product.age)
+  const field1Value = catalogueData.field1 || product.color;
   const hasField1 = hasFieldValue(field1Value);
 
-  const field2Value = catalogueData.field2 || product.field2 || product.package;
+  const field2Value = catalogueData.field2 || product.package;
   const hasField2 = hasFieldValue(field2Value);
 
-  const field3Value = catalogueData.field3 || product.field3 || product.age;
+  const field3Value = catalogueData.field3 || product.age;
   const hasField3 = hasFieldValue(field3Value);
 
   return (
