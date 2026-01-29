@@ -611,6 +611,8 @@ export default function ProductPreviewModal({
                 justifyContent: "center",
                 aspectRatio: product.cropAspectRatio || 1,
                 width: "100%",
+                maxHeight: "50vh",
+                minHeight: "160px",
               }}
               onClick={handleImageClick}
             >
