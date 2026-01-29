@@ -1127,7 +1127,7 @@ setTimeout(async () => {
         position: "relative",
         backgroundColor: imageBgOverride,
         textAlign: "center",
-        padding: 10,
+        padding: 0,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
         aspectRatio: appliedAspectRatio,
         display: "flex",
