@@ -600,7 +600,11 @@ export default function ProductPreviewModal({
                 padding: 16,
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                cursor: "pointer"
+                cursor: "pointer",
+                aspectRatio: product.cropAspectRatio || 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
               onClick={handleImageClick}
             >
@@ -609,7 +613,7 @@ export default function ProductPreviewModal({
                 alt={product.name}
                 style={{
                   maxWidth: "100%",
-                  maxHeight: "300px",
+                  maxHeight: "100%",
                   objectFit: "contain",
                   margin: "0 auto",
                 }}
