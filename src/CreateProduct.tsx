@@ -290,6 +290,8 @@ export default function CreateProduct() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [cropping, setCropping] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(1); // 1 for 1:1, 1.333 for 3:4
+  const [appliedAspectRatio, setAppliedAspectRatio] = useState(1); // Track which ratio was applied to current image
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
@@ -348,6 +350,7 @@ export default function CreateProduct() {
         setOverrideColor(migratedProduct.bgColor || "#d1b3c4");
         setFontColor(migratedProduct.fontColor || "white");
         setImageBgOverride(migratedProduct.imageBgColor || "white");
+        setAppliedAspectRatio(migratedProduct.cropAspectRatio || 1);
 
         if (migratedProduct.image && migratedProduct.image.startsWith("data:image")) {
           setImagePreview(migratedProduct.image);
@@ -567,6 +570,7 @@ export default function CreateProduct() {
         croppedAreaPixels
       );
       setImagePreview(croppedBase64);
+      setAppliedAspectRatio(aspectRatio); // Save the aspect ratio that was used
       setCropping(false);
       setZoom(1);
       setCrop({ x: 0, y: 0 });
@@ -634,6 +638,7 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
+      cropAspectRatio: appliedAspectRatio, // Save the aspect ratio used for cropping
     };
 
     // Save price and stock fields for ALL catalogues to the product root level
@@ -754,12 +759,34 @@ setTimeout(async () => {
 
       {cropping && imagePreview && (
         <div className="mb-4">
+          <div className="flex gap-2 mb-2 justify-center">
+            <button
+              onClick={() => setAspectRatio(1)}
+              className={`px-4 py-2 rounded font-medium transition ${
+                aspectRatio === 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              1:1 (Square)
+            </button>
+            <button
+              onClick={() => setAspectRatio(3 / 4)}
+              className={`px-4 py-2 rounded font-medium transition ${
+                aspectRatio === 3 / 4
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              3:4 (Portrait)
+            </button>
+          </div>
           <div style={{ height: 300, position: "relative" }}>
             <Cropper
               image={imagePreview}
               crop={crop}
               zoom={zoom}
-              aspect={1}
+              aspect={aspectRatio}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
@@ -1102,6 +1129,11 @@ setTimeout(async () => {
         textAlign: "center",
         padding: 10,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+        aspectRatio: appliedAspectRatio,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
       }}
     >
       <img
@@ -1109,7 +1141,7 @@ setTimeout(async () => {
         alt="Preview"
         style={{
           maxWidth: "100%",
-          maxHeight: 300,
+          maxHeight: "100%",
           objectFit: "contain",
           margin: "0 auto",
         }}
@@ -1183,7 +1215,7 @@ setTimeout(async () => {
       fontSize: 20,
     }}
   >
-    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 </div>
 

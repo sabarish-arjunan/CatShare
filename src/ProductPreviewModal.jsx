@@ -578,7 +578,12 @@ export default function ProductPreviewModal({
             onDragEnd={handleDragEnd}
             custom={direction}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white max-w-[350px] w-[90%] rounded-xl overflow-hidden shadow-xl relative"
+            className="bg-white w-[75%] rounded-xl overflow-hidden shadow-xl relative"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxWidth: "260px",
+            }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
               x: 0,
@@ -597,10 +602,15 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: product.imageBgColor || "white",
                 textAlign: "center",
-                padding: 16,
+                padding: 12,
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                cursor: "pointer"
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                aspectRatio: product.cropAspectRatio || 1,
+                width: "100%",
               }}
               onClick={handleImageClick}
             >
@@ -609,7 +619,7 @@ export default function ProductPreviewModal({
                 alt={product.name}
                 style={{
                   maxWidth: "100%",
-                  maxHeight: "300px",
+                  maxHeight: "100%",
                   objectFit: "contain",
                   margin: "0 auto",
                 }}
@@ -681,41 +691,44 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
-                padding: 10,
-                fontSize: 17,
+                padding: 8,
+                fontSize: 13,
+                overflow: "auto",
+                flex: 1,
+                minHeight: 0,
               }}
             >
-              <div style={{ textAlign: "center", marginBottom: 6 }}>
+              <div style={{ textAlign: "center", marginBottom: 3 }}>
                 <p
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 28,
-                    margin: 3,
+                    fontSize: 20,
+                    margin: 2,
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}>
+                  <p style={{ fontStyle: "italic", fontSize: 14, margin: 2 }}>
                     ({product.subtitle})
                   </p>
                 )}
               </div>
-              <div style={{ textAlign: "left", lineHeight: 1.5 }}>
+              <div style={{ textAlign: "left", lineHeight: 1.3 }}>
                 {hasField1 && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field1Value}
+                  <p style={{ margin: "1px 0" }}>
+                    Colour: {field1Value}
                   </p>
                 )}
                 {hasField2 && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}
+                  <p style={{ margin: "1px 0" }}>
+                    Package: {field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}
                   </p>
                 )}
                 {hasField3 && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}
+                  <p style={{ margin: "1px 0" }}>
+                    Age: {field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}
                   </p>
                 )}
               </div>
@@ -727,10 +740,11 @@ export default function ProductPreviewModal({
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
                   color: product.fontColor || "white",
-                  padding: "8px",
+                  padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  fontSize: 19,
+                  fontSize: 15,
+                  flexShrink: 0,
                 }}
               >
                 Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
@@ -739,22 +753,22 @@ export default function ProductPreviewModal({
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="px-4 py-3 bg-gray-100 border-t text-sm">
+              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
                 {/* First row: Edit, All In/Out, Close */}
-                <div className="flex justify-between gap-2 mb-2">
-                  <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white flex-1">
+                <div className="flex justify-between gap-1">
+                  <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
                     Edit
                   </button>
                   <button
                     onClick={() => onToggleMasterStock()}
-                    className={`px-3 py-1 rounded flex-1 ${
+                    className={`px-2 py-1 rounded flex-1 text-xs ${
                       getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
                     }`}
                     title="Toggle all catalogues"
                   >
-                    All {getAllStockStatus() ? "In" : "Out"}
+                    {getAllStockStatus() ? "In" : "Out"}
                   </button>
-                  <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white flex-1">
+                  <button onClick={onClose} className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs">
                     Close
                   </button>
                 </div>

@@ -193,12 +193,18 @@ export async function saveRenderedImage(product, type, units = {}) {
     return;
   }
 
+  // Calculate dimensions based on crop aspect ratio
+  const cropAspectRatio = product.cropAspectRatio || 1;
+  const baseWidth = 330;
+  const baseHeight = baseWidth / cropAspectRatio;
+
   const wrapper = document.createElement("div");
   Object.assign(wrapper.style, {
     position: "absolute",
     top: "0",
     left: "0",
-    width: "330px",
+    width: `${baseWidth}px`,
+    height: `${baseHeight + 100}px`, // Extra space for details and price
     backgroundColor: "transparent",
     opacity: "0",
     pointerEvents: "none",
@@ -211,6 +217,8 @@ export async function saveRenderedImage(product, type, units = {}) {
   container.className = `full-detail-${id}-${type}`;
   container.style.backgroundColor = getLighterColor(bgColor);
   container.style.overflow = "visible";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
 
   // Get catalogue-specific data if catalogueId is provided
   let catalogueData = product;
@@ -264,6 +272,9 @@ export async function saveRenderedImage(product, type, units = {}) {
       fontSize: "19px",
       margin: 0,
       lineHeight: 1.2,
+      width: "100%",
+      boxSizing: "border-box",
+      flexShrink: 0,
     });
     priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
   }
@@ -280,6 +291,8 @@ export async function saveRenderedImage(product, type, units = {}) {
     boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
     marginBottom: "1px",
     borderRadius: "0",
+    width: "100%",
+    flexShrink: 0,
   });
   imageShadowWrap.id = `image-shadow-wrap-${id}`;
 
@@ -290,13 +303,18 @@ export async function saveRenderedImage(product, type, units = {}) {
     padding: "16px",
     position: "relative",
     overflow: "visible",
+    width: "100%",
+    aspectRatio: `${cropAspectRatio}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   });
   imageWrap.id = `image-wrap-${id}`;
 
   const img = document.createElement("img");
   img.alt = catalogueData.name;
   img.style.maxWidth = "100%";
-  img.style.maxHeight = "300px";
+  img.style.maxHeight = "100%";
   img.style.objectFit = "contain";
   img.style.margin = "0 auto";
   imageWrap.appendChild(img);
@@ -336,6 +354,9 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.color = fontColor;
   details.style.padding = "10px";
   details.style.fontSize = "17px";
+  details.style.width = "100%";
+  details.style.boxSizing = "border-box";
+  details.style.flexShrink = 0;
 
   // Build field rows conditionally - only include fields that have values
   let fieldRowsHTML = "";
@@ -402,7 +423,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       if (imageWrapEl && imageShadowWrapEl && containerEl) {
         // html2canvas renders at 3x scale
         const scale = 3;
-        const containerWidth = 330; // wrapper width in px
+        const containerWidth = baseWidth; // wrapper width in px
         const scaledContainerWidth = containerWidth * scale;
 
         // Get the computed dimensions of the image wrap
