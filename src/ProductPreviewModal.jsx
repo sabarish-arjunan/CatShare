@@ -578,7 +578,7 @@ export default function ProductPreviewModal({
             onDragEnd={handleDragEnd}
             custom={direction}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white max-w-[350px] w-[90%] rounded-xl overflow-hidden shadow-xl relative"
+            className="bg-white max-w-[300px] w-[85%] rounded-xl overflow-hidden shadow-xl relative"
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
               x: 0,
