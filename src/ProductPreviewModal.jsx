@@ -755,22 +755,22 @@ export default function ProductPreviewModal({
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="px-4 py-3 bg-gray-100 border-t text-sm">
+              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
                 {/* First row: Edit, All In/Out, Close */}
-                <div className="flex justify-between gap-2 mb-2">
-                  <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white flex-1">
+                <div className="flex justify-between gap-1">
+                  <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
                     Edit
                   </button>
                   <button
                     onClick={() => onToggleMasterStock()}
-                    className={`px-3 py-1 rounded flex-1 ${
+                    className={`px-2 py-1 rounded flex-1 text-xs ${
                       getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
                     }`}
                     title="Toggle all catalogues"
                   >
-                    All {getAllStockStatus() ? "In" : "Out"}
+                    {getAllStockStatus() ? "In" : "Out"}
                   </button>
-                  <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white flex-1">
+                  <button onClick={onClose} className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs">
                     Close
                   </button>
                 </div>
