@@ -758,15 +758,15 @@ setTimeout(async () => {
       </div>
 
       {cropping && imagePreview && (
-        <div className="mb-6 bg-gradient-to-b from-blue-50 to-white rounded-2xl shadow-lg border border-blue-100 p-6">
+        <div className="mb-4 bg-gradient-to-b from-blue-50 to-white rounded-xl shadow-lg border border-blue-100 p-4">
           {/* Header */}
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Crop Image</h2>
-            <p className="text-gray-500 text-sm">Adjust your product image to the perfect dimensions</p>
+          <div className="mb-4 text-center">
+            <h2 className="text-lg font-bold text-gray-800 mb-1">Crop Image</h2>
+            <p className="text-gray-500 text-xs">Adjust your product image to the perfect dimensions</p>
           </div>
 
           {/* Aspect Ratio Buttons */}
-          <div className="flex gap-3 mb-6 justify-center">
+          <div className="flex gap-2 mb-4 justify-center">
             <button
               onClick={() => setAspectRatio(1)}
               className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
