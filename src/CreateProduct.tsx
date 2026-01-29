@@ -1132,6 +1132,7 @@ setTimeout(async () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        width: "100%",
       }}
     >
       <img
