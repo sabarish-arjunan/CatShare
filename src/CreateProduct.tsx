@@ -400,8 +400,27 @@ export default function CreateProduct() {
     });
   };
 
-  // Fetch fields and price from default catalogue (cat1)
-  const fetchFromDefaultCatalogue = () => {
+  // Fetch only fields from default catalogue (cat1)
+  const fetchFieldsFromDefault = () => {
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    const updates: Partial<CatalogueData> = {
+      field1: defaultCatalogueData.field1 || "",
+      field2: defaultCatalogueData.field2 || "",
+      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field3: defaultCatalogueData.field3 || "",
+      field3Unit: defaultCatalogueData.field3Unit || "months",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
+  };
+
+  // Fetch only price from default catalogue (cat1)
+  const fetchPriceFromDefault = () => {
     const defaultCatalogueData = getCatalogueData(formData, 'cat1');
     const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
 
@@ -412,17 +431,12 @@ export default function CreateProduct() {
     const defaultPriceUnitField = catalogues.find((c) => c.id === 'cat1')?.priceUnitField || 'price1Unit';
 
     const updates: Partial<CatalogueData> = {
-      field1: defaultCatalogueData.field1 || "",
-      field2: defaultCatalogueData.field2 || "",
-      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
-      field3: defaultCatalogueData.field3 || "",
-      field3Unit: defaultCatalogueData.field3Unit || "months",
       [selectedCat.priceField]: defaultCatalogueData[defaultPriceField] || "",
       [selectedCat.priceUnitField]: defaultCatalogueData[defaultPriceUnitField] || "/ piece",
     };
 
     updateCatalogueData(updates);
-    showToast(`Fields and price fetched from default catalogue to ${selectedCat.label}`, "success");
+    showToast(`Price fetched from default catalogue to ${selectedCat.label}`, "success");
   };
 
   // Get the price field name for the selected catalogue
