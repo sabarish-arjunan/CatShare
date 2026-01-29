@@ -200,6 +200,8 @@ export default function CreateProduct() {
   });
 
   const [selectedCatalogue, setSelectedCatalogue] = useState<string>(catalogueParam || "cat1");
+  const [fetchFieldsChecked, setFetchFieldsChecked] = useState(false);
+  const [fetchPriceChecked, setFetchPriceChecked] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
@@ -277,6 +279,12 @@ export default function CreateProduct() {
     const cats = getAllCatalogues();
     setCatalogues(cats);
   }, []);
+
+  // Reset checkboxes when catalogue changes
+  useEffect(() => {
+    setFetchFieldsChecked(false);
+    setFetchPriceChecked(false);
+  }, [selectedCatalogue]);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -401,7 +409,23 @@ export default function CreateProduct() {
   };
 
   // Fetch only fields from default catalogue (cat1)
-  const fetchFieldsFromDefault = () => {
+  const handleFetchFieldsChange = (checked: boolean) => {
+    setFetchFieldsChecked(checked);
+
+    if (!checked) {
+      // Clear fields when unchecked
+      const updates: Partial<CatalogueData> = {
+        field1: "",
+        field2: "",
+        field2Unit: "pcs / set",
+        field3: "",
+        field3Unit: "months",
+      };
+      updateCatalogueData(updates);
+      return;
+    }
+
+    // Fetch from default catalogue when checked
     const defaultCatalogueData = getCatalogueData(formData, 'cat1');
     const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
 
@@ -419,12 +443,25 @@ export default function CreateProduct() {
     showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
   };
 
-  // Fetch only price from default catalogue (cat1)
-  const fetchPriceFromDefault = () => {
-    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
-    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+  // Handle fetch price checkbox change
+  const handleFetchPriceChange = (checked: boolean) => {
+    setFetchPriceChecked(checked);
 
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
     if (!selectedCat) return;
+
+    if (!checked) {
+      // Clear price fields when unchecked
+      const updates: Partial<CatalogueData> = {
+        [selectedCat.priceField]: "",
+        [selectedCat.priceUnitField]: "/ piece",
+      };
+      updateCatalogueData(updates);
+      return;
+    }
+
+    // Fetch from default catalogue when checked
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
 
     // Prepare data to copy from default catalogue
     const defaultPriceField = catalogues.find((c) => c.id === 'cat1')?.priceField || 'price1';
@@ -800,7 +837,31 @@ setTimeout(async () => {
               <h3 className="text-base font-semibold">
                 {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
               </h3>
-              <div className="flex gap-2">
+              <div className="flex gap-4 items-center">
+                {selectedCatalogue !== 'cat1' && isCatalogueEnabled(selectedCatalogue) && (
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={fetchFieldsChecked}
+                        onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                        title="Fill fields (Colour, Package, Age Group) from default catalogue"
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">Fill Fields</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={fetchPriceChecked}
+                        onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                        title="Fill price from default catalogue"
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">Fill Price</span>
+                    </label>
+                  </div>
+                )}
                 <button
                   onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
                   className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
@@ -811,24 +872,6 @@ setTimeout(async () => {
                 >
                   {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
                 </button>
-                {selectedCatalogue !== 'cat1' && (
-                  <>
-                    <button
-                      onClick={fetchFieldsFromDefault}
-                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white"
-                      title="Copy fields (Colour, Package, Age Group) from default catalogue"
-                    >
-                      Fetch Fields
-                    </button>
-                    <button
-                      onClick={fetchPriceFromDefault}
-                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-purple-500 hover:bg-purple-600 text-white"
-                      title="Copy price from default catalogue"
-                    >
-                      Fetch Price
-                    </button>
-                  </>
-                )}
               </div>
             </div>
 
