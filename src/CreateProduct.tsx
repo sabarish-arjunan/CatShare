@@ -400,6 +400,31 @@ export default function CreateProduct() {
     });
   };
 
+  // Fetch fields and price from default catalogue (cat1)
+  const fetchFromDefaultCatalogue = () => {
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    // Prepare data to copy from default catalogue
+    const defaultPriceField = catalogues.find((c) => c.id === 'cat1')?.priceField || 'price1';
+    const defaultPriceUnitField = catalogues.find((c) => c.id === 'cat1')?.priceUnitField || 'price1Unit';
+
+    const updates: Partial<CatalogueData> = {
+      field1: defaultCatalogueData.field1 || "",
+      field2: defaultCatalogueData.field2 || "",
+      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field3: defaultCatalogueData.field3 || "",
+      field3Unit: defaultCatalogueData.field3Unit || "months",
+      [selectedCat.priceField]: defaultCatalogueData[defaultPriceField] || "",
+      [selectedCat.priceUnitField]: defaultCatalogueData[defaultPriceUnitField] || "/ piece",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Fields and price fetched from default catalogue to ${selectedCat.label}`, "success");
+  };
+
   // Get the price field name for the selected catalogue
   const getSelectedCataloguePriceField = () => {
     const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
