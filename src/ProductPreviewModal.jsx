@@ -605,6 +605,8 @@ export default function ProductPreviewModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                maxHeight: "55vh",
+                minHeight: "200px",
               }}
               onClick={handleImageClick}
             >
