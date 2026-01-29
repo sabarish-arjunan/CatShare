@@ -1,4 +1,5 @@
-// updated with raw SVG icons for proper innerHTML rendering
+// Generic Catalogue View Component
+// Works with any catalogue (Master, Resell, custom, etc.)
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
@@ -15,7 +16,7 @@ import AddProductsModal from "./components/AddProductsModal";
 import BulkEdit from "./BulkEdit";
 
 
-export default function WholesaleTab({
+export default function CatalogueView({
   filtered,
   allProducts,
   setProducts,
@@ -35,9 +36,9 @@ export default function WholesaleTab({
     if (!catalogueId) return product; // Fallback to product if no catalogueId
     const catData = getCatalogueData(product, catalogueId);
 
-    // For non-cat1 catalogues, don't fall back to wholesale/resell (those are cat1 fields)
+    // For non-cat1/cat2 catalogues, don't fall back to wholesale/resell (those are legacy fields)
     // Only use the specific price field for this catalogue
-    const isCat1 = catalogueId === 'cat1';
+    const isLegacyCatalogue = catalogueId === 'cat1' || catalogueId === 'cat2';
 
     return {
       ...product,
@@ -47,9 +48,9 @@ export default function WholesaleTab({
       field3: catData.field3 || product.field3 || product.age || "",
       field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
       // Use dynamic price field based on catalogue configuration
-      // For cat1, fall back to wholesale for backward compatibility
-      price: catData[priceField] || product[priceField] || (isCat1 ? product.wholesale || product.resell : "") || "",
-      priceUnit: catData[priceUnitField] || product[priceUnitField] || (isCat1 ? product.wholesaleUnit || product.resellUnit : "/ piece") || "/ piece",
+      // For legacy catalogues (cat1/cat2), fall back to wholesale/resell for backward compatibility
+      price: catData[priceField] || product[priceField] || (isLegacyCatalogue ? product.wholesale || product.resell : "") || "",
+      priceUnit: catData[priceUnitField] || product[priceUnitField] || (isLegacyCatalogue ? product.wholesaleUnit || product.resellUnit : "/ piece") || "/ piece",
     };
   };
 
@@ -122,7 +123,7 @@ useEffect(() => {
 
 useEffect(() => {
   // Push a fake entry to trap back
-  window.history.pushState({ tab: "catalogue1" }, "");
+  window.history.pushState({ tab: "catalogue" }, "");
 }, []);
 
 
@@ -141,7 +142,7 @@ useEffect(() => {
       const isEnabled = isProductEnabledForCatalogue(p, catalogueId);
       if (!isEnabled) return false;
 
-      // Use the catalogue's stockField instead of hardcoded wholesaleStock
+      // Use the catalogue's stockField instead of hardcoded field
       const productStock = p[stockField];
       const matchesStock =
         (stockFilter.includes("in") && productStock) ||
@@ -322,12 +323,12 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   useEffect(() => {
     const toggleFilterHandler = () => setShowFilters((prev) => !prev);
-    window.addEventListener("toggle-wholesale-filter", toggleFilterHandler);
-    return () => window.removeEventListener("toggle-wholesale-filter", toggleFilterHandler);
+    window.addEventListener("toggle-catalogue-filter", toggleFilterHandler);
+    return () => window.removeEventListener("toggle-catalogue-filter", toggleFilterHandler);
   }, []);
 
   useEffect(() => {
-    const container = document.getElementById("wholesale-header-icons");
+    const container = document.getElementById("catalogue-header-icons");
     if (!container) return;
     container.innerHTML = "";
 
@@ -353,7 +354,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessingIndex,
           setProcessingTotal,
           folder: catalogueLabel,
-          mode: "wholesale",
+          mode: catalogueId,
         });
       };
       container.appendChild(shareBtn);
@@ -589,7 +590,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessingIndex,
       setProcessingTotal,
       folder: catalogueLabel,
-      mode: "wholesale",
+      mode: catalogueId,
     });
   }}
   className="w-9 h-9 flex items-center justify-center rounded-md text-green-600 hover:text-green-700 transition-colors"
@@ -1029,7 +1030,7 @@ onMouseLeave={handleTouchEnd}
                         left: "50%",
                         transform: "translate(-50%, -50%) rotate(-30deg)",
                         width: "140%",
-                        backgroundColor: "rgba(123, 38, 220, 0.6)",
+                        backgroundColor: "rgba(220, 38, 38, 0.6)",
                         color: "white",
                         textAlign: "center",
                         padding: "10px 0",

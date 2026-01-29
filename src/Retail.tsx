@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { FiSettings, FiPlus } from "react-icons/fi";
+import { FiSettings, FiPlus, FiEdit } from "react-icons/fi";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCroppedImg } from "./cropUtils";
@@ -580,7 +580,9 @@ export default function Retail({ products = [] }) {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                   </button>
-                  <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm">✎</button>
+                  <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-blue-600 hover:text-blue-800 transition-colors" title="Edit product">
+                    <FiEdit className="w-4 h-4" />
+                  </button>
                   <button onClick={(e) => {
                     e.stopPropagation();
                     // remove from retail list
@@ -596,7 +598,7 @@ export default function Retail({ products = [] }) {
                     } catch (err) {
                       console.warn('Failed to remove product from global products', err);
                     }
-                  }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm text-red-600">🗑️</button>
+                  }} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-red-600 hover:text-red-800 transition-colors" title="Delete product">🗑️</button>
                 </div>
               </div>
 
@@ -685,6 +687,7 @@ export default function Retail({ products = [] }) {
         <ProductPreviewModal
           product={previewProductRetail}
           tab="retail"
+          catalogueId={null}
           filteredProducts={retailProducts}
           onClose={() => setPreviewProductRetail(null)}
           onEdit={() => {
@@ -717,7 +720,7 @@ export default function Retail({ products = [] }) {
                       const base64 = imagePreview.split(',')[1];
                       imagePath = `retail/product-${id}.png`;
                       await Filesystem.writeFile({ path: imagePath, data: base64, directory: Directory.Data, recursive: true });
-                      // Also save a copy to external folder for sharing (consistent filename pattern)
+                      // Also save a copy to external storage for sharing (consistent filename pattern)
                       try {
                         const shareFilename = `product_${id}_retail.png`;
                         await Filesystem.writeFile({ path: `Retail/${shareFilename}`, data: base64, directory: Directory.External, recursive: true });

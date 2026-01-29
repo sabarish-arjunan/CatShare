@@ -184,6 +184,8 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const catalogueParam = searchParams.get("catalogue");
+  const fromParam = searchParams.get("from");
   const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
@@ -197,7 +199,7 @@ export default function CreateProduct() {
     catalogueData: {},
   });
 
-  const [selectedCatalogue, setSelectedCatalogue] = useState<string>("cat1");
+  const [selectedCatalogue, setSelectedCatalogue] = useState<string>(catalogueParam || "cat1");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
@@ -396,6 +398,45 @@ export default function CreateProduct() {
         catalogueData: newCatalogueData
       };
     });
+  };
+
+  // Fetch only fields from default catalogue (cat1)
+  const fetchFieldsFromDefault = () => {
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    const updates: Partial<CatalogueData> = {
+      field1: defaultCatalogueData.field1 || "",
+      field2: defaultCatalogueData.field2 || "",
+      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field3: defaultCatalogueData.field3 || "",
+      field3Unit: defaultCatalogueData.field3Unit || "months",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
+  };
+
+  // Fetch only price from default catalogue (cat1)
+  const fetchPriceFromDefault = () => {
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    // Prepare data to copy from default catalogue
+    const defaultPriceField = catalogues.find((c) => c.id === 'cat1')?.priceField || 'price1';
+    const defaultPriceUnitField = catalogues.find((c) => c.id === 'cat1')?.priceUnitField || 'price1Unit';
+
+    const updates: Partial<CatalogueData> = {
+      [selectedCat.priceField]: defaultCatalogueData[defaultPriceField] || "",
+      [selectedCat.priceUnitField]: defaultCatalogueData[defaultPriceUnitField] || "/ piece",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Price fetched from default catalogue to ${selectedCat.label}`, "success");
   };
 
   // Get the price field name for the selected catalogue
@@ -608,6 +649,7 @@ setTimeout(async () => {
       const renderOptions = {
         catalogueId: cat.id,
         catalogueLabel: cat.label,
+        folder: cat.folder || cat.label, // Use folder from catalogue config
         priceField: cat.priceField,
         priceUnitField: cat.priceUnitField,
         price1Unit: catData.price1Unit || "/ piece",
@@ -628,14 +670,22 @@ setTimeout(async () => {
     console.warn("⏱️ PNG render failed:", err);
   }
 
-  navigate("/");
+  // If fromParam is a catalogue ID (cat1, cat2, etc.), navigate to catalogues tab with that catalogue selected
+  const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+  const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+  navigate(navigationPath);
 }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
     }
   };
 
-  const handleCancel = () => navigate("/");
+  const handleCancel = () => {
+    // If fromParam is a catalogue ID (cat1, cat2, etc.), navigate to catalogues tab with that catalogue selected
+    const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+    const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+    navigate(navigationPath);
+  };
   return (
     <div className="px-4 max-w-lg mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
@@ -750,16 +800,36 @@ setTimeout(async () => {
               <h3 className="text-base font-semibold">
                 {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
               </h3>
-              <button
-                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                  isCatalogueEnabled(selectedCatalogue)
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-                }`}
-              >
-                {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                    isCatalogueEnabled(selectedCatalogue)
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                  }`}
+                >
+                  {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                </button>
+                {selectedCatalogue !== 'cat1' && (
+                  <>
+                    <button
+                      onClick={fetchFieldsFromDefault}
+                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+                      title="Copy fields (Colour, Package, Age Group) from default catalogue"
+                    >
+                      Fetch Fields
+                    </button>
+                    <button
+                      onClick={fetchPriceFromDefault}
+                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-purple-500 hover:bg-purple-600 text-white"
+                      title="Copy price from default catalogue"
+                    >
+                      Fetch Price
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
             {isCatalogueEnabled(selectedCatalogue) && (

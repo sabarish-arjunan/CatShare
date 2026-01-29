@@ -7,13 +7,13 @@ export default function Settings({
   darkMode = false,
   setDarkMode = (value) => {},
   products = [],
-  setProducts = () => {},
+  setProducts = (value) => {},
   deletedProducts = [],
-  setDeletedProducts = () => {},
+  setDeletedProducts = (value) => {},
   isRendering = false,
-  setIsRendering = () => {},
+  setIsRendering = (value) => {},
   renderProgress = 0,
-  setRenderProgress = () => {},
+  setRenderProgress = (value) => {},
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {

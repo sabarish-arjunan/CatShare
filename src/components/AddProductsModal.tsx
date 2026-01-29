@@ -50,6 +50,34 @@ export default function AddProductsModal({
     onProductsUpdate(updated);
   };
 
+  const handleToggleAllProducts = () => {
+    // Check if all filtered products are enabled
+    const allEnabled = filteredProducts.every((p) =>
+      isProductEnabledForCatalogue(p, catalogueId)
+    );
+
+    // Toggle all filtered products to opposite state
+    const updated = products.map((p) => {
+      // Only toggle products that match current search
+      if (filteredProducts.some((fp) => fp.id === p.id)) {
+        return setProductEnabledForCatalogue(p, catalogueId, allEnabled ? false : true);
+      }
+      return p;
+    });
+
+    setProducts(updated);
+
+    // Save to localStorage
+    localStorage.setItem("products", JSON.stringify(updated));
+
+    // Notify parent component
+    onProductsUpdate(updated);
+  };
+
+  const allFilteredEnabled = filteredProducts.length > 0 && filteredProducts.every((p) =>
+    isProductEnabledForCatalogue(p, catalogueId)
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -67,14 +95,28 @@ export default function AddProductsModal({
             </button>
           </div>
 
-          {/* Search Input */}
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+          {/* Search Input and Toggle All Button */}
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            {filteredProducts.length > 0 && (
+              <button
+                onClick={handleToggleAllProducts}
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap ${
+                  allFilteredEnabled
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                }`}
+              >
+                {allFilteredEnabled ? "Hide All" : "Show All"}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Products List */}
