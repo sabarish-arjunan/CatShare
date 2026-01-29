@@ -204,7 +204,7 @@ export async function saveRenderedImage(product, type, units = {}) {
     top: "0",
     left: "0",
     width: `${baseWidth}px`,
-    height: `${baseHeight + 100}px`, // Extra space for details and price
+    height: `${baseHeight + 250}px`, // Extra space for details, fields, and price
     backgroundColor: "transparent",
     opacity: "0",
     pointerEvents: "none",
