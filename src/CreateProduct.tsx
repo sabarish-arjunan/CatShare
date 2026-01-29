@@ -437,12 +437,25 @@ export default function CreateProduct() {
     showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
   };
 
-  // Fetch only price from default catalogue (cat1)
-  const fetchPriceFromDefault = () => {
-    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
-    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+  // Handle fetch price checkbox change
+  const handleFetchPriceChange = (checked: boolean) => {
+    setFetchPriceChecked(checked);
 
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
     if (!selectedCat) return;
+
+    if (!checked) {
+      // Clear price fields when unchecked
+      const updates: Partial<CatalogueData> = {
+        [selectedCat.priceField]: "",
+        [selectedCat.priceUnitField]: "/ piece",
+      };
+      updateCatalogueData(updates);
+      return;
+    }
+
+    // Fetch from default catalogue when checked
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
 
     // Prepare data to copy from default catalogue
     const defaultPriceField = catalogues.find((c) => c.id === 'cat1')?.priceField || 'price1';
