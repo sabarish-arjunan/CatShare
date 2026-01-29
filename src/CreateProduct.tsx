@@ -843,22 +843,28 @@ setTimeout(async () => {
                   {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
                 </button>
                 {selectedCatalogue !== 'cat1' && (
-                  <>
-                    <button
-                      onClick={fetchFieldsFromDefault}
-                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white"
-                      title="Copy fields (Colour, Package, Age Group) from default catalogue"
-                    >
-                      Fetch Fields
-                    </button>
-                    <button
-                      onClick={fetchPriceFromDefault}
-                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-purple-500 hover:bg-purple-600 text-white"
-                      title="Copy price from default catalogue"
-                    >
-                      Fetch Price
-                    </button>
-                  </>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={fetchFieldsChecked}
+                        onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                        title="Fetch fields (Colour, Package, Age Group) from default catalogue"
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">Fetch fields from default</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={fetchPriceChecked}
+                        onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                        title="Fetch price from default catalogue"
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">Fetch price from default</span>
+                    </label>
+                  </div>
                 )}
               </div>
             </div>
