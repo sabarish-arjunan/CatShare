@@ -218,16 +218,17 @@ export async function saveRenderedImage(product, type, units = {}) {
     const catData = getCatalogueData(product, units.catalogueId);
     catalogueData = {
       ...product,
-      field1: catData.field1 || product.field1 || product.color || "",
-      field2: catData.field2 || product.field2 || product.package || "",
-      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
-      field3: catData.field3 || product.field3 || product.age || "",
-      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
-      // Include all catalogue price fields
-      price1: catData.price1 || product.price1 || product.wholesale || "",
-      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
-      price2: catData.price2 || product.price2 || product.resell || "",
-      price2Unit: catData.price2Unit || product.price2Unit || product.resellUnit || "/ piece",
+      // Use only catalogue-specific data, fall back only to legacy field names (not other catalogues)
+      field1: catData.field1 || product.color || "",
+      field2: catData.field2 || product.package || "",
+      field2Unit: catData.field2Unit || product.packageUnit || "pcs / set",
+      field3: catData.field3 || product.age || "",
+      field3Unit: catData.field3Unit || product.ageUnit || "months",
+      // Include all catalogue price fields - fall back to legacy names only
+      price1: catData.price1 || product.wholesale || "",
+      price1Unit: catData.price1Unit || product.wholesaleUnit || "/ piece",
+      price2: catData.price2 || product.resell || "",
+      price2Unit: catData.price2Unit || product.resellUnit || "/ piece",
     };
   }
 
