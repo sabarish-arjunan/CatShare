@@ -403,7 +403,23 @@ export default function CreateProduct() {
   };
 
   // Fetch only fields from default catalogue (cat1)
-  const fetchFieldsFromDefault = () => {
+  const handleFetchFieldsChange = (checked: boolean) => {
+    setFetchFieldsChecked(checked);
+
+    if (!checked) {
+      // Clear fields when unchecked
+      const updates: Partial<CatalogueData> = {
+        field1: "",
+        field2: "",
+        field2Unit: "pcs / set",
+        field3: "",
+        field3Unit: "months",
+      };
+      updateCatalogueData(updates);
+      return;
+    }
+
+    // Fetch from default catalogue when checked
     const defaultCatalogueData = getCatalogueData(formData, 'cat1');
     const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
 
