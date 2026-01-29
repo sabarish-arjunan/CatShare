@@ -272,6 +272,9 @@ export async function saveRenderedImage(product, type, units = {}) {
       fontSize: "19px",
       margin: 0,
       lineHeight: 1.2,
+      width: "100%",
+      boxSizing: "border-box",
+      flexShrink: 0,
     });
     priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
   }
