@@ -710,12 +710,12 @@ export default function ProductPreviewModal({
                 )}
                 {hasField2 && (
                   <p style={{ margin: "3px 0" }}>
-                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field2Value} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
+                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}
                   </p>
                 )}
                 {hasField3 && (
                   <p style={{ margin: "3px 0" }}>
-                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{field3Value} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
+                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}
                   </p>
                 )}
               </div>
