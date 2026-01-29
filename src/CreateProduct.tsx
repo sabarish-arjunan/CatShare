@@ -569,6 +569,7 @@ export default function CreateProduct() {
         croppedAreaPixels
       );
       setImagePreview(croppedBase64);
+      setAppliedAspectRatio(aspectRatio); // Save the aspect ratio that was used
       setCropping(false);
       setZoom(1);
       setCrop({ x: 0, y: 0 });
