@@ -1127,6 +1127,10 @@ setTimeout(async () => {
         textAlign: "center",
         padding: 10,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+        aspectRatio: appliedAspectRatio,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <img
@@ -1134,7 +1138,7 @@ setTimeout(async () => {
         alt="Preview"
         style={{
           maxWidth: "100%",
-          maxHeight: 300,
+          maxHeight: "100%",
           objectFit: "contain",
           margin: "0 auto",
         }}
