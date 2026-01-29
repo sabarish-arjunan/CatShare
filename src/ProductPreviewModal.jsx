@@ -597,7 +597,7 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: product.imageBgColor || "white",
                 textAlign: "center",
-                padding: 16,
+                padding: 12,
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
                 cursor: "pointer",
@@ -605,8 +605,8 @@ export default function ProductPreviewModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                maxHeight: "55vh",
-                minHeight: "200px",
+                maxHeight: "50vh",
+                minHeight: "160px",
               }}
               onClick={handleImageClick}
             >
