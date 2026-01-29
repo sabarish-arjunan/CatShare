@@ -400,6 +400,45 @@ export default function CreateProduct() {
     });
   };
 
+  // Fetch only fields from default catalogue (cat1)
+  const fetchFieldsFromDefault = () => {
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    const updates: Partial<CatalogueData> = {
+      field1: defaultCatalogueData.field1 || "",
+      field2: defaultCatalogueData.field2 || "",
+      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field3: defaultCatalogueData.field3 || "",
+      field3Unit: defaultCatalogueData.field3Unit || "months",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
+  };
+
+  // Fetch only price from default catalogue (cat1)
+  const fetchPriceFromDefault = () => {
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    // Prepare data to copy from default catalogue
+    const defaultPriceField = catalogues.find((c) => c.id === 'cat1')?.priceField || 'price1';
+    const defaultPriceUnitField = catalogues.find((c) => c.id === 'cat1')?.priceUnitField || 'price1Unit';
+
+    const updates: Partial<CatalogueData> = {
+      [selectedCat.priceField]: defaultCatalogueData[defaultPriceField] || "",
+      [selectedCat.priceUnitField]: defaultCatalogueData[defaultPriceUnitField] || "/ piece",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Price fetched from default catalogue to ${selectedCat.label}`, "success");
+  };
+
   // Get the price field name for the selected catalogue
   const getSelectedCataloguePriceField = () => {
     const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
@@ -761,16 +800,36 @@ setTimeout(async () => {
               <h3 className="text-base font-semibold">
                 {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
               </h3>
-              <button
-                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                  isCatalogueEnabled(selectedCatalogue)
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-                }`}
-              >
-                {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                    isCatalogueEnabled(selectedCatalogue)
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                  }`}
+                >
+                  {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                </button>
+                {selectedCatalogue !== 'cat1' && (
+                  <>
+                    <button
+                      onClick={fetchFieldsFromDefault}
+                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+                      title="Copy fields (Colour, Package, Age Group) from default catalogue"
+                    >
+                      Fetch Fields
+                    </button>
+                    <button
+                      onClick={fetchPriceFromDefault}
+                      className="px-4 py-2 rounded text-sm font-medium transition-colors bg-purple-500 hover:bg-purple-600 text-white"
+                      title="Copy price from default catalogue"
+                    >
+                      Fetch Price
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
             {isCatalogueEnabled(selectedCatalogue) && (

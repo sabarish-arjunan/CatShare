@@ -218,16 +218,18 @@ export async function saveRenderedImage(product, type, units = {}) {
     const catData = getCatalogueData(product, units.catalogueId);
     catalogueData = {
       ...product,
-      field1: catData.field1 || product.field1 || product.color || "",
-      field2: catData.field2 || product.field2 || product.package || "",
-      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
-      field3: catData.field3 || product.field3 || product.age || "",
-      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
-      // Include all catalogue price fields
-      price1: catData.price1 || product.price1 || product.wholesale || "",
-      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
-      price2: catData.price2 || product.price2 || product.resell || "",
-      price2Unit: catData.price2Unit || product.price2Unit || product.resellUnit || "/ piece",
+      // Use only catalogue-specific data, fall back only to legacy field names (not other catalogues)
+      // Check explicitly for undefined/null, not just falsy (to preserve empty strings as intentional)
+      field1: catData.field1 !== undefined && catData.field1 !== null ? catData.field1 : (product.color || ""),
+      field2: catData.field2 !== undefined && catData.field2 !== null ? catData.field2 : (product.package || ""),
+      field2Unit: catData.field2Unit !== undefined && catData.field2Unit !== null ? catData.field2Unit : (product.packageUnit || "pcs / set"),
+      field3: catData.field3 !== undefined && catData.field3 !== null ? catData.field3 : (product.age || ""),
+      field3Unit: catData.field3Unit !== undefined && catData.field3Unit !== null ? catData.field3Unit : (product.ageUnit || "months"),
+      // Include all catalogue price fields - fall back to legacy names only
+      price1: catData.price1 !== undefined && catData.price1 !== null ? catData.price1 : (product.wholesale || ""),
+      price1Unit: catData.price1Unit !== undefined && catData.price1Unit !== null ? catData.price1Unit : (product.wholesaleUnit || "/ piece"),
+      price2: catData.price2 !== undefined && catData.price2 !== null ? catData.price2 : (product.resell || ""),
+      price2Unit: catData.price2Unit !== undefined && catData.price2Unit !== null ? catData.price2Unit : (product.resellUnit || "/ piece"),
     };
   }
 
@@ -239,23 +241,37 @@ export async function saveRenderedImage(product, type, units = {}) {
   const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
   const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
-  const priceBar = document.createElement("h2");
-  Object.assign(priceBar.style, {
-    backgroundColor: bgColor,
-    color: fontColor,
-    padding: "8px",
-    textAlign: "center",
-    fontWeight: "normal",
-    fontSize: "19px",
-    margin: 0,
-    lineHeight: 1.2,
-  });
-  priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
+  // Only create and append price bar if product has a price for this catalogue
+  const hasPriceValue = price !== undefined && price !== null && price !== "" && price !== 0;
+
+  // Helper function to check if a field has a valid value
+  const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
+
+  // Check each field for values
+  const hasField1 = hasFieldValue(catalogueData.field1);
+  const hasField2 = hasFieldValue(catalogueData.field2);
+  const hasField3 = hasFieldValue(catalogueData.field3);
+
+  let priceBar = null;
+  if (hasPriceValue) {
+    priceBar = document.createElement("h2");
+    Object.assign(priceBar.style, {
+      backgroundColor: bgColor,
+      color: fontColor,
+      padding: "8px",
+      textAlign: "center",
+      fontWeight: "normal",
+      fontSize: "19px",
+      margin: 0,
+      lineHeight: 1.2,
+    });
+    priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
+  }
 
   // Price bar at bottom for all catalogues
   const isPriceOnTop = false;
 
-  if (isPriceOnTop) {
+  if (isPriceOnTop && priceBar) {
     container.appendChild(priceBar); // Price on top
   }
 
@@ -320,20 +336,31 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.color = fontColor;
   details.style.padding = "10px";
   details.style.fontSize = "17px";
+
+  // Build field rows conditionally - only include fields that have values
+  let fieldRowsHTML = "";
+  if (hasField1) {
+    fieldRowsHTML += `<p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>`;
+  }
+  if (hasField2) {
+    fieldRowsHTML += `<p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>`;
+  }
+  if (hasField3) {
+    fieldRowsHTML += `<p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>`;
+  }
+
   details.innerHTML = `
     <div style="text-align:center;margin-bottom:6px">
       <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
       ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
     </div>
     <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>
+      ${fieldRowsHTML}
     </div>
   `;
   container.appendChild(details);
 
-  if (!isPriceOnTop) {
+  if (!isPriceOnTop && priceBar) {
     container.appendChild(priceBar); // Price at bottom
   }
 

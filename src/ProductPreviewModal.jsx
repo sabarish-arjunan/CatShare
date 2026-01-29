@@ -543,6 +543,24 @@ export default function ProductPreviewModal({
   const priceField = catalogueConfig?.priceField || "price1";
   const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
 
+  // Check if product has a valid price for this catalogue
+  const priceValue = catalogueData[priceField] || product[priceField];
+  const hasPriceValue = priceValue !== undefined && priceValue !== null && priceValue !== "" && priceValue !== 0;
+
+  // Helper function to check if a field has a valid value
+  const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
+
+  // Check each field - use only catalogue-specific data, not fallback to other catalogues
+  // Only fall back to legacy field names if field is undefined/null (not if it's an empty string)
+  const field1Value = catalogueData.field1 !== undefined && catalogueData.field1 !== null ? catalogueData.field1 : (product.color || "");
+  const hasField1 = hasFieldValue(field1Value);
+
+  const field2Value = catalogueData.field2 !== undefined && catalogueData.field2 !== null ? catalogueData.field2 : (product.package || "");
+  const hasField2 = hasFieldValue(field2Value);
+
+  const field3Value = catalogueData.field3 !== undefined && catalogueData.field3 !== null ? catalogueData.field3 : (product.age || "");
+  const hasField3 = hasFieldValue(field3Value);
+
   return (
     <>
       <div
@@ -685,31 +703,39 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.5 }}>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
-                </p>
+                {hasField1 && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field1Value}
+                  </p>
+                )}
+                {hasField2 && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}
+                  </p>
+                )}
+                {hasField3 && (
+                  <p style={{ margin: "3px 0" }}>
+                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Bottom Bar - Show price based on catalogue-specific data */}
-            <div
-              style={{
-                backgroundColor: product.bgColor || "#add8e6",
-                color: product.fontColor || "white",
-                padding: "8px",
-                textAlign: "center",
-                fontWeight: "normal",
-                fontSize: 19,
-              }}
-            >
-              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
-            </div>
+            {/* Bottom Bar - Show price based on catalogue-specific data (only if price exists) */}
+            {hasPriceValue && (
+              <div
+                style={{
+                  backgroundColor: product.bgColor || "#add8e6",
+                  color: product.fontColor || "white",
+                  padding: "8px",
+                  textAlign: "center",
+                  fontWeight: "normal",
+                  fontSize: 19,
+                }}
+              >
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
+              </div>
+            )}
 
             {/* Action Buttons */}
             {tab === "products" && (
