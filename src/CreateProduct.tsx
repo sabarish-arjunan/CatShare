@@ -280,6 +280,12 @@ export default function CreateProduct() {
     setCatalogues(cats);
   }, []);
 
+  // Reset checkboxes when catalogue changes
+  useEffect(() => {
+    setFetchFieldsChecked(false);
+    setFetchPriceChecked(false);
+  }, [selectedCatalogue]);
+
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
