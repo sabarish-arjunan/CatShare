@@ -717,20 +717,20 @@ export default function ProductPreviewModal({
                   </p>
                 )}
               </div>
-              <div style={{ textAlign: "left", lineHeight: 1.5 }}>
+              <div style={{ textAlign: "left", lineHeight: 1.3 }}>
                 {hasField1 && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field1Value}
+                  <p style={{ margin: "1px 0" }}>
+                    Colour: {field1Value}
                   </p>
                 )}
                 {hasField2 && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}
+                  <p style={{ margin: "1px 0" }}>
+                    Package: {field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}
                   </p>
                 )}
                 {hasField3 && (
-                  <p style={{ margin: "3px 0" }}>
-                    &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}
+                  <p style={{ margin: "1px 0" }}>
+                    Age: {field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}
                   </p>
                 )}
               </div>
