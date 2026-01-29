@@ -742,13 +742,14 @@ export default function ProductPreviewModal({
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
                   color: product.fontColor || "white",
-                  padding: "8px",
+                  padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  fontSize: 19,
+                  fontSize: 15,
+                  flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
+                ₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
               </div>
             )}
 
