@@ -607,12 +607,10 @@ export default function ProductPreviewModal({
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
                 cursor: "pointer",
-                aspectRatio: product.cropAspectRatio || 1,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                maxHeight: "50vh",
-                minHeight: "160px",
+                flex: 1,
               }}
               onClick={handleImageClick}
             >
