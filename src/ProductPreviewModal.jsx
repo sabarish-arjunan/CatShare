@@ -700,19 +700,19 @@ export default function ProductPreviewModal({
                 minHeight: 0,
               }}
             >
-              <div style={{ textAlign: "center", marginBottom: 6 }}>
+              <div style={{ textAlign: "center", marginBottom: 3 }}>
                 <p
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 28,
-                    margin: 3,
+                    fontSize: 20,
+                    margin: 2,
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}>
+                  <p style={{ fontStyle: "italic", fontSize: 14, margin: 2 }}>
                     ({product.subtitle})
                   </p>
                 )}
