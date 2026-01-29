@@ -695,6 +695,9 @@ export default function ProductPreviewModal({
                 color: product.fontColor || "white",
                 padding: 10,
                 fontSize: 17,
+                overflow: "auto",
+                flex: 1,
+                minHeight: 0,
               }}
             >
               <div style={{ textAlign: "center", marginBottom: 6 }}>
