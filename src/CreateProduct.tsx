@@ -200,6 +200,8 @@ export default function CreateProduct() {
   });
 
   const [selectedCatalogue, setSelectedCatalogue] = useState<string>(catalogueParam || "cat1");
+  const [fetchFieldsChecked, setFetchFieldsChecked] = useState(false);
+  const [fetchPriceChecked, setFetchPriceChecked] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
