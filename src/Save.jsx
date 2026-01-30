@@ -474,7 +474,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)";
 
         // Calculate position based on watermarkPosition, relative to image section only
-        const padding = 10 * scale; // Scale padding to match canvas scale (50% towards corner)
+        const padding = 10 * renderScale; // Scale padding to match canvas scale (50% towards corner)
         let watermarkX, watermarkY;
 
         switch(watermarkPosition) {
