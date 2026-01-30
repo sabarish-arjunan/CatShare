@@ -140,6 +140,29 @@ function AppWithBackHandler() {
     initializeFieldSystem();
   }, []);
 
+  // Initialize Firebase messaging for notifications
+  useEffect(() => {
+    const setupFirebase = async () => {
+      await initializeFirebaseMessaging();
+    };
+    setupFirebase();
+
+    // Listen for Firebase notifications
+    const handleFirebaseNotification = (event: any) => {
+      console.log("Firebase notification received in app:", event.detail);
+      setRenderResult({
+        status: "success",
+        message: event.detail.body || "Rendering completed successfully!",
+      });
+      setRenderProgress(100);
+    };
+
+    window.addEventListener("firebaseNotification", handleFirebaseNotification);
+    return () => {
+      window.removeEventListener("firebaseNotification", handleFirebaseNotification);
+    };
+  }, []);
+
   // Initialize catalogue system with data migration
   useEffect(() => {
     runMigrations();
