@@ -636,7 +636,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     )}
 
     {/* Tools Menu Button (3 dots) - Always on the right */}
-    <div className="relative ml-auto">
+    <div className="relative ml-auto" ref={toolsMenuRef}>
       <button
         onClick={() => setShowToolsMenu((prev) => !prev)}
         className="text-xl text-gray-600 hover:text-black p-1"
