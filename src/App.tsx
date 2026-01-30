@@ -61,6 +61,9 @@ function AppWithBackHandler() {
     setIsRendering(true);
     setRenderProgress(0);
 
+    let renderingFailed = false;
+    const failedProducts: string[] = [];
+
     try {
         for (let i = 0; i < all.length; i++) {
           const product = all[i];
@@ -95,28 +98,42 @@ function AppWithBackHandler() {
 
             console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
           } catch (err) {
-            console.warn(`❌ Failed to render images for ${product.name}`, err);
+            console.error(`❌ Failed to render images for ${product.name}`, err);
+            renderingFailed = true;
+            failedProducts.push(product.name);
           }
 
+          // Allow small time for UI updates and memory cleanup
+          await new Promise(resolve => setTimeout(resolve, 10));
           setRenderProgress(Math.round(((i + 1) / all.length) * 100));
         }
 
+        // Determine result message
+        let resultMessage = "PNG rendering completed for all products";
+        if (renderingFailed) {
+          resultMessage = `Rendering completed with ${failedProducts.length} failed: ${failedProducts.join(", ")}`;
+        }
+
         setRenderResult({
-          status: "success",
-          message: "PNG rendering completed for all products",
+          status: renderingFailed ? "error" : "success",
+          message: resultMessage,
         });
 
         // Send push notification via Firebase (if internet available)
-        try {
-          const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
-          await triggerBackgroundRendering(all, userId);
-          console.log("✅ Push notification sent to Firebase");
-        } catch (notificationError) {
-          console.warn("⚠️ Could not send push notification (offline or Firebase error):", notificationError);
-          // This is OK - rendering already completed locally
+        // This happens AFTER rendering is complete
+        if (isNative) {
+          try {
+            const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
+            console.log("📤 Sending Firebase background rendering notification...");
+            const result = await triggerBackgroundRendering(all, userId);
+            console.log("✅ Firebase background rendering triggered:", result);
+          } catch (notificationError) {
+            console.error("❌ Firebase background rendering error:", notificationError);
+            // Show local notification as fallback
+          }
         }
 
-        // Schedule local notification as fallback
+        // Always schedule local notification as backup
         if (isNative) {
           try {
             await LocalNotifications.createChannel({
@@ -124,20 +141,23 @@ function AppWithBackHandler() {
               name: 'Primary',
               importance: 5,
               visibility: 1,
-            }).then(() => {
-                LocalNotifications.schedule({
-                    notifications: [
-                        {
-                            id: 1,
-                            title: "Rendering Complete",
-                            body: "All product images have been rendered.",
-                            channelId: 'fcm_fallback_notification_channel',
-                        },
-                    ]
-                });
             });
+
+            await LocalNotifications.schedule({
+              notifications: [
+                {
+                  id: Math.floor(Math.random() * 10000),
+                  title: "Rendering Complete",
+                  body: resultMessage,
+                  channelId: 'fcm_fallback_notification_channel',
+                  smallIcon: "ic_launcher_foreground",
+                  largeIcon: "ic_launcher_foreground",
+                },
+              ]
+            });
+            console.log("✅ Local notification scheduled");
           } catch (error) {
-            console.warn("Could not show local notification:", error);
+            console.error("❌ Could not show local notification:", error);
           }
         }
     } finally {
