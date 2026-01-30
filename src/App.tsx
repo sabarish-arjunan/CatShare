@@ -13,6 +13,7 @@ import { KeepAwake } from '@capacitor-community/keep-awake';
 import { initializeFieldSystem } from "./config/initializeFields";
 import { runMigrations } from "./utils/dataMigration";
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { initializeFirebaseMessaging, triggerBackgroundRendering } from "./services/firebaseService";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -51,7 +52,7 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
-  // Handle rendering all PNGs
+  // Handle rendering all PNGs locally (works offline)
   const handleRenderAllPNGs = useCallback(async () => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
@@ -63,22 +64,22 @@ function AppWithBackHandler() {
     try {
         for (let i = 0; i < all.length; i++) {
           const product = all[i];
-    
+
           // Skip products without images - don't error, just skip
           if (!product.image && !product.imagePath) {
             console.warn(`⚠️ Skipping ${product.name} - no image available`);
             setRenderProgress(Math.round(((i + 1) / all.length) * 100));
             continue;
           }
-    
+
           try {
             // Render for all catalogues
             const { getAllCatalogues } = await import("./config/catalogueConfig");
             const catalogues = getAllCatalogues();
-    
+
             for (const cat of catalogues) {
               const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
-    
+
               await saveRenderedImage(product, legacyType, {
                 resellUnit: product.resellUnit || "/ piece",
                 wholesaleUnit: product.wholesaleUnit || "/ piece",
@@ -91,12 +92,12 @@ function AppWithBackHandler() {
                 priceUnitField: cat.priceUnitField,
               });
             }
-    
+
             console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
           } catch (err) {
             console.warn(`❌ Failed to render images for ${product.name}`, err);
           }
-    
+
           setRenderProgress(Math.round(((i + 1) / all.length) * 100));
         }
 
@@ -105,24 +106,40 @@ function AppWithBackHandler() {
           message: "PNG rendering completed for all products",
         });
 
-        // Schedule a notification
-        LocalNotifications.createChannel({
-          id: 'fcm_fallback_notification_channel',
-          name: 'Primary',
-          importance: 5,
-          visibility: 1,
-        }).then(() => {
-            LocalNotifications.schedule({
-                notifications: [
-                    {
-                        id: 1,
-                        title: "Rendering Complete",
-                        body: "All product images have been rendered.",
-                        channelId: 'fcm_fallback_notification_channel', // Use the same channel ID
-                    },
-                ]
+        // Send push notification via Firebase (if internet available)
+        try {
+          const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
+          await triggerBackgroundRendering(all, userId);
+          console.log("✅ Push notification sent to Firebase");
+        } catch (notificationError) {
+          console.warn("⚠️ Could not send push notification (offline or Firebase error):", notificationError);
+          // This is OK - rendering already completed locally
+        }
+
+        // Schedule local notification as fallback
+        if (isNative) {
+          try {
+            await LocalNotifications.createChannel({
+              id: 'fcm_fallback_notification_channel',
+              name: 'Primary',
+              importance: 5,
+              visibility: 1,
+            }).then(() => {
+                LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            id: 1,
+                            title: "Rendering Complete",
+                            body: "All product images have been rendered.",
+                            channelId: 'fcm_fallback_notification_channel',
+                        },
+                    ]
+                });
             });
-        });
+          } catch (error) {
+            console.warn("Could not show local notification:", error);
+          }
+        }
     } finally {
         setIsRendering(false);
         window.dispatchEvent(new CustomEvent("renderComplete"));
@@ -182,6 +199,33 @@ function AppWithBackHandler() {
   // Initialize field system with data migration on first load
   useEffect(() => {
     initializeFieldSystem();
+  }, []);
+
+  // Initialize Firebase messaging for notifications
+  useEffect(() => {
+    const setupFirebase = async () => {
+      // Ensure user has a unique ID
+      if (!localStorage.getItem("userId")) {
+        localStorage.setItem("userId", `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      }
+      await initializeFirebaseMessaging();
+    };
+    setupFirebase();
+
+    // Listen for Firebase notifications
+    const handleFirebaseNotification = (event: any) => {
+      console.log("Firebase notification received in app:", event.detail);
+      setRenderResult({
+        status: "success",
+        message: event.detail.body || "Rendering completed successfully!",
+      });
+      setRenderProgress(100);
+    };
+
+    window.addEventListener("firebaseNotification", handleFirebaseNotification);
+    return () => {
+      window.removeEventListener("firebaseNotification", handleFirebaseNotification);
+    };
   }, []);
 
   // Initialize catalogue system with data migration
