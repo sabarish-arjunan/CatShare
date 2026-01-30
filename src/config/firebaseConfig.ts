@@ -23,13 +23,29 @@ export const db = getFirestore(app);
 export const functions = getFunctions(app);
 export const messaging = getMessaging(app);
 
+// Register service worker for FCM on web
+export const registerServiceWorker = async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      console.log('Service Worker registered successfully:', registration);
+      return registration;
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+    }
+  }
+};
+
 // Request notification permission and get token
 export const requestNotificationPermission = async () => {
   try {
+    // Register service worker first
+    await registerServiceWorker();
+
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       const token = await getToken(messaging, {
-        vapidKey: "BNvB3pUfxfDqmFH-hzBgYLgfnxZhC8pHPPGzD-oSokrLgY_-L_1HsU79Uo8oMSLfQqQIxKQPHhDLx-LF6fK3V4E"
+        serviceWorkerRegistration: await navigator.serviceWorker.ready
       });
       console.log("FCM Token:", token);
       return token;
