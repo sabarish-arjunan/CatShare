@@ -17,23 +17,35 @@ export const initializeFirebaseMessaging = async () => {
 
     if (isNative) {
       // For native apps, request local notification permissions
-      const permission = await LocalNotifications.requestPermissions();
-      console.log("Local notification permission:", permission);
+      try {
+        const permission = await LocalNotifications.requestPermissions();
+        console.log("Local notification permission:", permission);
+      } catch (error) {
+        console.warn("Could not request local notification permissions:", error);
+      }
     } else {
       // For web, request FCM notification permissions
-      const token = await requestNotificationPermission();
-      if (token) {
-        // Store token for later use
-        localStorage.setItem("fcmToken", token);
+      try {
+        const token = await requestNotificationPermission();
+        if (token) {
+          // Store token for later use
+          localStorage.setItem("fcmToken", token);
+        }
+      } catch (error) {
+        console.warn("Could not initialize FCM:", error);
       }
     }
 
-    // Setup listener for incoming messages
-    setupMessageListener((payload) => {
-      handleFirebaseMessage(payload);
-    });
+    // Setup listener for incoming messages (optional)
+    try {
+      setupMessageListener((payload) => {
+        handleFirebaseMessage(payload);
+      });
+    } catch (error) {
+      console.warn("Could not setup message listener:", error);
+    }
   } catch (error) {
-    console.error("Error initializing Firebase messaging:", error);
+    console.warn("Error initializing Firebase messaging (app will continue):", error);
   }
 };
 
