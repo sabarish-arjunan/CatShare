@@ -392,9 +392,15 @@ export async function saveRenderedImage(product, type, units = {}) {
   wrapper.style.opacity = "1";
 
   try {
+    // Use scale of 2 instead of 3 for better performance while maintaining quality
+    // Scale 3 was causing significant slowdown and memory issues
+    const renderScale = 2;
     const canvas = await html2canvas(wrapper, {
-      scale: 3,
+      scale: renderScale,
       backgroundColor: "#ffffff",
+      logging: false,
+      useCORS: true,
+      allowTaint: false,
     });
 
     const croppedCanvas = document.createElement("canvas");
@@ -405,6 +411,9 @@ export async function saveRenderedImage(product, type, units = {}) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
+
+    // Release canvas memory immediately
+    canvas.remove?.();
 
     // Add watermark - Only if enabled in settings
     const showWatermark = localStorage.getItem("showWatermark");
