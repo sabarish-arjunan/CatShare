@@ -5,6 +5,11 @@ const config: CapacitorConfig = {
   appName: 'CatShare',
   webDir: 'dist',
   plugins: {
+    LocalNotifications: {
+      smallIcon: 'ic_launcher_foreground',
+      iconColor: '#3b82f6',
+      sound: 'notification',
+    },
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },

@@ -392,9 +392,19 @@ export async function saveRenderedImage(product, type, units = {}) {
   wrapper.style.opacity = "1";
 
   try {
+    // Keep scale at 3 for high quality output
+    const renderScale = 3;
+
+    // Render at high quality with optimizations
     const canvas = await html2canvas(wrapper, {
-      scale: 3,
+      scale: renderScale,
       backgroundColor: "#ffffff",
+      logging: false,
+      useCORS: true,
+      allowTaint: false,
+      // Additional optimizations for faster rendering
+      imageTimeout: 5000,
+      removeContainer: true,
     });
 
     const croppedCanvas = document.createElement("canvas");
@@ -405,6 +415,10 @@ export async function saveRenderedImage(product, type, units = {}) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
+
+    // Release canvas memory immediately to prevent buildup
+    canvas.width = 0;
+    canvas.height = 0;
 
     // Add watermark - Only if enabled in settings
     const showWatermark = localStorage.getItem("showWatermark");
@@ -432,7 +446,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         const imagePadding = 16; // padding in imageWrap
 
         // Calculate dimensions accounting for all parent elements
-        const imageWrapWidth = containerWidth * scale; // Full container width
+        const imageWrapWidth = containerWidth * renderScale; // Full container width
 
         // Calculate offset from top
         // For wholesale: priceBar (≈36px) + imageShadowWrap offset
@@ -448,16 +462,16 @@ export async function saveRenderedImage(product, type, units = {}) {
           currentEl = prevEl;
         }
 
-        imageWrapOffsetTop *= scale;
+        imageWrapOffsetTop *= renderScale;
 
         // Image section height includes padding and the image itself
-        const imageWrapHeight = imageWrapEl.offsetHeight * scale;
+        const imageWrapHeight = imageWrapEl.offsetHeight * renderScale;
         const imageWrapOffsetLeft = 0;
 
         // Watermark font size should be relative to image section width
         // Matches the preview sizing logic
         const previewFontSize = 10; // Base font size in preview
-        const watermarkSize = previewFontSize * scale; // Scale up proportionally
+        const watermarkSize = previewFontSize * renderScale; // Scale up proportionally
         ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
 
         // Check if background is light or dark and set watermark color accordingly
@@ -465,7 +479,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)";
 
         // Calculate position based on watermarkPosition, relative to image section only
-        const padding = 10 * scale; // Scale padding to match canvas scale (50% towards corner)
+        const padding = 10 * renderScale; // Scale padding to match canvas scale (50% towards corner)
         let watermarkX, watermarkY;
 
         switch(watermarkPosition) {
