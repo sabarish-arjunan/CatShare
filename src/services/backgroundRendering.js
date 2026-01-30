@@ -139,6 +139,7 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
       try {
         await KeepAwake.keepAwake();
         console.log("✅ Device wakelock enabled (app in foreground)");
+        startWakelockRefresh(); // Start aggressive refresh to prevent Doze mode
       } catch (err) {
         console.warn("⚠️ Could not enable wakelock:", err);
       }
