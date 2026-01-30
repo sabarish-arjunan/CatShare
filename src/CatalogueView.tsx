@@ -102,6 +102,20 @@ useEffect(() => {
     if (selected.length === 0) setSelectMode(false);
   }, [selected]);
 
+  // Close tools menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target)) {
+        setShowToolsMenu(false);
+      }
+    };
+
+    if (showToolsMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showToolsMenu]);
+
   useEffect(() => {
   const handlePopState = async () => {
     if (selectMode) {
