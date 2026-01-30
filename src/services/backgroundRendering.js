@@ -324,32 +324,45 @@ function buildResultMessage(stats, totalProcessed) {
 
 /**
  * Send notification about background rendering completion
+ * High priority with sound and vibration to ensure user sees it
  */
 async function sendBackgroundRenderingNotification(message, isSuccess) {
   const isNative = Capacitor.getPlatform() !== "web";
   if (!isNative) return;
 
   try {
+    // Create high-priority channel for rendering notifications
     await LocalNotifications.createChannel({
       id: 'background_render_channel',
       name: 'Background Rendering',
-      importance: 5,
-      visibility: 1,
+      description: 'Notifications for image rendering completion',
+      importance: 5, // IMPORTANCE_MAX = 5 on Android
+      visibility: 1, // VISIBILITY_PUBLIC = 1
+      sound: 'default',
+      enableVibration: true,
+      enableLights: true,
+      lightColor: isSuccess ? '#4CAF50' : '#FF9800', // Green for success, Orange for errors
     });
 
+    // Schedule notification with high priority and vibration
     await LocalNotifications.schedule({
       notifications: [
         {
           id: Math.floor(Math.random() * 100000) + 1,
-          title: isSuccess ? "Rendering Complete" : "Rendering Completed with Errors",
+          title: isSuccess ? "✅ Rendering Complete" : "⚠️ Rendering Completed with Errors",
           body: message,
           channelId: 'background_render_channel',
           smallIcon: isSuccess ? "res://drawable/ic_stat_notify_success" : "res://drawable/ic_stat_notify_error",
+          largeBody: message, // Extended notification text
+          summaryText: isSuccess ? 'All images rendered successfully' : 'Some images failed to render',
+          autoCancel: true,
+          ongoing: false, // Allows user to dismiss
+          priority: isSuccess ? 2 : 2, // HIGH priority on Android (shows at top of notification list)
         },
       ]
     });
 
-    console.log("✅ Background rendering notification sent");
+    console.log("✅ High-priority background rendering notification sent with sound & vibration");
   } catch (error) {
     console.error("❌ Failed to send notification:", error);
   }
