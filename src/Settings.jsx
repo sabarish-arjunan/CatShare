@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import { Capacitor } from "@capacitor/core";
