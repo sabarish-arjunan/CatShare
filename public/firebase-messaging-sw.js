@@ -1,35 +1,46 @@
-// Import Firebase scripts
-importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
+// Firebase Messaging Service Worker
+// This handles background push notifications from Firebase
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD5BOq_3xjUbbnKdF5KFFeOj6FmvV6nWJ8",
-  authDomain: "catshare-official.firebaseapp.com",
-  projectId: "catshare-official",
-  storageBucket: "catshare-official.firebasestorage.app",
-  messagingSenderId: "787555935594",
-  appId: "1:787555935594:web:d1540f197aa5eb25aab113",
-  measurementId: "G-7FXCGVC777"
-};
-
-// Initialize Firebase in service worker
-firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
-
-// Handle background messages
-messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw] Received background message: ', payload);
+self.addEventListener('push', (event) => {
+  console.log('[firebase-messaging-sw] Push notification received:', event);
   
-  const notificationTitle = payload.notification?.title || 'CatShare';
+  if (!event.data) {
+    console.log('[firebase-messaging-sw] Push event has no data');
+    return;
+  }
+
+  let notificationData = {};
+  
+  try {
+    notificationData = event.data.json();
+  } catch (e) {
+    console.log('[firebase-messaging-sw] Could not parse notification data as JSON');
+    notificationData = {
+      notification: {
+        title: 'CatShare',
+        body: event.data.text()
+      }
+    };
+  }
+
+  const { notification } = notificationData;
+  
   const notificationOptions = {
-    body: payload.notification?.body || 'Rendering Complete',
+    body: notification?.body || 'Rendering Complete',
     icon: '/favicon.ico',
     badge: '/favicon.ico',
     tag: 'firebase-notification',
+    data: notificationData.data || {}
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  console.log('[firebase-messaging-sw] Showing notification:', {
+    title: notification?.title,
+    options: notificationOptions
+  });
+
+  event.waitUntil(
+    self.registration.showNotification(notification?.title || 'CatShare', notificationOptions)
+  );
 });
 
 // Handle notification click
@@ -51,4 +62,10 @@ self.addEventListener('notificationclick', (event) => {
       }
     })
   );
+});
+
+// Handle service worker activation
+self.addEventListener('activate', (event) => {
+  console.log('[firebase-messaging-sw] Service Worker activated');
+  event.waitUntil(clients.claim());
 });
