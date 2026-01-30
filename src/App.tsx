@@ -13,6 +13,7 @@ import { KeepAwake } from '@capacitor-community/keep-awake';
 import { initializeFieldSystem } from "./config/initializeFields";
 import { runMigrations } from "./utils/dataMigration";
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { initializeFirebaseMessaging, triggerBackgroundRendering } from "./services/firebaseService";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
