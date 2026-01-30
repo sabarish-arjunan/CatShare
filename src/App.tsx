@@ -9,8 +9,11 @@ import {
 import { App as CapacitorApp } from "@capacitor/app";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
+import { KeepAwake } from '@capacitor-community/keep-awake';
 import { initializeFieldSystem } from "./config/initializeFields";
 import { runMigrations } from "./utils/dataMigration";
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { initializeFirebaseMessaging, triggerBackgroundRendering } from "./services/firebaseService";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -49,60 +52,100 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
-  // Handle rendering all PNGs
+  // Handle rendering all PNGs locally (works offline)
   const handleRenderAllPNGs = useCallback(async () => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
+    if (isNative) await KeepAwake.keepAwake();
     setIsRendering(true);
     setRenderProgress(0);
 
-    for (let i = 0; i < all.length; i++) {
-      const product = all[i];
+    try {
+        for (let i = 0; i < all.length; i++) {
+          const product = all[i];
 
-      // Skip products without images - don't error, just skip
-      if (!product.image && !product.imagePath) {
-        console.warn(`⚠️ Skipping ${product.name} - no image available`);
-        setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-        continue;
-      }
+          // Skip products without images - don't error, just skip
+          if (!product.image && !product.imagePath) {
+            console.warn(`⚠️ Skipping ${product.name} - no image available`);
+            setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+            continue;
+          }
 
-      try {
-        // Render for all catalogues
-        const { getAllCatalogues } = await import("./config/catalogueConfig");
-        const catalogues = getAllCatalogues();
+          try {
+            // Render for all catalogues
+            const { getAllCatalogues } = await import("./config/catalogueConfig");
+            const catalogues = getAllCatalogues();
 
-        for (const cat of catalogues) {
-          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+            for (const cat of catalogues) {
+              const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
 
-          await saveRenderedImage(product, legacyType, {
-            resellUnit: product.resellUnit || "/ piece",
-            wholesaleUnit: product.wholesaleUnit || "/ piece",
-            packageUnit: product.packageUnit || "pcs / set",
-            ageGroupUnit: product.ageUnit || "months",
-            catalogueId: cat.id,
-            catalogueLabel: cat.label,
-            folder: cat.folder || cat.label,
-            priceField: cat.priceField,
-            priceUnitField: cat.priceUnitField,
-          });
+              await saveRenderedImage(product, legacyType, {
+                resellUnit: product.resellUnit || "/ piece",
+                wholesaleUnit: product.wholesaleUnit || "/ piece",
+                packageUnit: product.packageUnit || "pcs / set",
+                ageGroupUnit: product.ageUnit || "months",
+                catalogueId: cat.id,
+                catalogueLabel: cat.label,
+                folder: cat.folder || cat.label,
+                priceField: cat.priceField,
+                priceUnitField: cat.priceUnitField,
+              });
+            }
+
+            console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
+          } catch (err) {
+            console.warn(`❌ Failed to render images for ${product.name}`, err);
+          }
+
+          setRenderProgress(Math.round(((i + 1) / all.length) * 100));
         }
 
-        console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
-      } catch (err) {
-        console.warn(`❌ Failed to render images for ${product.name}`, err);
-      }
+        setRenderResult({
+          status: "success",
+          message: "PNG rendering completed for all products",
+        });
 
-      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+        // Send push notification via Firebase (if internet available)
+        try {
+          const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
+          await triggerBackgroundRendering(all, userId);
+          console.log("✅ Push notification sent to Firebase");
+        } catch (notificationError) {
+          console.warn("⚠️ Could not send push notification (offline or Firebase error):", notificationError);
+          // This is OK - rendering already completed locally
+        }
+
+        // Schedule local notification as fallback
+        if (isNative) {
+          try {
+            await LocalNotifications.createChannel({
+              id: 'fcm_fallback_notification_channel',
+              name: 'Primary',
+              importance: 5,
+              visibility: 1,
+            }).then(() => {
+                LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            id: 1,
+                            title: "Rendering Complete",
+                            body: "All product images have been rendered.",
+                            channelId: 'fcm_fallback_notification_channel',
+                        },
+                    ]
+                });
+            });
+          } catch (error) {
+            console.warn("Could not show local notification:", error);
+          }
+        }
+    } finally {
+        setIsRendering(false);
+        window.dispatchEvent(new CustomEvent("renderComplete"));
+        if (isNative) await KeepAwake.allowSleep();
     }
-
-    setRenderResult({
-      status: "success",
-      message: "PNG rendering completed for all products",
-    });
-    setIsRendering(false);
-    window.dispatchEvent(new CustomEvent("renderComplete"));
-  }, []);
+  }, [isNative]);
 
   useEffect(() => {
     if (!isNative) return;
@@ -158,6 +201,33 @@ function AppWithBackHandler() {
     initializeFieldSystem();
   }, []);
 
+  // Initialize Firebase messaging for notifications
+  useEffect(() => {
+    const setupFirebase = async () => {
+      // Ensure user has a unique ID
+      if (!localStorage.getItem("userId")) {
+        localStorage.setItem("userId", `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      }
+      await initializeFirebaseMessaging();
+    };
+    setupFirebase();
+
+    // Listen for Firebase notifications
+    const handleFirebaseNotification = (event: any) => {
+      console.log("Firebase notification received in app:", event.detail);
+      setRenderResult({
+        status: "success",
+        message: event.detail.body || "Rendering completed successfully!",
+      });
+      setRenderProgress(100);
+    };
+
+    window.addEventListener("firebaseNotification", handleFirebaseNotification);
+    return () => {
+      window.removeEventListener("firebaseNotification", handleFirebaseNotification);
+    };
+  }, []);
+
   // Initialize catalogue system with data migration
   useEffect(() => {
     runMigrations();
@@ -191,6 +261,10 @@ function AppWithBackHandler() {
   useEffect(() => {
     let removeListener: any;
     CapacitorApp.addListener("backButton", () => {
+      if (isRendering) {
+        CapacitorApp.minimizeApp();
+        return;
+      }
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       // Check for product preview modal backdrop (backdrop-blur-xl with z-50)
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
@@ -208,7 +282,7 @@ function AppWithBackHandler() {
     return () => {
       if (removeListener) removeListener();
     };
-  }, [location, navigate]);
+  }, [location, navigate, isRendering]);
 
   // Listen for render request from watermark settings and other components
   // Auto-dismiss render result popup after 5 seconds
@@ -236,6 +310,13 @@ function AppWithBackHandler() {
     window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
     return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
   }, [handleRenderAllPNGs]);
+
+  useEffect(() => {
+    if (isNative) {
+      // Request permissions for local notifications
+      LocalNotifications.requestPermissions();
+    }
+  }, [isNative]);
 
   return (
     <div
