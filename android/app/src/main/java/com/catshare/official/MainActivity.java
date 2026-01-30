@@ -1,20 +1,19 @@
 package com.catshare.official;
 
+import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import com.getcapacitor.community.database.sqlite.CapacitorSQLite;
-import com.getcapacitor.community.database.sqlite.CapacitorSQLitePlugin;
-import com.getcapacitor.Plugin;
 
-import java.util.ArrayList;
+// Plugins
+import com.getcapacitor.community.database.sqlite.CapacitorSQLitePlugin;
+import com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin;
 
 public class MainActivity extends BridgeActivity {
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    registerPlugin(CapacitorSQLitePlugin.class);
-    registerPlugin(com.getcapacitor.pushnotifications.PushNotifications.class);
-
-    // ... other plugins
-  }
+        // Register Plugins
+        registerPlugin(CapacitorSQLitePlugin.class);
+        registerPlugin(PushNotificationsPlugin.class);
+    }
 }
