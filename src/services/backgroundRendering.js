@@ -32,6 +32,40 @@ let appState = {
 };
 
 /**
+ * Setup app state listener for intelligent wakelock management
+ */
+function setupAppStateListener() {
+  if (!appState.appStateListener) {
+    CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      appState.isActive = isActive;
+      console.log(`📱 App state changed: ${isActive ? 'FOREGROUND' : 'BACKGROUND'}`);
+
+      // If app goes to foreground during rendering, enable wakelock
+      if (isActive && renderingState.isRendering) {
+        const isNative = Capacitor.getPlatform() !== "web";
+        if (isNative) {
+          KeepAwake.keepAwake().catch(err =>
+            console.warn("⚠️ Could not re-enable wakelock on resume:", err)
+          );
+        }
+      }
+      // If app goes to background during rendering, allow sleep to conserve battery
+      // Rendering will continue in background
+      else if (!isActive && renderingState.isRendering) {
+        const isNative = Capacitor.getPlatform() !== "web";
+        if (isNative) {
+          KeepAwake.allowSleep().catch(err =>
+            console.warn("⚠️ Could not allow sleep on pause:", err)
+          );
+        }
+      }
+    }).then((listener) => {
+      appState.appStateListener = listener;
+    });
+  }
+}
+
+/**
  * Initialize background rendering with all products
  */
 export async function startBackgroundRendering(products, catalogues, onProgress, onComplete, onError) {
@@ -55,14 +89,19 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
   };
 
   try {
-    // Keep device awake during rendering
-    if (isNative) {
+    // Setup app state listener
+    setupAppStateListener();
+
+    // Keep device awake ONLY while app is in foreground
+    if (isNative && appState.isActive) {
       try {
         await KeepAwake.keepAwake();
-        console.log("✅ Device wakelock enabled");
+        console.log("✅ Device wakelock enabled (app in foreground)");
       } catch (err) {
         console.warn("⚠️ Could not enable wakelock:", err);
       }
+    } else if (isNative) {
+      console.log("📱 App is in background - rendering will continue without wakelock to save battery");
     }
 
     // Save initial state to localStorage for recovery if app crashes
