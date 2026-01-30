@@ -28,7 +28,8 @@ let renderingState = {
 // Track app state for intelligent wakelock management
 let appState = {
   isActive: true, // Assume active on startup
-  appStateListener: null
+  appStateListener: null,
+  wakelockRefreshInterval: null // For periodic wakelock refresh to prevent Doze
 };
 
 /**
