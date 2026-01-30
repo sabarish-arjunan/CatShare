@@ -61,6 +61,8 @@ export default function RenderingOverlay({ visible, current, total }) {
     return null;
   }
 
+  const percentage = Math.round((current / total) * 100);
+
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
       <div className="w-64 h-64">
@@ -78,17 +80,32 @@ export default function RenderingOverlay({ visible, current, total }) {
       <div className="w-64 h-3 mt-4 bg-[#e3caa3] rounded-full overflow-hidden">
         <div
           className="h-full bg-[#6c3b2a] transition-all duration-300"
-          style={{ width: `${(current / total) * 100}%` }}
+          style={{ width: `${percentage}%` }}
         />
       </div>
 
       <p className="mt-3 text-sm text-[#4b2b22] font-medium">
-        Rendering image {current} of {total}...
+        Rendering image {current} of {total}... ({percentage}%)
       </p>
 
-      <p className="text-xs text-red-500 mt-2">
-        ⚠️ Please keep the app open until rendering completes.
-      </p>
+      <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg w-72">
+        <p className="text-xs text-blue-700 font-medium">
+          ✅ Rendering continues in the background
+        </p>
+        <p className="text-xs text-blue-600 mt-2">
+          You can minimize the app and use other apps. You'll get a notification when complete.
+        </p>
+      </div>
+
+      <button
+        onClick={() => {
+          const { App } = require("@capacitor/app");
+          App.minimizeApp();
+        }}
+        className="mt-4 px-4 py-2 bg-[#6c3b2a] text-white rounded-lg text-sm hover:bg-[#5a3220] transition"
+      >
+        Minimize App
+      </button>
     </div>,
     portalRoot
   );
