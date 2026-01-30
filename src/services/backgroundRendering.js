@@ -179,7 +179,7 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     renderingState.isRendering = false;
     localStorage.removeItem('renderingState');
 
-    // Release wakelock
+    // Release wakelock (if app was active - otherwise already released when backgrounded)
     if (isNative) {
       try {
         await KeepAwake.allowSleep();
@@ -188,6 +188,9 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
         console.warn("⚠️ Could not release wakelock:", err);
       }
     }
+
+    // Clear app state listener cleanup
+    renderingState.isRendering = false;
 
     // Build result message
     const totalProcessed = renderingState.renderStats.successful + renderingState.renderStats.failed;
