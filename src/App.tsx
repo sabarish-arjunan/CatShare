@@ -30,6 +30,8 @@ import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
