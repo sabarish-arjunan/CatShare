@@ -282,10 +282,24 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
 /**
  * Cancel ongoing rendering
  */
-export function cancelBackgroundRendering() {
+export async function cancelBackgroundRendering() {
   console.log("⏹️ Cancelling background rendering...");
   renderingState.isCancelled = true;
+  renderingState.isRendering = false;
   localStorage.removeItem('renderingState');
+
+  // Cleanup wakelock
+  stopWakelockRefresh();
+
+  const isNative = Capacitor.getPlatform() !== "web";
+  if (isNative) {
+    try {
+      await KeepAwake.allowSleep();
+      console.log("✅ Wakelock released after cancellation");
+    } catch (err) {
+      console.warn("⚠️ Could not release wakelock:", err);
+    }
+  }
 }
 
 /**
