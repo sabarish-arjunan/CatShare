@@ -52,39 +52,100 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
-  // Handle rendering all PNGs using Firebase
+  // Handle rendering all PNGs locally (works offline)
   const handleRenderAllPNGs = useCallback(async () => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
+    if (isNative) await KeepAwake.keepAwake();
     setIsRendering(true);
     setRenderProgress(0);
 
     try {
-      const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
+        for (let i = 0; i < all.length; i++) {
+          const product = all[i];
 
-      // Send rendering request to Firebase
-      console.log(`📤 Sending ${all.length} products to Firebase for rendering...`);
-      const result = await triggerBackgroundRendering(all, userId);
+          // Skip products without images - don't error, just skip
+          if (!product.image && !product.imagePath) {
+            console.warn(`⚠️ Skipping ${product.name} - no image available`);
+            setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+            continue;
+          }
 
-      setRenderProgress(50); // Show progress while Firebase processes
-      console.log("✅ Rendering request sent to Firebase:", result);
+          try {
+            // Render for all catalogues
+            const { getAllCatalogues } = await import("./config/catalogueConfig");
+            const catalogues = getAllCatalogues();
 
-      setRenderResult({
-        status: "success",
-        message: "Rendering started on Firebase. You will receive a notification when complete.",
-      });
-    } catch (error) {
-      console.error("❌ Error triggering Firebase rendering:", error);
-      setRenderResult({
-        status: "error",
-        message: "Failed to start rendering. Please try again.",
-      });
+            for (const cat of catalogues) {
+              const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+              await saveRenderedImage(product, legacyType, {
+                resellUnit: product.resellUnit || "/ piece",
+                wholesaleUnit: product.wholesaleUnit || "/ piece",
+                packageUnit: product.packageUnit || "pcs / set",
+                ageGroupUnit: product.ageUnit || "months",
+                catalogueId: cat.id,
+                catalogueLabel: cat.label,
+                folder: cat.folder || cat.label,
+                priceField: cat.priceField,
+                priceUnitField: cat.priceUnitField,
+              });
+            }
+
+            console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
+          } catch (err) {
+            console.warn(`❌ Failed to render images for ${product.name}`, err);
+          }
+
+          setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+        }
+
+        setRenderResult({
+          status: "success",
+          message: "PNG rendering completed for all products",
+        });
+
+        // Send push notification via Firebase (if internet available)
+        try {
+          const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
+          await triggerBackgroundRendering(all, userId);
+          console.log("✅ Push notification sent to Firebase");
+        } catch (notificationError) {
+          console.warn("⚠️ Could not send push notification (offline or Firebase error):", notificationError);
+          // This is OK - rendering already completed locally
+        }
+
+        // Schedule local notification as fallback
+        if (isNative) {
+          try {
+            await LocalNotifications.createChannel({
+              id: 'fcm_fallback_notification_channel',
+              name: 'Primary',
+              importance: 5,
+              visibility: 1,
+            }).then(() => {
+                LocalNotifications.schedule({
+                    notifications: [
+                        {
+                            id: 1,
+                            title: "Rendering Complete",
+                            body: "All product images have been rendered.",
+                            channelId: 'fcm_fallback_notification_channel',
+                        },
+                    ]
+                });
+            });
+          } catch (error) {
+            console.warn("Could not show local notification:", error);
+          }
+        }
     } finally {
-      setIsRendering(false);
-      window.dispatchEvent(new CustomEvent("renderComplete"));
+        setIsRendering(false);
+        window.dispatchEvent(new CustomEvent("renderComplete"));
+        if (isNative) await KeepAwake.allowSleep();
     }
-  }, []);
+  }, [isNative]);
 
   useEffect(() => {
     if (!isNative) return;
