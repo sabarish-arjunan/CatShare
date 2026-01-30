@@ -173,6 +173,24 @@ export default function Settings({
             </div>
           </div>
 
+          {/* Test Notification Button */}
+          <div className="mt-4">
+            <button
+              onClick={testNotification}
+              className="w-full bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-300 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-400 transition p-4 text-left"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🔔</span>
+                    <h3 className="text-sm font-semibold text-blue-900">Test Notification</h3>
+                  </div>
+                  <p className="text-xs text-blue-700">Send a test notification to verify they're working</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
           {/* Pro Plan Card */}
           <div className="mt-4">
             <div
