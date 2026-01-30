@@ -217,6 +217,15 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     renderingState.isRendering = false;
     localStorage.removeItem('renderingState');
 
+    // Release wakelock on error
+    if (isNative) {
+      try {
+        await KeepAwake.allowSleep();
+      } catch (err) {
+        console.warn("⚠️ Could not release wakelock on error:", err);
+      }
+    }
+
     if (onError) {
       onError(error);
     }
