@@ -30,6 +30,8 @@ import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
@@ -52,132 +54,53 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
-  // Handle rendering all PNGs locally (works offline)
+  // Handle rendering all PNGs using background rendering service
   const handleRenderAllPNGs = useCallback(async () => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
-    if (isNative) await KeepAwake.keepAwake();
     setIsRendering(true);
     setRenderProgress(0);
 
-    let renderingFailed = false;
-    const failedProducts: string[] = [];
+    // Get all catalogues
+    const catalogues = getAllCatalogues();
 
+    // Callbacks for progress updates
+    const onProgress = (progress: any) => {
+      setRenderProgress(progress.percentage);
+    };
+
+    const onComplete = (result: any) => {
+      setIsRendering(false);
+      setRenderResult({
+        status: result.status === "success" ? "success" : "error",
+        message: result.message,
+      });
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    };
+
+    const onError = (error: any) => {
+      setIsRendering(false);
+      setRenderResult({
+        status: "error",
+        message: `Rendering failed: ${error.message}`,
+      });
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    };
+
+    // Start background rendering
     try {
-        for (let i = 0; i < all.length; i++) {
-          const product = all[i];
-
-          // Skip products without images - don't error, just skip
-          if (!product.image && !product.imagePath) {
-            console.warn(`⚠️ Skipping ${product.name} - no image available`);
-            setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-            continue;
-          }
-
-          try {
-            // Render for all catalogues
-            const { getAllCatalogues } = await import("./config/catalogueConfig");
-            const catalogues = getAllCatalogues();
-
-            for (const cat of catalogues) {
-              const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
-
-              await saveRenderedImage(product, legacyType, {
-                resellUnit: product.resellUnit || "/ piece",
-                wholesaleUnit: product.wholesaleUnit || "/ piece",
-                packageUnit: product.packageUnit || "pcs / set",
-                ageGroupUnit: product.ageUnit || "months",
-                catalogueId: cat.id,
-                catalogueLabel: cat.label,
-                folder: cat.folder || cat.label,
-                priceField: cat.priceField,
-                priceUnitField: cat.priceUnitField,
-              });
-            }
-
-            console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
-          } catch (err) {
-            console.error(`❌ Failed to render images for ${product.name}`, err);
-            renderingFailed = true;
-            failedProducts.push(product.name);
-          }
-
-          // Allow small time for UI updates and memory cleanup
-          await new Promise(resolve => setTimeout(resolve, 10));
-          setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-        }
-
-        // Determine result message
-        let resultMessage = "PNG rendering completed for all products";
-        if (renderingFailed) {
-          resultMessage = `Rendering completed with ${failedProducts.length} failed: ${failedProducts.join(", ")}`;
-        }
-
-        setRenderResult({
-          status: renderingFailed ? "error" : "success",
-          message: resultMessage,
-        });
-
-        // Send push notification via Firebase (if internet available)
-        // This happens AFTER rendering is complete
-        if (isNative) {
-          try {
-            const userId = localStorage.getItem("userId") || `user-${Date.now()}`;
-            console.log("📤 Sending Firebase background rendering notification...");
-            const result = await triggerBackgroundRendering(all, userId);
-            console.log("✅ Firebase background rendering triggered:", result);
-          } catch (notificationError) {
-            console.error("❌ Firebase background rendering error:", notificationError);
-            // Show local notification as fallback
-          }
-        }
-
-        // Always schedule local notification as backup
-        if (isNative) {
-          try {
-            console.log("📱 Attempting to show local notification...");
-
-            // First, try to create the channel
-            try {
-              await LocalNotifications.createChannel({
-                id: 'render_complete_channel',
-                name: 'Render Notifications',
-                importance: 5,
-                visibility: 1,
-              });
-              console.log("✅ Notification channel created");
-            } catch (channelError) {
-              console.warn("⚠️ Could not create notification channel (may already exist):", channelError);
-            }
-
-            // Then schedule the notification
-            const notificationId = Math.floor(Math.random() * 100000) + 1;
-            await LocalNotifications.schedule({
-              notifications: [
-                {
-                  id: notificationId,
-                  title: "Rendering Complete",
-                  body: resultMessage,
-                  channelId: 'render_complete_channel',
-                },
-              ]
-            });
-            console.log("✅ Local notification scheduled with ID:", notificationId);
-          } catch (error) {
-            console.error("❌ Failed to schedule local notification:", error);
-            console.error("Error details:", {
-              message: error?.message,
-              code: error?.code,
-            });
-          }
-        }
-    } finally {
-        setIsRendering(false);
-        window.dispatchEvent(new CustomEvent("renderComplete"));
-        if (isNative) await KeepAwake.allowSleep();
+      await startBackgroundRendering(all, catalogues, onProgress, onComplete, onError);
+    } catch (err) {
+      console.error("❌ Background rendering failed:", err);
+      setIsRendering(false);
+      setRenderResult({
+        status: "error",
+        message: `Rendering error: ${err.message}`,
+      });
+      window.dispatchEvent(new CustomEvent("renderComplete"));
     }
-  }, [isNative]);
+  }, []);
 
   useEffect(() => {
     if (!isNative) return;

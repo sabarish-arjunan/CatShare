@@ -70,6 +70,7 @@ export default function CatalogueView({
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const toolsMenuRef = useRef(null);
 
 
 useEffect(() => {
@@ -100,6 +101,20 @@ useEffect(() => {
   useEffect(() => {
     if (selected.length === 0) setSelectMode(false);
   }, [selected]);
+
+  // Close tools menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target)) {
+        setShowToolsMenu(false);
+      }
+    };
+
+    if (showToolsMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showToolsMenu]);
 
   useEffect(() => {
   const handlePopState = async () => {
@@ -621,7 +636,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     )}
 
     {/* Tools Menu Button (3 dots) - Always on the right */}
-    <div className="relative ml-auto">
+    <div className="relative ml-auto" ref={toolsMenuRef}>
       <button
         onClick={() => setShowToolsMenu((prev) => !prev)}
         className="text-xl text-gray-600 hover:text-black p-1"
@@ -1141,7 +1156,7 @@ onMouseLeave={handleTouchEnd}
     {/* Floating Add Button */}
     <button
       onClick={() => setShowAddProductsModal(true)}
-      className="fixed right-4 z-40 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-blue-300 bg-white text-blue-600 hover:bg-blue-50 hover:border-blue-400 shadow-sm hover:shadow-md transition-all"
+      className="fixed right-4 z-20 flex items-center gap-2 px-4 py-2.5 rounded-lg border border-blue-300 bg-white text-blue-600 hover:bg-blue-50 hover:border-blue-400 shadow-sm hover:shadow-md transition-all"
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
       title="Add products to this catalogue"
     >

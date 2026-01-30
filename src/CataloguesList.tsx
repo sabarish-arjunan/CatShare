@@ -152,12 +152,12 @@ export default function CataloguesList({
                         );
                       })}
 
-                    {/* Hero image as front card (highest z-index) */}
+                    {/* Hero image as front card (highest z-index within card) */}
                     {catalogue.heroImage ? (
                       <div
                         className="absolute w-16 h-16 rounded border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden"
                         style={{
-                          zIndex: 100, // Front layer
+                          zIndex: 10, // Front layer within card only
                           left: '2px',
                           top: '2px',
                           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',

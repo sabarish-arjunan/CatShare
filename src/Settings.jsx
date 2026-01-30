@@ -53,21 +53,19 @@ export default function Settings({
     window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
   };
 
-  // Test notification
-  const testNotification = async () => {
+  // Send notification helper
+  const sendNotification = async (title, body) => {
     const isNative = Capacitor.getPlatform() !== "web";
     if (!isNative) {
-      alert("Notifications only work on native apps (Android/iOS)");
+      console.log("Notification (web):", title, body);
       return;
     }
 
     try {
-      console.log("📱 Sending test notification...");
-
       // Create channel
       await LocalNotifications.createChannel({
-        id: 'test_channel',
-        name: 'Test Notifications',
+        id: 'default_channel',
+        name: 'App Notifications',
         importance: 5,
         visibility: 1,
       });
@@ -77,19 +75,30 @@ export default function Settings({
         notifications: [
           {
             id: Math.floor(Math.random() * 100000) + 1,
-            title: "Test Notification",
-            body: "If you see this, notifications are working! ✅",
-            channelId: 'test_channel',
+            title,
+            body,
+            channelId: 'default_channel',
           },
         ]
       });
 
-      console.log("✅ Test notification sent successfully");
+      console.log("✅ Notification sent:", title);
     } catch (error) {
-      console.error("❌ Test notification failed:", error);
-      alert("Test notification failed: " + error?.message);
+      console.error("❌ Notification failed:", error);
     }
   };
+
+  // Test notification
+  const testNotification = async () => {
+    await sendNotification("Test Notification", "If you see this, notifications are working! ✅");
+  };
+
+  // Show notification when rendering completes
+  useEffect(() => {
+    if (!isRendering && renderProgress > 0) {
+      sendNotification("Rendering Complete", "Your images have been processed and saved! 🎉");
+    }
+  }, [isRendering, renderProgress]);
 
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
