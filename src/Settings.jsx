@@ -54,6 +54,44 @@ export default function Settings({
     window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
   };
 
+  // Test notification
+  const testNotification = async () => {
+    const isNative = Capacitor.getPlatform() !== "web";
+    if (!isNative) {
+      alert("Notifications only work on native apps (Android/iOS)");
+      return;
+    }
+
+    try {
+      console.log("📱 Sending test notification...");
+
+      // Create channel
+      await LocalNotifications.createChannel({
+        id: 'test_channel',
+        name: 'Test Notifications',
+        importance: 5,
+        visibility: 1,
+      });
+
+      // Schedule notification
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Math.floor(Math.random() * 100000) + 1,
+            title: "Test Notification",
+            body: "If you see this, notifications are working! ✅",
+            channelId: 'test_channel',
+          },
+        ]
+      });
+
+      console.log("✅ Test notification sent successfully");
+    } catch (error) {
+      console.error("❌ Test notification failed:", error);
+      alert("Test notification failed: " + error?.message);
+    }
+  };
+
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
       {/* Status bar placeholder */}
