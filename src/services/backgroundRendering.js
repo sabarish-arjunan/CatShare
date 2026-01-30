@@ -25,6 +25,12 @@ let renderingState = {
   }
 };
 
+// Track app state for intelligent wakelock management
+let appState = {
+  isActive: true, // Assume active on startup
+  appStateListener: null
+};
+
 /**
  * Initialize background rendering with all products
  */
