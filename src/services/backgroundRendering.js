@@ -48,6 +48,7 @@ function setupAppStateListener() {
           KeepAwake.keepAwake().catch(err =>
             console.warn("⚠️ Could not re-enable wakelock on resume:", err)
           );
+          startWakelockRefresh(); // Resume aggressive refresh
         }
       }
       // If app goes to background during rendering, allow sleep to conserve battery
@@ -55,6 +56,7 @@ function setupAppStateListener() {
       else if (!isActive && renderingState.isRendering) {
         const isNative = Capacitor.getPlatform() !== "web";
         if (isNative) {
+          stopWakelockRefresh(); // Stop aggressive refresh
           KeepAwake.allowSleep().catch(err =>
             console.warn("⚠️ Could not allow sleep on pause:", err)
           );
@@ -63,6 +65,45 @@ function setupAppStateListener() {
     }).then((listener) => {
       appState.appStateListener = listener;
     });
+  }
+}
+
+/**
+ * Start periodic wakelock refresh to prevent Doze mode (only when app is foreground)
+ * Refreshes every 1 minute to keep the device in active state
+ */
+function startWakelockRefresh() {
+  if (appState.wakelockRefreshInterval) {
+    return; // Already running
+  }
+
+  const isNative = Capacitor.getPlatform() !== "web";
+  if (!isNative) return;
+
+  console.log("🔄 Starting aggressive wakelock refresh (1 min interval) to prevent Doze mode");
+
+  appState.wakelockRefreshInterval = setInterval(async () => {
+    if (renderingState.isRendering && appState.isActive) {
+      try {
+        // Release and immediately re-acquire to refresh the wakelock
+        await KeepAwake.allowSleep();
+        await KeepAwake.keepAwake();
+        console.log("🔄 Wakelock refreshed to prevent Doze mode");
+      } catch (err) {
+        console.warn("⚠️ Could not refresh wakelock:", err);
+      }
+    }
+  }, 60000); // Refresh every 60 seconds
+}
+
+/**
+ * Stop periodic wakelock refresh
+ */
+function stopWakelockRefresh() {
+  if (appState.wakelockRefreshInterval) {
+    clearInterval(appState.wakelockRefreshInterval);
+    appState.wakelockRefreshInterval = null;
+    console.log("🛑 Stopped wakelock refresh interval");
   }
 }
 
