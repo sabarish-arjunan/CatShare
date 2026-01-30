@@ -334,7 +334,11 @@ function AppWithBackHandler() {
   useEffect(() => {
     if (isNative) {
       // Request permissions for local notifications
-      LocalNotifications.requestPermissions();
+      LocalNotifications.requestPermissions().then((permission) => {
+        console.log("✅ Local notification permission requested:", permission);
+      }).catch((error) => {
+        console.error("❌ Failed to request local notification permissions:", error);
+      });
     }
   }, [isNative]);
 
