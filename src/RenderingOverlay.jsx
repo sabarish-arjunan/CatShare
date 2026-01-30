@@ -47,24 +47,11 @@ const withAlpha = (color, alpha = 0.9) => {
 export default function RenderingOverlay({ visible, current, total }) {
   const [pageBg, setPageBg] = useState("#ffffff");
 
-  // Keep screen awake while rendering and compute page background
+  // Compute page background color
   useEffect(() => {
-    const toggleAwake = async () => {
-      try {
-        if (visible) {
-          setPageBg(getPageBackgroundColor());
-          await KeepAwake.keepAwake();
-        } else {
-          await KeepAwake.allowSleep();
-        }
-      } catch (err) {
-        console.warn("KeepAwake failed:", err);
-      }
-    };
-    toggleAwake();
-    return () => {
-      KeepAwake.allowSleep().catch(() => {});
-    };
+    if (visible) {
+      setPageBg(getPageBackgroundColor());
+    }
   }, [visible]);
 
   if (!visible) return null;
