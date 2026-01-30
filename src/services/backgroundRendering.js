@@ -263,6 +263,8 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     localStorage.removeItem('renderingState');
 
     // Release wakelock on error
+    stopWakelockRefresh(); // Stop aggressive refresh
+
     if (isNative) {
       try {
         await KeepAwake.allowSleep();
