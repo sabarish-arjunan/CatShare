@@ -70,6 +70,7 @@ export default function CatalogueView({
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const toolsMenuRef = useRef(null);
 
 
 useEffect(() => {
