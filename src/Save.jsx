@@ -441,7 +441,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         const imagePadding = 16; // padding in imageWrap
 
         // Calculate dimensions accounting for all parent elements
-        const imageWrapWidth = containerWidth * scale; // Full container width
+        const imageWrapWidth = containerWidth * renderScale; // Full container width
 
         // Calculate offset from top
         // For wholesale: priceBar (≈36px) + imageShadowWrap offset
@@ -457,10 +457,10 @@ export async function saveRenderedImage(product, type, units = {}) {
           currentEl = prevEl;
         }
 
-        imageWrapOffsetTop *= scale;
+        imageWrapOffsetTop *= renderScale;
 
         // Image section height includes padding and the image itself
-        const imageWrapHeight = imageWrapEl.offsetHeight * scale;
+        const imageWrapHeight = imageWrapEl.offsetHeight * renderScale;
         const imageWrapOffsetLeft = 0;
 
         // Watermark font size should be relative to image section width
