@@ -136,28 +136,40 @@ function AppWithBackHandler() {
         // Always schedule local notification as backup
         if (isNative) {
           try {
-            await LocalNotifications.createChannel({
-              id: 'fcm_fallback_notification_channel',
-              name: 'Primary',
-              importance: 5,
-              visibility: 1,
-            });
+            console.log("📱 Attempting to show local notification...");
 
+            // First, try to create the channel
+            try {
+              await LocalNotifications.createChannel({
+                id: 'render_complete_channel',
+                name: 'Render Notifications',
+                importance: 5,
+                visibility: 1,
+              });
+              console.log("✅ Notification channel created");
+            } catch (channelError) {
+              console.warn("⚠️ Could not create notification channel (may already exist):", channelError);
+            }
+
+            // Then schedule the notification
+            const notificationId = Math.floor(Math.random() * 100000) + 1;
             await LocalNotifications.schedule({
               notifications: [
                 {
-                  id: Math.floor(Math.random() * 10000),
+                  id: notificationId,
                   title: "Rendering Complete",
                   body: resultMessage,
-                  channelId: 'fcm_fallback_notification_channel',
-                  smallIcon: "ic_launcher_foreground",
-                  largeIcon: "ic_launcher_foreground",
+                  channelId: 'render_complete_channel',
                 },
               ]
             });
-            console.log("✅ Local notification scheduled");
+            console.log("✅ Local notification scheduled with ID:", notificationId);
           } catch (error) {
-            console.error("❌ Could not show local notification:", error);
+            console.error("❌ Failed to schedule local notification:", error);
+            console.error("Error details:", {
+              message: error?.message,
+              code: error?.code,
+            });
           }
         }
     } finally {
