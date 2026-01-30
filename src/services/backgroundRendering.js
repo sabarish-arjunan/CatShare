@@ -223,6 +223,8 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     localStorage.removeItem('renderingState');
 
     // Release wakelock (if app was active - otherwise already released when backgrounded)
+    stopWakelockRefresh(); // Stop aggressive refresh
+
     if (isNative) {
       try {
         await KeepAwake.allowSleep();
