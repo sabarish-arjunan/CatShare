@@ -2,6 +2,7 @@ import { saveRenderedImage } from "../Save";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { KeepAwake } from '@capacitor-community/keep-awake';
 
 /**
