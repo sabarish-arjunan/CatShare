@@ -4,11 +4,10 @@ const config: CapacitorConfig = {
   appId: 'com.catshare.official',
   appName: 'CatShare',
   webDir: 'dist',
-  bundledWebRuntime: false,
-  server: {
-    cleartext: false,
-  },
   plugins: {
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
     StatusBar: {
       overlay: false, // Do not draw under the status bar; system reserves inset
     },
