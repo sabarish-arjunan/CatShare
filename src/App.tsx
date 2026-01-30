@@ -143,6 +143,10 @@ function AppWithBackHandler() {
   // Initialize Firebase messaging for notifications
   useEffect(() => {
     const setupFirebase = async () => {
+      // Ensure user has a unique ID
+      if (!localStorage.getItem("userId")) {
+        localStorage.setItem("userId", `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      }
       await initializeFirebaseMessaging();
     };
     setupFirebase();
