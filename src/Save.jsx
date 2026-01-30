@@ -466,7 +466,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         // Watermark font size should be relative to image section width
         // Matches the preview sizing logic
         const previewFontSize = 10; // Base font size in preview
-        const watermarkSize = previewFontSize * scale; // Scale up proportionally
+        const watermarkSize = previewFontSize * renderScale; // Scale up proportionally
         ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
 
         // Check if background is light or dark and set watermark color accordingly
