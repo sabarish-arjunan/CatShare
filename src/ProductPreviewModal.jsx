@@ -696,6 +696,11 @@ export default function ProductPreviewModal({
                 overflow: "auto",
                 flex: 1,
                 minHeight: 0,
+                touchAction: "pan-y",
+              }}
+              onTouchMove={(e) => {
+                // Allow the touch event to propagate to parent for swipe detection
+                // This ensures horizontal swipes work even in the scrollable area
               }}
             >
               <div style={{ textAlign: "center", marginBottom: 3 }}>
