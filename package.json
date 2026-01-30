@@ -37,6 +37,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "firebase": "^12.8.0",
     "framer-motion": "^12.23.9",
     "html2canvas": "1.4.1",
     "html2canvas-pro": "1.5.11",
@@ -57,8 +58,8 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.0.0",
     "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
