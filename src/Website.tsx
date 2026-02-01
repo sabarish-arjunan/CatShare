@@ -5,7 +5,7 @@ import {
   MdAutoAwesome,
   MdCloud,
   MdLightbulb,
-  MdShieldVerified,
+  MdSecurity,
   MdSpeed,
   MdLocalShipping,
   MdCategory,
