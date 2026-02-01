@@ -25,6 +25,7 @@ import WatermarkSettings from "./pages/WatermarkSettings";
 import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
+import Website from "./Website";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
