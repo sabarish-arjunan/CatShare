@@ -85,7 +85,7 @@ export default function Website() {
     },
     {
       id: "security",
-      icon: <MdShieldVerified className="w-8 h-8" />,
+      icon: <MdSecurity className="w-8 h-8" />,
       title: "Secure & Private",
       description:
         "Your data is yours. All information is stored locally with optional cloud backup for peace of mind.",
