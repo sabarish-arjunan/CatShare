@@ -38,6 +38,14 @@ let currentRenderItems: Array<{
   renderConfig?: any;
 }> = [];
 
+interface ResumableRenderState {
+  items: Product[];
+  catalogues: Catalogue[];
+  startedAt: number;
+}
+
+let resumableState: ResumableRenderState | null = null;
+
 /**
  * Start background rendering service
  * Sends render data to native Android service or Web Worker
