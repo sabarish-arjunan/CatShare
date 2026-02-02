@@ -105,6 +105,36 @@ function stopWakelockRefresh() {
 }
 
 /**
+ * Start minimal wakelock refresh for background rendering
+ * Uses longer interval (5 min) to conserve battery while keeping device awake
+ */
+function startMinimalWakelockRefresh() {
+  if (appState.wakelockRefreshInterval) {
+    return; // Already running
+  }
+
+  const isNative = Capacitor.getPlatform() !== "web";
+  if (!isNative) return;
+
+  console.log("🔄 Starting minimal wakelock refresh (5 min interval) for background rendering");
+
+  appState.wakelockRefreshInterval = setInterval(async () => {
+    if (renderingState.isRendering && !appState.isActive) {
+      try {
+        // Light refresh - just ping the wakelock to keep it active
+        await KeepAwake.keepAwake();
+        console.log("🔄 Minimal wakelock refresh (background)");
+      } catch (err) {
+        console.warn("⚠️ Could not refresh wakelock in background:", err);
+      }
+    } else if (!renderingState.isRendering || appState.isActive) {
+      // Stop if rendering finished or app came back to foreground
+      stopWakelockRefresh();
+    }
+  }, 5 * 60 * 1000); // Refresh every 5 minutes
+}
+
+/**
  * Initialize background rendering with all products
  */
 export async function startBackgroundRendering(products, catalogues, onProgress, onComplete, onError) {
