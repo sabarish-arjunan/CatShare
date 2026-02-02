@@ -458,13 +458,12 @@ export async function saveRenderedImage(product, type, units = {}) {
     canvas.height = 0;
 
     // Add watermark - Only if enabled in settings
-    const showWatermark = localStorage.getItem("showWatermark");
-    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : false; // Default: false (disabled)
+    const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
 
     if (isWatermarkEnabled) {
       // Get custom watermark text from localStorage, default to "Created using CatShare"
-      const watermarkText = localStorage.getItem("watermarkText") || "Created using CatShare";
-      const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
+      const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
+      const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 
       // Get the imageWrap and imageShadowWrap elements to determine position in the rendered canvas
       const imageWrapEl = document.getElementById(`image-wrap-${id}`);
