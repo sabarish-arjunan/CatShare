@@ -58,7 +58,7 @@ function AppWithBackHandler() {
 
   // Handle rendering all PNGs using background rendering service
   const handleRenderAllPNGs = useCallback(async () => {
-    const all = JSON.parse(localStorage.getItem("products") || "[]");
+    const all = safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
     setIsRendering(true);
