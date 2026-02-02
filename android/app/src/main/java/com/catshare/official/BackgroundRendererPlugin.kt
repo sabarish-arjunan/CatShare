@@ -22,10 +22,14 @@ class BackgroundRendererPlugin : Plugin() {
         }
         
         try {
+            // Parse JSObject to JSONObject to access nested arrays
+            val jsonData = JSONObject(renderData.toString())
+            val totalItems = jsonData.getJSONArray("items").length()
+
             // Create intent for the service
             val serviceIntent = Intent(context, RenderingService::class.java).apply {
                 putExtra("renderData", renderData.toString())
-                putExtra("totalItems", renderData.getJSONArray("items").length())
+                putExtra("totalItems", totalItems)
             }
             
             // Start the foreground service
