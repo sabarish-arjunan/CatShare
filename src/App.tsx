@@ -54,6 +54,7 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
+
   // Handle rendering all PNGs using background rendering service
   const handleRenderAllPNGs = useCallback(async () => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
