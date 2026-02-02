@@ -2,6 +2,7 @@ package com.catshare.official
 
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
