@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.util.Base64
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
