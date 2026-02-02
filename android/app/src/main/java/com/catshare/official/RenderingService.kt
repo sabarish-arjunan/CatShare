@@ -172,8 +172,38 @@ class RenderingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         renderingTask?.cancel()
+        releaseWakeLock()
         Log.d(TAG, "RenderingService destroyed")
     }
-    
+
+    private fun acquireWakeLock() {
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "RenderingService::RenderWakeLock"
+            ).apply {
+                acquire(24 * 60 * 60 * 1000) // 24 hours timeout (safety limit)
+            }
+            Log.d(TAG, "WakeLock acquired")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to acquire WakeLock: ${e.message}")
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                    Log.d(TAG, "WakeLock released")
+                }
+            }
+            wakeLock = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release WakeLock: ${e.message}")
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 }
