@@ -38,6 +38,14 @@ let currentRenderItems: Array<{
   renderConfig?: any;
 }> = [];
 
+interface ResumableRenderState {
+  items: Product[];
+  catalogues: Catalogue[];
+  startedAt: number;
+}
+
+let resumableState: ResumableRenderState | null = null;
+
 /**
  * Start background rendering service
  * Sends render data to native Android service or Web Worker
@@ -61,6 +69,7 @@ export async function startBackgroundRendering(
 
   isRendering = true;
   renderingProgress = 0;
+  saveResumableState(items, catalogues);
 
   try {
     const isNative = Capacitor.getPlatform() !== 'web';
@@ -81,7 +90,7 @@ export async function startBackgroundRendering(
           })),
         },
       })),
-      format: 'png',
+      format: 'png' as const,
       width: 1080,
       height: 1080,
     };
@@ -223,10 +232,57 @@ export async function getRenderingStatus(): Promise<{ isRunning: boolean }> {
   }
 }
 
+/**
+ * Check if there's a resumable rendering state (from interrupted rendering)
+ */
+export function checkResumableRendering(): ResumableRenderState | null {
+  if (resumableState) {
+    const timeSinceStart = Date.now() - resumableState.startedAt;
+    // Consider a render resumable if it was started less than 24 hours ago
+    if (timeSinceStart < 24 * 60 * 60 * 1000) {
+      return resumableState;
+    } else {
+      resumableState = null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Resume background rendering from an interrupted state
+ */
+export async function resumeBackgroundRendering(
+  items: Product[],
+  catalogues: Catalogue[],
+  onProgress: RenderProgressCallback,
+  onComplete: RenderCompleteCallback,
+  onError: RenderErrorCallback
+): Promise<void> {
+  console.log('🔄 Resuming background rendering...');
+  resumableState = null; // Clear the resumable state
+
+  // Simply delegate to startBackgroundRendering
+  return startBackgroundRendering(items, catalogues, onProgress, onComplete, onError);
+}
+
+/**
+ * Save rendering state for resumption if interrupted
+ */
+function saveResumableState(items: Product[], catalogues: Catalogue[]): void {
+  resumableState = {
+    items,
+    catalogues,
+    startedAt: Date.now(),
+  };
+  console.log('💾 Saved resumable rendering state');
+}
+
 export default {
   startBackgroundRendering,
   cancelBackgroundRendering,
   getRenderingProgress,
   isRenderingActive,
   getRenderingStatus,
+  checkResumableRendering,
+  resumeBackgroundRendering,
 };
