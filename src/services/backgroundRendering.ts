@@ -38,6 +38,10 @@ let currentRenderItems: Array<{
   renderConfig?: any;
 }> = [];
 
+// Track timer IDs for cleanup
+let _progressInterval: NodeJS.Timeout | null = null;
+let _completionTimeout: NodeJS.Timeout | null = null;
+
 interface ResumableRenderState {
   items: Product[];
   catalogues: Catalogue[];
