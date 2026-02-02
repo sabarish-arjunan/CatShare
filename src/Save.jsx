@@ -660,7 +660,16 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
+    throw err; // Rethrow so caller knows rendering failed
   } finally {
-    document.body.removeChild(wrapper);
+    // Safely remove wrapper from DOM if it's still there
+    // html2canvas may have already removed it with removeContainer: true
+    if (wrapper && wrapper.parentNode === document.body) {
+      try {
+        document.body.removeChild(wrapper);
+      } catch (removeErr) {
+        console.warn("⚠️ Failed to remove wrapper from DOM:", removeErr.message);
+      }
+    }
   }
 }
