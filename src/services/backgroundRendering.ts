@@ -117,16 +117,19 @@ export async function startBackgroundRendering(
         const result = await BackgroundRenderer.startRendering({
           renderData: renderData,
         });
-        
+
         console.log('✅ [Native] Background rendering started:', result);
-        
+
         // Simulate progress updates while native rendering is running
-        const progressInterval = setInterval(() => {
+        _progressInterval = setInterval(() => {
           if (!isRendering) {
-            clearInterval(progressInterval);
+            if (_progressInterval) {
+              clearInterval(_progressInterval);
+              _progressInterval = null;
+            }
             return;
           }
-          
+
           renderingProgress = Math.min(renderingProgress + 5, 95);
           onProgress({
             percentage: renderingProgress,
@@ -135,8 +138,11 @@ export async function startBackgroundRendering(
         }, 500);
 
         // Simulate completion after a reasonable timeout
-        setTimeout(() => {
-          clearInterval(progressInterval);
+        _completionTimeout = setTimeout(() => {
+          if (_progressInterval) {
+            clearInterval(_progressInterval);
+            _progressInterval = null;
+          }
           isRendering = false;
           renderingProgress = 100;
           onComplete({
