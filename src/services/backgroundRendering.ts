@@ -69,6 +69,7 @@ export async function startBackgroundRendering(
 
   isRendering = true;
   renderingProgress = 0;
+  saveResumableState(items, catalogues);
 
   try {
     const isNative = Capacitor.getPlatform() !== 'web';
