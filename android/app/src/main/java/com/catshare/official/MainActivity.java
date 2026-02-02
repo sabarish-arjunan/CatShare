@@ -18,6 +18,6 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(CapacitorSQLitePlugin.class);
         registerPlugin(PushNotificationsPlugin.class);
         registerPlugin(LocalNotificationsPlugin.class);
-        registerPlugin(BackgroundRendererPlugin.class);  // ✅ CHANGED THIS
+        registerPlugin(BackgroundRendererPlugin.class);
     }
 }
