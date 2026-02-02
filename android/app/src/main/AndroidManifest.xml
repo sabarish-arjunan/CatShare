@@ -9,12 +9,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-    <!-- External storage permissions for app-specific directory (Directory.External) -->
-    <!-- Works on all Android versions: no runtime permissions needed for app-specific storage -->
 
     <application
         android:allowBackup="true"
@@ -38,7 +38,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Deep linking for App Indexing & SEO -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -60,17 +59,10 @@
 
         <!-- Background Rendering Service -->
         <service
-            android:name=".render.BackgroundRenderingService"
-            android:exported="false" />
-
-        <!-- Boot Completed Receiver for automatic rendering on device boot -->
-        <receiver
-            android:name=".render.BootReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+            android:name=".RenderingService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
     </application>
 </manifest>
