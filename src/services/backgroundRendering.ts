@@ -231,10 +231,57 @@ export async function getRenderingStatus(): Promise<{ isRunning: boolean }> {
   }
 }
 
+/**
+ * Check if there's a resumable rendering state (from interrupted rendering)
+ */
+export function checkResumableRendering(): ResumableRenderState | null {
+  if (resumableState) {
+    const timeSinceStart = Date.now() - resumableState.startedAt;
+    // Consider a render resumable if it was started less than 24 hours ago
+    if (timeSinceStart < 24 * 60 * 60 * 1000) {
+      return resumableState;
+    } else {
+      resumableState = null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Resume background rendering from an interrupted state
+ */
+export async function resumeBackgroundRendering(
+  items: Product[],
+  catalogues: Catalogue[],
+  onProgress: RenderProgressCallback,
+  onComplete: RenderCompleteCallback,
+  onError: RenderErrorCallback
+): Promise<void> {
+  console.log('🔄 Resuming background rendering...');
+  resumableState = null; // Clear the resumable state
+
+  // Simply delegate to startBackgroundRendering
+  return startBackgroundRendering(items, catalogues, onProgress, onComplete, onError);
+}
+
+/**
+ * Save rendering state for resumption if interrupted
+ */
+function saveResumableState(items: Product[], catalogues: Catalogue[]): void {
+  resumableState = {
+    items,
+    catalogues,
+    startedAt: Date.now(),
+  };
+  console.log('💾 Saved resumable rendering state');
+}
+
 export default {
   startBackgroundRendering,
   cancelBackgroundRendering,
   getRenderingProgress,
   isRenderingActive,
   getRenderingStatus,
+  checkResumableRendering,
+  resumeBackgroundRendering,
 };
