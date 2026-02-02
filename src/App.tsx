@@ -446,10 +446,12 @@ function AppWithBackHandler() {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <Router>
-        <AppWithBackHandler />
-      </Router>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <AppWithBackHandler />
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
