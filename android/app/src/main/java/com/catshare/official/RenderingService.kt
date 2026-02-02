@@ -11,20 +11,22 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 
 class RenderingService : Service() {
-    
+
     companion object {
         private const val TAG = "RenderingService"
         private const val CHANNEL_ID = "RenderingServiceChannel"
         private const val NOTIFICATION_ID = 1
     }
-    
+
     private lateinit var notificationManager: NotificationManager
     private val handler = Handler(Looper.getMainLooper())
     private var renderingTask: RenderingTask? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     
     override fun onCreate() {
         super.onCreate()
