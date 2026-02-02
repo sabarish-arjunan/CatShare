@@ -161,17 +161,23 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     // Setup app state listener
     setupAppStateListener();
 
-    // Keep device awake ONLY while app is in foreground
-    if (isNative && appState.isActive) {
+    // Keep device awake during rendering, regardless of app state
+    if (isNative) {
       try {
         await KeepAwake.keepAwake();
-        console.log("✅ Device wakelock enabled (app in foreground)");
-        startWakelockRefresh(); // Start aggressive refresh to prevent Doze mode
+        console.log("✅ Device wakelock enabled for background rendering");
+
+        // Choose refresh rate based on app state
+        if (appState.isActive) {
+          startWakelockRefresh(); // Aggressive refresh in foreground
+          console.log("📱 App is active - using aggressive wakelock refresh");
+        } else {
+          startMinimalWakelockRefresh(); // Minimal refresh in background
+          console.log("📱 App is backgrounded - using minimal wakelock refresh to conserve battery");
+        }
       } catch (err) {
         console.warn("⚠️ Could not enable wakelock:", err);
       }
-    } else if (isNative) {
-      console.log("📱 App is in background - rendering will continue without wakelock to save battery");
     }
 
     // Save initial state to localStorage for recovery if app crashes
