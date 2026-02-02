@@ -159,47 +159,124 @@ class RenderingTask(
         width: Int,
         height: Int
     ) {
-        // Fill background
+        // Fill background with white
         val bgPaint = Paint().apply {
-            color = 0xFFFFFFFF.toInt() // White background
+            color = 0xFFFFFFFF.toInt()
         }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
-        
-        // Draw source image if available
+
+        // Draw source image if available (with padding for better appearance)
         sourceBitmap?.let { bitmap ->
-            // Calculate scaling to fit
+            val padding = 40
+            val availableWidth = width - (padding * 2)
+            val availableHeight = (height * 0.65).toInt() - padding
+
+            // Calculate scaling to fit within available space
             val scale = minOf(
-                width.toFloat() / bitmap.width,
-                height.toFloat() / bitmap.height
+                availableWidth.toFloat() / bitmap.width,
+                availableHeight.toFloat() / bitmap.height
             )
-            
+
             val scaledWidth = (bitmap.width * scale).toInt()
             val scaledHeight = (bitmap.height * scale).toInt()
-            
+
             val left = (width - scaledWidth) / 2
-            val top = (height - scaledHeight) / 2
-            
+            val top = padding + (availableHeight - scaledHeight) / 2
+
             val destRect = Rect(left, top, left + scaledWidth, top + scaledHeight)
             canvas.drawBitmap(bitmap, null, destRect, null)
+            Log.d(TAG, "Rendered image for: ${item.name} at rect: $destRect")
         }
-        
-        // Add text overlay (product name)
-        val textPaint = Paint().apply {
+
+        // Draw product name (title)
+        val namePaint = Paint().apply {
             color = 0xFF000000.toInt()
-            textSize = 48f
+            textSize = 80f
             isAntiAlias = true
+            isFakeBoldText = true
+            textAlign = Paint.Align.CENTER
         }
-        
-        val textX = 20f
-        val textY = height - 30f
-        canvas.drawText(item.name, textX, textY, textPaint)
-        
-        // You can add more rendering logic here based on item.renderConfig
-        // Examples:
-        // - Watermarks: renderWatermark(canvas, width, height)
-        // - Borders: renderBorder(canvas, width, height)
-        // - Custom overlays: renderOverlay(canvas, item.renderConfig)
-        // - Price tags: renderPriceTag(canvas, item)
+
+        val nameY = (height * 0.70).toFloat()
+        // Split long names to multiple lines if needed
+        val words = item.name.split(" ")
+        val lines = mutableListOf<String>()
+        var currentLine = ""
+
+        for (word in words) {
+            val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            val textWidth = namePaint.measureText(testLine)
+
+            if (textWidth > (width * 0.9f)) {
+                if (currentLine.isNotEmpty()) lines.add(currentLine)
+                currentLine = word
+            } else {
+                currentLine = testLine
+            }
+        }
+        if (currentLine.isNotEmpty()) lines.add(currentLine)
+
+        // Draw product name lines
+        var y = nameY
+        for (line in lines) {
+            canvas.drawText(line, width / 2f, y, namePaint)
+            y += 90f
+        }
+
+        // Draw render config info if available (e.g., catalogue label, price)
+        item.renderConfig?.let { config ->
+            try {
+                val catalogues = config.getJSONArray("catalogues")
+                if (catalogues.length() > 0) {
+                    val catalogue = catalogues.getJSONObject(0)
+                    val label = catalogue.optString("label", "")
+                    val priceField = catalogue.optString("priceField", "price1")
+
+                    if (label.isNotEmpty()) {
+                        val labelPaint = Paint().apply {
+                            color = 0xFF666666.toInt()
+                            textSize = 48f
+                            isAntiAlias = true
+                            textAlign = Paint.Align.CENTER
+                        }
+
+                        canvas.drawText(
+                            label.uppercase(),
+                            width / 2f,
+                            (height * 0.92).toFloat(),
+                            labelPaint
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not render config info: ${e.message}")
+            }
+        }
+
+        // Add watermark if configured
+        renderWatermark(canvas, width, height)
+    }
+
+    private fun renderWatermark(canvas: Canvas, width: Int, height: Int) {
+        try {
+            val watermarkPaint = Paint().apply {
+                color = 0x44000000 // Semi-transparent dark
+                textSize = 42f
+                isAntiAlias = true
+                textAlign = Paint.Align.CENTER
+                style = Paint.Style.FILL
+            }
+
+            val watermarkText = "CatShare"
+            canvas.drawText(
+                watermarkText,
+                width / 2f,
+                (height * 0.98).toFloat(),
+                watermarkPaint
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not render watermark: ${e.message}")
+        }
     }
     
     // Optional: Add custom rendering methods
