@@ -412,6 +412,9 @@ export async function saveRenderedImage(product, type, units = {}) {
     croppedCanvas.height = canvas.height - 3;
 
     const ctx = croppedCanvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Failed to get 2D context from canvas - rendering cannot continue");
+    }
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
