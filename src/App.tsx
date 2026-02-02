@@ -200,7 +200,7 @@ function AppWithBackHandler() {
         console.log("📋 Found interrupted rendering, attempting to resume...", resumableState);
         setIsRendering(true);
 
-        const products = JSON.parse(localStorage.getItem("products") || "[]");
+        const products = safeGetFromStorage("products", []);
         const catalogues = getAllCatalogues();
 
         try {
