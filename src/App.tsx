@@ -40,14 +40,13 @@ function AppWithBackHandler() {
   const location = useLocation();
   const [imageMap, setImageMap] = useState({});
   const [products, setProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("products") || "[]")
+    safeGetFromStorage("products", [])
   );
   const [deletedProducts, setDeletedProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("deletedProducts") || "[]")
+    safeGetFromStorage("deletedProducts", [])
   );
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : false;
+    return safeGetFromStorage("darkMode", false);
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
