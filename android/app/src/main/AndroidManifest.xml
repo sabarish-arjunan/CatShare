@@ -58,5 +58,19 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- Background Rendering Service -->
+        <service
+            android:name=".render.BackgroundRenderingService"
+            android:exported="false" />
+
+        <!-- Boot Completed Receiver for automatic rendering on device boot -->
+        <receiver
+            android:name=".render.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>
