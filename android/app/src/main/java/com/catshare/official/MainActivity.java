@@ -7,7 +7,7 @@ import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.community.database.sqlite.CapacitorSQLitePlugin;
 import com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin;
 import com.capacitorjs.plugins.localnotifications.LocalNotificationsPlugin;
-import com.catshare.official.BackgroundRendererPlugin;   // ✅ CHANGED THIS
+import com.catshare.official.BackgroundRendererPlugin;
 
 public class MainActivity extends BridgeActivity {
     @Override
@@ -18,6 +18,6 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(CapacitorSQLitePlugin.class);
         registerPlugin(PushNotificationsPlugin.class);
         registerPlugin(LocalNotificationsPlugin.class);
-        registerPlugin(BackgroundRendererPlugin.class);  // ✅ CHANGED THIS
+        registerPlugin(BackgroundRendererPlugin.class);
     }
 }
