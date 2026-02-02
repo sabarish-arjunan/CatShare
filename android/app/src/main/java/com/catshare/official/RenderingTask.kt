@@ -96,12 +96,35 @@ class RenderingTask(
         // Create output file
         val outputFile = File(outputDir, "${item.id}.$format")
         
-        // Load source image if exists
+        // Load source image if exists (supports both file paths and base64 encoded images)
         var sourceBitmap: Bitmap? = null
         if (item.imagePath.isNotEmpty()) {
-            val sourceFile = File(item.imagePath)
-            if (sourceFile.exists()) {
-                sourceBitmap = BitmapFactory.decodeFile(sourceFile.absolutePath)
+            // Check if it's a base64 encoded image (contains data:image prefix or is pure base64)
+            if (item.imagePath.startsWith("data:image") || !item.imagePath.startsWith("/")) {
+                // Decode base64 image
+                try {
+                    val base64String = if (item.imagePath.startsWith("data:image")) {
+                        // Remove data URI prefix (e.g., "data:image/png;base64,")
+                        item.imagePath.substringAfter(",")
+                    } else {
+                        item.imagePath
+                    }
+
+                    val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
+                    sourceBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                    Log.d(TAG, "Successfully decoded base64 image for: ${item.name}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to decode base64 image for ${item.name}: ${e.message}")
+                }
+            } else {
+                // Try to load from file path (backward compatibility)
+                val sourceFile = File(item.imagePath)
+                if (sourceFile.exists()) {
+                    sourceBitmap = BitmapFactory.decodeFile(sourceFile.absolutePath)
+                    Log.d(TAG, "Successfully loaded image from file: ${item.imagePath}")
+                } else {
+                    Log.w(TAG, "Image file not found: ${item.imagePath}")
+                }
             }
         }
         
