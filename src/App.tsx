@@ -55,6 +55,7 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
+
   // Handle rendering all PNGs using background rendering service
   const handleRenderAllPNGs = useCallback(async () => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
@@ -188,6 +189,49 @@ function AppWithBackHandler() {
   useEffect(() => {
     runMigrations();
   }, []);
+
+  // Auto-resume rendering if it was interrupted by app close/crash
+  useEffect(() => {
+    const checkAndResumeRendering = async () => {
+      const { checkResumableRendering, resumeBackgroundRendering } = await import('./services/backgroundRendering');
+      const resumableState = checkResumableRendering();
+
+      if (resumableState && isNative) {
+        console.log("📋 Found interrupted rendering, attempting to resume...", resumableState);
+        setIsRendering(true);
+
+        const products = JSON.parse(localStorage.getItem("products") || "[]");
+        const catalogues = getAllCatalogues();
+
+        try {
+          await resumeBackgroundRendering(
+            products,
+            catalogues,
+            (progress) => setRenderProgress(progress.percentage),
+            (result) => {
+              setIsRendering(false);
+              setRenderResult({
+                status: result.status === "success" ? "success" : "error",
+                message: result.message,
+              });
+            },
+            (error) => {
+              setIsRendering(false);
+              setRenderResult({
+                status: "error",
+                message: `Rendering failed: ${error.message}`,
+              });
+            }
+          );
+        } catch (err) {
+          console.error("❌ Failed to resume rendering:", err);
+          setIsRendering(false);
+        }
+      }
+    };
+
+    checkAndResumeRendering();
+  }, [isNative]);
 
   // Initialize watermark settings with defaults on first load
   useEffect(() => {

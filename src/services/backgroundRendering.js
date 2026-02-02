@@ -2,6 +2,7 @@ import { saveRenderedImage } from "../Save";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { KeepAwake } from '@capacitor-community/keep-awake';
 
 /**
@@ -23,6 +24,88 @@ let renderingState = {
     failedProducts: []
   }
 };
+
+// Track app state for intelligent wakelock management
+let appState = {
+  isActive: true, // Assume active on startup
+  appStateListener: null,
+  wakelockRefreshInterval: null // For periodic wakelock refresh to prevent Doze
+};
+
+/**
+ * Setup app state listener for intelligent wakelock management
+ */
+function setupAppStateListener() {
+  if (!appState.appStateListener) {
+    CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      appState.isActive = isActive;
+      console.log(`📱 App state changed: ${isActive ? 'FOREGROUND' : 'BACKGROUND'}`);
+
+      // If app goes to foreground during rendering, enable wakelock
+      if (isActive && renderingState.isRendering) {
+        const isNative = Capacitor.getPlatform() !== "web";
+        if (isNative) {
+          KeepAwake.keepAwake().catch(err =>
+            console.warn("⚠️ Could not re-enable wakelock on resume:", err)
+          );
+          startWakelockRefresh(); // Resume aggressive refresh
+        }
+      }
+      // If app goes to background during rendering, allow sleep to conserve battery
+      // Rendering will continue in background
+      else if (!isActive && renderingState.isRendering) {
+        const isNative = Capacitor.getPlatform() !== "web";
+        if (isNative) {
+          stopWakelockRefresh(); // Stop aggressive refresh
+          KeepAwake.allowSleep().catch(err =>
+            console.warn("⚠️ Could not allow sleep on pause:", err)
+          );
+        }
+      }
+    }).then((listener) => {
+      appState.appStateListener = listener;
+    });
+  }
+}
+
+/**
+ * Start periodic wakelock refresh to prevent Doze mode (only when app is foreground)
+ * Refreshes every 1 minute to keep the device in active state
+ */
+function startWakelockRefresh() {
+  if (appState.wakelockRefreshInterval) {
+    return; // Already running
+  }
+
+  const isNative = Capacitor.getPlatform() !== "web";
+  if (!isNative) return;
+
+  console.log("🔄 Starting aggressive wakelock refresh (1 min interval) to prevent Doze mode");
+
+  appState.wakelockRefreshInterval = setInterval(async () => {
+    if (renderingState.isRendering && appState.isActive) {
+      try {
+        // Release and immediately re-acquire to refresh the wakelock
+        await KeepAwake.allowSleep();
+        await KeepAwake.keepAwake();
+        console.log("🔄 Wakelock refreshed to prevent Doze mode");
+      } catch (err) {
+        console.warn("⚠️ Could not refresh wakelock:", err);
+      }
+    }
+  }, 60000); // Refresh every 60 seconds
+}
+
+/**
+ * Stop periodic wakelock refresh
+ */
+function stopWakelockRefresh() {
+  if (appState.wakelockRefreshInterval) {
+    clearInterval(appState.wakelockRefreshInterval);
+    appState.wakelockRefreshInterval = null;
+    console.log("🛑 Stopped wakelock refresh interval");
+  }
+}
 
 /**
  * Initialize background rendering with all products
@@ -48,14 +131,20 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
   };
 
   try {
-    // Keep device awake during rendering
-    if (isNative) {
+    // Setup app state listener
+    setupAppStateListener();
+
+    // Keep device awake ONLY while app is in foreground
+    if (isNative && appState.isActive) {
       try {
         await KeepAwake.keepAwake();
-        console.log("✅ Device wakelock enabled");
+        console.log("✅ Device wakelock enabled (app in foreground)");
+        startWakelockRefresh(); // Start aggressive refresh to prevent Doze mode
       } catch (err) {
         console.warn("⚠️ Could not enable wakelock:", err);
       }
+    } else if (isNative) {
+      console.log("📱 App is in background - rendering will continue without wakelock to save battery");
     }
 
     // Save initial state to localStorage for recovery if app crashes
@@ -133,7 +222,9 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     renderingState.isRendering = false;
     localStorage.removeItem('renderingState');
 
-    // Release wakelock
+    // Release wakelock (if app was active - otherwise already released when backgrounded)
+    stopWakelockRefresh(); // Stop aggressive refresh
+
     if (isNative) {
       try {
         await KeepAwake.allowSleep();
@@ -142,6 +233,9 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
         console.warn("⚠️ Could not release wakelock:", err);
       }
     }
+
+    // Clear app state listener cleanup
+    renderingState.isRendering = false;
 
     // Build result message
     const totalProcessed = renderingState.renderStats.successful + renderingState.renderStats.failed;
@@ -168,6 +262,17 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     renderingState.isRendering = false;
     localStorage.removeItem('renderingState');
 
+    // Release wakelock on error
+    stopWakelockRefresh(); // Stop aggressive refresh
+
+    if (isNative) {
+      try {
+        await KeepAwake.allowSleep();
+      } catch (err) {
+        console.warn("⚠️ Could not release wakelock on error:", err);
+      }
+    }
+
     if (onError) {
       onError(error);
     }
@@ -177,10 +282,24 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
 /**
  * Cancel ongoing rendering
  */
-export function cancelBackgroundRendering() {
+export async function cancelBackgroundRendering() {
   console.log("⏹️ Cancelling background rendering...");
   renderingState.isCancelled = true;
+  renderingState.isRendering = false;
   localStorage.removeItem('renderingState');
+
+  // Cleanup wakelock
+  stopWakelockRefresh();
+
+  const isNative = Capacitor.getPlatform() !== "web";
+  if (isNative) {
+    try {
+      await KeepAwake.allowSleep();
+      console.log("✅ Wakelock released after cancellation");
+    } catch (err) {
+      console.warn("⚠️ Could not release wakelock:", err);
+    }
+  }
 }
 
 /**
@@ -278,32 +397,45 @@ function buildResultMessage(stats, totalProcessed) {
 
 /**
  * Send notification about background rendering completion
+ * High priority with sound and vibration to ensure user sees it
  */
 async function sendBackgroundRenderingNotification(message, isSuccess) {
   const isNative = Capacitor.getPlatform() !== "web";
   if (!isNative) return;
 
   try {
+    // Create high-priority channel for rendering notifications
     await LocalNotifications.createChannel({
       id: 'background_render_channel',
       name: 'Background Rendering',
-      importance: 5,
-      visibility: 1,
+      description: 'Notifications for image rendering completion',
+      importance: 5, // IMPORTANCE_MAX = 5 on Android
+      visibility: 1, // VISIBILITY_PUBLIC = 1
+      sound: 'default',
+      enableVibration: true,
+      enableLights: true,
+      lightColor: isSuccess ? '#4CAF50' : '#FF9800', // Green for success, Orange for errors
     });
 
+    // Schedule notification with high priority and vibration
     await LocalNotifications.schedule({
       notifications: [
         {
           id: Math.floor(Math.random() * 100000) + 1,
-          title: isSuccess ? "Rendering Complete" : "Rendering Completed with Errors",
+          title: isSuccess ? "✅ Rendering Complete" : "⚠️ Rendering Completed with Errors",
           body: message,
           channelId: 'background_render_channel',
           smallIcon: isSuccess ? "res://drawable/ic_stat_notify_success" : "res://drawable/ic_stat_notify_error",
+          largeBody: message, // Extended notification text
+          summaryText: isSuccess ? 'All images rendered successfully' : 'Some images failed to render',
+          autoCancel: true,
+          ongoing: false, // Allows user to dismiss
+          priority: isSuccess ? 2 : 2, // HIGH priority on Android (shows at top of notification list)
         },
       ]
     });
 
-    console.log("✅ Background rendering notification sent");
+    console.log("✅ High-priority background rendering notification sent with sound & vibration");
   } catch (error) {
     console.error("❌ Failed to send notification:", error);
   }
