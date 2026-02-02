@@ -11,20 +11,22 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 
 class RenderingService : Service() {
-    
+
     companion object {
         private const val TAG = "RenderingService"
         private const val CHANNEL_ID = "RenderingServiceChannel"
         private const val NOTIFICATION_ID = 1
     }
-    
+
     private lateinit var notificationManager: NotificationManager
     private val handler = Handler(Looper.getMainLooper())
     private var renderingTask: RenderingTask? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     
     override fun onCreate() {
         super.onCreate()
@@ -65,6 +67,9 @@ class RenderingService : Service() {
     }
     
     private fun startRendering(renderData: String, totalItems: Int) {
+        // Acquire WakeLock to keep CPU awake during rendering
+        acquireWakeLock()
+
         renderingTask = RenderingTask(
             context = this,
             renderData = renderData,
@@ -78,7 +83,7 @@ class RenderingService : Service() {
                         total
                     )
                 }
-                
+
                 override fun onComplete() {
                     updateNotification(
                         "Rendering complete",
@@ -86,14 +91,16 @@ class RenderingService : Service() {
                         100,
                         100
                     )
-                    
+
+                    releaseWakeLock()
+
                     // Stop service after a delay
                     handler.postDelayed({
                         stopForeground(true)
                         stopSelf()
                     }, 3000)
                 }
-                
+
                 override fun onError(error: String) {
                     updateNotification(
                         "Rendering failed",
@@ -101,7 +108,9 @@ class RenderingService : Service() {
                         0,
                         100
                     )
-                    
+
+                    releaseWakeLock()
+
                     handler.postDelayed({
                         stopForeground(true)
                         stopSelf()
@@ -109,7 +118,7 @@ class RenderingService : Service() {
                 }
             }
         )
-        
+
         // Execute rendering on background thread
         Thread(renderingTask).start()
     }
@@ -163,8 +172,38 @@ class RenderingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         renderingTask?.cancel()
+        releaseWakeLock()
         Log.d(TAG, "RenderingService destroyed")
     }
-    
+
+    private fun acquireWakeLock() {
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "RenderingService::RenderWakeLock"
+            ).apply {
+                acquire(24 * 60 * 60 * 1000) // 24 hours timeout (safety limit)
+            }
+            Log.d(TAG, "WakeLock acquired")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to acquire WakeLock: ${e.message}")
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                    Log.d(TAG, "WakeLock released")
+                }
+            }
+            wakeLock = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release WakeLock: ${e.message}")
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 }
