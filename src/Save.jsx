@@ -358,27 +358,60 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.boxSizing = "border-box";
   details.style.flexShrink = 0;
 
-  // Build field rows conditionally - only include fields that have values
-  let fieldRowsHTML = "";
+  // Build field rows using DOM to prevent XSS
+  const fieldRowsContainer = document.createElement("div");
+  fieldRowsContainer.style.textAlign = "left";
+  fieldRowsContainer.style.lineHeight = "1.4";
+
   if (hasField1) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Colour</span><span>:</span><span style="margin-left:8px">${catalogueData.field1}</span></p>`;
+    const p = document.createElement("p");
+    p.style.margin = "2px 0";
+    p.style.display = "flex";
+    p.innerHTML = '<span style="width:110px">Colour</span><span>:</span><span style="margin-left:8px"></span>';
+    p.querySelector('span:last-child').textContent = catalogueData.field1;
+    fieldRowsContainer.appendChild(p);
   }
   if (hasField2) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Package</span><span>:</span><span style="margin-left:8px">${catalogueData.field2} ${catalogueData.field2Unit}</span></p>`;
+    const p = document.createElement("p");
+    p.style.margin = "2px 0";
+    p.style.display = "flex";
+    p.innerHTML = '<span style="width:110px">Package</span><span>:</span><span style="margin-left:8px"></span>';
+    p.querySelector('span:last-child').textContent = `${catalogueData.field2} ${catalogueData.field2Unit}`;
+    fieldRowsContainer.appendChild(p);
   }
   if (hasField3) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Age Group</span><span>:</span><span style="margin-left:8px">${catalogueData.field3} ${catalogueData.field3Unit}</span></p>`;
+    const p = document.createElement("p");
+    p.style.margin = "2px 0";
+    p.style.display = "flex";
+    p.innerHTML = '<span style="width:110px">Age Group</span><span>:</span><span style="margin-left:8px"></span>';
+    p.querySelector('span:last-child').textContent = `${catalogueData.field3} ${catalogueData.field3Unit}`;
+    fieldRowsContainer.appendChild(p);
   }
 
-  details.innerHTML = `
-    <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
-      ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
-    </div>
-    <div style="text-align:left;line-height:1.4">
-      ${fieldRowsHTML}
-    </div>
-  `;
+  // Build title section
+  const titleDiv = document.createElement("div");
+  titleDiv.style.textAlign = "center";
+  titleDiv.style.marginBottom = "6px";
+
+  const nameP = document.createElement("p");
+  nameP.style.fontWeight = "normal";
+  nameP.style.textShadow = "3px 3px 5px rgba(0,0,0,0.2)";
+  nameP.style.fontSize = "28px";
+  nameP.style.margin = "3px";
+  nameP.textContent = catalogueData.name;
+  titleDiv.appendChild(nameP);
+
+  if (catalogueData.subtitle) {
+    const subtitleP = document.createElement("p");
+    subtitleP.style.fontStyle = "italic";
+    subtitleP.style.fontSize = "18px";
+    subtitleP.style.margin = "5px";
+    subtitleP.textContent = `(${catalogueData.subtitle})`;
+    titleDiv.appendChild(subtitleP);
+  }
+
+  details.appendChild(titleDiv);
+  details.appendChild(fieldRowsContainer);
   container.appendChild(details);
 
   if (!isPriceOnTop && priceBar) {
