@@ -220,9 +220,19 @@ export async function cancelBackgroundRendering(): Promise<void> {
     isRendering = false;
     renderingProgress = 0;
     currentRenderItems = [];
-    
+
+    // Clear all pending timers
+    if (_progressInterval) {
+      clearInterval(_progressInterval);
+      _progressInterval = null;
+    }
+    if (_completionTimeout) {
+      clearTimeout(_completionTimeout);
+      _completionTimeout = null;
+    }
+
     console.log('📱 Cancelling background rendering...');
-    
+
     const result = await BackgroundRenderer.stopRendering();
     console.log('✅ Background rendering cancelled:', result);
   } catch (error) {
