@@ -89,7 +89,7 @@ export async function startBackgroundRendering(
           })),
         },
       })),
-      format: 'png',
+      format: 'png' as const,
       width: 1080,
       height: 1080,
     };
