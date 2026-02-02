@@ -137,15 +137,15 @@ function AppWithBackHandler() {
   }, [isNative]);
 
   useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
+    safeSetInStorage("products", products);
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem("deletedProducts", JSON.stringify(deletedProducts));
+    safeSetInStorage("deletedProducts", deletedProducts);
   }, [deletedProducts]);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    safeSetInStorage("darkMode", darkMode);
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
