@@ -1,6 +1,7 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
+import { safeGetFromStorage } from "./utils/safeStorage";
 
 /**
  * Rename rendered images when catalogue name changes
