@@ -71,6 +71,16 @@ export async function startBackgroundRendering(
     return;
   }
 
+  // Clear any existing timers before starting new ones
+  if (_progressInterval) {
+    clearInterval(_progressInterval);
+    _progressInterval = null;
+  }
+  if (_completionTimeout) {
+    clearTimeout(_completionTimeout);
+    _completionTimeout = null;
+  }
+
   isRendering = true;
   renderingProgress = 0;
   saveResumableState(items, catalogues);
