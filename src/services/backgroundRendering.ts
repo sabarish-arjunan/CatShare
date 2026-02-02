@@ -163,16 +163,19 @@ export async function startBackgroundRendering(
         const result = await BackgroundRenderer.startRendering({
           renderData: renderData,
         });
-        
+
         console.log('✅ [Web] Background rendering started:', result);
-        
+
         // Simulate progress updates for web rendering
-        const progressInterval = setInterval(() => {
+        _progressInterval = setInterval(() => {
           if (!isRendering) {
-            clearInterval(progressInterval);
+            if (_progressInterval) {
+              clearInterval(_progressInterval);
+              _progressInterval = null;
+            }
             return;
           }
-          
+
           renderingProgress = Math.min(renderingProgress + 3, 95);
           onProgress({
             percentage: renderingProgress,
@@ -181,8 +184,11 @@ export async function startBackgroundRendering(
         }, 300);
 
         // Simulate completion
-        setTimeout(() => {
-          clearInterval(progressInterval);
+        _completionTimeout = setTimeout(() => {
+          if (_progressInterval) {
+            clearInterval(_progressInterval);
+            _progressInterval = null;
+          }
           isRendering = false;
           renderingProgress = 100;
           onComplete({
