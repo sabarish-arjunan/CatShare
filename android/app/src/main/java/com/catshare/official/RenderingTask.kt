@@ -279,21 +279,6 @@ class RenderingTask(
         }
     }
     
-    // Optional: Add custom rendering methods
-    private fun renderWatermark(canvas: Canvas, width: Int, height: Int) {
-        val watermarkPaint = Paint().apply {
-            color = 0x33000000 // Semi-transparent
-            textSize = 36f
-            isAntiAlias = true
-        }
-        canvas.drawText(
-            "CatShare",
-            width - 200f,
-            height - 50f,
-            watermarkPaint
-        )
-    }
-    
     private fun renderBorder(canvas: Canvas, width: Int, height: Int) {
         val borderPaint = Paint().apply {
             color = 0xFF000000.toInt()
