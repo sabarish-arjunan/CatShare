@@ -51,15 +51,15 @@ function setupAppStateListener() {
           startWakelockRefresh(); // Resume aggressive refresh
         }
       }
-      // If app goes to background during rendering, allow sleep to conserve battery
-      // Rendering will continue in background
+      // If app goes to background during rendering, KEEP wakelock enabled
+      // This ensures rendering continues even when app is backgrounded
       else if (!isActive && renderingState.isRendering) {
         const isNative = Capacitor.getPlatform() !== "web";
         if (isNative) {
-          stopWakelockRefresh(); // Stop aggressive refresh
-          KeepAwake.allowSleep().catch(err =>
-            console.warn("⚠️ Could not allow sleep on pause:", err)
-          );
+          // Don't stop wakelock refresh - keep device awake for background rendering
+          // Stop the aggressive refresh interval but keep the wakelock active
+          stopWakelockRefresh();
+          console.log("📱 App backgrounded - keeping device awake for background rendering");
         }
       }
     }).then((listener) => {
