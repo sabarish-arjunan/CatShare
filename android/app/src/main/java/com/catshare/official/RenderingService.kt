@@ -67,6 +67,9 @@ class RenderingService : Service() {
     }
     
     private fun startRendering(renderData: String, totalItems: Int) {
+        // Acquire WakeLock to keep CPU awake during rendering
+        acquireWakeLock()
+
         renderingTask = RenderingTask(
             context = this,
             renderData = renderData,
@@ -80,7 +83,7 @@ class RenderingService : Service() {
                         total
                     )
                 }
-                
+
                 override fun onComplete() {
                     updateNotification(
                         "Rendering complete",
@@ -88,14 +91,16 @@ class RenderingService : Service() {
                         100,
                         100
                     )
-                    
+
+                    releaseWakeLock()
+
                     // Stop service after a delay
                     handler.postDelayed({
                         stopForeground(true)
                         stopSelf()
                     }, 3000)
                 }
-                
+
                 override fun onError(error: String) {
                     updateNotification(
                         "Rendering failed",
@@ -103,7 +108,9 @@ class RenderingService : Service() {
                         0,
                         100
                     )
-                    
+
+                    releaseWakeLock()
+
                     handler.postDelayed({
                         stopForeground(true)
                         stopSelf()
@@ -111,7 +118,7 @@ class RenderingService : Service() {
                 }
             }
         )
-        
+
         // Execute rendering on background thread
         Thread(renderingTask).start()
     }
