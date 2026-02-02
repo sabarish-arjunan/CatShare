@@ -35,11 +35,17 @@ class RenderingService : Service() {
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "RenderingService started")
-        
+
         // Get rendering parameters from intent
         val renderData = intent?.getStringExtra("renderData") ?: ""
         val totalItems = intent?.getIntExtra("totalItems", 0) ?: 0
-        
+
+        if (renderData.isEmpty() || totalItems == 0) {
+            Log.w(TAG, "No render data provided, stopping service")
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         // Start foreground service with notification
         val notification = createNotification(
             "Rendering in progress",
@@ -48,10 +54,12 @@ class RenderingService : Service() {
             totalItems
         )
         startForeground(NOTIFICATION_ID, notification)
-        
+
+        Log.d(TAG, "Foreground service started, beginning render task with $totalItems items")
+
         // Start rendering task
         startRendering(renderData, totalItems)
-        
+
         // Return START_STICKY so service restarts if killed
         return START_STICKY
     }
