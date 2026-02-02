@@ -1,6 +1,7 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
+import { safeGetFromStorage } from "./utils/safeStorage";
 
 /**
  * Rename rendered images when catalogue name changes
@@ -358,27 +359,60 @@ export async function saveRenderedImage(product, type, units = {}) {
   details.style.boxSizing = "border-box";
   details.style.flexShrink = 0;
 
-  // Build field rows conditionally - only include fields that have values
-  let fieldRowsHTML = "";
+  // Build field rows using DOM to prevent XSS
+  const fieldRowsContainer = document.createElement("div");
+  fieldRowsContainer.style.textAlign = "left";
+  fieldRowsContainer.style.lineHeight = "1.4";
+
   if (hasField1) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Colour</span><span>:</span><span style="margin-left:8px">${catalogueData.field1}</span></p>`;
+    const p = document.createElement("p");
+    p.style.margin = "2px 0";
+    p.style.display = "flex";
+    p.innerHTML = '<span style="width:110px">Colour</span><span>:</span><span style="margin-left:8px"></span>';
+    p.querySelector('span:last-child').textContent = catalogueData.field1;
+    fieldRowsContainer.appendChild(p);
   }
   if (hasField2) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Package</span><span>:</span><span style="margin-left:8px">${catalogueData.field2} ${catalogueData.field2Unit}</span></p>`;
+    const p = document.createElement("p");
+    p.style.margin = "2px 0";
+    p.style.display = "flex";
+    p.innerHTML = '<span style="width:110px">Package</span><span>:</span><span style="margin-left:8px"></span>';
+    p.querySelector('span:last-child').textContent = `${catalogueData.field2} ${catalogueData.field2Unit}`;
+    fieldRowsContainer.appendChild(p);
   }
   if (hasField3) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Age Group</span><span>:</span><span style="margin-left:8px">${catalogueData.field3} ${catalogueData.field3Unit}</span></p>`;
+    const p = document.createElement("p");
+    p.style.margin = "2px 0";
+    p.style.display = "flex";
+    p.innerHTML = '<span style="width:110px">Age Group</span><span>:</span><span style="margin-left:8px"></span>';
+    p.querySelector('span:last-child').textContent = `${catalogueData.field3} ${catalogueData.field3Unit}`;
+    fieldRowsContainer.appendChild(p);
   }
 
-  details.innerHTML = `
-    <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
-      ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
-    </div>
-    <div style="text-align:left;line-height:1.4">
-      ${fieldRowsHTML}
-    </div>
-  `;
+  // Build title section
+  const titleDiv = document.createElement("div");
+  titleDiv.style.textAlign = "center";
+  titleDiv.style.marginBottom = "6px";
+
+  const nameP = document.createElement("p");
+  nameP.style.fontWeight = "normal";
+  nameP.style.textShadow = "3px 3px 5px rgba(0,0,0,0.2)";
+  nameP.style.fontSize = "28px";
+  nameP.style.margin = "3px";
+  nameP.textContent = catalogueData.name;
+  titleDiv.appendChild(nameP);
+
+  if (catalogueData.subtitle) {
+    const subtitleP = document.createElement("p");
+    subtitleP.style.fontStyle = "italic";
+    subtitleP.style.fontSize = "18px";
+    subtitleP.style.margin = "5px";
+    subtitleP.textContent = `(${catalogueData.subtitle})`;
+    titleDiv.appendChild(subtitleP);
+  }
+
+  details.appendChild(titleDiv);
+  details.appendChild(fieldRowsContainer);
   container.appendChild(details);
 
   if (!isPriceOnTop && priceBar) {
@@ -412,6 +446,9 @@ export async function saveRenderedImage(product, type, units = {}) {
     croppedCanvas.height = canvas.height - 3;
 
     const ctx = croppedCanvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Failed to get 2D context from canvas - rendering cannot continue");
+    }
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(canvas, 0, 0);
@@ -421,13 +458,12 @@ export async function saveRenderedImage(product, type, units = {}) {
     canvas.height = 0;
 
     // Add watermark - Only if enabled in settings
-    const showWatermark = localStorage.getItem("showWatermark");
-    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : false; // Default: false (disabled)
+    const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
 
     if (isWatermarkEnabled) {
       // Get custom watermark text from localStorage, default to "Created using CatShare"
-      const watermarkText = localStorage.getItem("watermarkText") || "Created using CatShare";
-      const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
+      const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
+      const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 
       // Get the imageWrap and imageShadowWrap elements to determine position in the rendered canvas
       const imageWrapEl = document.getElementById(`image-wrap-${id}`);
@@ -624,7 +660,16 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
+    throw err; // Rethrow so caller knows rendering failed
   } finally {
-    document.body.removeChild(wrapper);
+    // Safely remove wrapper from DOM if it's still there
+    // html2canvas may have already removed it with removeContainer: true
+    if (wrapper && wrapper.parentNode === document.body) {
+      try {
+        document.body.removeChild(wrapper);
+      } catch (removeErr) {
+        console.warn("⚠️ Failed to remove wrapper from DOM:", removeErr.message);
+      }
+    }
   }
 }

@@ -41,25 +41,22 @@ function setupAppStateListener() {
       appState.isActive = isActive;
       console.log(`📱 App state changed: ${isActive ? 'FOREGROUND' : 'BACKGROUND'}`);
 
-      // If app goes to foreground during rendering, enable wakelock
+      const isNative = Capacitor.getPlatform() !== "web";
+
+      // If app goes to foreground during rendering, resume aggressive refresh
       if (isActive && renderingState.isRendering) {
-        const isNative = Capacitor.getPlatform() !== "web";
         if (isNative) {
-          KeepAwake.keepAwake().catch(err =>
-            console.warn("⚠️ Could not re-enable wakelock on resume:", err)
-          );
-          startWakelockRefresh(); // Resume aggressive refresh
+          startWakelockRefresh(); // Resume aggressive refresh in foreground
+          console.log("📱 App resumed - resuming aggressive wakelock refresh");
         }
       }
-      // If app goes to background during rendering, allow sleep to conserve battery
-      // Rendering will continue in background
+      // If app goes to background during rendering, switch to minimal refresh
+      // Keep the device awake but reduce refresh frequency to save battery
       else if (!isActive && renderingState.isRendering) {
-        const isNative = Capacitor.getPlatform() !== "web";
         if (isNative) {
           stopWakelockRefresh(); // Stop aggressive refresh
-          KeepAwake.allowSleep().catch(err =>
-            console.warn("⚠️ Could not allow sleep on pause:", err)
-          );
+          startMinimalWakelockRefresh(); // Switch to minimal background refresh
+          console.log("📱 App backgrounded - switched to minimal wakelock refresh for background rendering");
         }
       }
     }).then((listener) => {
@@ -108,6 +105,36 @@ function stopWakelockRefresh() {
 }
 
 /**
+ * Start minimal wakelock refresh for background rendering
+ * Uses longer interval (5 min) to conserve battery while keeping device awake
+ */
+function startMinimalWakelockRefresh() {
+  if (appState.wakelockRefreshInterval) {
+    return; // Already running
+  }
+
+  const isNative = Capacitor.getPlatform() !== "web";
+  if (!isNative) return;
+
+  console.log("🔄 Starting minimal wakelock refresh (5 min interval) for background rendering");
+
+  appState.wakelockRefreshInterval = setInterval(async () => {
+    if (renderingState.isRendering && !appState.isActive) {
+      try {
+        // Light refresh - just ping the wakelock to keep it active
+        await KeepAwake.keepAwake();
+        console.log("🔄 Minimal wakelock refresh (background)");
+      } catch (err) {
+        console.warn("⚠️ Could not refresh wakelock in background:", err);
+      }
+    } else if (!renderingState.isRendering || appState.isActive) {
+      // Stop if rendering finished or app came back to foreground
+      stopWakelockRefresh();
+    }
+  }, 5 * 60 * 1000); // Refresh every 5 minutes
+}
+
+/**
  * Initialize background rendering with all products
  */
 export async function startBackgroundRendering(products, catalogues, onProgress, onComplete, onError) {
@@ -134,17 +161,23 @@ export async function startBackgroundRendering(products, catalogues, onProgress,
     // Setup app state listener
     setupAppStateListener();
 
-    // Keep device awake ONLY while app is in foreground
-    if (isNative && appState.isActive) {
+    // Keep device awake during rendering, regardless of app state
+    if (isNative) {
       try {
         await KeepAwake.keepAwake();
-        console.log("✅ Device wakelock enabled (app in foreground)");
-        startWakelockRefresh(); // Start aggressive refresh to prevent Doze mode
+        console.log("✅ Device wakelock enabled for background rendering");
+
+        // Choose refresh rate based on app state
+        if (appState.isActive) {
+          startWakelockRefresh(); // Aggressive refresh in foreground
+          console.log("📱 App is active - using aggressive wakelock refresh");
+        } else {
+          startMinimalWakelockRefresh(); // Minimal refresh in background
+          console.log("📱 App is backgrounded - using minimal wakelock refresh to conserve battery");
+        }
       } catch (err) {
         console.warn("⚠️ Could not enable wakelock:", err);
       }
-    } else if (isNative) {
-      console.log("📱 App is in background - rendering will continue without wakelock to save battery");
     }
 
     // Save initial state to localStorage for recovery if app crashes

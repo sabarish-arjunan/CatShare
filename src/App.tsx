@@ -14,6 +14,7 @@ import { initializeFieldSystem } from "./config/initializeFields";
 import { runMigrations } from "./utils/dataMigration";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { initializeFirebaseMessaging, triggerBackgroundRendering } from "./services/firebaseService";
+import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -29,6 +30,7 @@ import Website from "./Website";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering";
@@ -39,14 +41,13 @@ function AppWithBackHandler() {
   const location = useLocation();
   const [imageMap, setImageMap] = useState({});
   const [products, setProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("products") || "[]")
+    safeGetFromStorage("products", [])
   );
   const [deletedProducts, setDeletedProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("deletedProducts") || "[]")
+    safeGetFromStorage("deletedProducts", [])
   );
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : false;
+    return safeGetFromStorage("darkMode", false);
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
@@ -58,7 +59,7 @@ function AppWithBackHandler() {
 
   // Handle rendering all PNGs using background rendering service
   const handleRenderAllPNGs = useCallback(async () => {
-    const all = JSON.parse(localStorage.getItem("products") || "[]");
+    const all = safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
     setIsRendering(true);
@@ -137,15 +138,15 @@ function AppWithBackHandler() {
   }, [isNative]);
 
   useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
+    safeSetInStorage("products", products);
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem("deletedProducts", JSON.stringify(deletedProducts));
+    safeSetInStorage("deletedProducts", deletedProducts);
   }, [deletedProducts]);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    safeSetInStorage("darkMode", darkMode);
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
@@ -200,7 +201,7 @@ function AppWithBackHandler() {
         console.log("📋 Found interrupted rendering, attempting to resume...", resumableState);
         setIsRendering(true);
 
-        const products = JSON.parse(localStorage.getItem("products") || "[]");
+        const products = safeGetFromStorage("products", []);
         const catalogues = getAllCatalogues();
 
         try {
@@ -445,10 +446,12 @@ function AppWithBackHandler() {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <Router>
-        <AppWithBackHandler />
-      </Router>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <AppWithBackHandler />
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }

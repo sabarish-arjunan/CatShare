@@ -38,6 +38,10 @@ let currentRenderItems: Array<{
   renderConfig?: any;
 }> = [];
 
+// Track timer IDs for cleanup
+let _progressInterval: NodeJS.Timeout | null = null;
+let _completionTimeout: NodeJS.Timeout | null = null;
+
 interface ResumableRenderState {
   items: Product[];
   catalogues: Catalogue[];
@@ -65,6 +69,16 @@ export async function startBackgroundRendering(
   if (isRendering) {
     console.warn('⚠️ Rendering already in progress');
     return;
+  }
+
+  // Clear any existing timers before starting new ones
+  if (_progressInterval) {
+    clearInterval(_progressInterval);
+    _progressInterval = null;
+  }
+  if (_completionTimeout) {
+    clearTimeout(_completionTimeout);
+    _completionTimeout = null;
   }
 
   isRendering = true;
@@ -103,16 +117,19 @@ export async function startBackgroundRendering(
         const result = await BackgroundRenderer.startRendering({
           renderData: renderData,
         });
-        
+
         console.log('✅ [Native] Background rendering started:', result);
-        
+
         // Simulate progress updates while native rendering is running
-        const progressInterval = setInterval(() => {
+        _progressInterval = setInterval(() => {
           if (!isRendering) {
-            clearInterval(progressInterval);
+            if (_progressInterval) {
+              clearInterval(_progressInterval);
+              _progressInterval = null;
+            }
             return;
           }
-          
+
           renderingProgress = Math.min(renderingProgress + 5, 95);
           onProgress({
             percentage: renderingProgress,
@@ -121,8 +138,11 @@ export async function startBackgroundRendering(
         }, 500);
 
         // Simulate completion after a reasonable timeout
-        setTimeout(() => {
-          clearInterval(progressInterval);
+        _completionTimeout = setTimeout(() => {
+          if (_progressInterval) {
+            clearInterval(_progressInterval);
+            _progressInterval = null;
+          }
           isRendering = false;
           renderingProgress = 100;
           onComplete({
@@ -143,16 +163,19 @@ export async function startBackgroundRendering(
         const result = await BackgroundRenderer.startRendering({
           renderData: renderData,
         });
-        
+
         console.log('✅ [Web] Background rendering started:', result);
-        
+
         // Simulate progress updates for web rendering
-        const progressInterval = setInterval(() => {
+        _progressInterval = setInterval(() => {
           if (!isRendering) {
-            clearInterval(progressInterval);
+            if (_progressInterval) {
+              clearInterval(_progressInterval);
+              _progressInterval = null;
+            }
             return;
           }
-          
+
           renderingProgress = Math.min(renderingProgress + 3, 95);
           onProgress({
             percentage: renderingProgress,
@@ -161,8 +184,11 @@ export async function startBackgroundRendering(
         }, 300);
 
         // Simulate completion
-        setTimeout(() => {
-          clearInterval(progressInterval);
+        _completionTimeout = setTimeout(() => {
+          if (_progressInterval) {
+            clearInterval(_progressInterval);
+            _progressInterval = null;
+          }
           isRendering = false;
           renderingProgress = 100;
           onComplete({
@@ -194,9 +220,19 @@ export async function cancelBackgroundRendering(): Promise<void> {
     isRendering = false;
     renderingProgress = 0;
     currentRenderItems = [];
-    
+
+    // Clear all pending timers
+    if (_progressInterval) {
+      clearInterval(_progressInterval);
+      _progressInterval = null;
+    }
+    if (_completionTimeout) {
+      clearTimeout(_completionTimeout);
+      _completionTimeout = null;
+    }
+
     console.log('📱 Cancelling background rendering...');
-    
+
     const result = await BackgroundRenderer.stopRendering();
     console.log('✅ Background rendering cancelled:', result);
   } catch (error) {
