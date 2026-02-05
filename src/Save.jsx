@@ -231,6 +231,10 @@ export async function saveRenderedImage(product, type, units = {}) {
   try {
     // Prepare product data for Canvas rendering
     const renderScale = 3;
+
+    console.log(`🎨 Starting Canvas render for product: ${product.name || product.id}`);
+    console.log(`🖼️ Image source: ${catalogueData.image || product.image}`);
+
     const productData = {
       name: catalogueData.name,
       subtitle: catalogueData.subtitle,
@@ -252,21 +256,38 @@ export async function saveRenderedImage(product, type, units = {}) {
     const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 
     // Render using Canvas API
-    const canvas = await renderProductToCanvas(productData, {
-      width: baseWidth,
-      height: baseWidth / cropAspectRatio,
-      scale: renderScale,
-      bgColor: bgColor,
-      imageBgColor: imageBg,
-      fontColor: fontColor,
-      backgroundColor: "#ffffff",
-    }, {
-      enabled: isWatermarkEnabled,
-      text: watermarkText,
-      position: watermarkPosition,
-    });
+    let canvas;
+    try {
+      canvas = await renderProductToCanvas(productData, {
+        width: baseWidth,
+        height: baseWidth / cropAspectRatio,
+        scale: renderScale,
+        bgColor: bgColor,
+        imageBgColor: imageBg,
+        fontColor: fontColor,
+        backgroundColor: "#ffffff",
+      }, {
+        enabled: isWatermarkEnabled,
+        text: watermarkText,
+        position: watermarkPosition,
+      });
+      console.log(`✅ Canvas rendered successfully. Size: ${canvas.width}x${canvas.height}`);
+    } catch (renderErr) {
+      console.error(`❌ Canvas rendering failed:`, renderErr);
+      throw renderErr;
+    }
 
-    const base64 = canvasToBase64(canvas);
+    let base64;
+    try {
+      base64 = canvasToBase64(canvas);
+      console.log(`✅ Canvas converted to base64. Length: ${base64.length} chars`);
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 conversion resulted in empty string");
+      }
+    } catch (b64Err) {
+      console.error(`❌ Base64 conversion failed:`, b64Err);
+      throw b64Err;
+    }
 
     // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
