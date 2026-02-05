@@ -478,6 +478,7 @@ export async function renderProductToCanvas(
     ctx.fillText(watermarkConfig.text, watermarkX, watermarkY);
   }
 
+  console.log(`[renderProductToCanvas] Canvas rendered successfully. Size: ${canvas.width}x${canvas.height}`);
   return canvas;
 }
 
