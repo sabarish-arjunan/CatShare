@@ -15,21 +15,33 @@ export async function loadImage(src: string): Promise<HTMLImageElement> {
 
     const img = new Image();
     const timeout = setTimeout(() => {
-      reject(new Error(`Image load timeout after 30s: ${src}`));
+      reject(new Error(`Image load timeout after 30s: ${src.substring(0, 50)}...`));
     }, 30000);
 
     img.onload = () => {
       clearTimeout(timeout);
+      console.log(`[loadImage] Successfully loaded image. Dimensions: ${img.width}x${img.height}`);
       resolve(img);
     };
 
-    img.onerror = () => {
+    img.onerror = (err) => {
       clearTimeout(timeout);
-      reject(new Error(`Failed to load image: ${src}`));
+      console.error(`[loadImage] Error loading image:`, err);
+      reject(new Error(`Failed to load image: ${src.substring(0, 100)}`));
     };
 
-    // Enable CORS for remote images
-    img.crossOrigin = 'anonymous';
+    // Only set crossOrigin for HTTP(S) URLs, not for data URLs or blob URLs
+    if (src.startsWith('http://') || src.startsWith('https://')) {
+      img.crossOrigin = 'anonymous';
+    }
+
+    console.log(`[loadImage] Loading image with source type:`, {
+      isDataUrl: src.startsWith('data:'),
+      isBlob: src.startsWith('blob:'),
+      isHttp: src.startsWith('http'),
+      srcLength: src.length,
+    });
+
     img.src = src;
   });
 }
