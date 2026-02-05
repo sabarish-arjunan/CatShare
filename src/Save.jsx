@@ -290,10 +290,6 @@ export async function saveRenderedImage(product, type, units = {}) {
 
     const base64 = canvasToBase64(canvas);
 
-    // Release canvas memory
-    canvas.width = 0;
-    canvas.height = 0;
-
     // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
     let catalogueLabel;
