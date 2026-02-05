@@ -260,7 +260,6 @@ export async function saveRenderedImage(product, type, units = {}) {
     try {
       canvas = await renderProductToCanvas(productData, {
         width: baseWidth,
-        height: baseWidth / cropAspectRatio,
         scale: renderScale,
         bgColor: bgColor,
         imageBgColor: imageBg,
