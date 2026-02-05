@@ -343,9 +343,11 @@ export async function saveRenderedImage(product, type, units = {}) {
       });
 
       console.log("✅ Image saved:", filePath);
+      console.log(`📝 Written base64 data length: ${base64.length} characters`);
 
       // Verify the file was actually written
       try {
+        console.log(`🔍 Verifying file at: ${filePath}`);
         const stat = await Filesystem.stat({
           path: filePath,
           directory: Directory.External,
