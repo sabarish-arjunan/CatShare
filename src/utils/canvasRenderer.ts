@@ -307,7 +307,7 @@ export async function renderProductToCanvas(
 
   // ===== DETAILS SECTION =====
   const detailsBgColor = lightenColor(options.bgColor, 40);
-  const detailsPadding = 10 * scale;
+  const renderDetailsPadding = detailsPaddingBase * scale;
 
   ctx.fillStyle = detailsBgColor;
   ctx.fillRect(0, currentY, canvasWidth, canvasHeight - currentY);
@@ -316,37 +316,37 @@ export async function renderProductToCanvas(
   ctx.textAlign = 'left';
 
   // Title
-  const titleFontSize = Math.floor(28 * scale);
-  const titleFont = `normal ${titleFontSize}px Arial, sans-serif`;
+  const renderTitleFontSize = Math.floor(titleFontSizeBase * scale);
+  const titleFont = `normal ${renderTitleFontSize}px Arial, sans-serif`;
   ctx.font = titleFont;
   ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
   ctx.shadowBlur = 5 * scale;
   ctx.shadowOffsetX = 3 * scale;
   ctx.shadowOffsetY = 3 * scale;
   ctx.textAlign = 'center';
-  ctx.fillText(product.name, canvasWidth / 2, currentY + detailsPadding + titleFontSize * 0.8);
+  ctx.fillText(product.name, canvasWidth / 2, currentY + renderDetailsPadding + renderTitleFontSize * 0.8);
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += detailsPadding + titleFontSize + 6 * scale;
+  currentY += renderDetailsPadding + renderTitleFontSize + 6 * scale;
 
   // Subtitle
   if (product.subtitle) {
-    const subtitleFontSize = Math.floor(18 * scale);
-    const subtitleFont = `italic ${subtitleFontSize}px Arial, sans-serif`;
+    const renderSubtitleFontSize = Math.floor(subtitleFontSizeBase * scale);
+    const subtitleFont = `italic ${renderSubtitleFontSize}px Arial, sans-serif`;
     ctx.font = subtitleFont;
     ctx.textAlign = 'center';
-    ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + subtitleFontSize * 0.8);
+    ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + renderSubtitleFontSize * 0.8);
     ctx.textAlign = 'left';
-    currentY += subtitleFontSize + 5 * scale;
+    currentY += renderSubtitleFontSize + 5 * scale;
   }
 
   currentY += 6 * scale;
 
   // Fields
-  const fieldFontSize = Math.floor(17 * scale);
-  const fieldFont = `${fieldFontSize}px Arial, sans-serif`;
-  const fieldLineHeight = fieldFontSize * 1.4;
+  const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
+  const fieldFont = `${renderFieldFontSize}px Arial, sans-serif`;
+  const renderFieldLineHeight = renderFieldFontSize * 1.4;
 
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
@@ -354,23 +354,23 @@ export async function renderProductToCanvas(
   const labelWidth = 110 * scale;
 
   if (product.field1) {
-    ctx.fillText('Colour:', detailsPadding, currentY + fieldFontSize * 0.8);
-    ctx.fillText(product.field1, detailsPadding + labelWidth + 8 * scale, currentY + fieldFontSize * 0.8);
-    currentY += fieldLineHeight + 2 * scale;
+    ctx.fillText('Colour:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(product.field1, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field2) {
-    ctx.fillText('Package:', detailsPadding, currentY + fieldFontSize * 0.8);
+    ctx.fillText('Package:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
     const field2Text = `${product.field2} ${product.field2Unit || ''}`;
-    ctx.fillText(field2Text, detailsPadding + labelWidth + 8 * scale, currentY + fieldFontSize * 0.8);
-    currentY += fieldLineHeight + 2 * scale;
+    ctx.fillText(field2Text, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field3) {
-    ctx.fillText('Age Group:', detailsPadding, currentY + fieldFontSize * 0.8);
+    ctx.fillText('Age Group:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
     const field3Text = `${product.field3} ${product.field3Unit || ''}`;
-    ctx.fillText(field3Text, detailsPadding + labelWidth + 8 * scale, currentY + fieldFontSize * 0.8);
-    currentY += fieldLineHeight + 2 * scale;
+    ctx.fillText(field3Text, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    currentY += renderFieldLineHeight + 2 * scale;
   }
 
   currentY += 6 * scale;
