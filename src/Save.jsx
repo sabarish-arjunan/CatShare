@@ -334,7 +334,18 @@ export async function saveRenderedImage(product, type, units = {}) {
       console.log(`📝 Writing file to: ${filePath}`);
       console.log(`📁 Using directory: Directory.External (App-specific external storage)`);
       console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`);
+      console.log(`📊 Base64 data details:`, {
+        length: base64?.length || 0,
+        isString: typeof base64 === 'string',
+        first20chars: base64?.substring(0, 20) || 'N/A',
+        isEmpty: !base64 || base64.length === 0,
+      });
 
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 data is empty - canvas may not have rendered correctly");
+      }
+
+      console.log(`📤 Starting writeFile operation...`);
       await Filesystem.writeFile({
         path: filePath,
         data: base64,
@@ -342,7 +353,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         recursive: true,
       });
 
-      console.log("✅ Image saved:", filePath);
+      console.log("✅ Image saved successfully:", filePath);
       console.log(`📝 Written base64 data length: ${base64.length} characters`);
 
       // Verify the file was actually written
