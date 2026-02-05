@@ -1,0 +1,501 @@
+/**
+ * Canvas API Rendering Utility
+ * Replaces html2canvas with native Canvas API for better performance
+ */
+
+/**
+ * Load an image from URL or data URI and return as Image object
+ */
+export async function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    // Enable CORS for remote images
+    img.crossOrigin = 'anonymous';
+    img.src = src;
+  });
+}
+
+/**
+ * Measure text width in canvas context
+ */
+function measureText(ctx: CanvasRenderingContext2D, text: string, font: string): number {
+  const previousFont = ctx.font;
+  ctx.font = font;
+  const width = ctx.measureText(text).width;
+  ctx.font = previousFont;
+  return width;
+}
+
+/**
+ * Draw wrapped text on canvas
+ */
+function drawWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(' ');
+  let line = '';
+  let currentY = y;
+
+  for (const word of words) {
+    const testLine = line + word + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && line) {
+      ctx.fillText(line, x, currentY);
+      line = word + ' ';
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) {
+    ctx.fillText(line.trim(), x, currentY);
+    currentY += lineHeight;
+  }
+
+  return currentY;
+}
+
+/**
+ * Parse CSS color string to RGB values
+ */
+function colorToRgb(color: string): { r: number; g: number; b: number } {
+  if (color.startsWith('#')) {
+    const hex = color.slice(1);
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16),
+    };
+  }
+  // Handle rgb() format
+  const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (rgbMatch) {
+    return {
+      r: parseInt(rgbMatch[1], 10),
+      g: parseInt(rgbMatch[2], 10),
+      b: parseInt(rgbMatch[3], 10),
+    };
+  }
+  // Default to black
+  return { r: 0, g: 0, b: 0 };
+}
+
+/**
+ * Check if color is light or dark
+ */
+function isLightColor(color: string): boolean {
+  if (color.toLowerCase() === 'white' || color === '#ffffff') return true;
+  const rgb = colorToRgb(color);
+  const luminance = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+  return luminance > 128;
+}
+
+/**
+ * Lighten a color by specified amount
+ */
+function lightenColor(color: string, amount: number): string {
+  const rgb = colorToRgb(color);
+  return `rgb(${Math.min(255, rgb.r + amount)}, ${Math.min(255, rgb.g + amount)}, ${Math.min(255, rgb.b + amount)})`;
+}
+
+export interface ProductRenderOptions {
+  width: number;
+  height?: number;
+  scale: number;
+  bgColor: string;
+  imageBgColor: string;
+  fontColor: string;
+  backgroundColor: string;
+}
+
+export interface ProductData {
+  name: string;
+  subtitle?: string;
+  image: string;
+  field1?: string;
+  field2?: string;
+  field2Unit?: string;
+  field3?: string;
+  field3Unit?: string;
+  price?: string | number;
+  priceUnit?: string;
+  badge?: string;
+  cropAspectRatio?: number;
+}
+
+/**
+ * Draw detailed product card to canvas
+ * Mimics the Save.jsx rendering: image + title + fields + price + watermark
+ */
+export async function renderProductToCanvas(
+  product: ProductData,
+  options: ProductRenderOptions,
+  watermarkConfig?: {
+    enabled: boolean;
+    text: string;
+    position: string;
+  }
+): Promise<HTMLCanvasElement> {
+  const scale = options.scale || 3;
+  const baseWidth = options.width;
+  const cropAspectRatio = product.cropAspectRatio || 1;
+  const baseHeight = options.height || baseWidth / cropAspectRatio;
+
+  // Canvas dimensions at scale
+  const canvasWidth = baseWidth * scale;
+  const canvasHeight = baseHeight * scale;
+
+  // Create canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to get 2D context from canvas');
+  }
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  // Fill background
+  ctx.fillStyle = options.backgroundColor;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  let currentY = 0;
+
+  // ===== IMAGE SECTION =====
+  const imageBg = options.imageBgColor;
+  const imageHeight = baseWidth / cropAspectRatio * scale;
+
+  // Draw image background
+  ctx.fillStyle = imageBg;
+  ctx.fillRect(0, currentY, canvasWidth, imageHeight);
+
+  // Load and draw image
+  try {
+    const img = await loadImage(product.image);
+    // Center image in the available space
+    const imgScaledWidth = canvasWidth;
+    const imgScaledHeight = (img.height / img.width) * canvasWidth;
+
+    if (imgScaledHeight >= imageHeight) {
+      // Image is taller, fit by width
+      ctx.drawImage(img, 0, currentY, canvasWidth, imageHeight);
+    } else {
+      // Image is wider, center vertically
+      const offsetY = currentY + (imageHeight - imgScaledHeight) / 2;
+      ctx.drawImage(img, 0, offsetY, canvasWidth, imgScaledHeight);
+    }
+  } catch (err) {
+    console.warn('Failed to load image:', err);
+    // Draw placeholder
+    ctx.fillStyle = '#ccc';
+    ctx.fillRect(0, currentY, canvasWidth, imageHeight);
+  }
+
+  // Draw badge if present
+  if (product.badge) {
+    const badgeBg = isLightColor(imageBg) ? '#fff' : '#000';
+    const badgeText = isLightColor(imageBg) ? '#000' : '#fff';
+    const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+
+    const badgeText_str = product.badge.toUpperCase();
+    const badgeFontSize = Math.floor(13 * scale);
+    const badgeFont = `${badgeFontSize}px Arial, sans-serif`;
+
+    ctx.font = badgeFont;
+    const badgeMetrics = ctx.measureText(badgeText_str);
+    const badgePadding = 6 * scale;
+    const badgeWidth = badgeMetrics.width + badgePadding * 2;
+    const badgeHeight = badgeFontSize + badgePadding;
+
+    const badgeX = canvasWidth - badgeWidth - 12 * scale;
+    const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
+
+    // Badge background
+    ctx.fillStyle = badgeBg;
+    ctx.globalAlpha = 0.95;
+    ctx.beginPath();
+    ctx.arc(badgeX + badgeWidth / 2, badgeY + badgeHeight / 2, badgeHeight / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Badge border
+    ctx.strokeStyle = badgeBorder;
+    ctx.lineWidth = 1 * scale;
+    ctx.beginPath();
+    ctx.arc(badgeX + badgeWidth / 2, badgeY + badgeHeight / 2, badgeHeight / 2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Badge text
+    ctx.fillStyle = badgeText;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+  }
+
+  currentY += imageHeight;
+
+  // ===== DETAILS SECTION =====
+  const detailsBgColor = lightenColor(options.bgColor, 40);
+  const detailsPadding = 10 * scale;
+
+  ctx.fillStyle = detailsBgColor;
+  ctx.fillRect(0, currentY, canvasWidth, canvasHeight - currentY);
+
+  ctx.fillStyle = options.fontColor;
+  ctx.textAlign = 'left';
+
+  // Title
+  const titleFontSize = Math.floor(28 * scale);
+  const titleFont = `normal ${titleFontSize}px Arial, sans-serif`;
+  ctx.font = titleFont;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+  ctx.shadowBlur = 5 * scale;
+  ctx.shadowOffsetX = 3 * scale;
+  ctx.shadowOffsetY = 3 * scale;
+  ctx.textAlign = 'center';
+  ctx.fillText(product.name, canvasWidth / 2, currentY + detailsPadding + titleFontSize * 0.8);
+  ctx.shadowColor = 'transparent';
+  ctx.textAlign = 'left';
+
+  currentY += detailsPadding + titleFontSize + 6 * scale;
+
+  // Subtitle
+  if (product.subtitle) {
+    const subtitleFontSize = Math.floor(18 * scale);
+    const subtitleFont = `italic ${subtitleFontSize}px Arial, sans-serif`;
+    ctx.font = subtitleFont;
+    ctx.textAlign = 'center';
+    ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + subtitleFontSize * 0.8);
+    ctx.textAlign = 'left';
+    currentY += subtitleFontSize + 5 * scale;
+  }
+
+  currentY += 6 * scale;
+
+  // Fields
+  const fieldFontSize = Math.floor(17 * scale);
+  const fieldFont = `${fieldFontSize}px Arial, sans-serif`;
+  const fieldLineHeight = fieldFontSize * 1.4;
+
+  ctx.font = fieldFont;
+  ctx.textAlign = 'left';
+
+  const labelWidth = 110 * scale;
+
+  if (product.field1) {
+    ctx.fillText('Colour:', detailsPadding, currentY + fieldFontSize * 0.8);
+    ctx.fillText(product.field1, detailsPadding + labelWidth + 8 * scale, currentY + fieldFontSize * 0.8);
+    currentY += fieldLineHeight + 2 * scale;
+  }
+
+  if (product.field2) {
+    ctx.fillText('Package:', detailsPadding, currentY + fieldFontSize * 0.8);
+    const field2Text = `${product.field2} ${product.field2Unit || ''}`;
+    ctx.fillText(field2Text, detailsPadding + labelWidth + 8 * scale, currentY + fieldFontSize * 0.8);
+    currentY += fieldLineHeight + 2 * scale;
+  }
+
+  if (product.field3) {
+    ctx.fillText('Age Group:', detailsPadding, currentY + fieldFontSize * 0.8);
+    const field3Text = `${product.field3} ${product.field3Unit || ''}`;
+    ctx.fillText(field3Text, detailsPadding + labelWidth + 8 * scale, currentY + fieldFontSize * 0.8);
+    currentY += fieldLineHeight + 2 * scale;
+  }
+
+  currentY += 6 * scale;
+
+  // ===== PRICE BAR =====
+  if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
+    const priceBarHeight = 36 * scale;
+    ctx.fillStyle = options.bgColor;
+    ctx.fillRect(0, currentY, canvasWidth, priceBarHeight);
+
+    const priceFontSize = Math.floor(19 * scale);
+    const priceFont = `${priceFontSize}px Arial, sans-serif`;
+    ctx.font = priceFont;
+    ctx.fillStyle = options.fontColor;
+    ctx.textAlign = 'center';
+
+    const priceText = `Price   :   ₹${product.price} ${product.priceUnit || ''}`;
+    ctx.fillText(priceText, canvasWidth / 2, currentY + priceBarHeight / 2 + priceFontSize * 0.3);
+
+    currentY += priceBarHeight;
+  }
+
+  // ===== WATERMARK =====
+  if (watermarkConfig?.enabled && watermarkConfig.text) {
+    const watermarkFontSize = Math.floor(10 * scale);
+    const watermarkFont = `${watermarkFontSize}px Arial, sans-serif`;
+    ctx.font = watermarkFont;
+
+    const isLightBg = isLightColor(imageBg);
+    ctx.fillStyle = isLightBg ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.4)';
+
+    // Position calculation for image section only
+    const imageWrapWidth = canvasWidth;
+    const imageWrapHeight = baseWidth / cropAspectRatio * scale;
+    const imageWrapOffsetTop = 0;
+    const padding = 10 * scale;
+
+    let watermarkX = canvasWidth / 2;
+    let watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+
+    switch (watermarkConfig.position) {
+      case 'top-left':
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        watermarkX = padding;
+        watermarkY = imageWrapOffsetTop + padding;
+        break;
+      case 'top-center':
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        watermarkX = imageWrapWidth / 2;
+        watermarkY = imageWrapOffsetTop + padding;
+        break;
+      case 'top-right':
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'top';
+        watermarkX = imageWrapWidth - padding;
+        watermarkY = imageWrapOffsetTop + padding;
+        break;
+      case 'middle-left':
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        watermarkX = padding;
+        watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
+        break;
+      case 'middle-center':
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        watermarkX = imageWrapWidth / 2;
+        watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
+        break;
+      case 'middle-right':
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        watermarkX = imageWrapWidth - padding;
+        watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
+        break;
+      case 'bottom-left':
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        watermarkX = padding;
+        watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+        break;
+      case 'bottom-right':
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        watermarkX = imageWrapWidth - padding;
+        watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+        break;
+      case 'bottom-center':
+      default:
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        watermarkX = imageWrapWidth / 2;
+        watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+        break;
+    }
+
+    ctx.fillText(watermarkConfig.text, watermarkX, watermarkY);
+  }
+
+  return canvas;
+}
+
+/**
+ * Convert canvas to blob
+ */
+export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+      } else {
+        reject(new Error('Failed to convert canvas to blob'));
+      }
+    }, 'image/png');
+  });
+}
+
+/**
+ * Convert canvas to base64 PNG
+ */
+export function canvasToBase64(canvas: HTMLCanvasElement): string {
+  return canvas.toDataURL('image/png').split(',')[1];
+}
+
+/**
+ * Render simple card element to canvas
+ * For quick downloads from CatalogueView, Wholesale, Resell
+ */
+export async function renderElementToCanvas(
+  element: HTMLElement,
+  options: { scale: number; backgroundColor: string; width: number; height: number }
+): Promise<HTMLCanvasElement> {
+  const scale = options.scale || 3;
+  const width = options.width * scale;
+  const height = options.height * scale;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to get 2D context from canvas');
+  }
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  // Fill background
+  ctx.fillStyle = options.backgroundColor;
+  ctx.fillRect(0, 0, width, height);
+
+  // For simple card elements, we'll measure and render the visible image
+  const img = element.querySelector('img') as HTMLImageElement;
+  if (img && img.src) {
+    try {
+      const loadedImg = await loadImage(img.src);
+      // Draw image centered
+      const imgAspectRatio = loadedImg.width / loadedImg.height;
+      const containerAspectRatio = width / height;
+
+      let drawWidth = width;
+      let drawHeight = height;
+      let drawX = 0;
+      let drawY = 0;
+
+      if (imgAspectRatio > containerAspectRatio) {
+        // Image is wider
+        drawHeight = width / imgAspectRatio;
+        drawY = (height - drawHeight) / 2;
+      } else {
+        // Image is taller
+        drawWidth = height * imgAspectRatio;
+        drawX = (width - drawWidth) / 2;
+      }
+
+      ctx.drawImage(loadedImg, drawX, drawY, drawWidth, drawHeight);
+    } catch (err) {
+      console.warn('Failed to load image for card:', err);
+    }
+  }
+
+  return canvas;
+}
