@@ -8,9 +8,26 @@
  */
 export async function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
+    if (!src) {
+      reject(new Error('Image source is empty or undefined'));
+      return;
+    }
+
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
+    const timeout = setTimeout(() => {
+      reject(new Error(`Image load timeout after 30s: ${src}`));
+    }, 30000);
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve(img);
+    };
+
+    img.onerror = () => {
+      clearTimeout(timeout);
+      reject(new Error(`Failed to load image: ${src}`));
+    };
+
     // Enable CORS for remote images
     img.crossOrigin = 'anonymous';
     img.src = src;
