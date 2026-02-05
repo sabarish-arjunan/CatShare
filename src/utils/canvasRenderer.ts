@@ -229,7 +229,14 @@ export async function renderProductToCanvas(
 
   // Load and draw image
   try {
+    if (!product.image) {
+      throw new Error('Product image is not set');
+    }
+
+    console.log(`Loading image: ${product.image}`);
     const img = await loadImage(product.image);
+    console.log(`Image loaded successfully. Dimensions: ${img.width}x${img.height}`);
+
     // Center image in the available space
     const imgScaledWidth = canvasWidth;
     const imgScaledHeight = (img.height / img.width) * canvasWidth;
@@ -242,11 +249,17 @@ export async function renderProductToCanvas(
       const offsetY = currentY + (imageHeight - imgScaledHeight) / 2;
       ctx.drawImage(img, 0, offsetY, canvasWidth, imgScaledHeight);
     }
+    console.log(`Image drawn to canvas`);
   } catch (err) {
-    console.warn('Failed to load image:', err);
-    // Draw placeholder
-    ctx.fillStyle = '#ccc';
+    console.error('Failed to load image:', err);
+    // Draw placeholder instead of silently failing
+    ctx.fillStyle = '#cccccc';
     ctx.fillRect(0, currentY, canvasWidth, imageHeight);
+    ctx.fillStyle = '#999999';
+    ctx.font = `${Math.floor(20 * scale)}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
   // Draw badge if present
