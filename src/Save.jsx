@@ -199,28 +199,6 @@ export async function saveRenderedImage(product, type, units = {}) {
   const baseWidth = 330;
   const baseHeight = baseWidth / cropAspectRatio;
 
-  const wrapper = document.createElement("div");
-  Object.assign(wrapper.style, {
-    position: "absolute",
-    top: "0",
-    left: "0",
-    width: `${baseWidth}px`,
-    height: "auto",
-    backgroundColor: "transparent",
-    opacity: "0",
-    pointerEvents: "none",
-    overflow: "hidden",
-    padding: "0",
-    boxSizing: "border-box",
-  });
-
-  const container = document.createElement("div");
-  container.className = `full-detail-${id}-${type}`;
-  container.style.backgroundColor = getLighterColor(bgColor);
-  container.style.overflow = "visible";
-  container.style.display = "flex";
-  container.style.flexDirection = "column";
-
   // Get catalogue-specific data if catalogueId is provided
   let catalogueData = product;
   if (units.catalogueId) {
