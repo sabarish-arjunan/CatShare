@@ -167,34 +167,34 @@ export async function renderProductToCanvas(
   // Calculate required height for all content
   // Image section: baseWidth / cropAspectRatio
   // Details section: padding + title + subtitle + fields + price bar
-  const imageHeight = baseWidth / cropAspectRatio;
-  const detailsPadding = 10;
-  const titleFontSize = 28;
-  const subtitleFontSize = 18;
-  const fieldFontSize = 17;
-  const fieldLineHeight = fieldFontSize * 1.4;
-  const priceBarHeight = product.price ? 36 : 0;
+  const imageSectionBaseHeight = baseWidth / cropAspectRatio;
+  const detailsPaddingBase = 10;
+  const titleFontSizeBase = 28;
+  const subtitleFontSizeBase = 18;
+  const fieldFontSizeBase = 17;
+  const fieldLineHeightBase = fieldFontSizeBase * 1.4;
+  const priceBarHeightBase = product.price ? 36 : 0;
 
   // Estimate details height
-  let detailsHeight = detailsPadding; // top padding
-  detailsHeight += titleFontSize + 6; // title + spacing
+  let detailsHeight = detailsPaddingBase; // top padding
+  detailsHeight += titleFontSizeBase + 6; // title + spacing
 
   if (product.subtitle) {
-    detailsHeight += subtitleFontSize + 5; // subtitle + spacing
+    detailsHeight += subtitleFontSizeBase + 5; // subtitle + spacing
   }
 
   detailsHeight += 6; // spacing before fields
 
   // Field heights (only count non-empty fields)
-  if (product.field1) detailsHeight += fieldLineHeight + 2;
-  if (product.field2) detailsHeight += fieldLineHeight + 2;
-  if (product.field3) detailsHeight += fieldLineHeight + 2;
+  if (product.field1) detailsHeight += fieldLineHeightBase + 2;
+  if (product.field2) detailsHeight += fieldLineHeightBase + 2;
+  if (product.field3) detailsHeight += fieldLineHeightBase + 2;
 
   detailsHeight += 6; // spacing after fields
-  detailsHeight += priceBarHeight;
-  detailsHeight += detailsPadding; // bottom padding
+  detailsHeight += priceBarHeightBase;
+  detailsHeight += detailsPaddingBase; // bottom padding
 
-  const baseHeight = imageHeight + detailsHeight;
+  const baseHeight = imageSectionBaseHeight + detailsHeight;
 
   // Canvas dimensions at scale
   const canvasWidth = baseWidth * scale;
@@ -221,7 +221,7 @@ export async function renderProductToCanvas(
 
   // ===== IMAGE SECTION =====
   const imageBg = options.imageBgColor;
-  const imageHeight = baseWidth / cropAspectRatio * scale;
+  const imageHeight = imageSectionBaseHeight * scale;
 
   // Draw image background
   ctx.fillStyle = imageBg;
