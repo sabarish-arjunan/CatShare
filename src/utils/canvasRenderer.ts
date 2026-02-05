@@ -160,6 +160,9 @@ export async function renderProductToCanvas(
     position: string;
   }
 ): Promise<HTMLCanvasElement> {
+  console.log(`[renderProductToCanvas] Starting render for product:`, product.name);
+  console.log(`[renderProductToCanvas] Options:`, options);
+
   const scale = options.scale || 3;
   const baseWidth = options.width;
   const cropAspectRatio = product.cropAspectRatio || 1;
