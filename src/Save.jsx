@@ -175,13 +175,22 @@ export async function saveRenderedImage(product, type, units = {}) {
   };
 
   // ✅ Load image from Filesystem if not present
+  console.log(`🖼️ Product image status:`, {
+    hasImage: !!product.image,
+    hasImagePath: !!product.imagePath,
+    imagePath: product.imagePath,
+    imageLength: product.image?.length,
+  });
+
   if (!product.image && product.imagePath) {
     try {
+      console.log(`📂 Loading image from filesystem: ${product.imagePath}`);
       const res = await Filesystem.readFile({
         path: product.imagePath,
         directory: Directory.Data,
       });
       product.image = `data:image/png;base64,${res.data}`;
+      console.log(`✅ Image loaded from filesystem. Base64 length: ${product.image.length}`);
     } catch (err) {
       console.error("❌ Failed to load image for rendering:", err.message);
       return;
@@ -191,6 +200,12 @@ export async function saveRenderedImage(product, type, units = {}) {
   // ✅ Ensure product.image exists before rendering
   if (!product.image) {
     console.error("❌ Failed to load image for rendering: File does not exist.");
+    console.error("Product object:", {
+      id: product.id,
+      name: product.name,
+      imagePath: product.imagePath,
+      hasImage: !!product.image,
+    });
     return;
   }
 
