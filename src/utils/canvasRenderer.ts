@@ -377,9 +377,9 @@ export async function renderProductToCanvas(
 
   // ===== PRICE BAR =====
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
-    const priceBarHeight = 36 * scale;
+    const renderPriceBarHeight = priceBarHeightBase * scale;
     ctx.fillStyle = options.bgColor;
-    ctx.fillRect(0, currentY, canvasWidth, priceBarHeight);
+    ctx.fillRect(0, currentY, canvasWidth, renderPriceBarHeight);
 
     const priceFontSize = Math.floor(19 * scale);
     const priceFont = `${priceFontSize}px Arial, sans-serif`;
@@ -388,9 +388,9 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
 
     const priceText = `Price   :   ₹${product.price} ${product.priceUnit || ''}`;
-    ctx.fillText(priceText, canvasWidth / 2, currentY + priceBarHeight / 2 + priceFontSize * 0.3);
+    ctx.fillText(priceText, canvasWidth / 2, currentY + renderPriceBarHeight / 2 + priceFontSize * 0.3);
 
-    currentY += priceBarHeight;
+    currentY += renderPriceBarHeight;
   }
 
   // ===== WATERMARK =====
