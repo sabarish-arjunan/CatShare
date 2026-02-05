@@ -146,7 +146,38 @@ export async function renderProductToCanvas(
   const scale = options.scale || 3;
   const baseWidth = options.width;
   const cropAspectRatio = product.cropAspectRatio || 1;
-  const baseHeight = options.height || baseWidth / cropAspectRatio;
+
+  // Calculate required height for all content
+  // Image section: baseWidth / cropAspectRatio
+  // Details section: padding + title + subtitle + fields + price bar
+  const imageHeight = baseWidth / cropAspectRatio;
+  const detailsPadding = 10;
+  const titleFontSize = 28;
+  const subtitleFontSize = 18;
+  const fieldFontSize = 17;
+  const fieldLineHeight = fieldFontSize * 1.4;
+  const priceBarHeight = product.price ? 36 : 0;
+
+  // Estimate details height
+  let detailsHeight = detailsPadding; // top padding
+  detailsHeight += titleFontSize + 6; // title + spacing
+
+  if (product.subtitle) {
+    detailsHeight += subtitleFontSize + 5; // subtitle + spacing
+  }
+
+  detailsHeight += 6; // spacing before fields
+
+  // Field heights (only count non-empty fields)
+  if (product.field1) detailsHeight += fieldLineHeight + 2;
+  if (product.field2) detailsHeight += fieldLineHeight + 2;
+  if (product.field3) detailsHeight += fieldLineHeight + 2;
+
+  detailsHeight += 6; // spacing after fields
+  detailsHeight += priceBarHeight;
+  detailsHeight += detailsPadding; // bottom padding
+
+  const baseHeight = imageHeight + detailsHeight;
 
   // Canvas dimensions at scale
   const canvasWidth = baseWidth * scale;
