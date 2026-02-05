@@ -6,7 +6,7 @@ import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import html2canvas from "html2canvas-pro";
+import { renderElementToCanvas, canvasToBlob } from "./utils/canvasRenderer";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
