@@ -321,7 +321,7 @@ export async function renderProductToCanvas(
     const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(14 * scale); // Balanced size between old (16px) and reduced (12px)
+    const badgeFontSize = Math.floor(13 * scale); // Slightly smaller font size
     const badgeFont = `400 ${badgeFontSize}px Arial, sans-serif`; // Normal weight (removed bold)
 
     ctx.font = badgeFont;
