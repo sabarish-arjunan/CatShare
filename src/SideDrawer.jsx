@@ -67,6 +67,7 @@ const { showToast } = useToast();
   try {
     const zip = new JSZip();
     let hasImages = false;
+    let totalSize = 0;
 
     // Get all catalogues dynamically
     const catalogues = getAllCatalogues();
@@ -88,12 +89,18 @@ const { showToast } = useToast();
 
         for (const file of files.files) {
           if (file.name.endsWith(".png")) {
-            const fileData = await Filesystem.readFile({
-              path: `${folderName}/${file.name}`,
-              directory: Directory.External,
-            });
-            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
-            hasImages = true;
+            try {
+              const fileData = await Filesystem.readFile({
+                path: `${folderName}/${file.name}`,
+                directory: Directory.External,
+              });
+              zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+              totalSize += fileData.data.length;
+              hasImages = true;
+            } catch (readErr) {
+              console.warn(`Could not read file ${folderName}/${file.name}:`, readErr.message);
+              // Skip individual files that fail to read
+            }
           }
         }
       } catch (err) {
@@ -107,23 +114,38 @@ const { showToast } = useToast();
       return;
     }
 
-    const blob = await zip.generateAsync({ type: "blob" });
-    const reader = new FileReader();
+    console.log(`📦 Creating ZIP with ${totalSize} bytes of image data...`);
 
-    reader.onloadend = async () => {
-      const base64Data = reader.result.split(",")[1];
+    try {
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      console.log(`✅ ZIP created successfully. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
 
       const now = new Date();
       const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
       const filename = `catshare-rendered-images-${timestamp}.zip`;
 
       try {
+        // Convert blob to base64 more safely for smaller chunks
+        const arrayBuffer = await blob.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+
+        // Convert to base64 in chunks to avoid "Invalid array length" error
+        let binary = '';
+        const chunkSize = 8192; // Process in 8KB chunks
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+          binary += String.fromCharCode.apply(null, Array.from(chunk));
+        }
+        const base64Data = btoa(binary);
+
+        console.log(`📝 Writing file: ${filename}`);
         await Filesystem.writeFile({
           path: filename,
           data: base64Data,
           directory: Directory.External,
         });
 
+        console.log(`📤 Sharing file...`);
         await FileSharer.share({
           filename,
           base64Data,
@@ -131,15 +153,31 @@ const { showToast } = useToast();
         });
 
         showToast("Rendered images downloaded successfully!", "success");
-      } catch (err) {
-        showToast("Failed to download images: " + err.message, "error");
-      }
-    };
+      } catch (shareErr) {
+        console.error("Share/Write error:", shareErr);
 
-    reader.readAsDataURL(blob);
+        // Fallback: Try direct download without FileSharer
+        try {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showToast("ZIP file downloaded to your device!", "success");
+        } catch (fallbackErr) {
+          showToast("Failed to download images: " + shareErr.message, "error");
+        }
+      }
+    } catch (genErr) {
+      console.error("ZIP generation failed:", genErr);
+      showToast("Failed to create ZIP: " + genErr.message, "error");
+    }
   } catch (err) {
     console.error("Download rendered images failed:", err);
-    showToast("Failed to download rendered images", "error");
+    showToast("Failed to download rendered images: " + err.message, "error");
   }
 };
 
