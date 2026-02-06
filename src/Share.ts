@@ -46,62 +46,46 @@ export async function handleShare({
   console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${targetFolder}/`);
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
+  // Get all products to support on-the-fly rendering
+  const allProducts = JSON.parse(localStorage.getItem("products") || "[]");
+
   for (const id of selected) {
-    // Use catalogue label (folder name) for filename pattern instead of mode
-    // This matches the rendering logic: product_<id>_<catalogueLabel>.png
-    const fileName = `product_${id}_${catalogueLabel}.png`;
-    const filePath = `${targetFolder}/${fileName}`;
-
     try {
-      // First, verify the file exists
-      try {
-        await Filesystem.stat({
-          path: filePath,
-          directory: Directory.External,
-        });
-        console.log(`✅ File exists: ${filePath}`);
-      } catch (statErr) {
-        console.error(`❌ File does not exist: ${filePath}`, statErr);
-        filesNotFound.push({ id, path: filePath });
-        processedCount++;
-        setProcessingIndex(processedCount);
-        continue;
+      console.log(`📦 Processing product ${id} for sharing...`);
+
+      // First try to get pre-rendered image
+      let imageDataUrl = await getRenderedImage(id, catalogueLabel);
+
+      // If not rendered, render on-the-fly
+      if (!imageDataUrl) {
+        console.log(`⏳ Image not rendered yet, rendering on-the-fly...`);
+        const product = allProducts.find((p: any) => p.id === id);
+
+        if (!product) {
+          console.error(`❌ Product not found: ${id}`);
+          processedCount++;
+          setProcessingIndex(processedCount);
+          continue;
+        }
+
+        // Determine catalogue ID from folder/mode
+        let catalogueId = folder === "Wholesale" ? "cat1" : folder === "Retail" ? "cat2" : "cat2";
+        imageDataUrl = await renderProductImageOnTheFly(product, catalogueLabel, catalogueId);
+
+        if (!imageDataUrl) {
+          console.warn(`⚠️ Could not render product ${id} - product may not have an image`);
+          processedCount++;
+          setProcessingIndex(processedCount);
+          continue;
+        }
+
+        console.log(`✅ Product ${id} rendered on-the-fly successfully`);
       }
 
-      // Try to get file URI for sharing
-      try {
-        const fileResult = await Filesystem.getUri({
-          path: filePath,
-          directory: Directory.External,
-        });
-
-        if (fileResult.uri) {
-          fileUris.push(fileResult.uri);
-          console.log(`✅ Got URI for ${fileName}:`, fileResult.uri);
-        } else {
-          throw new Error("No URI returned from getUri");
-        }
-      } catch (uriErr) {
-        // Fallback: Read file as base64 and use data URL
-        console.warn(`⚠️ Could not get file URI, trying base64 fallback:`, uriErr);
-        try {
-          const fileData = await Filesystem.readFile({
-            path: filePath,
-            directory: Directory.External,
-          });
-
-          // Create a data URL from the base64
-          const dataUrl = `data:image/png;base64,${fileData.data}`;
-          fileUris.push(dataUrl);
-          console.log(`✅ Using base64 fallback for ${fileName}`);
-        } catch (readErr) {
-          console.error(`❌ Could not read file as fallback for ${fileName}:`, readErr);
-          filesNotFound.push({ id, path: filePath, reason: "Could not get URI or read file" });
-        }
-      }
+      fileUris.push(imageDataUrl);
+      console.log(`✅ Added image for product ${id} to share queue`);
     } catch (err) {
-      console.error(`❌ Error processing image for product ${id}:`, err);
-      filesNotFound.push({ id, path: filePath, error: (err as Error).message });
+      console.error(`❌ Error processing product ${id}:`, err);
     }
 
     processedCount++;
