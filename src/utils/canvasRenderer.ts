@@ -207,7 +207,7 @@ export async function renderProductToCanvas(
   // Image section: baseWidth / cropAspectRatio
   // Details section: padding + title + subtitle + fields + price bar
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
-  const detailsPaddingBase = 8; // Matching preview modal padding
+  const detailsPaddingBase = 4; // Updated: 8 -> 4 (matching "4px 8px" padding in HTML)
   const titleFontSizeBase = 28;
   const subtitleFontSizeBase = 18;
   const fieldFontSizeBase = 17;
@@ -215,14 +215,14 @@ export async function renderProductToCanvas(
   const priceBarHeightBase = product.price ? 36 : 0;
 
   // Estimate details height
-  let detailsHeight = detailsPaddingBase; // top padding
-  detailsHeight += titleFontSizeBase + 6; // title + spacing
+  let detailsHeight = detailsPaddingBase; // top padding (4px)
+  detailsHeight += titleFontSizeBase + 3; // Updated: title + 3px spacing (matching margin: "0 0 3px 0")
 
   if (product.subtitle) {
-    detailsHeight += subtitleFontSizeBase + 5; // subtitle + spacing
+    detailsHeight += subtitleFontSizeBase + 0; // Updated: subtitle with no margin bottom (matching margin: "0 0 0 0")
   }
 
-  detailsHeight += 6; // spacing before fields
+  detailsHeight += 6; // spacing before fields (marginBottom: 6 on title div)
 
   // Field heights (only count non-empty fields)
   if (product.field1) detailsHeight += fieldLineHeightBase + 2;
@@ -231,7 +231,7 @@ export async function renderProductToCanvas(
 
   detailsHeight += 6; // spacing after fields
   detailsHeight += priceBarHeightBase;
-  detailsHeight += detailsPaddingBase; // bottom padding
+  detailsHeight += detailsPaddingBase; // bottom padding (4px)
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
 
