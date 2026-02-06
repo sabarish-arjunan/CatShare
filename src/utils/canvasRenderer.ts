@@ -372,7 +372,7 @@ export async function renderProductToCanvas(
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += renderDetailsPadding + renderTitleFontSize + 6 * scale;
+  currentY += renderDetailsPadding + renderTitleFontSize + 3 * scale; // Updated: 6 * scale -> 3 * scale (matching margin: "0 0 3px 0")
 
   // Subtitle
   if (product.subtitle) {
