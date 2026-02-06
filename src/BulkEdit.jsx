@@ -72,7 +72,10 @@ useEffect(() => {
   setCategories(storedCategories);
 
   const normalized = products.map((p) => {
-    // Always start with empty fields - let "Fill from Master" checkboxes control population
+    // Get catalogue-specific data
+    const catData = catalogueId ? getCatalogueData(p, catalogueId) : {};
+
+    // Show field if it has data, otherwise leave empty
     const normalized = {
       ...p,
       // Keep product identity
@@ -80,40 +83,48 @@ useEffect(() => {
       subtitle: p.subtitle || "",
       badge: p.badge || "",
       category: p.category || [],
-      // Start all optional fields as empty
-      field1: "",
-      color: "",
-      field2: "",
-      field2Unit: "pcs / set",
-      package: "",
-      packageUnit: "pcs / set",
-      field3: "",
-      field3Unit: "months",
-      age: "",
-      ageUnit: "months",
-      wholesaleStock: "",
-      resellStock: "",
+      // Show if exists in catalogue, otherwise empty
+      field1: catData.field1 || "",
+      color: catData.field1 || p.color || "",
+      field2: catData.field2 || "",
+      field2Unit: catData.field2Unit || "pcs / set",
+      package: catData.field2 || p.package || "",
+      packageUnit: catData.field2Unit || p.packageUnit || "pcs / set",
+      field3: catData.field3 || "",
+      field3Unit: catData.field3Unit || "months",
+      age: catData.field3 || p.age || "",
+      ageUnit: catData.field3Unit || p.ageUnit || "months",
+      wholesaleStock:
+        typeof p.wholesaleStock === "boolean"
+          ? p.wholesaleStock ? "in" : "out"
+          : p.wholesaleStock || "",
+      resellStock:
+        typeof p.resellStock === "boolean"
+          ? p.resellStock ? "in" : "out"
+          : p.resellStock || "",
     };
 
     // Handle catalogue-specific stock field
     if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
-      normalized[stockField] = "";
+      normalized[stockField] = typeof p[stockField] === "boolean"
+        ? p[stockField] ? "in" : "out"
+        : (p[stockField] || "");
     }
 
-    // Add price field for the current catalogue - start empty
+    // Add price field for the current catalogue
     if (priceField) {
-      normalized[priceField] = "";
-      normalized[priceUnitField] = "/ piece";
+      normalized[priceField] = catData[priceField] || "";
+      normalized[priceUnitField] = catData[priceUnitField] || "/ piece";
     }
 
-    // Initialize other price fields - empty
-    normalized.wholesale = "";
-    normalized.wholesaleUnit = "/ piece";
-    normalized.resell = "";
-    normalized.resellUnit = "/ piece";
-    normalized.retail = "";
-    normalized.retailUnit = "/ piece";
-    normalized.stock = "";
+    // Initialize other price fields - show if they exist
+    normalized.wholesale = p.wholesale || "";
+    normalized.wholesaleUnit = p.wholesaleUnit || "/ piece";
+    normalized.resell = p.resell || "";
+    normalized.resellUnit = p.resellUnit || "/ piece";
+    normalized.retail = p.retail || "";
+    normalized.retailUnit = p.retailUnit || "/ piece";
+    normalized.stock = p.stock || "";
 
     return normalized;
   });
