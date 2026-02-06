@@ -432,12 +432,6 @@ const exportProductsToCSV = (products) => {
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
 
-      // Dispatch event to notify UI components (like CatalogueApp) to refresh their catalogue state
-      window.dispatchEvent(new CustomEvent("catalogues-changed", {
-        detail: { action: "restore", catalogues: getAllCatalogues() }
-      }));
-      console.log("📢 Dispatched catalogues-changed event to refresh UI");
-
       setShowRenderAfterRestore(true);
     } catch (err) {
       console.error("❌ Restore failed:", err);
