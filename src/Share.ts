@@ -151,12 +151,11 @@ export async function handleShare({
   });
 
   const results = await Promise.all(processingPromises);
-  const validUris = [];
   const failedProducts = [];
 
   results.forEach((uri, index) => {
     if (uri) {
-      validUris.push(uri);
+      fileUris.push(uri);
     } else {
       failedProducts.push(selected[index]);
     }
@@ -164,13 +163,11 @@ export async function handleShare({
 
   setProcessing(false);
 
-  if (validUris.length === 0) {
+  if (fileUris.length === 0) {
     console.error(`❌ Share failed: No valid images to share. Failed products:`, failedProducts);
     alert("❌ No products selected or no valid images available to share.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image\n\nFailed products: " + failedProducts.join(", "));
     return;
   }
-
-  const fileUris = validUris;
 
   try {
     console.log(`\n📤 Preparing to share:`);
