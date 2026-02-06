@@ -32,7 +32,6 @@ export async function handleShare({
   const targetFolder = folder || (mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell");
   const fileUris = [];
   let processedCount = 0;
-  let filesNotFound = [];
 
   // Extract catalogue label from folder (folder is the catalogue name/label)
   // Used for filename pattern: product_<id>_<catalogueLabel>.png
