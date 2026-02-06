@@ -421,9 +421,10 @@ export async function renderProductToCanvas(
 
   // ===== PRICE BAR =====
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
-    const renderPriceBarHeight = priceBarHeightBase * scale;
+    // Fill entire remaining canvas with price bar background to avoid gaps
+    const remainingHeight = canvasHeight - currentY;
     ctx.fillStyle = options.bgColor;
-    ctx.fillRect(0, currentY, canvasWidth, renderPriceBarHeight);
+    ctx.fillRect(0, currentY, canvasWidth, remainingHeight); // Fill to bottom of canvas
 
     const priceFontSize = Math.floor(19 * scale);
     const priceFont = `${priceFontSize}px Arial, sans-serif`;
@@ -431,10 +432,12 @@ export async function renderProductToCanvas(
     ctx.fillStyle = options.fontColor;
     ctx.textAlign = 'center';
 
+    // Center price text vertically in the remaining space
+    const priceTextY = currentY + remainingHeight / 2 + priceFontSize * 0.3;
     const priceText = `Price   :   ₹${product.price} ${product.priceUnit || ''}`;
-    ctx.fillText(priceText, canvasWidth / 2, currentY + renderPriceBarHeight / 2 + priceFontSize * 0.3);
+    ctx.fillText(priceText, canvasWidth / 2, priceTextY);
 
-    currentY += renderPriceBarHeight;
+    currentY += remainingHeight;
   }
 
   // ===== WATERMARK =====
