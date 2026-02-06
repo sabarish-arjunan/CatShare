@@ -353,6 +353,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessingTotal,
           folder: catalogueLabel,
           mode: "resell",
+          products: allProducts,
         });
       };
       container.appendChild(shareBtn);

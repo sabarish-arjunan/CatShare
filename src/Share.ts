@@ -10,6 +10,7 @@ interface HandleShareParams {
   setProcessingTotal: React.Dispatch<React.SetStateAction<number>>;
   folder?: string | null;
   mode?: string;
+  products?: any[]; // Optional: pass actual product objects instead of relying on localStorage
 }
 
 export async function handleShare({
@@ -19,6 +20,7 @@ export async function handleShare({
   setProcessingTotal,
   folder = null,
   mode = "resell", // or "wholesale" - kept for backward compatibility
+  products = undefined,
 }: HandleShareParams) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
@@ -45,7 +47,16 @@ export async function handleShare({
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
   // Get all products to support on-the-fly rendering
-  const allProducts = JSON.parse(localStorage.getItem("products") || "[]");
+  // Use passed products if available, otherwise fall back to localStorage
+  let allProducts = products || JSON.parse(localStorage.getItem("products") || "[]");
+
+  // If no products passed and we're in retail mode, also check retail products
+  if (!products && mode === "retail") {
+    const retailProducts = JSON.parse(localStorage.getItem("retailProducts") || "[]");
+    if (retailProducts.length > 0) {
+      allProducts = [...retailProducts, ...allProducts];
+    }
+  }
 
   // Process all products in parallel
   const processingPromises = selected.map(async (id, index) => {
@@ -151,16 +162,21 @@ export async function handleShare({
   });
 
   const results = await Promise.all(processingPromises);
-  results.forEach((uri) => {
+  const failedProducts = [];
+
+  results.forEach((uri, index) => {
     if (uri) {
       fileUris.push(uri);
+    } else {
+      failedProducts.push(selected[index]);
     }
   });
 
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    alert("❌ No products selected or no valid images available to share.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image");
+    console.error(`❌ Share failed: No valid images to share. Failed products:`, failedProducts);
+    alert("❌ No products selected or no valid images available to share.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image\n\nFailed products: " + failedProducts.join(", "));
     return;
   }
 

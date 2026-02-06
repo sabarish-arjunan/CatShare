@@ -129,7 +129,7 @@ export default function Retail({ products = [] }) {
       shareBtn.className = "text-green-600 hover:text-green-800 ml-2";
       shareBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M16.5 12a4.5 4.5 0 01-9 0m9 0A4.5 4.5 0 007.5 12m9 0V5.25M7.5 12V5.25m0 0h9' /></svg>`;
       shareBtn.onclick = async () => {
-        await handleShare({ selected, setProcessing, setProcessingIndex, setProcessingTotal, mode: "retail" });
+        await handleShare({ selected, setProcessing, setProcessingIndex, setProcessingTotal, mode: "retail", products: retailProducts });
       };
       container.appendChild(shareBtn);
 
