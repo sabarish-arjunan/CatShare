@@ -496,8 +496,15 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
 
-    // Normalize position value (handle both hyphens and underscores)
-    const normalizedPosition = watermarkConfig.position?.replace(/_/g, '-') || 'bottom-center';
+    // Normalize position value (handle hyphens, underscores, and camelCase)
+    let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString().toLowerCase();
+    // Convert underscores and camelCase to hyphens
+    normalizedPosition = normalizedPosition
+      .replace(/_/g, '-')
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .toLowerCase();
+
+    console.log(`[Watermark Position] Config: ${watermarkConfig.position}, Normalized: ${normalizedPosition}`);
 
     switch (normalizedPosition) {
       case 'top-left':
