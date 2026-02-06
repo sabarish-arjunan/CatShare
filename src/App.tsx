@@ -59,11 +59,13 @@ function AppWithBackHandler() {
 
 
   // Handle rendering PNGs using background rendering service
-  const handleRenderPNGs = useCallback(async (customProducts?: any[]) => {
+  const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
-    setIsRendering(true);
+    if (showOverlay) {
+      setIsRendering(true);
+    }
     setRenderProgress(0);
     setRenderingTotal(all.length);
 
@@ -73,10 +75,20 @@ function AppWithBackHandler() {
     // Callbacks for progress updates
     const onProgress = (progress: any) => {
       setRenderProgress(progress.percentage);
+      // Dispatch event for other components to listen to progress
+      window.dispatchEvent(new CustomEvent("renderProgress", {
+        detail: {
+          percentage: progress.percentage,
+          current: Math.round((progress.percentage / 100) * all.length),
+          total: all.length
+        }
+      }));
     };
 
     const onComplete = (result: any) => {
-      setIsRendering(false);
+      if (showOverlay) {
+        setIsRendering(false);
+      }
       setRenderResult({
         status: result.status === "success" ? "success" : "error",
         message: result.message,
@@ -85,7 +97,9 @@ function AppWithBackHandler() {
     };
 
     const onError = (error: any) => {
-      setIsRendering(false);
+      if (showOverlay) {
+        setIsRendering(false);
+      }
       setRenderResult({
         status: "error",
         message: `Rendering failed: ${error.message}`,
@@ -318,9 +332,9 @@ function AppWithBackHandler() {
     };
 
     const handleRequestRenderSelectedPNGs = (event: any) => {
-      const { products } = event.detail;
+      const { products, showOverlay = true } = event.detail;
       if (products && products.length > 0) {
-        handleRenderPNGs(products);
+        handleRenderPNGs(products, showOverlay);
       }
     };
 
