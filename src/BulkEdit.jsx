@@ -389,9 +389,22 @@ useEffect(() => {
         <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
           <div>#</div>
           <div>Image</div>
-          {selectedFields.map((field) => (
-            <div key={field}>{FIELD_OPTIONS.find((f) => f.key === field)?.label}</div>
-          ))}
+          {selectedFields.map((field) => {
+            const fieldLabel = FIELD_OPTIONS.find((f) => f.key === field)?.label;
+            const isFilledFromMaster = filledFromMaster[field];
+            return (
+              <div key={field} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={isFilledFromMaster}
+                  onChange={() => toggleFillFromMaster(field)}
+                  title={isFilledFromMaster ? "Uncheck to clear all values" : "Check to fill from Master catalogue"}
+                  className="appearance-none w-4 h-4 border border-gray-400 rounded checked:bg-green-600 checked:border-green-600 cursor-pointer"
+                />
+                <span>{fieldLabel}</span>
+              </div>
+            );
+          })}
         </div>
 
         {editedData.map((item, index) => (
