@@ -230,6 +230,24 @@ export default function Settings({
             </button>
           </div>
 
+          {/* Clear Cache Button */}
+          <div className="mt-4">
+            <button
+              onClick={clearLocalStorageCache}
+              className="w-full bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-300 shadow-sm overflow-hidden hover:shadow-md hover:border-orange-400 transition p-4 text-left"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🗑️</span>
+                    <h3 className="text-sm font-semibold text-orange-900">Clear Cache</h3>
+                  </div>
+                  <p className="text-xs text-orange-700">Free up storage space by removing cached rendered images</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
           {/* Pro Plan Card */}
           <div className="mt-4">
             <div
