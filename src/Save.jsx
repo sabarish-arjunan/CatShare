@@ -356,15 +356,38 @@ export async function saveRenderedImage(product, type, units = {}) {
       console.log("✅ Image saved successfully:", filePath);
       console.log(`📝 Written base64 data length: ${base64.length} characters`);
 
-      // Store rendered image in localStorage for quick access during sharing
-      const storageKey = `rendered::${catalogueLabel}::${id}`;
-      localStorage.setItem(storageKey, JSON.stringify({
-        base64,
-        timestamp: Date.now(),
-        filename,
-        catalogueLabel,
-      }));
-      console.log(`💾 Stored rendered image in localStorage: ${storageKey}`);
+      // Try to store rendered image in localStorage for quick access during sharing
+      // This is optional and won't block if quota is exceeded
+      try {
+        const storageKey = `rendered::${catalogueLabel}::${id}`;
+        const dataToStore = JSON.stringify({
+          base64,
+          timestamp: Date.now(),
+          filename,
+          catalogueLabel,
+        });
+
+        // Check estimated size before storing (rough estimate: each character ~1 byte)
+        const estimatedSizeKB = (dataToStore.length / 1024).toFixed(2);
+
+        if (dataToStore.length > 2 * 1024 * 1024) {
+          // Skip if larger than 2MB to preserve localStorage quota
+          console.warn(`⚠️ Image too large for localStorage cache (${estimatedSizeKB}KB) - skipping cache. File saved to disk.`);
+        } else {
+          localStorage.setItem(storageKey, dataToStore);
+          console.log(`💾 Stored rendered image in localStorage: ${storageKey} (${estimatedSizeKB}KB)`);
+        }
+      } catch (cacheErr) {
+        // localStorage quota exceeded - this is not critical
+        // The image is already saved to disk, which is what matters
+        if (cacheErr.name === 'QuotaExceededError') {
+          console.warn(`⚠️ localStorage quota exceeded - skipping cache. Image saved to disk successfully.`);
+          console.warn(`💡 To free up space: Clear app cache or export products and delete old catalogs`);
+        } else {
+          console.warn(`⚠️ Could not cache image in localStorage:`, cacheErr.message);
+        }
+        // Don't rethrow - the image is safely saved to disk
+      }
 
       // Verify the file was actually written
       try {
