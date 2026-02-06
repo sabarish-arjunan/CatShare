@@ -10,6 +10,7 @@ interface HandleShareParams {
   setProcessingTotal: React.Dispatch<React.SetStateAction<number>>;
   folder?: string | null;
   mode?: string;
+  products?: any[]; // Optional: pass actual product objects instead of relying on localStorage
 }
 
 export async function handleShare({
