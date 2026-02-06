@@ -103,6 +103,15 @@ useEffect(() => {
       normalized[priceUnitField] = isNewCatalogue ? "/ piece" : (p[priceUnitField] || "/ piece");
     }
 
+    // Initialize other price fields to avoid uncontrolled input warnings
+    normalized.wholesale = p.wholesale || "";
+    normalized.wholesaleUnit = p.wholesaleUnit || "/ piece";
+    normalized.resell = p.resell || "";
+    normalized.resellUnit = p.resellUnit || "/ piece";
+    normalized.retail = p.retail || "";
+    normalized.retailUnit = p.retailUnit || "/ piece";
+    normalized.stock = p.stock || "";
+
     return normalized;
   });
 
