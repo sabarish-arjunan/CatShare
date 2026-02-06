@@ -314,39 +314,48 @@ export async function renderProductToCanvas(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge if present (rounded pill shape matching modal design)
+  // Draw badge if present (rounded pill shape matching create product preview)
   if (product.badge) {
     const badgeBg = isLightColor(imageBg) ? '#fff' : '#000';
     const badgeText = isLightColor(imageBg) ? '#000' : '#fff';
-    const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+    const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(14 * scale);
-    const badgeFont = `700 ${badgeFontSize}px Arial, sans-serif`;
+    const badgeFontSize = Math.floor(13 * scale); // 13px like preview
+    const badgeFont = `600 ${badgeFontSize}px Arial, sans-serif`; // 600 weight like preview
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
 
-    // Padding: horizontal 10px, vertical 5px
+    // Padding: horizontal 10px, vertical 6px (matching preview: "6px 10px")
     const badgePaddingH = 10 * scale; // Horizontal padding
-    const badgePaddingV = 5 * scale; // Vertical padding
+    const badgePaddingV = 6 * scale; // Vertical padding
     const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
     const badgeHeight = badgeFontSize + badgePaddingV * 2;
     const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
 
-    const badgeX = canvasWidth - badgeWidth - 8 * scale;
-    const badgeY = currentY + imageHeight - badgeHeight - 8 * scale;
+    const badgeX = canvasWidth - badgeWidth - 12 * scale;
+    const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
+
+    // Draw shadow first
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 4 * scale;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 1 * scale;
 
     // Draw rounded rectangle badge background (pill shape)
     ctx.fillStyle = badgeBg;
-    ctx.globalAlpha = 0.98;
+    ctx.globalAlpha = 0.95;
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.fill();
     ctx.globalAlpha = 1;
 
+    ctx.restore();
+
     // Badge border
     ctx.strokeStyle = badgeBorder;
-    ctx.lineWidth = 1.5 * scale;
+    ctx.lineWidth = 1 * scale;
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
