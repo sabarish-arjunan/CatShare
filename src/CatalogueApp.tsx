@@ -391,6 +391,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   const visible = [...filtered];
   if (sortBy === "name") visible.sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortBy.endsWith(":out")) {
+    // Out of stock sorting
+    const field = sortBy.replace(":out", "");
+    visible.sort((a, b) => (a[field] ? 1 : -1));
+  }
   else if (sortBy === "wholesaleStock") visible.sort((a, b) => a.wholesaleStock ? -1 : 1);
   else if (sortBy === "resellStock") visible.sort((a, b) => a.resellStock ? -1 : 1);
   else if (sortBy === "category") visible.sort((a, b) => {
