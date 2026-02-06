@@ -403,18 +403,19 @@ export async function renderProductToCanvas(
     maxLabelWidth = Math.max(maxLabelWidth, metrics.width);
   });
 
-  const colonX = renderDetailsPadding + maxLabelWidth + 6 * scale; // Colon position aligned
+  const fieldsLeftPadding = 12 * scale; // Increased left padding for fields (matching HTML)
+  const colonX = fieldsLeftPadding + maxLabelWidth + 6 * scale; // Colon position aligned
   const valueX = colonX + 16 * scale; // Space after colon
 
   if (product.field1) {
-    ctx.fillText('Colour', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Colour', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(product.field1, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field2) {
-    ctx.fillText('Package', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Package', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field2Text = `${product.field2} ${product.field2Unit || ''}`;
     ctx.fillText(field2Text, valueX, currentY + renderFieldFontSize * 0.8);
@@ -422,7 +423,7 @@ export async function renderProductToCanvas(
   }
 
   if (product.field3) {
-    ctx.fillText('Age Group', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Age Group', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field3Text = `${product.field3} ${product.field3Unit || ''}`;
     ctx.fillText(field3Text, valueX, currentY + renderFieldFontSize * 0.8);
