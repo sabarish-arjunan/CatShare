@@ -187,7 +187,7 @@ useEffect(() => {
             updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
           }
 
-          return { ...item, ...updates };
+          return ensureFieldDefaults({ ...item, ...updates });
         })
       );
     } else {
