@@ -51,7 +51,7 @@ export async function handleShare({
   let allProducts = products || JSON.parse(localStorage.getItem("products") || "[]");
 
   // If no products passed and we're in retail mode, also check retail products
-  if (!products && mode === "retail") {
+  if (!products && (mode === "retail" || mode === "cat2")) {
     const retailProducts = JSON.parse(localStorage.getItem("retailProducts") || "[]");
     if (retailProducts.length > 0) {
       allProducts = [...retailProducts, ...allProducts];
@@ -59,7 +59,13 @@ export async function handleShare({
   }
 
   // Process all products in parallel
-  const processingPromises = selected.map(async (id, index) => {
+  let completedCount = 0;
+  const updateProgress = () => {
+    completedCount++;
+    setProcessingIndex(completedCount);
+  };
+
+  const processingPromises = selected.map(async (id) => {
     try {
       console.log(`📦 Processing product ${id} for sharing...`);
 
@@ -69,21 +75,28 @@ export async function handleShare({
       // If not rendered, render on-the-fly
       if (!imageDataUrl) {
         console.log(`⏳ Image not rendered yet, rendering on-the-fly...`);
-        const product = allProducts.find((p: any) => p.id === id);
+        // Use loose equality for ID matching to handle string vs number
+        const product = allProducts.find((p: any) => String(p.id) === String(id));
 
         if (!product) {
           console.error(`❌ Product not found: ${id}`);
-          setProcessingIndex(index + 1);
+          updateProgress();
           return null;
         }
 
         // Determine catalogue ID from folder/mode
-        let catalogueId = folder === "Wholesale" ? "cat1" : folder === "Retail" ? "cat2" : "cat2";
-        imageDataUrl = await renderProductImageOnTheFly(product, catalogueLabel, catalogueId);
+        // Use mode if it looks like a catalogue ID (catX), otherwise fallback to mapping
+        let effectiveCatalogueId = mode && mode.startsWith("cat") ? mode :
+                                  (folder === "Wholesale" ? "cat1" :
+                                   folder === "Retail" ? "cat2" :
+                                   (mode === "retail" ? "cat2" : "cat1"));
+
+        console.log(`🎨 Using catalogue ID for rendering: ${effectiveCatalogueId}`);
+        imageDataUrl = await renderProductImageOnTheFly(product, catalogueLabel, effectiveCatalogueId);
 
         if (!imageDataUrl) {
           console.warn(`⚠️ Could not render product ${id} - product may not have an image`);
-          setProcessingIndex(index + 1);
+          updateProgress();
           return null;
         }
 
@@ -107,6 +120,7 @@ export async function handleShare({
               path: cachedFilePath,
               data: base64Data,
               directory: Directory.External,
+              recursive: true,
             });
             console.log(`💾 Saved on-the-fly rendered image to filesystem: ${cachedFilePath}`);
           } catch (fsErr) {
@@ -126,7 +140,14 @@ export async function handleShare({
         const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
         try {
-          // Try to get URI for the cached file (if it exists from previous saves)
+          // IMPORTANT: Check if file exists before trying to get URI
+          // This prevents "Item not found" errors when sharing
+          await Filesystem.stat({
+            path: cachedFilePath,
+            directory: Directory.External,
+          });
+
+          // Try to get URI for the cached file
           const fileResult = await Filesystem.getUri({
             path: cachedFilePath,
             directory: Directory.External,
@@ -134,29 +155,29 @@ export async function handleShare({
 
           if (fileResult.uri) {
             console.log(`✅ Using cached rendered image for product ${id}: ${cachedFilePath}`);
-            setProcessingIndex(index + 1);
+            updateProgress();
             return fileResult.uri;
           } else {
             // If URI not available, use data URL directly
-            console.log(`✅ Using data URL for product ${id} (no cached file)`);
-            setProcessingIndex(index + 1);
+            console.log(`✅ Using data URL for product ${id} (URI empty)`);
+            updateProgress();
             return imageDataUrl;
           }
-        } catch (uriErr) {
-          // Cached file doesn't exist or URI retrieval failed, use data URL
-          console.log(`ℹ️  No cached file found for product ${id}, using data URL`);
-          setProcessingIndex(index + 1);
+        } catch (statErr) {
+          // File doesn't exist or Stat failed, use data URL
+          console.log(`ℹ️  No cached file found or stat failed for product ${id}, using data URL`);
+          updateProgress();
           return imageDataUrl;
         }
       } catch (err) {
         console.warn(`⚠️ Error processing image for product ${id}:`, err);
         console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
-        setProcessingIndex(index + 1);
+        updateProgress();
         return imageDataUrl;
       }
     } catch (err) {
       console.error(`❌ Error processing product ${id}:`, err);
-      setProcessingIndex(index + 1);
+      updateProgress();
       return null;
     }
   });
