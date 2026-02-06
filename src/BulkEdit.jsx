@@ -66,8 +66,10 @@ useEffect(() => {
   setCategories(storedCategories);
 
   const normalized = products.map((p) => {
-    // Check if this is a new catalogue (different from initial)
-    const isNewCatalogue = catalogueId && initialCatalogueId && catalogueId !== initialCatalogueId;
+    // Check if this is a new catalogue:
+    // 1. New catalogue created (initialCatalogueId undefined) OR
+    // 2. Switching from one catalogue to another (catalogueId !== initialCatalogueId)
+    const isNewCatalogue = !initialCatalogueId || (catalogueId && initialCatalogueId && catalogueId !== initialCatalogueId);
 
     const normalized = {
       ...p,
