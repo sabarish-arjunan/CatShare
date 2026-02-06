@@ -47,7 +47,16 @@ export async function handleShare({
   console.log(`Selected product IDs: ${selected.join(", ")}`);
 
   // Get all products to support on-the-fly rendering
-  const allProducts = JSON.parse(localStorage.getItem("products") || "[]");
+  // Use passed products if available, otherwise fall back to localStorage
+  let allProducts = products || JSON.parse(localStorage.getItem("products") || "[]");
+
+  // If no products passed and we're in retail mode, also check retail products
+  if (!products && mode === "retail") {
+    const retailProducts = JSON.parse(localStorage.getItem("retailProducts") || "[]");
+    if (retailProducts.length > 0) {
+      allProducts = [...retailProducts, ...allProducts];
+    }
+  }
 
   // Process all products in parallel
   const processingPromises = selected.map(async (id, index) => {
