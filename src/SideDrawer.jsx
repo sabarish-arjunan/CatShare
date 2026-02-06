@@ -536,7 +536,7 @@ const exportProductsToCSV = (products) => {
         onClick={onClose}
       >
         <div
-          className="absolute left-0 w-64 bg-white shadow-lg flex flex-col"
+          className="absolute left-0 w-64 bg-white shadow-lg flex flex-col overflow-hidden"
           style={{
             top: 0,
             height: "100%",
