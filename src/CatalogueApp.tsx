@@ -402,7 +402,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   return (
     <div
-      className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
+      className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100"
     >
 
       {tab === "products" && (
