@@ -35,22 +35,10 @@ export async function handleShare({
   const fileUris = [];
 
   // Extract catalogue label from folder (folder is the catalogue name/label)
-  // Used for filename pattern: product_<id>_<catalogueLabel>.png
   const catalogueLabel = targetFolder;
 
-  console.log(`🔍 Share Debug Info:`);
-  console.log(`📁 Target folder: ${targetFolder}`);
-  console.log(`📁 Catalogue label (for filename): ${catalogueLabel}`);
-  console.log(`🔢 Products to share: ${selected.length}`);
-  console.log(`📍 Looking for files in Directory.External/${targetFolder}/`);
-  console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${targetFolder}/`);
-  console.log(`Selected product IDs: ${selected.join(", ")}`);
-
-  // Get all products to support on-the-fly rendering
-  // Use passed products if available, otherwise fall back to localStorage
+  // Get all products to support selective rendering
   let allProducts = products || JSON.parse(localStorage.getItem("products") || "[]");
-
-  // If no products passed and we're in retail mode, also check retail products
   if (!products && (mode === "retail" || mode === "cat2")) {
     const retailProducts = JSON.parse(localStorage.getItem("retailProducts") || "[]");
     if (retailProducts.length > 0) {
@@ -58,7 +46,45 @@ export async function handleShare({
     }
   }
 
-  // Process all products in parallel
+  // 1. Identify products that need rendering using the native engine
+  const missingProducts = [];
+  for (const id of selected) {
+    try {
+      const cachedFileName = `product_${id}_${catalogueLabel}.png`;
+      const cachedFilePath = `${targetFolder}/${cachedFileName}`;
+      await Filesystem.stat({
+        path: cachedFilePath,
+        directory: Directory.External,
+      });
+    } catch (err) {
+      // File not found on disk, need to render
+      const product = allProducts.find((p: any) => String(p.id) === String(id));
+      if (product) missingProducts.push(product);
+    }
+  }
+
+  // 2. If any missing, trigger native rendering (same as Render All) and wait
+  if (missingProducts.length > 0) {
+    console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering native rendering...`);
+
+    // Emit event that App.tsx listens to
+    window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
+      detail: { products: missingProducts }
+    }));
+
+    // Wait for the renderComplete event from App.tsx
+    await new Promise<void>((resolve) => {
+      const handler = () => {
+        window.removeEventListener("renderComplete", handler);
+        resolve();
+      };
+      window.addEventListener("renderComplete", handler);
+    });
+
+    console.log("✅ Native rendering complete, proceeding with sharing...");
+  }
+
+  // Process all products to get their file URIs
   let completedCount = 0;
   const updateProgress = () => {
     completedCount++;
@@ -67,111 +93,24 @@ export async function handleShare({
 
   const processingPromises = selected.map(async (id) => {
     try {
-      console.log(`📦 Processing product ${id} for sharing...`);
+      const cachedFileName = `product_${id}_${catalogueLabel}.png`;
+      const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
-      // First try to get pre-rendered image
-      let imageDataUrl = await getRenderedImage(id, catalogueLabel);
-
-      // If not rendered, render on-the-fly
-      if (!imageDataUrl) {
-        console.log(`⏳ Image not rendered yet, rendering on-the-fly...`);
-        // Use loose equality for ID matching to handle string vs number
-        const product = allProducts.find((p: any) => String(p.id) === String(id));
-
-        if (!product) {
-          console.error(`❌ Product not found: ${id}`);
-          updateProgress();
-          return null;
-        }
-
-        // Determine catalogue ID from folder/mode
-        // Use mode if it looks like a catalogue ID (catX), otherwise fallback to mapping
-        let effectiveCatalogueId = mode && mode.startsWith("cat") ? mode :
-                                  (folder === "Wholesale" ? "cat1" :
-                                   folder === "Retail" ? "cat2" :
-                                   (mode === "retail" ? "cat2" : "cat1"));
-
-        console.log(`🎨 Using catalogue ID for rendering: ${effectiveCatalogueId}`);
-        imageDataUrl = await renderProductImageOnTheFly(product, catalogueLabel, effectiveCatalogueId);
-
-        if (!imageDataUrl) {
-          console.warn(`⚠️ Could not render product ${id} - product may not have an image`);
-          updateProgress();
-          return null;
-        }
-
-        // Store on-the-fly rendered image in localStorage AND filesystem for future use
-        try {
-          const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, "");
-          const storageKey = `rendered::${catalogueLabel}::${id}`;
-          localStorage.setItem(storageKey, JSON.stringify({
-            base64: base64Data,
-            timestamp: Date.now(),
-            filename: `product_${id}_${catalogueLabel}.png`,
-            catalogueLabel,
-          }));
-          console.log(`💾 Stored on-the-fly rendered image in localStorage: ${storageKey}`);
-
-          // Also save to filesystem for shareable file URI
-          try {
-            const cachedFileName = `product_${id}_${catalogueLabel}.png`;
-            const cachedFilePath = `${targetFolder}/${cachedFileName}`;
-            await Filesystem.writeFile({
-              path: cachedFilePath,
-              data: base64Data,
-              directory: Directory.External,
-              recursive: true,
-            });
-            console.log(`💾 Saved on-the-fly rendered image to filesystem: ${cachedFilePath}`);
-          } catch (fsErr) {
-            console.warn(`⚠️ Could not save rendered image to filesystem:`, fsErr);
-          }
-        } catch (storageErr) {
-          console.warn(`⚠️ Could not store rendered image in localStorage:`, storageErr);
-        }
-
-        console.log(`✅ Product ${id} rendered on-the-fly successfully and cached`);
-      }
-
-      // Use the cached rendered image directly without creating temp files
       try {
-        // Check if we can get a file URI from the cached image
-        const cachedFileName = `product_${id}_${catalogueLabel}.png`;
-        const cachedFilePath = `${targetFolder}/${cachedFileName}`;
+        // Get URI for the file on disk
+        const fileResult = await Filesystem.getUri({
+          path: cachedFilePath,
+          directory: Directory.External,
+        });
 
-        try {
-          // IMPORTANT: Check if file exists before trying to get URI
-          // This prevents "Item not found" errors when sharing
-          await Filesystem.stat({
-            path: cachedFilePath,
-            directory: Directory.External,
-          });
-
-          // Try to get URI for the cached file
-          const fileResult = await Filesystem.getUri({
-            path: cachedFilePath,
-            directory: Directory.External,
-          });
-
-          if (fileResult.uri) {
-            console.log(`✅ Using cached rendered image for product ${id}: ${cachedFilePath}`);
-            updateProgress();
-            return fileResult.uri;
-          } else {
-            // If URI not available, use data URL directly
-            console.log(`✅ Using data URL for product ${id} (URI empty)`);
-            updateProgress();
-            return imageDataUrl;
-          }
-        } catch (statErr) {
-          // File doesn't exist or Stat failed, use data URL
-          console.log(`ℹ️  No cached file found or stat failed for product ${id}, using data URL`);
+        if (fileResult.uri) {
           updateProgress();
-          return imageDataUrl;
+          return fileResult.uri;
         }
       } catch (err) {
-        console.warn(`⚠️ Error processing image for product ${id}:`, err);
-        console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
+        console.warn(`⚠️ Could not get URI for product ${id}:`, err);
+        // Fallback to base64 if URI fails (though shouldn't happen after render)
+        const imageDataUrl = await getRenderedImage(id, catalogueLabel);
         updateProgress();
         return imageDataUrl;
       }
