@@ -1119,13 +1119,22 @@ onMouseLeave={handleTouchEnd}
       <div className="text-lg font-semibold text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
         🖼️ Creating image {processingIndex} of {processingTotal}
       </div>
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
         <div
-          className="h-full bg-green-500 transition-all duration-300"
+          className="h-full bg-green-500 transition-all duration-500 relative"
           style={{
             width: `${(processingIndex / processingTotal) * 100 || 0}%`,
           }}
-        ></div>
+        >
+          {/* Shimmer animation to show activity */}
+          <div
+            className="absolute inset-0 w-full h-full animate-shimmer"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+              backgroundSize: '200% 100%'
+            }}
+          />
+        </div>
       </div>
       <div className="text-xs text-gray-400">Please wait…</div>
     </div>
