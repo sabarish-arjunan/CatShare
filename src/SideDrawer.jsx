@@ -543,7 +543,7 @@ const exportProductsToCSV = (products) => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4"></div>
+          <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4 sticky top-0 z-10"></div>
           <h2 className="text-lg font-semibold mb-4">
             Me<span
               onClick={handleNClick}
