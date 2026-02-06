@@ -350,6 +350,15 @@ export async function renderProductToCanvas(
     ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
   }
 
+  // Draw shadow below image (extends into details section)
+  const shadowHeight = 30 * scale;
+  const shadowGradient = ctx.createLinearGradient(0, currentY + imageHeight - shadowHeight, 0, currentY + imageHeight + shadowHeight);
+  shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+  shadowGradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.08)');
+  shadowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = shadowGradient;
+  ctx.fillRect(0, currentY + imageHeight - shadowHeight, canvasWidth, shadowHeight * 2);
+
   currentY += imageHeight;
 
   // ===== DETAILS SECTION =====
