@@ -214,22 +214,28 @@ export async function renderProductToCanvas(
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
   const priceBarHeightBase = product.price ? 32 : 0;
 
+  // Spacing constants (must match the spacing used in height calculation)
+  const spacingAfterTitle = 12;
+  const spacingAfterSubtitle = 10;
+  const spacingBeforeFields = 12;
+  const spacingAfterFields = 12;
+
   // Estimate details height
   let detailsHeight = detailsPaddingBase; // top padding (4px)
-  detailsHeight += titleFontSizeBase + 12; // title + increased spacing
+  detailsHeight += titleFontSizeBase + spacingAfterTitle; // title + spacing
 
   if (product.subtitle) {
-    detailsHeight += subtitleFontSizeBase + 10; // subtitle + spacing after
+    detailsHeight += subtitleFontSizeBase + spacingAfterSubtitle; // subtitle + spacing after
   }
 
-  detailsHeight += 12; // increased spacing before fields
+  detailsHeight += spacingBeforeFields; // spacing before fields
 
   // Field heights (only count non-empty fields)
   if (product.field1) detailsHeight += fieldLineHeightBase + 2;
   if (product.field2) detailsHeight += fieldLineHeightBase + 2;
   if (product.field3) detailsHeight += fieldLineHeightBase + 2;
 
-  detailsHeight += 12; // increased spacing after fields
+  detailsHeight += spacingAfterFields; // spacing after fields
   detailsHeight += priceBarHeightBase;
   detailsHeight += detailsPaddingBase; // bottom padding (4px)
 
@@ -375,7 +381,7 @@ export async function renderProductToCanvas(
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += renderDetailsPadding + renderTitleFontSize + 3 * scale; // Title height + title bottom margin
+  currentY += renderDetailsPadding + renderTitleFontSize + spacingAfterTitle * scale; // Title height + spacing
 
   // Subtitle
   if (product.subtitle) {
@@ -385,10 +391,10 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + renderSubtitleFontSize * 0.8);
     ctx.textAlign = 'left';
-    currentY += renderSubtitleFontSize; // subtitle height
+    currentY += renderSubtitleFontSize + spacingAfterSubtitle * scale; // subtitle height + spacing
   }
 
-  currentY += 6 * scale;
+  currentY += spacingBeforeFields * scale;
 
   // Fields - Match HTML format with aligned colons
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
@@ -433,7 +439,7 @@ export async function renderProductToCanvas(
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
-  currentY += 6 * scale;
+  currentY += spacingAfterFields * scale;
 
   // ===== PRICE BAR =====
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
