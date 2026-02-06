@@ -31,7 +31,6 @@ export async function handleShare({
   // Use the provided folder name, or derive from mode for backward compatibility
   const targetFolder = folder || (mode === "wholesale" ? "Wholesale" : mode === "retail" ? "Retail" : "Resell");
   const fileUris = [];
-  let processedCount = 0;
 
   // Extract catalogue label from folder (folder is the catalogue name/label)
   // Used for filename pattern: product_<id>_<catalogueLabel>.png
@@ -48,7 +47,8 @@ export async function handleShare({
   // Get all products to support on-the-fly rendering
   const allProducts = JSON.parse(localStorage.getItem("products") || "[]");
 
-  for (const id of selected) {
+  // Process all products in parallel
+  const processingPromises = selected.map(async (id, index) => {
     try {
       console.log(`📦 Processing product ${id} for sharing...`);
 
@@ -62,9 +62,8 @@ export async function handleShare({
 
         if (!product) {
           console.error(`❌ Product not found: ${id}`);
-          processedCount++;
-          setProcessingIndex(processedCount);
-          continue;
+          setProcessingIndex(index + 1);
+          return null;
         }
 
         // Determine catalogue ID from folder/mode
@@ -73,9 +72,8 @@ export async function handleShare({
 
         if (!imageDataUrl) {
           console.warn(`⚠️ Could not render product ${id} - product may not have an image`);
-          processedCount++;
-          setProcessingIndex(processedCount);
-          continue;
+          setProcessingIndex(index + 1);
+          return null;
         }
 
         // Store on-the-fly rendered image in localStorage for future use
@@ -110,30 +108,40 @@ export async function handleShare({
           });
 
           if (fileResult.uri) {
-            fileUris.push(fileResult.uri);
             console.log(`✅ Using cached rendered image for product ${id}: ${cachedFilePath}`);
+            setProcessingIndex(index + 1);
+            return fileResult.uri;
           } else {
             // If URI not available, use data URL directly
-            fileUris.push(imageDataUrl);
             console.log(`✅ Using data URL for product ${id} (no cached file)`);
+            setProcessingIndex(index + 1);
+            return imageDataUrl;
           }
         } catch (uriErr) {
           // Cached file doesn't exist or URI retrieval failed, use data URL
           console.log(`ℹ️  No cached file found for product ${id}, using data URL`);
-          fileUris.push(imageDataUrl);
+          setProcessingIndex(index + 1);
+          return imageDataUrl;
         }
       } catch (err) {
         console.warn(`⚠️ Error processing image for product ${id}:`, err);
-        fileUris.push(imageDataUrl);
         console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
+        setProcessingIndex(index + 1);
+        return imageDataUrl;
       }
     } catch (err) {
       console.error(`❌ Error processing product ${id}:`, err);
+      setProcessingIndex(index + 1);
+      return null;
     }
+  });
 
-    processedCount++;
-    setProcessingIndex(processedCount);
-  }
+  const results = await Promise.all(processingPromises);
+  results.forEach((uri) => {
+    if (uri) {
+      fileUris.push(uri);
+    }
+  });
 
   setProcessing(false);
 
