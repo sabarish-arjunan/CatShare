@@ -356,6 +356,16 @@ export async function saveRenderedImage(product, type, units = {}) {
       console.log("✅ Image saved successfully:", filePath);
       console.log(`📝 Written base64 data length: ${base64.length} characters`);
 
+      // Store rendered image in localStorage for quick access during sharing
+      const storageKey = `rendered::${catalogueLabel}::${id}`;
+      localStorage.setItem(storageKey, JSON.stringify({
+        base64,
+        timestamp: Date.now(),
+        filename,
+        catalogueLabel,
+      }));
+      console.log(`💾 Stored rendered image in localStorage: ${storageKey}`);
+
       // Verify the file was actually written
       try {
         console.log(`🔍 Verifying file at: ${filePath}`);

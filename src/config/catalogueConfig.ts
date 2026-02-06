@@ -75,13 +75,21 @@ export function getCataloguesDefinition(): CataloguesDefinition {
  */
 export function setCataloguesDefinition(definition: CataloguesDefinition): void {
   try {
+    const updated = {
+      ...definition,
+      lastUpdated: Date.now(),
+    };
     localStorage.setItem(
       "cataloguesDefinition",
-      JSON.stringify({
-        ...definition,
-        lastUpdated: Date.now(),
-      })
+      JSON.stringify(updated)
     );
+
+    // Dispatch event to notify all listening components to refresh their catalogue state
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent("catalogues-changed", {
+        detail: { action: "update", catalogues: updated.catalogues }
+      }));
+    }
   } catch (err) {
     console.error("Failed to save cataloguesDefinition:", err);
   }

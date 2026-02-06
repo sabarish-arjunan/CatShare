@@ -134,6 +134,30 @@ function lightenColor(color: string, amount: number): string {
   return `rgb(${Math.min(255, rgb.r + amount)}, ${Math.min(255, rgb.g + amount)}, ${Math.min(255, rgb.b + amount)})`;
 }
 
+/**
+ * Draw a rounded rectangle on canvas context
+ */
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+): void {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
 export interface ProductRenderOptions {
   width: number;
   height?: number;
@@ -183,7 +207,7 @@ export async function renderProductToCanvas(
   // Image section: baseWidth / cropAspectRatio
   // Details section: padding + title + subtitle + fields + price bar
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
-  const detailsPaddingBase = 10;
+  const detailsPaddingBase = 8; // Matching preview modal padding
   const titleFontSizeBase = 28;
   const subtitleFontSizeBase = 18;
   const fieldFontSizeBase = 17;
@@ -238,9 +262,15 @@ export async function renderProductToCanvas(
   const imageBg = options.imageBgColor;
   const imageHeight = imageSectionBaseHeight * scale;
 
-  // Draw image background
+  // Draw image background with drop shadow (matching modal: 0 12px 15px -6px rgba(0, 0, 0, 0.4))
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = 15 * scale;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 12 * scale;
   ctx.fillStyle = imageBg;
   ctx.fillRect(0, currentY, canvasWidth, imageHeight);
+  ctx.restore();
 
   // Load and draw image
   try {
@@ -277,7 +307,7 @@ export async function renderProductToCanvas(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge if present
+  // Draw badge if present (rounded pill shape matching modal design)
   if (product.badge) {
     const badgeBg = isLightColor(imageBg) ? '#fff' : '#000';
     const badgeText = isLightColor(imageBg) ? '#000' : '#fff';
@@ -292,23 +322,22 @@ export async function renderProductToCanvas(
     const badgePadding = 6 * scale;
     const badgeWidth = badgeMetrics.width + badgePadding * 2;
     const badgeHeight = badgeFontSize + badgePadding;
+    const badgeRadius = badgeHeight / 2; // Pill shape: radius = height/2
 
-    const badgeX = canvasWidth - badgeWidth - 12 * scale;
-    const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
+    const badgeX = canvasWidth - badgeWidth - 10 * scale; // offset 10px from right
+    const badgeY = currentY + imageHeight - badgeHeight - 10 * scale; // offset 10px from bottom
 
-    // Badge background
+    // Draw rounded rectangle badge background (pill shape)
     ctx.fillStyle = badgeBg;
     ctx.globalAlpha = 0.95;
-    ctx.beginPath();
-    ctx.arc(badgeX + badgeWidth / 2, badgeY + badgeHeight / 2, badgeHeight / 2, 0, Math.PI * 2);
+    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.fill();
     ctx.globalAlpha = 1;
 
     // Badge border
     ctx.strokeStyle = badgeBorder;
     ctx.lineWidth = 1 * scale;
-    ctx.beginPath();
-    ctx.arc(badgeX + badgeWidth / 2, badgeY + badgeHeight / 2, badgeHeight / 2, 0, Math.PI * 2);
+    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
     // Badge text
@@ -366,7 +395,7 @@ export async function renderProductToCanvas(
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
 
-  const labelWidth = 110 * scale;
+  const labelWidth = 90 * scale; // Matching preview modal label width
 
   if (product.field1) {
     ctx.fillText('Colour:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
