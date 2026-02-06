@@ -30,9 +30,7 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  // Ensure we always have valid positioning, default to bottom-center if position not found
-  const positionStyles = positionMap[position] || positionMap["bottom-center"];
-  return { ...baseStyles, ...positionStyles };
+  return { ...baseStyles, ...positionMap[position] };
 };
 
 // Full Screen Image Viewer Component
@@ -634,8 +632,7 @@ export default function ProductPreviewModal({
                     ...getWatermarkPositionStyles(watermarkPosition),
                     fontSize: "10px",
                     letterSpacing: "0.3px",
-                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)",
-                    zIndex: 5
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
                   }}
                 >
                   {watermarkText}
@@ -669,20 +666,19 @@ export default function ProductPreviewModal({
                 <div
                   style={{
                     position: "absolute",
-                    bottom: 8,
-                    right: 8,
+                    bottom: 10,
+                    right: 10,
                     backgroundColor: badgeBg,
                     color: badgeText,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: "4px 9px",
-                    borderRadius: "20px",
-                    opacity: 0.98,
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                    border: `1.5px solid ${badgeBorder}`,
-                    letterSpacing: "0.3px",
-                    pointerEvents: "none",
-                    lineHeight: "1"
+                    fontSize: 12,
+                    fontWeight: 600,
+                    padding: "5px 10px",
+                    borderRadius: "999px",
+                    opacity: 0.95,
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                    border: `1px solid ${badgeBorder}`,
+                    letterSpacing: "0.4px",
+                    pointerEvents: "none"
                   }}
                 >
                   {product.badge.toUpperCase()}
@@ -755,13 +751,11 @@ export default function ProductPreviewModal({
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
                   color: product.fontColor || "white",
-                  padding: "5px 8px",
+                  padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
                   fontSize: 15,
                   flexShrink: 0,
-                  margin: 0,
-                  lineHeight: "1.2",
                 }}
               >
                 Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
@@ -770,7 +764,7 @@ export default function ProductPreviewModal({
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="px-3 py-2 bg-gray-100 text-xs" style={{ flexShrink: 0, borderTop: "none" }}>
+              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
                 {/* First row: Edit, All In/Out, Close */}
                 <div className="flex justify-between gap-1">
                   <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
