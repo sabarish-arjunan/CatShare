@@ -208,11 +208,11 @@ export async function renderProductToCanvas(
   // Details section: padding + title + subtitle + fields + price bar
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
   const detailsPaddingBase = 4; // Updated: 8 -> 4 (matching "4px 8px" padding in HTML)
-  const titleFontSizeBase = 24;
-  const subtitleFontSizeBase = 15;
-  const fieldFontSizeBase = 14;
+  const titleFontSizeBase = 27;
+  const subtitleFontSizeBase = 17;
+  const fieldFontSizeBase = 16;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 32 : 0;
+  const priceBarHeightBase = product.price ? 34 : 0;
 
   // Spacing constants (must match the spacing used in height calculation)
   const spacingAfterTitle = 12;
@@ -448,7 +448,7 @@ export async function renderProductToCanvas(
     ctx.fillStyle = options.bgColor;
     ctx.fillRect(0, currentY, canvasWidth, remainingHeight); // Fill to bottom of canvas
 
-    const priceFontSize = Math.floor(16 * scale);
+    const priceFontSize = Math.floor(18 * scale);
     const priceFont = `${priceFontSize}px Arial, sans-serif`;
     ctx.font = priceFont;
     ctx.fillStyle = options.fontColor;
