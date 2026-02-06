@@ -238,9 +238,15 @@ export async function renderProductToCanvas(
   const imageBg = options.imageBgColor;
   const imageHeight = imageSectionBaseHeight * scale;
 
-  // Draw image background
+  // Draw image background with drop shadow (matching modal: 0 12px 15px -6px rgba(0, 0, 0, 0.4))
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = 15 * scale;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 12 * scale;
   ctx.fillStyle = imageBg;
   ctx.fillRect(0, currentY, canvasWidth, imageHeight);
+  ctx.restore();
 
   // Load and draw image
   try {
