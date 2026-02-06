@@ -268,15 +268,9 @@ export async function renderProductToCanvas(
   const imageBg = options.imageBgColor;
   const imageHeight = imageSectionBaseHeight * scale;
 
-  // Draw image background with drop shadow (matching modal: 0 12px 15px -6px rgba(0, 0, 0, 0.4))
-  ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-  ctx.shadowBlur = 20 * scale;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 15 * scale;
+  // Draw image background
   ctx.fillStyle = imageBg;
   ctx.fillRect(0, currentY, canvasWidth, imageHeight);
-  ctx.restore();
 
   // Load and draw image
   try {
@@ -287,13 +281,6 @@ export async function renderProductToCanvas(
     console.log(`Loading image: ${product.image}`);
     const img = await loadImage(product.image);
     console.log(`Image loaded successfully. Dimensions: ${img.width}x${img.height}`);
-
-    // Apply shadow to image as well
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 20 * scale;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 15 * scale;
 
     // Center image in the available space
     const imgScaledWidth = canvasWidth;
@@ -307,7 +294,6 @@ export async function renderProductToCanvas(
       const offsetY = currentY + (imageHeight - imgScaledHeight) / 2;
       ctx.drawImage(img, 0, offsetY, canvasWidth, imgScaledHeight);
     }
-    ctx.restore();
     console.log(`Image drawn to canvas`);
   } catch (err) {
     console.error('Failed to load image:', err);
