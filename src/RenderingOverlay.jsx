@@ -87,6 +87,12 @@ export default function RenderingOverlay({ visible, current, total }) {
       <p className="mt-3 text-sm text-[#4b2b22] font-medium">
         Rendering image {current} of {total}... ({percentage}%)
       </p>
+
+      <div className="mt-6 p-3 bg-red-50 border border-red-300 rounded-lg w-72">
+        <p className="text-xs text-red-700 font-semibold">
+          ⚠️ Do not close the app while rendering
+        </p>
+      </div>
     </div>,
     portalRoot
   );
