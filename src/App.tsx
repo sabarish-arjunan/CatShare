@@ -88,22 +88,22 @@ function AppWithBackHandler() {
     const onComplete = (result: any) => {
       if (showOverlay) {
         setIsRendering(false);
+        setRenderResult({
+          status: result.status === "success" ? "success" : "error",
+          message: result.message,
+        });
       }
-      setRenderResult({
-        status: result.status === "success" ? "success" : "error",
-        message: result.message,
-      });
       window.dispatchEvent(new CustomEvent("renderComplete"));
     };
 
     const onError = (error: any) => {
       if (showOverlay) {
         setIsRendering(false);
+        setRenderResult({
+          status: "error",
+          message: `Rendering failed: ${error.message}`,
+        });
       }
-      setRenderResult({
-        status: "error",
-        message: `Rendering failed: ${error.message}`,
-      });
       window.dispatchEvent(new CustomEvent("renderComplete"));
     };
 
