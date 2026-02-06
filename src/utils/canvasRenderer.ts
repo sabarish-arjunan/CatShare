@@ -382,7 +382,7 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + renderSubtitleFontSize * 0.8);
     ctx.textAlign = 'left';
-    currentY += renderSubtitleFontSize + 5 * scale;
+    currentY += renderSubtitleFontSize; // Updated: removed + 5 * scale spacing (matching HTML margin: "0 0 0 0")
   }
 
   currentY += 6 * scale;
