@@ -518,7 +518,7 @@ useEffect(() => {
                   placeholder="Price"
                 />
                 <select
-                  value={item[priceUnitField] || ""}
+                  value={item[priceUnitField]}
                   onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -532,12 +532,12 @@ useEffect(() => {
             {selectedFields.includes("wholesale") && (
               <div className="flex gap-2">
                 <input
-                  value={item.wholesale || ""}
+                  value={item.wholesale}
                   onChange={(e) => handleFieldChange(item.id, "wholesale", e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.wholesaleUnit || ""}
+                  value={item.wholesaleUnit}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -551,12 +551,12 @@ useEffect(() => {
             {selectedFields.includes("resell") && (
               <div className="flex gap-2">
                 <input
-                  value={item.resell || ""}
+                  value={item.resell}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.resellUnit || ""}
+                  value={item.resellUnit}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -569,7 +569,7 @@ useEffect(() => {
 
             {selectedFields.includes("badge") && (
               <input
-                value={item.badge || ""}
+                value={item.badge}
                 onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
                 placeholder="Enter badge"
                 className="border rounded px-2 py-1 w-full"
