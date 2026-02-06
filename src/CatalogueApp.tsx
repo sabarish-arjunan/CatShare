@@ -391,6 +391,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   const visible = [...filtered];
   if (sortBy === "name") visible.sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortBy.endsWith(":out")) {
+    // Out of stock sorting
+    const field = sortBy.replace(":out", "");
+    visible.sort((a, b) => (a[field] ? 1 : -1));
+  }
   else if (sortBy === "wholesaleStock") visible.sort((a, b) => a.wholesaleStock ? -1 : 1);
   else if (sortBy === "resellStock") visible.sort((a, b) => a.resellStock ? -1 : 1);
   else if (sortBy === "category") visible.sort((a, b) => {
@@ -402,12 +407,12 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   return (
     <div
-      className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
+      className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100"
     >
 
       {tab === "products" && (
         <>
-          <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+          <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
           <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         
           {/* Menu Button */}
@@ -447,10 +452,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               {[
                 { label: "Original", value: "" },
                 { label: "A - Z", value: "name" },
-                ...catalogues.map((cat) => ({
-                  label: `${cat.label} IN`,
-                  value: cat.stockField,
-                })),
+                { label: "In Stock", value: catalogues[0]?.stockField || "wholesaleStock" },
+                { label: "Out of Stock", value: `${catalogues[0]?.stockField || "wholesaleStock"}:out` },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -525,7 +528,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
 
-      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto pt-6' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}

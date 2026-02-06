@@ -158,6 +158,26 @@ function roundRect(
   ctx.closePath();
 }
 
+/**
+ * Draw a stadium shape (rounded only on left and right sides, straight on top and bottom)
+ */
+function drawStadiumShape(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): void {
+  const radius = height / 2; // Semicircle radius for left and right
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y); // Top-left start
+  ctx.lineTo(x + width - radius, y); // Top line (straight)
+  ctx.arc(x + width - radius, y + radius, radius, -Math.PI / 2, Math.PI / 2); // Right semicircle
+  ctx.lineTo(x + radius, y + height); // Bottom line (straight)
+  ctx.arc(x + radius, y + radius, radius, Math.PI / 2, -Math.PI / 2); // Left semicircle
+  ctx.closePath();
+}
+
 export interface ProductRenderOptions {
   width: number;
   height?: number;
@@ -212,7 +232,7 @@ export async function renderProductToCanvas(
   const subtitleFontSizeBase = 17;
   const fieldFontSizeBase = 16;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 34 : 0;
+  const priceBarHeightBase = product.price ? 28 : 0;
 
   // Spacing constants (must match the spacing used in height calculation)
   const spacingAfterTitle = 12;
@@ -321,18 +341,17 @@ export async function renderProductToCanvas(
     const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(16 * scale); // Increased from 13px
-    const badgeFont = `600 ${badgeFontSize}px Arial, sans-serif`; // 600 weight like preview
+    const badgeFontSize = Math.floor(13 * scale); // Slightly smaller font size
+    const badgeFont = `400 ${badgeFontSize}px Arial, sans-serif`; // Normal weight (removed bold)
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
 
-    // Padding: horizontal 12px, vertical 8px (larger padding)
-    const badgePaddingH = 12 * scale; // Horizontal padding
-    const badgePaddingV = 8 * scale; // Vertical padding
+    // Padding: horizontal 10px, vertical 7px (balanced padding)
+    const badgePaddingH = 10 * scale; // Horizontal padding
+    const badgePaddingV = 7 * scale; // Vertical padding
     const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
     const badgeHeight = badgeFontSize + badgePaddingV * 2;
-    const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
 
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
     const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
@@ -344,10 +363,10 @@ export async function renderProductToCanvas(
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 1 * scale;
 
-    // Draw rounded rectangle badge background (pill shape)
+    // Draw stadium shape badge background (rounded left and right sides, straight top and bottom)
     ctx.fillStyle = badgeBg;
     ctx.globalAlpha = 0.95;
-    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
+    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
     ctx.globalAlpha = 1;
 
@@ -356,14 +375,15 @@ export async function renderProductToCanvas(
     // Badge border
     ctx.strokeStyle = badgeBorder;
     ctx.lineWidth = 1 * scale;
-    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
+    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
 
     // Badge text - perfectly centered vertically and horizontally
     ctx.fillStyle = badgeText;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+    const badgeTextOffsetY = 2 * scale; // Small offset to move text down for better vertical centering
+    ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2 + badgeTextOffsetY);
   }
 
   currentY += imageHeight;

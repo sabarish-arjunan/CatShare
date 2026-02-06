@@ -1208,13 +1208,16 @@ setTimeout(async () => {
             backgroundColor: badgeBg,
             color: badgeText,
             fontSize: 13,
-            fontWeight: 600,
+            fontWeight: 400,
             padding: "6px 10px",
             borderRadius: "999px",
             opacity: 0.95,
             boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
             border: `1px solid ${badgeBorder}`,
             letterSpacing: "0.5px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {formData.badge.toUpperCase()}
