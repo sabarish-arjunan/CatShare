@@ -133,9 +133,16 @@ export function addCatalogue(
   // Generate unique ID
   const id = `cat${Date.now()}`;
 
-  // Auto-generate price field name if not provided
-  const priceFieldNum = definition.catalogues.length + 1;
-  const priceField = options?.priceField || `price${priceFieldNum}`;
+  // Auto-generate unique price field name if not provided
+  let priceFieldNum = definition.catalogues.length + 1;
+  let priceField = options?.priceField || `price${priceFieldNum}`;
+
+  // Ensure the generated priceField is truly unique
+  while (definition.catalogues.some(c => c.priceField === priceField)) {
+    priceFieldNum++;
+    priceField = `price${priceFieldNum}`;
+  }
+
   const priceUnitField = options?.priceUnitField || `${priceField}Unit`;
   const stockField = options?.stockField || `${priceField}Stock`;
   const folder = options?.folder || `Catalogue${priceFieldNum}`;
@@ -283,11 +290,13 @@ export function hasLegacyResellData(products: any[]): boolean {
  * This ensures backward compatibility without affecting data
  */
 export function createLegacyResellCatalogueIfNeeded(products: any[]): void {
-  // Check if Resell catalogue already exists
+  // Check if Resell catalogue or price2 field already exists
   const definition = getCataloguesDefinition();
   const hasResellCatalogue = definition.catalogues.some((c) => c.id === "cat2");
+  const hasPrice2Field = definition.catalogues.some((c) => c.priceField === "price2");
 
-  if (hasResellCatalogue) {
+  if (hasResellCatalogue || hasPrice2Field) {
+    console.log("ℹ️ Legacy Resell catalogue or price2 field already exists, skipping auto-creation");
     return; // Already exists, nothing to do
   }
 

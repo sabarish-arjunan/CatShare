@@ -42,8 +42,9 @@ export default function ManageCatalogues({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setFormError("Image size must be less than 2MB");
+    // Use a smaller limit for hero images to preserve localStorage quota
+    if (file.size > 500 * 1024) {
+      setFormError("Catalogue cover image must be less than 500KB to save space.");
       return;
     }
 
@@ -87,21 +88,36 @@ export default function ManageCatalogues({
       });
 
       if (newCatalogue) {
+        // Prepare updated products list
         const updatedProducts = products.map((p) => ({
           ...p,
           [newCatalogue.stockField]: true,
           [newCatalogue.priceField]: "",
           [newCatalogue.priceUnitField]: "/ piece",
         }));
-        setProducts(updatedProducts);
-        localStorage.setItem("products", JSON.stringify(updatedProducts));
 
-        const updated = getAllCatalogues();
-        setCatalogues(updated);
-        onCataloguesChanged(updated);
+        try {
+          // Attempt to save to localStorage
+          localStorage.setItem("products", JSON.stringify(updatedProducts));
 
-        setShowAddForm(false);
-        resetFormFields();
+          // Only update state if localStorage save succeeded
+          setProducts(updatedProducts);
+
+          const updated = getAllCatalogues();
+          setCatalogues(updated);
+          onCataloguesChanged(updated);
+
+          setShowAddForm(false);
+          resetFormFields();
+        } catch (storageErr) {
+          if ((storageErr as Error).name === 'QuotaExceededError' || (storageErr as Error).message.includes('quota')) {
+            setFormError("Storage full! Cannot add more catalogues. Please clear app cache or delete some products/images first.");
+          } else {
+            setFormError("Failed to save products: " + (storageErr as Error).message);
+          }
+          // Rollback the catalogue addition since we couldn't save products
+          deleteCatalogue(newCatalogue.id);
+        }
       }
     } catch (err) {
       setFormError("Failed to add catalogue: " + (err as Error).message);
@@ -167,6 +183,13 @@ export default function ManageCatalogues({
 
     try {
       await Haptics.impact({ style: ImpactStyle.Heavy });
+
+      // 🧹 Clean up rendered images for this catalogue before deleting definition
+      try {
+        await deleteRenderedImagesFromFolder(catalogue.folder || catalogue.label);
+      } catch (err) {
+        console.warn(`⚠️ Failed to clean up folder for catalogue ${catalogue.label}:`, err);
+      }
 
       const success = deleteCatalogue(catalogue.id);
       if (success) {

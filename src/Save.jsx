@@ -2,6 +2,44 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { safeGetFromStorage } from "./utils/safeStorage";
 import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
+import { getAllCatalogues } from "./config/catalogueConfig";
+
+/**
+ * Delete all rendered images for a specific product
+ * across all catalogues
+ */
+export async function deleteRenderedImageForProduct(productId) {
+  if (!productId) return;
+
+  try {
+    const catalogues = getAllCatalogues();
+    for (const cat of catalogues) {
+      const folder = cat.folder || cat.label;
+      const filename = `product_${productId}_${folder}.png`;
+      const filePath = `${folder}/${filename}`;
+
+      try {
+        await Filesystem.deleteFile({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`  ✓ Deleted rendered image: ${filePath}`);
+      } catch (err) {
+        // Ignore errors if file doesn't exist
+      }
+
+      // Also remove from localStorage cache
+      try {
+        const storageKey = `rendered::${folder}::${productId}`;
+        localStorage.removeItem(storageKey);
+      } catch (err) {
+        // Ignore errors
+      }
+    }
+  } catch (err) {
+    console.warn(`⚠️ Could not clean up rendered images for product ${productId}:`, err.message);
+  }
+}
 
 /**
  * Rename rendered images when catalogue name changes

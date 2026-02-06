@@ -51,19 +51,23 @@ function AppWithBackHandler() {
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [renderingTotal, setRenderingTotal] = useState(0);
   const [renderResult, setRenderResult] = useState(null);
   const renderResultTimeoutRef = useRef(null);
 
   const isNative = Capacitor.getPlatform() !== "web";
 
 
-  // Handle rendering all PNGs using background rendering service
-  const handleRenderAllPNGs = useCallback(async () => {
-    const all = safeGetFromStorage("products", []);
+  // Handle rendering PNGs using background rendering service
+  const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
+    const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
-    setIsRendering(true);
+    if (showOverlay) {
+      setIsRendering(true);
+    }
     setRenderProgress(0);
+    setRenderingTotal(all.length);
 
     // Get all catalogues
     const catalogues = getAllCatalogues();
@@ -71,23 +75,35 @@ function AppWithBackHandler() {
     // Callbacks for progress updates
     const onProgress = (progress: any) => {
       setRenderProgress(progress.percentage);
+      // Dispatch event for other components to listen to progress
+      window.dispatchEvent(new CustomEvent("renderProgress", {
+        detail: {
+          percentage: progress.percentage,
+          current: Math.round((progress.percentage / 100) * all.length),
+          total: all.length
+        }
+      }));
     };
 
     const onComplete = (result: any) => {
-      setIsRendering(false);
-      setRenderResult({
-        status: result.status === "success" ? "success" : "error",
-        message: result.message,
-      });
+      if (showOverlay) {
+        setIsRendering(false);
+        setRenderResult({
+          status: result.status === "success" ? "success" : "error",
+          message: result.message,
+        });
+      }
       window.dispatchEvent(new CustomEvent("renderComplete"));
     };
 
     const onError = (error: any) => {
-      setIsRendering(false);
-      setRenderResult({
-        status: "error",
-        message: `Rendering failed: ${error.message}`,
-      });
+      if (showOverlay) {
+        setIsRendering(false);
+        setRenderResult({
+          status: "error",
+          message: `Rendering failed: ${error.message}`,
+        });
+      }
       window.dispatchEvent(new CustomEvent("renderComplete"));
     };
 
@@ -188,7 +204,14 @@ function AppWithBackHandler() {
 
   // Initialize catalogue system with data migration
   useEffect(() => {
-    runMigrations();
+    const runAsyncMigrations = async () => {
+      try {
+        await runMigrations();
+      } catch (err) {
+        console.error("❌ Migrations failed:", err);
+      }
+    };
+    runAsyncMigrations();
   }, []);
 
   // Auto-resume rendering if it was interrupted by app close/crash
@@ -305,12 +328,23 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     const handleRequestRenderAllPNGs = () => {
-      handleRenderAllPNGs();
+      handleRenderPNGs();
+    };
+
+    const handleRequestRenderSelectedPNGs = (event: any) => {
+      const { products, showOverlay = true } = event.detail;
+      if (products && products.length > 0) {
+        handleRenderPNGs(products, showOverlay);
+      }
     };
 
     window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-  }, [handleRenderAllPNGs]);
+    window.addEventListener("requestRenderSelectedPNGs", handleRequestRenderSelectedPNGs);
+    return () => {
+      window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+      window.removeEventListener("requestRenderSelectedPNGs", handleRequestRenderSelectedPNGs);
+    };
+  }, [handleRenderPNGs]);
 
   useEffect(() => {
     if (isNative) {
@@ -334,8 +368,8 @@ function AppWithBackHandler() {
       <ToastContainer />
       <RenderingOverlay
         visible={isRendering}
-        current={Math.round((renderProgress / 100) * products.length)}
-        total={products.length}
+        current={Math.round((renderProgress / 100) * renderingTotal)}
+        total={renderingTotal}
       />
 
       {/* Global Success/Error Popup after rendering completes */}

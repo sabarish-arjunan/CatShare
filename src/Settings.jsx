@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { cleanupProductStorage } from "./utils/dataMigration";
 import SideDrawer from "./SideDrawer";
 
 export default function Settings({
@@ -91,6 +92,21 @@ export default function Settings({
   // Test notification
   const testNotification = async () => {
     await sendNotification("Test Notification", "If you see this, notifications are working! ✅");
+  };
+
+  // Optimize storage by moving base64 images to Filesystem
+  const handleOptimizeStorage = async () => {
+    if (window.confirm("Optimize product storage?\n\nThis will move all product images to your device's filesystem and free up significant space in the app's internal storage.\n\nYour products and images will remain safe.")) {
+      try {
+        await cleanupProductStorage();
+        // Refresh products state to reflect removed base64 data
+        const updatedProducts = JSON.parse(localStorage.getItem("products") || "[]");
+        setProducts(updatedProducts);
+        alert("✅ Storage optimization complete! Your app should now run smoother and allow for more catalogues.");
+      } catch (err) {
+        alert(`❌ Optimization failed: ${err.message}`);
+      }
+    }
   };
 
   // Clear localStorage cache
@@ -225,6 +241,24 @@ export default function Settings({
                     <h3 className="text-sm font-semibold text-blue-900">Test Notification</h3>
                   </div>
                   <p className="text-xs text-blue-700">Send a test notification to verify they're working</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          {/* Optimize Storage Button */}
+          <div className="mt-4">
+            <button
+              onClick={handleOptimizeStorage}
+              className="w-full bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition p-4 text-left"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🚀</span>
+                    <h3 className="text-sm font-semibold text-green-900">Optimize Storage</h3>
+                  </div>
+                  <p className="text-xs text-green-700">Move product images to filesystem to free up app space</p>
                 </div>
               </div>
             </button>
