@@ -208,11 +208,11 @@ export async function renderProductToCanvas(
   // Details section: padding + title + subtitle + fields + price bar
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
   const detailsPaddingBase = 4; // Updated: 8 -> 4 (matching "4px 8px" padding in HTML)
-  const titleFontSizeBase = 28;
-  const subtitleFontSizeBase = 18;
-  const fieldFontSizeBase = 17;
+  const titleFontSizeBase = 24;
+  const subtitleFontSizeBase = 15;
+  const fieldFontSizeBase = 14;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 36 : 0;
+  const priceBarHeightBase = product.price ? 32 : 0;
 
   // Estimate details height
   let detailsHeight = detailsPaddingBase; // top padding (4px)
@@ -314,15 +314,15 @@ export async function renderProductToCanvas(
     const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(11 * scale);
+    const badgeFontSize = Math.floor(14 * scale);
     const badgeFont = `700 ${badgeFontSize}px Arial, sans-serif`;
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
 
-    // Padding: horizontal 9px, vertical 4px
-    const badgePaddingH = 9 * scale; // Horizontal padding
-    const badgePaddingV = 4 * scale; // Vertical padding
+    // Padding: horizontal 10px, vertical 5px
+    const badgePaddingH = 10 * scale; // Horizontal padding
+    const badgePaddingV = 5 * scale; // Vertical padding
     const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
     const badgeHeight = badgeFontSize + badgePaddingV * 2;
     const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
@@ -406,7 +406,7 @@ export async function renderProductToCanvas(
     maxLabelWidth = Math.max(maxLabelWidth, metrics.width);
   });
 
-  const fieldsLeftPadding = 12 * scale; // Increased left padding for fields (matching HTML)
+  const fieldsLeftPadding = 24 * scale; // Increased left padding for fields
   const colonX = fieldsLeftPadding + maxLabelWidth + 6 * scale; // Colon position aligned
   const valueX = colonX + 16 * scale; // Space after colon
 
@@ -442,7 +442,7 @@ export async function renderProductToCanvas(
     ctx.fillStyle = options.bgColor;
     ctx.fillRect(0, currentY, canvasWidth, remainingHeight); // Fill to bottom of canvas
 
-    const priceFontSize = Math.floor(19 * scale);
+    const priceFontSize = Math.floor(16 * scale);
     const priceFont = `${priceFontSize}px Arial, sans-serif`;
     ctx.font = priceFont;
     ctx.fillStyle = options.fontColor;
