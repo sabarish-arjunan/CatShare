@@ -691,7 +691,7 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
-                padding: 8,
+                padding: "4px 8px",
                 fontSize: 13,
                 overflow: "auto",
                 flex: 1,
@@ -703,19 +703,19 @@ export default function ProductPreviewModal({
                 // This ensures horizontal swipes work even in the scrollable area
               }}
             >
-              <div style={{ textAlign: "center", marginBottom: 3 }}>
+              <div style={{ textAlign: "center", marginBottom: 6 }}>
                 <p
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
                     fontSize: 20,
-                    margin: 2,
+                    margin: "0 0 3px 0",
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 14, margin: 2 }}>
+                  <p style={{ fontStyle: "italic", fontSize: 14, margin: "0 0 0 0" }}>
                     ({product.subtitle})
                   </p>
                 )}
