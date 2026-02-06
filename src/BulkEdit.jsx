@@ -72,60 +72,48 @@ useEffect(() => {
   setCategories(storedCategories);
 
   const normalized = products.map((p) => {
-    // Check if this is a new catalogue:
-    // 1. New catalogue created (initialCatalogueId undefined) OR
-    // 2. Switching from one catalogue to another (catalogueId !== initialCatalogueId)
-    const isNewCatalogue = !initialCatalogueId || (catalogueId && initialCatalogueId && catalogueId !== initialCatalogueId);
-
+    // Always start with empty fields - let "Fill from Master" checkboxes control population
     const normalized = {
       ...p,
-      // Initialize all fields with defaults to avoid uncontrolled input warnings
+      // Keep product identity
       name: p.name || "",
       subtitle: p.subtitle || "",
       badge: p.badge || "",
       category: p.category || [],
-      // For new catalogues, start with empty fields; for existing catalogues, use their data
-      field1: isNewCatalogue ? "" : (p.field1 || p.color || ""),
-      color: isNewCatalogue ? "" : (p.field1 || p.color || ""),
-      field2: isNewCatalogue ? "" : (p.field2 || p.package || ""),
-      field2Unit: isNewCatalogue ? "pcs / set" : (p.field2Unit || p.packageUnit || "pcs / set"),
-      package: isNewCatalogue ? "" : (p.field2 || p.package || ""),
-      packageUnit: isNewCatalogue ? "pcs / set" : (p.field2Unit || p.packageUnit || "pcs / set"),
-      field3: isNewCatalogue ? "" : (p.field3 || p.age || ""),
-      field3Unit: isNewCatalogue ? "months" : (p.field3Unit || p.ageUnit || "months"),
-      age: isNewCatalogue ? "" : (p.field3 || p.age || ""),
-      ageUnit: isNewCatalogue ? "months" : (p.field3Unit || p.ageUnit || "months"),
-      wholesaleStock:
-        typeof p.wholesaleStock === "boolean"
-          ? p.wholesaleStock ? "in" : "out"
-          : p.wholesaleStock || "",
-      resellStock:
-        typeof p.resellStock === "boolean"
-          ? p.resellStock ? "in" : "out"
-          : p.resellStock || "",
+      // Start all optional fields as empty
+      field1: "",
+      color: "",
+      field2: "",
+      field2Unit: "pcs / set",
+      package: "",
+      packageUnit: "pcs / set",
+      field3: "",
+      field3Unit: "months",
+      age: "",
+      ageUnit: "months",
+      wholesaleStock: "",
+      resellStock: "",
     };
 
     // Handle catalogue-specific stock field
     if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
-      normalized[stockField] = typeof p[stockField] === "boolean"
-        ? p[stockField] ? "in" : "out"
-        : (p[stockField] || "");
+      normalized[stockField] = "";
     }
 
-    // Add price field for the current catalogue - start empty for new catalogues
+    // Add price field for the current catalogue - start empty
     if (priceField) {
-      normalized[priceField] = isNewCatalogue ? "" : (p[priceField] || "");
-      normalized[priceUnitField] = isNewCatalogue ? "/ piece" : (p[priceUnitField] || "/ piece");
+      normalized[priceField] = "";
+      normalized[priceUnitField] = "/ piece";
     }
 
-    // Initialize other price fields - empty for new catalogues, data for existing
-    normalized.wholesale = isNewCatalogue ? "" : (p.wholesale || "");
-    normalized.wholesaleUnit = isNewCatalogue ? "/ piece" : (p.wholesaleUnit || "/ piece");
-    normalized.resell = isNewCatalogue ? "" : (p.resell || "");
-    normalized.resellUnit = isNewCatalogue ? "/ piece" : (p.resellUnit || "/ piece");
-    normalized.retail = isNewCatalogue ? "" : (p.retail || "");
-    normalized.retailUnit = isNewCatalogue ? "/ piece" : (p.retailUnit || "/ piece");
-    normalized.stock = isNewCatalogue ? "" : (p.stock || "");
+    // Initialize other price fields - empty
+    normalized.wholesale = "";
+    normalized.wholesaleUnit = "/ piece";
+    normalized.resell = "";
+    normalized.resellUnit = "/ piece";
+    normalized.retail = "";
+    normalized.retailUnit = "/ piece";
+    normalized.stock = "";
 
     return normalized;
   });
