@@ -96,33 +96,34 @@ export async function handleShare({
         console.log(`✅ Product ${id} rendered on-the-fly successfully and cached`);
       }
 
-      // Convert data URL to file URI for better Share API compatibility
+      // Use the cached rendered image directly without creating temp files
       try {
-        const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, "");
-        const tempFileName = `share_temp_${id}_${Date.now()}.png`;
-        const tempFilePath = `${targetFolder}/${tempFileName}`;
+        // Check if we can get a file URI from the cached image
+        const cachedFileName = `product_${id}_${catalogueLabel}.png`;
+        const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
-        await Filesystem.writeFile({
-          path: tempFilePath,
-          data: base64Data,
-          directory: Directory.External,
-        });
+        try {
+          // Try to get URI for the cached file (if it exists from previous saves)
+          const fileResult = await Filesystem.getUri({
+            path: cachedFilePath,
+            directory: Directory.External,
+          });
 
-        const fileResult = await Filesystem.getUri({
-          path: tempFilePath,
-          directory: Directory.External,
-        });
-
-        if (fileResult.uri) {
-          fileUris.push(fileResult.uri);
-          console.log(`✅ Added image for product ${id} to share queue (temp file URI)`);
-        } else {
-          // Fallback to data URL if URI not available
+          if (fileResult.uri) {
+            fileUris.push(fileResult.uri);
+            console.log(`✅ Using cached rendered image for product ${id}: ${cachedFilePath}`);
+          } else {
+            // If URI not available, use data URL directly
+            fileUris.push(imageDataUrl);
+            console.log(`✅ Using data URL for product ${id} (no cached file)`);
+          }
+        } catch (uriErr) {
+          // Cached file doesn't exist or URI retrieval failed, use data URL
+          console.log(`ℹ️  No cached file found for product ${id}, using data URL`);
           fileUris.push(imageDataUrl);
-          console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
         }
-      } catch (writeErr) {
-        console.warn(`⚠️ Could not write temp file for product ${id}, using data URL fallback:`, writeErr);
+      } catch (err) {
+        console.warn(`⚠️ Error processing image for product ${id}:`, err);
         fileUris.push(imageDataUrl);
         console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
       }
