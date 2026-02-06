@@ -232,7 +232,7 @@ export async function renderProductToCanvas(
   const subtitleFontSizeBase = 17;
   const fieldFontSizeBase = 16;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 34 : 0;
+  const priceBarHeightBase = product.price ? 28 : 0;
 
   // Spacing constants (must match the spacing used in height calculation)
   const spacingAfterTitle = 12;
