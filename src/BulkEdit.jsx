@@ -115,7 +115,7 @@ useEffect(() => {
     return normalized;
   });
 
-  setEditedData(normalized);
+  setEditedData(normalized.map(item => ensureFieldDefaults(item)));
 }, [products, stockField, catalogueId, priceField, priceUnitField, initialCatalogueId]);
 
 
