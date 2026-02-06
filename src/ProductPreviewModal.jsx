@@ -30,7 +30,9 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  return { ...baseStyles, ...positionMap[position] };
+  // Ensure we always have valid positioning, default to bottom-center if position not found
+  const positionStyles = positionMap[position] || positionMap["bottom-center"];
+  return { ...baseStyles, ...positionStyles };
 };
 
 // Full Screen Image Viewer Component
