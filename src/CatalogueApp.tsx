@@ -37,6 +37,18 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setCatalogues(cats);
   }, []);
 
+  // Listen for catalogue changes (e.g., after restore or when ManageCatalogues updates)
+  useEffect(() => {
+    const handleCataloguesChanged = () => {
+      const cats = getAllCatalogues();
+      setCatalogues(cats);
+      console.log("✅ Catalogues refreshed from event");
+    };
+
+    window.addEventListener("catalogues-changed", handleCataloguesChanged);
+    return () => window.removeEventListener("catalogues-changed", handleCataloguesChanged);
+  }, []);
+
   // Handle catalogue query parameter - when returning from edit view
   useEffect(() => {
     const catalogueParam = searchParams.get("catalogue");
