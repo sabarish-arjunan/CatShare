@@ -222,6 +222,7 @@ export async function renderProductToCanvas(
 
   // Estimate details height
   let detailsHeight = detailsPaddingBase; // top padding (4px)
+  detailsHeight += 10; // extra top spacing before title
   detailsHeight += titleFontSizeBase + spacingAfterTitle; // title + spacing
 
   if (product.subtitle) {
