@@ -205,36 +205,14 @@ useEffect(() => {
 
   const toggleFillFromMaster = (fieldKey) => {
     const newState = !filledFromMaster[fieldKey];
-    setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: newState }));
 
     if (newState) {
-      // Fill from master catalogue for all products
-      const masterCatalogueId = catalogues[0]?.id; // Get the first catalogue (Master)
-      if (!masterCatalogueId) return;
-
-      setEditedData((prev) =>
-        prev.map((item) => {
-          const masterData = getCatalogueData(item, masterCatalogueId);
-          const updates = {};
-
-          if (fieldKey === "field1") {
-            updates.field1 = masterData.field1 || item.color || "";
-          } else if (fieldKey === "field2") {
-            updates.field2 = masterData.field2 || item.package || "";
-            updates.field2Unit = masterData.field2Unit || item.packageUnit || "pcs / set";
-          } else if (fieldKey === "field3") {
-            updates.field3 = masterData.field3 || item.age || "";
-            updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
-          } else if (fieldKey === priceField) {
-            updates[priceField] = masterData[priceField] || "";
-            updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
-          }
-
-          return ensureFieldDefaults({ ...item, ...updates });
-        })
-      );
+      // Show confirmation before filling from master
+      setConfirmDialog({ show: true, fieldKey });
     } else {
-      // Empty the field for all products
+      // Directly empty the field without confirmation
+      setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: false }));
+
       setEditedData((prev) =>
         prev.map((item) => {
           const updates = {};
@@ -256,6 +234,37 @@ useEffect(() => {
         })
       );
     }
+  };
+
+  const confirmFillFromMaster = (fieldKey) => {
+    const masterCatalogueId = catalogues[0]?.id;
+    if (!masterCatalogueId) return;
+
+    setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: true }));
+
+    setEditedData((prev) =>
+      prev.map((item) => {
+        const masterData = getCatalogueData(item, masterCatalogueId);
+        const updates = {};
+
+        if (fieldKey === "field1") {
+          updates.field1 = masterData.field1 || item.color || "";
+        } else if (fieldKey === "field2") {
+          updates.field2 = masterData.field2 || item.package || "";
+          updates.field2Unit = masterData.field2Unit || item.packageUnit || "pcs / set";
+        } else if (fieldKey === "field3") {
+          updates.field3 = masterData.field3 || item.age || "";
+          updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
+        } else if (fieldKey === priceField) {
+          updates[priceField] = masterData[priceField] || "";
+          updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
+        }
+
+        return ensureFieldDefaults({ ...item, ...updates });
+      })
+    );
+
+    setConfirmDialog({ show: false, fieldKey: null });
   };
 
   const toggleCategory = (id, cat) => {
