@@ -355,6 +355,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       await Haptics.impact({ style: ImpactStyle.Heavy });
       setProducts((prev) => prev.filter((p) => p.id !== id));
       setDeletedProducts((prev) => [toDelete, ...prev]);
+
+      // 🧹 Clean up rendered images for this product to save space
+      // They can be re-rendered if the product is restored
+      try {
+        await deleteRenderedImageForProduct(id);
+      } catch (err) {
+        console.warn(`⚠️ Failed to clean up rendered images for product ${id}:`, err);
+      }
     }
   };
 
