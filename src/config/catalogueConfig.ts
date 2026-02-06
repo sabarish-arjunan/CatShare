@@ -133,9 +133,16 @@ export function addCatalogue(
   // Generate unique ID
   const id = `cat${Date.now()}`;
 
-  // Auto-generate price field name if not provided
-  const priceFieldNum = definition.catalogues.length + 1;
-  const priceField = options?.priceField || `price${priceFieldNum}`;
+  // Auto-generate unique price field name if not provided
+  let priceFieldNum = definition.catalogues.length + 1;
+  let priceField = options?.priceField || `price${priceFieldNum}`;
+
+  // Ensure the generated priceField is truly unique
+  while (definition.catalogues.some(c => c.priceField === priceField)) {
+    priceFieldNum++;
+    priceField = `price${priceFieldNum}`;
+  }
+
   const priceUnitField = options?.priceUnitField || `${priceField}Unit`;
   const stockField = options?.stockField || `${priceField}Stock`;
   const folder = options?.folder || `Catalogue${priceFieldNum}`;
