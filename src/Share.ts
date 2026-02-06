@@ -81,8 +81,36 @@ export async function handleShare({
         console.log(`✅ Product ${id} rendered on-the-fly successfully`);
       }
 
-      fileUris.push(imageDataUrl);
-      console.log(`✅ Added image for product ${id} to share queue`);
+      // Convert data URL to file URI for better Share API compatibility
+      try {
+        const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, "");
+        const tempFileName = `share_temp_${id}_${Date.now()}.png`;
+        const tempFilePath = `${targetFolder}/${tempFileName}`;
+
+        await Filesystem.writeFile({
+          path: tempFilePath,
+          data: base64Data,
+          directory: Directory.External,
+        });
+
+        const fileResult = await Filesystem.getUri({
+          path: tempFilePath,
+          directory: Directory.External,
+        });
+
+        if (fileResult.uri) {
+          fileUris.push(fileResult.uri);
+          console.log(`✅ Added image for product ${id} to share queue (temp file URI)`);
+        } else {
+          // Fallback to data URL if URI not available
+          fileUris.push(imageDataUrl);
+          console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
+        }
+      } catch (writeErr) {
+        console.warn(`⚠️ Could not write temp file for product ${id}, using data URL fallback:`, writeErr);
+        fileUris.push(imageDataUrl);
+        console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
+      }
     } catch (err) {
       console.error(`❌ Error processing product ${id}:`, err);
     }
