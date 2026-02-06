@@ -88,21 +88,36 @@ export default function ManageCatalogues({
       });
 
       if (newCatalogue) {
+        // Prepare updated products list
         const updatedProducts = products.map((p) => ({
           ...p,
           [newCatalogue.stockField]: true,
           [newCatalogue.priceField]: "",
           [newCatalogue.priceUnitField]: "/ piece",
         }));
-        setProducts(updatedProducts);
-        localStorage.setItem("products", JSON.stringify(updatedProducts));
 
-        const updated = getAllCatalogues();
-        setCatalogues(updated);
-        onCataloguesChanged(updated);
+        try {
+          // Attempt to save to localStorage
+          localStorage.setItem("products", JSON.stringify(updatedProducts));
 
-        setShowAddForm(false);
-        resetFormFields();
+          // Only update state if localStorage save succeeded
+          setProducts(updatedProducts);
+
+          const updated = getAllCatalogues();
+          setCatalogues(updated);
+          onCataloguesChanged(updated);
+
+          setShowAddForm(false);
+          resetFormFields();
+        } catch (storageErr) {
+          if ((storageErr as Error).name === 'QuotaExceededError' || (storageErr as Error).message.includes('quota')) {
+            setFormError("Storage full! Cannot add more catalogues. Please clear app cache or delete some products/images first.");
+          } else {
+            setFormError("Failed to save products: " + (storageErr as Error).message);
+          }
+          // Rollback the catalogue addition since we couldn't save products
+          deleteCatalogue(newCatalogue.id);
+        }
       }
     } catch (err) {
       setFormError("Failed to add catalogue: " + (err as Error).message);
