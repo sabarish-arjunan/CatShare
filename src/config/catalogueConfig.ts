@@ -290,11 +290,13 @@ export function hasLegacyResellData(products: any[]): boolean {
  * This ensures backward compatibility without affecting data
  */
 export function createLegacyResellCatalogueIfNeeded(products: any[]): void {
-  // Check if Resell catalogue already exists
+  // Check if Resell catalogue or price2 field already exists
   const definition = getCataloguesDefinition();
   const hasResellCatalogue = definition.catalogues.some((c) => c.id === "cat2");
+  const hasPrice2Field = definition.catalogues.some((c) => c.priceField === "price2");
 
-  if (hasResellCatalogue) {
+  if (hasResellCatalogue || hasPrice2Field) {
+    console.log("ℹ️ Legacy Resell catalogue or price2 field already exists, skipping auto-creation");
     return; // Already exists, nothing to do
   }
 
