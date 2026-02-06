@@ -190,7 +190,14 @@ function AppWithBackHandler() {
 
   // Initialize catalogue system with data migration
   useEffect(() => {
-    runMigrations();
+    const runAsyncMigrations = async () => {
+      try {
+        await runMigrations();
+      } catch (err) {
+        console.error("❌ Migrations failed:", err);
+      }
+    };
+    runAsyncMigrations();
   }, []);
 
   // Auto-resume rendering if it was interrupted by app close/crash
