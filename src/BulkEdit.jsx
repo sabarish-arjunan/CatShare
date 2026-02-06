@@ -562,13 +562,13 @@ useEffect(() => {
             {priceField && selectedFields.includes(priceField) && (
               <div className="flex gap-2">
                 <input
-                  value={item[priceField]}
+                  value={item[priceField] ?? ""}
                   onChange={(e) => handleFieldChange(item.id, priceField, e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                   placeholder="Price"
                 />
                 <select
-                  value={item[priceUnitField]}
+                  value={item[priceUnitField] ?? "/ piece"}
                   onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
