@@ -314,33 +314,36 @@ export async function renderProductToCanvas(
     const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(11 * scale); // Updated: 13 -> 11
-    const badgeFont = `700 ${badgeFontSize}px Arial, sans-serif`; // Updated: Added fontWeight 700
+    const badgeFontSize = Math.floor(11 * scale);
+    const badgeFont = `700 ${badgeFontSize}px Arial, sans-serif`;
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
-    const badgePadding = 4.5 * scale; // Updated: 6 -> 4.5 (4px 9px)
-    const badgeWidth = badgeMetrics.width + badgePadding * 2;
-    const badgeHeight = badgeFontSize + badgePadding;
-    const badgeRadius = 10 * scale; // Updated: height/2 -> 10px (20px borderRadius)
 
-    const badgeX = canvasWidth - badgeWidth - 8 * scale; // Updated: 10 -> 8px
-    const badgeY = currentY + imageHeight - badgeHeight - 8 * scale; // Updated: 10 -> 8px
+    // Padding: horizontal 9px, vertical 4px
+    const badgePaddingH = 9 * scale; // Horizontal padding
+    const badgePaddingV = 4 * scale; // Vertical padding
+    const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
+    const badgeHeight = badgeFontSize + badgePaddingV * 2;
+    const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
 
-    // Draw rounded rectangle badge background (more defined pill shape)
+    const badgeX = canvasWidth - badgeWidth - 8 * scale;
+    const badgeY = currentY + imageHeight - badgeHeight - 8 * scale;
+
+    // Draw rounded rectangle badge background (pill shape)
     ctx.fillStyle = badgeBg;
-    ctx.globalAlpha = 0.98; // Updated: 0.95 -> 0.98
+    ctx.globalAlpha = 0.98;
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    // Badge border - more prominent
+    // Badge border
     ctx.strokeStyle = badgeBorder;
-    ctx.lineWidth = 1.5 * scale; // Updated: 1 -> 1.5
+    ctx.lineWidth = 1.5 * scale;
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
-    // Badge text
+    // Badge text - perfectly centered
     ctx.fillStyle = badgeText;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
