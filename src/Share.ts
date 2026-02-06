@@ -20,6 +20,7 @@ export async function handleShare({
   setProcessingTotal,
   folder = null,
   mode = "resell", // or "wholesale" - kept for backward compatibility
+  products = undefined,
 }: HandleShareParams) {
   if (!selected || selected.length === 0) {
     alert("No products selected.");
