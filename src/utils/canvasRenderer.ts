@@ -216,20 +216,20 @@ export async function renderProductToCanvas(
 
   // Estimate details height
   let detailsHeight = detailsPaddingBase; // top padding (4px)
-  detailsHeight += titleFontSizeBase + 3; // Updated: title + 3px spacing (matching margin: "0 0 3px 0")
+  detailsHeight += titleFontSizeBase + 12; // title + increased spacing
 
   if (product.subtitle) {
-    detailsHeight += subtitleFontSizeBase + 0; // Updated: subtitle with no margin bottom (matching margin: "0 0 0 0")
+    detailsHeight += subtitleFontSizeBase + 10; // subtitle + spacing after
   }
 
-  detailsHeight += 6; // spacing before fields (marginBottom: 6 on title div)
+  detailsHeight += 12; // increased spacing before fields
 
   // Field heights (only count non-empty fields)
   if (product.field1) detailsHeight += fieldLineHeightBase + 2;
   if (product.field2) detailsHeight += fieldLineHeightBase + 2;
   if (product.field3) detailsHeight += fieldLineHeightBase + 2;
 
-  detailsHeight += 6; // spacing after fields
+  detailsHeight += 12; // increased spacing after fields
   detailsHeight += priceBarHeightBase;
   detailsHeight += detailsPaddingBase; // bottom padding (4px)
 
@@ -375,7 +375,7 @@ export async function renderProductToCanvas(
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += renderDetailsPadding + renderTitleFontSize + 12 * scale; // Title height + title bottom margin (increased for spacing)
+  currentY += renderDetailsPadding + renderTitleFontSize + 3 * scale; // Title height + title bottom margin
 
   // Subtitle
   if (product.subtitle) {
@@ -385,10 +385,10 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + renderSubtitleFontSize * 0.8);
     ctx.textAlign = 'left';
-    currentY += renderSubtitleFontSize + 10 * scale; // Added spacing after subtitle
+    currentY += renderSubtitleFontSize; // subtitle height
   }
 
-  currentY += 12 * scale; // Increased spacing before fields
+  currentY += 6 * scale;
 
   // Fields - Match HTML format with aligned colons
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
