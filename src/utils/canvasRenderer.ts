@@ -158,6 +158,26 @@ function roundRect(
   ctx.closePath();
 }
 
+/**
+ * Draw a stadium shape (rounded only on left and right sides, straight on top and bottom)
+ */
+function drawStadiumShape(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): void {
+  const radius = height / 2; // Semicircle radius for left and right
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y); // Top-left start
+  ctx.lineTo(x + width - radius, y); // Top line (straight)
+  ctx.arc(x + width - radius, y + radius, radius, -Math.PI / 2, Math.PI / 2); // Right semicircle
+  ctx.lineTo(x + radius, y + height); // Bottom line (straight)
+  ctx.arc(x + radius, y + radius, radius, Math.PI / 2, -Math.PI / 2); // Left semicircle
+  ctx.closePath();
+}
+
 export interface ProductRenderOptions {
   width: number;
   height?: number;
