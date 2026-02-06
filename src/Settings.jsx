@@ -93,6 +93,37 @@ export default function Settings({
     await sendNotification("Test Notification", "If you see this, notifications are working! ✅");
   };
 
+  // Clear localStorage cache
+  const clearLocalStorageCache = () => {
+    if (window.confirm("Clear cached rendered images from storage?\n\nThis will free up space but won't delete your products or settings.\n\nYou can always re-render images later.")) {
+      try {
+        let clearedCount = 0;
+        const keysToDelete = [];
+
+        // Find all rendered image cache keys
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('rendered::')) {
+            keysToDelete.push(key);
+          }
+        }
+
+        // Delete them
+        keysToDelete.forEach(key => {
+          localStorage.removeItem(key);
+          clearedCount++;
+        });
+
+        const sizeFreed = (keysToDelete.length > 0 ? "multiple MB" : "no");
+        alert(`✅ Cleared ${clearedCount} cached images!\n\nFreed up space: ${sizeFreed}`);
+        console.log(`🗑️ Cleared ${clearedCount} cached rendered images from localStorage`);
+      } catch (err) {
+        alert(`❌ Error clearing cache: ${err.message}`);
+        console.error("Error clearing cache:", err);
+      }
+    }
+  };
+
   // Show notification when rendering completes
   useEffect(() => {
     if (!isRendering && renderProgress > 0) {
@@ -194,6 +225,24 @@ export default function Settings({
                     <h3 className="text-sm font-semibold text-blue-900">Test Notification</h3>
                   </div>
                   <p className="text-xs text-blue-700">Send a test notification to verify they're working</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          {/* Clear Cache Button */}
+          <div className="mt-4">
+            <button
+              onClick={clearLocalStorageCache}
+              className="w-full bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-300 shadow-sm overflow-hidden hover:shadow-md hover:border-orange-400 transition p-4 text-left"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🗑️</span>
+                    <h3 className="text-sm font-semibold text-orange-900">Clear Cache</h3>
+                  </div>
+                  <p className="text-xs text-orange-700">Free up storage space by removing cached rendered images</p>
                 </div>
               </div>
             </button>

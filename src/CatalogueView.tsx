@@ -972,22 +972,6 @@ onMouseLeave={handleTouchEnd}
     backgroundColor: "#fff",
                 }}
               >
-                <h2
-                  style={{
-                    backgroundColor: p.bgColor || "#add8e6",
-                    color: p.fontColor || "white",
-                    padding: 5,
-                    textAlign: "center",
-                    fontWeight: "normal",
-                    fontSize: 19,
-                    margin: 0,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
-                  {getProductCatalogueData(p).priceUnit}
-                </h2>
-
                 <div
                   style={{
                     backgroundColor: p.imageBgColor || "white",
@@ -1011,24 +995,25 @@ onMouseLeave={handleTouchEnd}
   <div
     style={{
       position: "absolute",
-      bottom: 10,
-      right: 10,
+      bottom: 8,
+      right: 8,
       backgroundColor:
         p.imageBgColor?.toLowerCase() === "white" ? "#fff" : "#000",
       color:
         p.imageBgColor?.toLowerCase() === "white" ? "#000" : "#fff",
-      fontSize: 12,
-      fontWeight: 600,
-      padding: "5px 10px",
-      borderRadius: "999px",
-      opacity: 0.95,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-      border: `1px solid ${
+      fontSize: 11,
+      fontWeight: 700,
+      padding: "4px 9px",
+      borderRadius: "20px",
+      opacity: 0.98,
+      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+      border: `1.5px solid ${
         p.imageBgColor?.toLowerCase() === "white"
           ? "rgba(0,0,0,0.4)"
           : "rgba(255,255,255,0.4)"
       }`,
-      letterSpacing: "0.4px",
+      letterSpacing: "0.3px",
+      lineHeight: "1",
     }}
   >
     {p.badge.toUpperCase()}
@@ -1062,7 +1047,7 @@ onMouseLeave={handleTouchEnd}
                   style={{
                     backgroundColor: getLighterColor(p.bgColor || "#add8e6"),
                     color: p.fontColor || "white",
-                    padding: 10,
+                    padding: "4px 8px",
                     fontSize: 17,
                   }}
                 >
@@ -1072,14 +1057,14 @@ onMouseLeave={handleTouchEnd}
                         fontWeight: "normal",
                         textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
                         fontSize: 28,
-                        margin: 3,
+                        margin: "0 0 3px 0",
                       }}
                     >
                       {p.name}
                     </p>
                     {p.subtitle && (
                       <p
-                        style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}
+                        style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}
                       >
                         ({p.subtitle})
                       </p>
@@ -1102,6 +1087,22 @@ onMouseLeave={handleTouchEnd}
                     </p>
                   </div>
                 </div>
+
+                <h2
+                  style={{
+                    backgroundColor: p.bgColor || "#add8e6",
+                    color: p.fontColor || "white",
+                    padding: "5px 8px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                    fontSize: 19,
+                    margin: 0,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
+                  {getProductCatalogueData(p).priceUnit}
+                </h2>
               </div>
             </div>
           );

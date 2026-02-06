@@ -207,31 +207,38 @@ export async function renderProductToCanvas(
   // Image section: baseWidth / cropAspectRatio
   // Details section: padding + title + subtitle + fields + price bar
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
-  const detailsPaddingBase = 8; // Matching preview modal padding
-  const titleFontSizeBase = 28;
-  const subtitleFontSizeBase = 18;
-  const fieldFontSizeBase = 17;
+  const detailsPaddingBase = 4; // Updated: 8 -> 4 (matching "4px 8px" padding in HTML)
+  const titleFontSizeBase = 27;
+  const subtitleFontSizeBase = 17;
+  const fieldFontSizeBase = 16;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 36 : 0;
+  const priceBarHeightBase = product.price ? 34 : 0;
+
+  // Spacing constants (must match the spacing used in height calculation)
+  const spacingAfterTitle = 12;
+  const spacingAfterSubtitle = 10;
+  const spacingBeforeFields = 12;
+  const spacingAfterFields = 12;
 
   // Estimate details height
-  let detailsHeight = detailsPaddingBase; // top padding
-  detailsHeight += titleFontSizeBase + 6; // title + spacing
+  let detailsHeight = detailsPaddingBase; // top padding (4px)
+  detailsHeight += 10; // extra top spacing before title
+  detailsHeight += titleFontSizeBase + spacingAfterTitle; // title + spacing
 
   if (product.subtitle) {
-    detailsHeight += subtitleFontSizeBase + 5; // subtitle + spacing
+    detailsHeight += subtitleFontSizeBase + spacingAfterSubtitle; // subtitle + spacing after
   }
 
-  detailsHeight += 6; // spacing before fields
+  detailsHeight += spacingBeforeFields; // spacing before fields
 
   // Field heights (only count non-empty fields)
   if (product.field1) detailsHeight += fieldLineHeightBase + 2;
   if (product.field2) detailsHeight += fieldLineHeightBase + 2;
   if (product.field3) detailsHeight += fieldLineHeightBase + 2;
 
-  detailsHeight += 6; // spacing after fields
+  detailsHeight += spacingAfterFields; // spacing after fields
   detailsHeight += priceBarHeightBase;
-  detailsHeight += detailsPaddingBase; // bottom padding
+  detailsHeight += detailsPaddingBase; // bottom padding (4px)
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
 
@@ -262,12 +269,12 @@ export async function renderProductToCanvas(
   const imageBg = options.imageBgColor;
   const imageHeight = imageSectionBaseHeight * scale;
 
-  // Draw image background with drop shadow (matching modal: 0 12px 15px -6px rgba(0, 0, 0, 0.4))
+  // Draw image background with shadow effect
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-  ctx.shadowBlur = 15 * scale;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+  ctx.shadowBlur = 20 * scale;
   ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 12 * scale;
+  ctx.shadowOffsetY = 8 * scale;
   ctx.fillStyle = imageBg;
   ctx.fillRect(0, currentY, canvasWidth, imageHeight);
   ctx.restore();
@@ -307,25 +314,35 @@ export async function renderProductToCanvas(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge if present (rounded pill shape matching modal design)
+  // Draw badge if present (rounded pill shape matching create product preview)
   if (product.badge) {
     const badgeBg = isLightColor(imageBg) ? '#fff' : '#000';
     const badgeText = isLightColor(imageBg) ? '#000' : '#fff';
-    const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+    const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(13 * scale);
-    const badgeFont = `${badgeFontSize}px Arial, sans-serif`;
+    const badgeFontSize = Math.floor(16 * scale); // Increased from 13px
+    const badgeFont = `600 ${badgeFontSize}px Arial, sans-serif`; // 600 weight like preview
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
-    const badgePadding = 6 * scale;
-    const badgeWidth = badgeMetrics.width + badgePadding * 2;
-    const badgeHeight = badgeFontSize + badgePadding;
-    const badgeRadius = badgeHeight / 2; // Pill shape: radius = height/2
 
-    const badgeX = canvasWidth - badgeWidth - 10 * scale; // offset 10px from right
-    const badgeY = currentY + imageHeight - badgeHeight - 10 * scale; // offset 10px from bottom
+    // Padding: horizontal 12px, vertical 8px (larger padding)
+    const badgePaddingH = 12 * scale; // Horizontal padding
+    const badgePaddingV = 8 * scale; // Vertical padding
+    const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
+    const badgeHeight = badgeFontSize + badgePaddingV * 2;
+    const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
+
+    const badgeX = canvasWidth - badgeWidth - 12 * scale;
+    const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
+
+    // Draw shadow first
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 4 * scale;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 1 * scale;
 
     // Draw rounded rectangle badge background (pill shape)
     ctx.fillStyle = badgeBg;
@@ -334,13 +351,15 @@ export async function renderProductToCanvas(
     ctx.fill();
     ctx.globalAlpha = 1;
 
+    ctx.restore();
+
     // Badge border
     ctx.strokeStyle = badgeBorder;
     ctx.lineWidth = 1 * scale;
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
-    // Badge text
+    // Badge text - perfectly centered vertically and horizontally
     ctx.fillStyle = badgeText;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -356,8 +375,19 @@ export async function renderProductToCanvas(
   ctx.fillStyle = detailsBgColor;
   ctx.fillRect(0, currentY, canvasWidth, canvasHeight - currentY);
 
+  // Draw shadow gradient on details section (naturally falling from image)
+  const shadowGradient = ctx.createLinearGradient(0, currentY, 0, currentY + 25 * scale);
+  shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+  shadowGradient.addColorStop(0.6, 'rgba(0, 0, 0, 0.08)');
+  shadowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = shadowGradient;
+  ctx.fillRect(0, currentY, canvasWidth, 25 * scale);
+
   ctx.fillStyle = options.fontColor;
   ctx.textAlign = 'left';
+
+  // Add top spacing before title
+  currentY += 10 * scale;
 
   // Title
   const renderTitleFontSize = Math.floor(titleFontSizeBase * scale);
@@ -368,11 +398,11 @@ export async function renderProductToCanvas(
   ctx.shadowOffsetX = 3 * scale;
   ctx.shadowOffsetY = 3 * scale;
   ctx.textAlign = 'center';
-  ctx.fillText(product.name, canvasWidth / 2, currentY + renderDetailsPadding + renderTitleFontSize * 0.8);
+  ctx.fillText(product.name, canvasWidth / 2, currentY + renderTitleFontSize * 0.8);
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += renderDetailsPadding + renderTitleFontSize + 6 * scale;
+  currentY += renderTitleFontSize + spacingAfterTitle * scale; // Title height + spacing
 
   // Subtitle
   if (product.subtitle) {
@@ -382,12 +412,12 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + renderSubtitleFontSize * 0.8);
     ctx.textAlign = 'left';
-    currentY += renderSubtitleFontSize + 5 * scale;
+    currentY += renderSubtitleFontSize + spacingAfterSubtitle * scale; // subtitle height + spacing
   }
 
-  currentY += 6 * scale;
+  currentY += spacingBeforeFields * scale;
 
-  // Fields
+  // Fields - Match HTML format with aligned colons
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
   const fieldFont = `${renderFieldFontSize}px Arial, sans-serif`;
   const renderFieldLineHeight = renderFieldFontSize * 1.4;
@@ -395,46 +425,63 @@ export async function renderProductToCanvas(
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
 
-  const labelWidth = 90 * scale; // Matching preview modal label width
+  // Measure the longest label to align colons
+  const labels = ['Colour', 'Package', 'Age Group'];
+  let maxLabelWidth = 0;
+  labels.forEach(label => {
+    const metrics = ctx.measureText(label);
+    maxLabelWidth = Math.max(maxLabelWidth, metrics.width);
+  });
+
+  const fieldsLeftPadding = 24 * scale; // Increased left padding for fields
+  const colonX = fieldsLeftPadding + maxLabelWidth + 6 * scale; // Colon position aligned
+  const valueX = colonX + 16 * scale; // Space after colon
 
   if (product.field1) {
-    ctx.fillText('Colour:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
-    ctx.fillText(product.field1, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Colour', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(product.field1, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field2) {
-    ctx.fillText('Package:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Package', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field2Text = `${product.field2} ${product.field2Unit || ''}`;
-    ctx.fillText(field2Text, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field2Text, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field3) {
-    ctx.fillText('Age Group:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Age Group', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field3Text = `${product.field3} ${product.field3Unit || ''}`;
-    ctx.fillText(field3Text, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field3Text, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
-  currentY += 6 * scale;
+  currentY += spacingAfterFields * scale;
 
   // ===== PRICE BAR =====
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
-    const renderPriceBarHeight = priceBarHeightBase * scale;
+    // Fill entire remaining canvas with price bar background to avoid gaps
+    const remainingHeight = canvasHeight - currentY;
     ctx.fillStyle = options.bgColor;
-    ctx.fillRect(0, currentY, canvasWidth, renderPriceBarHeight);
+    ctx.fillRect(0, currentY, canvasWidth, remainingHeight); // Fill to bottom of canvas
 
-    const priceFontSize = Math.floor(19 * scale);
+    const priceFontSize = Math.floor(18 * scale);
     const priceFont = `${priceFontSize}px Arial, sans-serif`;
     ctx.font = priceFont;
     ctx.fillStyle = options.fontColor;
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle'; // Perfect vertical centering
 
+    // Center price text vertically in the remaining space
+    const priceTextY = currentY + remainingHeight / 2; // Exact center without offset
     const priceText = `Price   :   ₹${product.price} ${product.priceUnit || ''}`;
-    ctx.fillText(priceText, canvasWidth / 2, currentY + renderPriceBarHeight / 2 + priceFontSize * 0.3);
+    ctx.fillText(priceText, canvasWidth / 2, priceTextY);
 
-    currentY += renderPriceBarHeight;
+    currentY += remainingHeight;
   }
 
   // ===== WATERMARK =====
@@ -458,7 +505,17 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
 
-    switch (watermarkConfig.position) {
+    // Normalize position value (handle hyphens, underscores, and camelCase)
+    let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString().toLowerCase();
+    // Convert underscores and camelCase to hyphens
+    normalizedPosition = normalizedPosition
+      .replace(/_/g, '-')
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .toLowerCase();
+
+    console.log(`[Watermark Position] Config: ${watermarkConfig.position}, Normalized: ${normalizedPosition}`);
+
+    switch (normalizedPosition) {
       case 'top-left':
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';

@@ -148,16 +148,85 @@ export async function handleShare({
       console.log(`   [${idx + 1}] ${uri.substring(0, 100)}${uri.length > 100 ? '...' : ''}`);
     });
 
-    await Share.share({
-      files: fileUris,
-      dialogTitle: "Share Products",
-    });
+    // Try native Share API first (works on mobile)
+    try {
+      await Share.share({
+        files: fileUris,
+        dialogTitle: "Share Products",
+      });
 
-    console.log("✅ Share successful!", fileUris.length, "products");
-    console.log(`\n📊 Summary: Successfully shared ${fileUris.length} out of ${selected.length} selected products`);
+      console.log("✅ Share successful!", fileUris.length, "products");
+      console.log(`\n📊 Summary: Successfully shared ${fileUris.length} out of ${selected.length} selected products`);
+    } catch (nativeShareErr) {
+      console.warn("⚠️ Native Share API failed, attempting fallback...", nativeShareErr);
+
+      // Fallback: For web environments or when native share is unavailable
+      // Try using Web Share API if available
+      if (navigator.share && fileUris.length > 0) {
+        try {
+          // Try web share API
+          const dataUrl = fileUris[0]; // Use first image
+          if (dataUrl.startsWith('data:')) {
+            // Convert data URL to blob
+            const res = await fetch(dataUrl);
+            const blob = await res.blob();
+            const file = new File([blob], `product_${Date.now()}.png`, { type: 'image/png' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: 'CatShare Products',
+                text: `Sharing ${fileUris.length} product${fileUris.length > 1 ? 's' : ''}`,
+              });
+              console.log("✅ Web Share API successful!");
+            } else {
+              throw new Error('Web Share API cannot share files');
+            }
+          } else {
+            // Try sharing as URL if it's a file URI
+            await navigator.share({
+              title: 'CatShare Products',
+              text: `Sharing ${fileUris.length} product${fileUris.length > 1 ? 's' : ''}`,
+              url: window.location.href,
+            });
+            console.log("✅ Web Share API successful (URL fallback)!");
+          }
+        } catch (webShareErr) {
+          console.warn("⚠️ Web Share API also failed, trying download fallback...", webShareErr);
+
+          // Final fallback: Download the first image as a file
+          if (fileUris.length > 0 && fileUris[0].startsWith('data:')) {
+            const link = document.createElement('a');
+            link.href = fileUris[0];
+            link.download = `product_${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            console.log("✅ Downloaded image as fallback");
+            alert(`✅ Image download started!\n\nNote: ${fileUris.length} product${fileUris.length > 1 ? 's' : ''} ready. Use your device's native share option from the downloaded file.`);
+          } else {
+            throw webShareErr;
+          }
+        }
+      } else {
+        // No Share API available, use download fallback
+        if (fileUris.length > 0 && fileUris[0].startsWith('data:')) {
+          const link = document.createElement('a');
+          link.href = fileUris[0];
+          link.download = `product_${Date.now()}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          console.log("✅ Downloaded image as fallback (no Share API)");
+          alert(`✅ Image download started!\n\nNote: ${fileUris.length} product${fileUris.length > 1 ? 's' : ''} ready. Use your device's native share option from the downloaded file.`);
+        } else {
+          throw new Error('No Share API available and unable to download files');
+        }
+      }
+    }
   } catch (err) {
-    console.error("❌ Share failed:", err);
+    console.error("❌ Share/Download failed:", err);
     console.log(`\n📊 Share Summary: Successfully prepared ${fileUris.length} files but share was cancelled or failed`);
-    alert("Sharing failed: " + (err as Error).message);
+    alert("Sharing failed: " + (err as Error).message + "\n\nTry saving the image and share it manually using your device's sharing options.");
   }
 }

@@ -67,6 +67,7 @@ const { showToast } = useToast();
   try {
     const zip = new JSZip();
     let hasImages = false;
+    let totalSize = 0;
 
     // Get all catalogues dynamically
     const catalogues = getAllCatalogues();
@@ -88,12 +89,18 @@ const { showToast } = useToast();
 
         for (const file of files.files) {
           if (file.name.endsWith(".png")) {
-            const fileData = await Filesystem.readFile({
-              path: `${folderName}/${file.name}`,
-              directory: Directory.External,
-            });
-            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
-            hasImages = true;
+            try {
+              const fileData = await Filesystem.readFile({
+                path: `${folderName}/${file.name}`,
+                directory: Directory.External,
+              });
+              zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+              totalSize += fileData.data.length;
+              hasImages = true;
+            } catch (readErr) {
+              console.warn(`Could not read file ${folderName}/${file.name}:`, readErr.message);
+              // Skip individual files that fail to read
+            }
           }
         }
       } catch (err) {
@@ -107,39 +114,116 @@ const { showToast } = useToast();
       return;
     }
 
-    const blob = await zip.generateAsync({ type: "blob" });
-    const reader = new FileReader();
+    console.log(`📦 Creating ZIP with ${totalSize} bytes of image data...`);
 
-    reader.onloadend = async () => {
-      const base64Data = reader.result.split(",")[1];
+    try {
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      console.log(`✅ ZIP created successfully. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
 
       const now = new Date();
       const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
       const filename = `catshare-rendered-images-${timestamp}.zip`;
 
       try {
-        await Filesystem.writeFile({
-          path: filename,
-          data: base64Data,
-          directory: Directory.External,
-        });
+        // For large files, skip FileSharer and use browser download directly
+        // FileSharer has issues with files larger than ~10MB base64 (~7.5MB binary)
+        const MAX_FILESHARER_SIZE = 10 * 1024 * 1024; // 10MB base64
 
-        await FileSharer.share({
-          filename,
-          base64Data,
-          contentType: "application/zip",
-        });
+        if (blob.size > 5 * 1024 * 1024) {
+          // File is large (>5MB), use browser download directly
+          console.log(`📦 File is large (${(blob.size / 1024 / 1024).toFixed(2)}MB), using browser download...`);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          // Keep URL object alive briefly, then revoke
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          showToast("ZIP file downloaded to your device!", "success");
+        } else {
+          // File is smaller, try FileSharer for better mobile experience
+          console.log(`📝 Writing file: ${filename}`);
 
-        showToast("Rendered images downloaded successfully!", "success");
-      } catch (err) {
-        showToast("Failed to download images: " + err.message, "error");
+          // Convert blob to base64 more safely for smaller chunks
+          const arrayBuffer = await blob.arrayBuffer();
+          const bytes = new Uint8Array(arrayBuffer);
+
+          // Convert to base64 in chunks to avoid "Invalid array length" error
+          let binary = '';
+          const chunkSize = 8192; // Process in 8KB chunks
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          const base64Data = btoa(binary);
+
+          // Safety check: if base64 is too large, fall back to direct download
+          if (base64Data.length > MAX_FILESHARER_SIZE) {
+            console.warn(`⚠️ Base64 data too large for FileSharer (${(base64Data.length / 1024 / 1024).toFixed(2)}MB), using browser download...`);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast("ZIP file downloaded to your device!", "success");
+            return;
+          }
+
+          console.log(`📤 Sharing file via FileSharer...`);
+          try {
+            await FileSharer.share({
+              filename,
+              base64Data,
+              contentType: "application/zip",
+            });
+            showToast("Rendered images downloaded successfully!", "success");
+          } catch (fileSharerErr) {
+            console.warn(`⚠️ FileSharer failed, falling back to browser download:`, fileSharerErr.message);
+
+            // FileSharer failed, use browser download as fallback
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast("ZIP file downloaded to your device!", "success");
+          }
+        }
+      } catch (shareErr) {
+        console.error("Share/Write error:", shareErr);
+
+        // Final fallback: Try direct download without anything else
+        try {
+          console.log(`📥 Using final fallback: direct blob download...`);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          showToast("ZIP file downloaded to your device!", "success");
+        } catch (fallbackErr) {
+          console.error("All download methods failed:", fallbackErr);
+          showToast("Failed to download images: " + (fallbackErr.message || shareErr.message), "error");
+        }
       }
-    };
-
-    reader.readAsDataURL(blob);
+    } catch (genErr) {
+      console.error("ZIP generation failed:", genErr);
+      showToast("Failed to create ZIP: " + genErr.message, "error");
+    }
   } catch (err) {
     console.error("Download rendered images failed:", err);
-    showToast("Failed to download rendered images", "error");
+    showToast("Failed to download rendered images: " + err.message, "error");
   }
 };
 
