@@ -846,7 +846,7 @@ const exportProductsToCSV = (products) => {
       Created by <span className="font-semibold text-gray-600">BazelWings</span>
     </div>
   </div>
-          </div>
+</div>
         </div>
 
         {/* Legal Links - Fixed at Bottom */}
