@@ -207,7 +207,7 @@ export async function renderProductToCanvas(
   // Image section: baseWidth / cropAspectRatio
   // Details section: padding + title + subtitle + fields + price bar
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
-  const detailsPaddingBase = 10;
+  const detailsPaddingBase = 8; // Matching preview modal padding
   const titleFontSizeBase = 28;
   const subtitleFontSizeBase = 18;
   const fieldFontSizeBase = 17;
