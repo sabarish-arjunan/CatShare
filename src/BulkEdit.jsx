@@ -33,6 +33,7 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const [selectedCatalogueId, setSelectedCatalogueId] = useState(initialCatalogueId || null);
   const [selectedCatalogueConfig, setSelectedCatalogueConfig] = useState(null);
   const [catalogues, setCatalogues] = useState([]);
+  const [filledFromMaster, setFilledFromMaster] = useState({}); // Track which fields are filled from master
   const { showToast } = useToast();
 
   // Use initial values or selected values
