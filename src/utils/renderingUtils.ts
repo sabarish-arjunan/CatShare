@@ -106,7 +106,8 @@ export async function renderProductImageOnTheFly(
     // Get watermark settings
     const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
     const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
-    const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
+    // Get watermark position as plain string (not JSON)
+    const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
 
     const productData = {
       name: catalogueData.name,
