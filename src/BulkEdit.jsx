@@ -123,7 +123,7 @@ useEffect(() => {
 
   // Ensure all fields have proper defaults
   const ensureFieldDefaults = (item) => {
-    return {
+    const defaults = {
       id: item.id,
       name: item.name ?? "",
       subtitle: item.subtitle ?? "",
@@ -145,12 +145,27 @@ useEffect(() => {
       resellUnit: item.resellUnit ?? "/ piece",
       retail: item.retail ?? "",
       retailUnit: item.retailUnit ?? "/ piece",
+      // Initialize all possible price fields to avoid undefined
+      price: item.price ?? "",
+      priceUnit: item.priceUnit ?? "/ piece",
+      price1: item.price1 ?? "",
+      price1Unit: item.price1Unit ?? "/ piece",
+      price2: item.price2 ?? "",
+      price2Unit: item.price2Unit ?? "/ piece",
       wholesaleStock: item.wholesaleStock ?? "",
       resellStock: item.resellStock ?? "",
+      retailStock: item.retailStock ?? "",
       stock: item.stock ?? "",
       image: item.image ?? "",
       imagePath: item.imagePath ?? "",
-      ...item, // Keep any other properties
+    };
+
+    // Merge with item, but don't override defaults with undefined values
+    return {
+      ...defaults,
+      ...Object.fromEntries(
+        Object.entries(item).filter(([_, v]) => v !== undefined && v !== null)
+      ),
     };
   };
 
