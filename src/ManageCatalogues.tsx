@@ -184,6 +184,13 @@ export default function ManageCatalogues({
     try {
       await Haptics.impact({ style: ImpactStyle.Heavy });
 
+      // 🧹 Clean up rendered images for this catalogue before deleting definition
+      try {
+        await deleteRenderedImagesFromFolder(catalogue.folder || catalogue.label);
+      } catch (err) {
+        console.warn(`⚠️ Failed to clean up folder for catalogue ${catalogue.label}:`, err);
+      }
+
       const success = deleteCatalogue(catalogue.id);
       if (success) {
         const updated = getAllCatalogues();
