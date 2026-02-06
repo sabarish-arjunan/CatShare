@@ -407,7 +407,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       {tab === "products" && (
         <>
-          <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+          <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
           <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         
           {/* Menu Button */}
