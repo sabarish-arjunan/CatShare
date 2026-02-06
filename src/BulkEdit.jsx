@@ -64,27 +64,37 @@ useEffect(() => {
 
     const normalized = {
       ...p,
+      // Initialize all fields with defaults to avoid uncontrolled input warnings
+      name: p.name || "",
+      subtitle: p.subtitle || "",
+      badge: p.badge || "",
+      category: p.category || [],
       // For new catalogues, start with empty fields; for existing catalogues, use their data
       field1: isNewCatalogue ? "" : (p.field1 || p.color || ""),
+      color: isNewCatalogue ? "" : (p.field1 || p.color || ""),
       field2: isNewCatalogue ? "" : (p.field2 || p.package || ""),
       field2Unit: isNewCatalogue ? "pcs / set" : (p.field2Unit || p.packageUnit || "pcs / set"),
+      package: isNewCatalogue ? "" : (p.field2 || p.package || ""),
+      packageUnit: isNewCatalogue ? "pcs / set" : (p.field2Unit || p.packageUnit || "pcs / set"),
       field3: isNewCatalogue ? "" : (p.field3 || p.age || ""),
       field3Unit: isNewCatalogue ? "months" : (p.field3Unit || p.ageUnit || "months"),
+      age: isNewCatalogue ? "" : (p.field3 || p.age || ""),
+      ageUnit: isNewCatalogue ? "months" : (p.field3Unit || p.ageUnit || "months"),
       wholesaleStock:
         typeof p.wholesaleStock === "boolean"
           ? p.wholesaleStock ? "in" : "out"
-          : p.wholesaleStock,
+          : p.wholesaleStock || "",
       resellStock:
         typeof p.resellStock === "boolean"
           ? p.resellStock ? "in" : "out"
-          : p.resellStock,
+          : p.resellStock || "",
     };
 
     // Handle catalogue-specific stock field
     if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
       normalized[stockField] = typeof p[stockField] === "boolean"
         ? p[stockField] ? "in" : "out"
-        : p[stockField];
+        : (p[stockField] || "");
     }
 
     // Add price field for the current catalogue - start empty for new catalogues
