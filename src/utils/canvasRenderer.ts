@@ -496,7 +496,10 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
 
-    switch (watermarkConfig.position) {
+    // Normalize position value (handle both hyphens and underscores)
+    const normalizedPosition = watermarkConfig.position?.replace(/_/g, '-') || 'bottom-center';
+
+    switch (normalizedPosition) {
       case 'top-left':
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
