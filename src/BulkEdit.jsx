@@ -439,7 +439,7 @@ useEffect(() => {
 
             {selectedFields.includes("name") && (
               <input
-                value={item.name || ""}
+                value={item.name}
                 onChange={(e) => handleFieldChange(item.id, "name", e.target.value)}
                 className="border rounded px-2 py-1"
               />
@@ -447,7 +447,7 @@ useEffect(() => {
 
             {selectedFields.includes("subtitle") && (
               <input
-                value={item.subtitle || ""}
+                value={item.subtitle}
                 onChange={(e) => handleFieldChange(item.id, "subtitle", e.target.value)}
                 className="border rounded px-2 py-1"
               />
@@ -455,7 +455,7 @@ useEffect(() => {
 
             {selectedFields.includes("field1") && (
               <input
-                value={item.field1 || item.color || ""}
+                value={item.field1}
                 onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
@@ -464,12 +464,12 @@ useEffect(() => {
             {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.field2 || item.package || ""}
+      value={item.field2}
       onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
       className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.field2Unit || item.packageUnit || ""}
+      value={item.field2Unit}
       onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
@@ -484,12 +484,12 @@ useEffect(() => {
             {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.field3 || item.age || ""}
+                  value={item.field3}
                   onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.field3Unit || item.ageUnit || ""}
+                  value={item.field3Unit}
                   onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -503,7 +503,7 @@ useEffect(() => {
             {priceField && selectedFields.includes(priceField) && (
               <div className="flex gap-2">
                 <input
-                  value={item[priceField] || ""}
+                  value={item[priceField]}
                   onChange={(e) => handleFieldChange(item.id, priceField, e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                   placeholder="Price"
