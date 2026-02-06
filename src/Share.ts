@@ -76,7 +76,7 @@ export async function handleShare({
           return null;
         }
 
-        // Store on-the-fly rendered image in localStorage for future use
+        // Store on-the-fly rendered image in localStorage AND filesystem for future use
         try {
           const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, "");
           const storageKey = `rendered::${catalogueLabel}::${id}`;
@@ -87,6 +87,20 @@ export async function handleShare({
             catalogueLabel,
           }));
           console.log(`💾 Stored on-the-fly rendered image in localStorage: ${storageKey}`);
+
+          // Also save to filesystem for shareable file URI
+          try {
+            const cachedFileName = `product_${id}_${catalogueLabel}.png`;
+            const cachedFilePath = `${targetFolder}/${cachedFileName}`;
+            await Filesystem.writeFile({
+              path: cachedFilePath,
+              data: base64Data,
+              directory: Directory.External,
+            });
+            console.log(`💾 Saved on-the-fly rendered image to filesystem: ${cachedFilePath}`);
+          } catch (fsErr) {
+            console.warn(`⚠️ Could not save rendered image to filesystem:`, fsErr);
+          }
         } catch (storageErr) {
           console.warn(`⚠️ Could not store rendered image in localStorage:`, storageErr);
         }
