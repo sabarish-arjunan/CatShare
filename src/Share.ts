@@ -78,7 +78,22 @@ export async function handleShare({
           continue;
         }
 
-        console.log(`✅ Product ${id} rendered on-the-fly successfully`);
+        // Store on-the-fly rendered image in localStorage for future use
+        try {
+          const base64Data = imageDataUrl.replace(/^data:image\/png;base64,/, "");
+          const storageKey = `rendered::${catalogueLabel}::${id}`;
+          localStorage.setItem(storageKey, JSON.stringify({
+            base64: base64Data,
+            timestamp: Date.now(),
+            filename: `product_${id}_${catalogueLabel}.png`,
+            catalogueLabel,
+          }));
+          console.log(`💾 Stored on-the-fly rendered image in localStorage: ${storageKey}`);
+        } catch (storageErr) {
+          console.warn(`⚠️ Could not store rendered image in localStorage:`, storageErr);
+        }
+
+        console.log(`✅ Product ${id} rendered on-the-fly successfully and cached`);
       }
 
       // Convert data URL to file URI for better Share API compatibility
