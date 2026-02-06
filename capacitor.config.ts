@@ -4,11 +4,15 @@ const config: CapacitorConfig = {
   appId: 'com.catshare.official',
   appName: 'CatShare',
   webDir: 'dist',
-  bundledWebRuntime: false,
-  server: {
-    cleartext: false,
-  },
   plugins: {
+    LocalNotifications: {
+      smallIcon: 'ic_launcher_foreground',
+      iconColor: '#3b82f6',
+      sound: 'notification',
+    },
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
     StatusBar: {
       overlay: false, // Do not draw under the status bar; system reserves inset
     },

@@ -1,16 +1,114 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
+import { safeGetFromStorage } from "./utils/safeStorage";
+import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
+
+/**
+ * Rename rendered images when catalogue name changes
+ * Moves files from old folder/name pattern to new folder/name pattern
+ */
+export async function renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel) {
+  if (!oldFolder || !newFolder) return;
+
+  try {
+    console.log(`📁 Renaming rendered images from folder "${oldFolder}" (label: "${oldLabel}") to folder "${newFolder}" (label: "${newLabel}")`);
+
+    // List all files in the old folder
+    let oldFiles = [];
+    try {
+      const result = await Filesystem.readdir({
+        path: oldFolder,
+        directory: Directory.External,
+      });
+      oldFiles = result.files || [];
+    } catch (err) {
+      // Old folder might not exist (no images rendered yet)
+      if (err.code !== 'NotFound') {
+        console.warn(`⚠️  Could not read old folder ${oldFolder}:`, err.message);
+      }
+      return;
+    }
+
+    if (oldFiles.length === 0) {
+      console.log(`✅ No files found in old folder: ${oldFolder}`);
+      return;
+    }
+
+    // Process each file
+    for (const file of oldFiles) {
+      try {
+        const oldPath = `${oldFolder}/${file.name}`;
+
+        // Extract product ID from filename pattern: product_<id>_<label>.png
+        const fileMatch = file.name.match(/^product_([^_]+)_.*\.png$/);
+        if (!fileMatch) {
+          console.warn(`  ⚠️  Skipping file with unexpected format: ${file.name}`);
+          continue;
+        }
+
+        const productId = fileMatch[1];
+        const newFileName = `product_${productId}_${newLabel}.png`;
+        const newPath = `${newFolder}/${newFileName}`;
+
+        // Read the file from old location
+        const fileData = await Filesystem.readFile({
+          path: oldPath,
+          directory: Directory.External,
+        });
+
+        // Write to new location with new filename
+        await Filesystem.writeFile({
+          path: newPath,
+          data: fileData.data,
+          directory: Directory.External,
+          recursive: true,
+        });
+
+        console.log(`  ✓ Renamed: ${file.name} → ${newFileName}`);
+
+        // Delete the old file
+        try {
+          await Filesystem.deleteFile({
+            path: oldPath,
+            directory: Directory.External,
+          });
+          console.log(`    ✓ Cleaned up old file: ${file.name}`);
+        } catch (delErr) {
+          console.warn(`    ⚠️  Could not delete old file ${file.name}:`, delErr.message);
+        }
+      } catch (err) {
+        console.warn(`  ⚠️  Could not process file ${file.name}:`, err.message);
+      }
+    }
+
+    // Delete the now-empty old folder
+    try {
+      await Filesystem.rmdir({
+        path: oldFolder,
+        directory: Directory.External,
+        recursive: false, // Only delete if folder is empty
+      });
+      console.log(`✅ Deleted empty old folder: ${oldFolder}`);
+    } catch (rmErr) {
+      // Folder might not be empty or other issues, but this is not critical
+      console.warn(`⚠️  Could not delete old folder ${oldFolder}:`, rmErr.message);
+    }
+
+    console.log(`✅ Renaming completed for catalogue images`);
+  } catch (err) {
+    console.warn(`⚠️  Could not rename catalogue images:`, err.message);
+  }
+}
 
 /**
  * Delete all rendered images from a folder
- * Used when catalogue name changes to clean up old folder
+ * Used when catalogue is deleted
  */
 export async function deleteRenderedImagesFromFolder(folderName) {
   if (!folderName) return;
 
   try {
-    console.log(`🗑️  Cleaning up old rendered images from folder: ${folderName}`);
+    console.log(`🗑️  Cleaning up rendered images from folder: ${folderName}`);
 
     // List all files in the folder
     const result = await Filesystem.readdir({
@@ -77,13 +175,22 @@ export async function saveRenderedImage(product, type, units = {}) {
   };
 
   // ✅ Load image from Filesystem if not present
+  console.log(`🖼️ Product image status:`, {
+    hasImage: !!product.image,
+    hasImagePath: !!product.imagePath,
+    imagePath: product.imagePath,
+    imageLength: product.image?.length,
+  });
+
   if (!product.image && product.imagePath) {
     try {
+      console.log(`📂 Loading image from filesystem: ${product.imagePath}`);
       const res = await Filesystem.readFile({
         path: product.imagePath,
         directory: Directory.Data,
       });
       product.image = `data:image/png;base64,${res.data}`;
+      console.log(`✅ Image loaded from filesystem. Base64 length: ${product.image.length}`);
     } catch (err) {
       console.error("❌ Failed to load image for rendering:", err.message);
       return;
@@ -93,27 +200,19 @@ export async function saveRenderedImage(product, type, units = {}) {
   // ✅ Ensure product.image exists before rendering
   if (!product.image) {
     console.error("❌ Failed to load image for rendering: File does not exist.");
+    console.error("Product object:", {
+      id: product.id,
+      name: product.name,
+      imagePath: product.imagePath,
+      hasImage: !!product.image,
+    });
     return;
   }
 
-  const wrapper = document.createElement("div");
-  Object.assign(wrapper.style, {
-    position: "absolute",
-    top: "0",
-    left: "0",
-    width: "330px",
-    backgroundColor: "transparent",
-    opacity: "0",
-    pointerEvents: "none",
-    overflow: "visible",
-    padding: "0",
-    boxSizing: "border-box",
-  });
-
-  const container = document.createElement("div");
-  container.className = `full-detail-${id}-${type}`;
-  container.style.backgroundColor = getLighterColor(bgColor);
-  container.style.overflow = "visible";
+  // Calculate dimensions based on crop aspect ratio
+  const cropAspectRatio = product.cropAspectRatio || 1;
+  const baseWidth = 330;
+  const baseHeight = baseWidth / cropAspectRatio;
 
   // Get catalogue-specific data if catalogueId is provided
   let catalogueData = product;
@@ -121,16 +220,18 @@ export async function saveRenderedImage(product, type, units = {}) {
     const catData = getCatalogueData(product, units.catalogueId);
     catalogueData = {
       ...product,
-      field1: catData.field1 || product.field1 || product.color || "",
-      field2: catData.field2 || product.field2 || product.package || "",
-      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
-      field3: catData.field3 || product.field3 || product.age || "",
-      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
-      // Include all catalogue price fields
-      price1: catData.price1 || product.price1 || product.wholesale || "",
-      price1Unit: catData.price1Unit || product.price1Unit || product.wholesaleUnit || "/ piece",
-      price2: catData.price2 || product.price2 || product.resell || "",
-      price2Unit: catData.price2Unit || product.price2Unit || product.resellUnit || "/ piece",
+      // Use only catalogue-specific data, fall back only to legacy field names (not other catalogues)
+      // Check explicitly for undefined/null, not just falsy (to preserve empty strings as intentional)
+      field1: catData.field1 !== undefined && catData.field1 !== null ? catData.field1 : (product.color || ""),
+      field2: catData.field2 !== undefined && catData.field2 !== null ? catData.field2 : (product.package || ""),
+      field2Unit: catData.field2Unit !== undefined && catData.field2Unit !== null ? catData.field2Unit : (product.packageUnit || "pcs / set"),
+      field3: catData.field3 !== undefined && catData.field3 !== null ? catData.field3 : (product.age || ""),
+      field3Unit: catData.field3Unit !== undefined && catData.field3Unit !== null ? catData.field3Unit : (product.ageUnit || "months"),
+      // Include all catalogue price fields - fall back to legacy names only
+      price1: catData.price1 !== undefined && catData.price1 !== null ? catData.price1 : (product.wholesale || ""),
+      price1Unit: catData.price1Unit !== undefined && catData.price1Unit !== null ? catData.price1Unit : (product.wholesaleUnit || "/ piece"),
+      price2: catData.price2 !== undefined && catData.price2 !== null ? catData.price2 : (product.resell || ""),
+      price2Unit: catData.price2Unit !== undefined && catData.price2Unit !== null ? catData.price2Unit : (product.resellUnit || "/ piece"),
     };
   }
 
@@ -142,280 +243,157 @@ export async function saveRenderedImage(product, type, units = {}) {
   const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
   const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
-  const priceBar = document.createElement("h2");
-  Object.assign(priceBar.style, {
-    backgroundColor: bgColor,
-    color: fontColor,
-    padding: "8px",
-    textAlign: "center",
-    fontWeight: "normal",
-    fontSize: "19px",
-    margin: 0,
-    lineHeight: 1.2,
-  });
-  priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
-
-  // Price bar at bottom for all catalogues
-  const isPriceOnTop = false;
-
-  if (isPriceOnTop) {
-    container.appendChild(priceBar); // Price on top
-  }
-
-  const imageShadowWrap = document.createElement("div");
-  Object.assign(imageShadowWrap.style, {
-    boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-    marginBottom: "1px",
-    borderRadius: "0",
-  });
-  imageShadowWrap.id = `image-shadow-wrap-${id}`;
-
-  const imageWrap = document.createElement("div");
-  Object.assign(imageWrap.style, {
-    backgroundColor: imageBg,
-    textAlign: "center",
-    padding: "16px",
-    position: "relative",
-    overflow: "visible",
-  });
-  imageWrap.id = `image-wrap-${id}`;
-
-  const img = document.createElement("img");
-  img.alt = catalogueData.name;
-  img.style.maxWidth = "100%";
-  img.style.maxHeight = "300px";
-  img.style.objectFit = "contain";
-  img.style.margin = "0 auto";
-  imageWrap.appendChild(img);
-  img.src = catalogueData.image || product.image;
-
-  await new Promise((resolve) => {
-    img.onload = resolve;
-    img.onerror = resolve;
-  });
-
-  if (catalogueData.badge) {
-    const badge = document.createElement("div");
-    Object.assign(badge.style, {
-      position: "absolute",
-      bottom: "12px",
-      right: "12px",
-      backgroundColor: badgeBg,
-      color: badgeText,
-      fontSize: "13px",
-      fontWeight: 600,
-      padding: "6px 10px",
-      borderRadius: "999px",
-      opacity: 0.95,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-      border: `1px solid ${badgeBorder}`,
-      letterSpacing: "0.5px",
-    });
-    badge.innerText = catalogueData.badge.toUpperCase();
-    imageWrap.appendChild(badge);
-  }
-
-  imageShadowWrap.appendChild(imageWrap);
-  container.appendChild(imageShadowWrap);
-
-  const details = document.createElement("div");
-  details.style.backgroundColor = getLighterColor(bgColor);
-  details.style.color = fontColor;
-  details.style.padding = "10px";
-  details.style.fontSize = "17px";
-  details.innerHTML = `
-    <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
-      ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
-    </div>
-    <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field1}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field2} ${catalogueData.field2Unit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${catalogueData.field3} ${catalogueData.field3Unit}</p>
-    </div>
-  `;
-  container.appendChild(details);
-
-  if (!isPriceOnTop) {
-    container.appendChild(priceBar); // Price at bottom
-  }
-
-  wrapper.appendChild(container);
-  document.body.appendChild(wrapper);
-
-  await new Promise((r) => setTimeout(r, 30));
-  wrapper.style.opacity = "1";
-
   try {
-    const canvas = await html2canvas(wrapper, {
-      scale: 3,
-      backgroundColor: "#ffffff",
-    });
+    // Prepare product data for Canvas rendering
+    const renderScale = 3;
 
-    const croppedCanvas = document.createElement("canvas");
-    croppedCanvas.width = canvas.width;
-    croppedCanvas.height = canvas.height - 3;
+    console.log(`🎨 Starting Canvas render for product: ${product.name || product.id}`);
+    console.log(`🖼️ Image source: ${catalogueData.image || product.image}`);
 
-    const ctx = croppedCanvas.getContext("2d");
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(canvas, 0, 0);
+    const productData = {
+      name: catalogueData.name,
+      subtitle: catalogueData.subtitle,
+      image: catalogueData.image || product.image,
+      field1: catalogueData.field1,
+      field2: catalogueData.field2,
+      field2Unit: catalogueData.field2Unit,
+      field3: catalogueData.field3,
+      field3Unit: catalogueData.field3Unit,
+      price: price !== "" && price !== 0 ? price : undefined,
+      priceUnit: price ? priceUnit : undefined,
+      badge: catalogueData.badge,
+      cropAspectRatio: cropAspectRatio,
+    };
 
-    // Add watermark - Only if enabled in settings
-    const showWatermark = localStorage.getItem("showWatermark");
-    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : false; // Default: false (disabled)
+    // Get watermark settings
+    const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
+    const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
+    const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 
-    if (isWatermarkEnabled) {
-      // Get custom watermark text from localStorage, default to "Created using CatShare"
-      const watermarkText = localStorage.getItem("watermarkText") || "Created using CatShare";
-      const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
-
-      // Get the imageWrap and imageShadowWrap elements to determine position in the rendered canvas
-      const imageWrapEl = document.getElementById(`image-wrap-${id}`);
-      const imageShadowWrapEl = document.getElementById(`image-shadow-wrap-${id}`);
-      const containerEl = imageWrapEl?.closest(`.full-detail-${id}-${type}`);
-
-      if (imageWrapEl && imageShadowWrapEl && containerEl) {
-        // html2canvas renders at 3x scale
-        const scale = 3;
-        const containerWidth = 330; // wrapper width in px
-        const scaledContainerWidth = containerWidth * scale;
-
-        // Get the computed dimensions of the image wrap
-        const imageWrapStyle = window.getComputedStyle(imageWrapEl);
-        const imageShadowWrapStyle = window.getComputedStyle(imageShadowWrapEl);
-        const imagePadding = 16; // padding in imageWrap
-
-        // Calculate dimensions accounting for all parent elements
-        const imageWrapWidth = containerWidth * scale; // Full container width
-
-        // Calculate offset from top
-        // For wholesale: priceBar (≈36px) + imageShadowWrap offset
-        // For resell: imageShadowWrap offset + other content
-        let imageWrapOffsetTop = 0;
-        let currentEl = imageShadowWrapEl;
-
-        // Sum up the heights of all previous siblings
-        while (currentEl.previousElementSibling) {
-          const prevEl = currentEl.previousElementSibling;
-          const prevHeight = prevEl.offsetHeight || 0;
-          imageWrapOffsetTop += prevHeight;
-          currentEl = prevEl;
-        }
-
-        imageWrapOffsetTop *= scale;
-
-        // Image section height includes padding and the image itself
-        const imageWrapHeight = imageWrapEl.offsetHeight * scale;
-        const imageWrapOffsetLeft = 0;
-
-        // Watermark font size should be relative to image section width
-        // Matches the preview sizing logic
-        const previewFontSize = 10; // Base font size in preview
-        const watermarkSize = previewFontSize * scale; // Scale up proportionally
-        ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
-
-        // Check if background is light or dark and set watermark color accordingly
-        const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
-        ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)";
-
-        // Calculate position based on watermarkPosition, relative to image section only
-        const padding = 10 * scale; // Scale padding to match canvas scale (50% towards corner)
-        let watermarkX, watermarkY;
-
-        switch(watermarkPosition) {
-          case "top-left":
-            ctx.textAlign = "left";
-            ctx.textBaseline = "top";
-            watermarkX = imageWrapOffsetLeft + padding;
-            watermarkY = imageWrapOffsetTop + padding;
-            break;
-          case "top-center":
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
-            watermarkY = imageWrapOffsetTop + padding;
-            break;
-          case "top-right":
-            ctx.textAlign = "right";
-            ctx.textBaseline = "top";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
-            watermarkY = imageWrapOffsetTop + padding;
-            break;
-          case "middle-left":
-            ctx.textAlign = "left";
-            ctx.textBaseline = "middle";
-            watermarkX = imageWrapOffsetLeft + padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
-            break;
-          case "middle-center":
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
-            break;
-          case "middle-right":
-            ctx.textAlign = "right";
-            ctx.textBaseline = "middle";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
-            break;
-          case "bottom-left":
-            ctx.textAlign = "left";
-            ctx.textBaseline = "bottom";
-            watermarkX = imageWrapOffsetLeft + padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
-            break;
-          case "bottom-right":
-            ctx.textAlign = "right";
-            ctx.textBaseline = "bottom";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
-            break;
-          case "bottom-center":
-          default:
-            ctx.textAlign = "center";
-            ctx.textBaseline = "bottom";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
-            break;
-        }
-
-        ctx.fillText(watermarkText, watermarkX, watermarkY);
-      }
+    // Render using Canvas API
+    let canvas;
+    try {
+      canvas = await renderProductToCanvas(productData, {
+        width: baseWidth,
+        scale: renderScale,
+        bgColor: bgColor,
+        imageBgColor: imageBg,
+        fontColor: fontColor,
+        backgroundColor: "#ffffff",
+      }, {
+        enabled: isWatermarkEnabled,
+        text: watermarkText,
+        position: watermarkPosition,
+      });
+      console.log(`✅ Canvas rendered successfully. Size: ${canvas.width}x${canvas.height}`);
+    } catch (renderErr) {
+      console.error(`❌ Canvas rendering failed:`, renderErr);
+      throw renderErr;
     }
 
-    const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
-    const filename = `product_${id}_${type}.png`;
+    let base64;
+    try {
+      base64 = canvasToBase64(canvas);
+      console.log(`✅ Canvas converted to base64. Length: ${base64.length} chars`);
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 conversion resulted in empty string");
+      }
+    } catch (b64Err) {
+      console.error(`❌ Base64 conversion failed:`, b64Err);
+      throw b64Err;
+    }
 
     // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
+    let catalogueLabel;
     if (units.folder) {
       // Folder name passed directly (set to catalogue name/label)
       folder = units.folder;
+      catalogueLabel = units.folder;
     } else if (units.catalogueLabel) {
       // Use catalogue label/name as folder name
       folder = units.catalogueLabel;
+      catalogueLabel = units.catalogueLabel;
     } else if (units.catalogueId) {
       // Fallback: use catalogue ID if label not provided
       folder = units.catalogueId;
+      catalogueLabel = units.catalogueId;
     } else {
       // Final fallback: use the type parameter as folder name
       // This ensures the correct folder is used even for old products
       folder = type;
+      catalogueLabel = type;
     }
 
-    await Filesystem.writeFile({
-      path: `${folder}/${filename}`,
-      data: base64,
-      directory: Directory.External,
-      recursive: true,
-    });
+    // Filename includes catalogue label for proper identification and organization
+    const filename = `product_${id}_${catalogueLabel}.png`;
 
-    console.log("✅ Image saved:", `${folder}/${filename}`);
+    const filePath = `${folder}/${filename}`;
+
+    try {
+      console.log(`📝 Writing file to: ${filePath}`);
+      console.log(`📁 Using directory: Directory.External (App-specific external storage)`);
+      console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`);
+      console.log(`📊 Base64 data details:`, {
+        length: base64?.length || 0,
+        isString: typeof base64 === 'string',
+        first20chars: base64?.substring(0, 20) || 'N/A',
+        isEmpty: !base64 || base64.length === 0,
+      });
+
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 data is empty - canvas may not have rendered correctly");
+      }
+
+      console.log(`📤 Starting writeFile operation...`);
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64,
+        directory: Directory.External,
+        recursive: true,
+      });
+
+      console.log("✅ Image saved successfully:", filePath);
+      console.log(`📝 Written base64 data length: ${base64.length} characters`);
+
+      // Verify the file was actually written
+      try {
+        console.log(`🔍 Verifying file at: ${filePath}`);
+        const stat = await Filesystem.stat({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`✅ File verified - exists at: ${filePath}`, stat);
+
+        // Try to get the file URI to see the actual path
+        try {
+          const uriResult = await Filesystem.getUri({
+            path: filePath,
+            directory: Directory.External,
+          });
+          console.log(`📍 File URI: ${uriResult.uri}`);
+        } catch (uriErr) {
+          console.log(`⚠️ Could not get file URI: ${uriErr.message}`);
+        }
+      } catch (verifyErr) {
+        console.error(`❌ CRITICAL: File write succeeded but file not found during verification: ${filePath}`, verifyErr);
+        console.error(`This suggests the file was saved to a different location than expected`);
+        throw new Error(`File verification failed - files may not be saved to correct location: ${verifyErr.message}`);
+      }
+    } catch (writeErr) {
+      console.error(`❌ Failed to write file: ${filePath}`, writeErr);
+      console.error(`📋 Error details:`, {
+        message: writeErr.message,
+        code: writeErr.code,
+        folder,
+        filename,
+        directorySetting: "Directory.External",
+        androidPath: `/storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`
+      });
+      throw writeErr;
+    }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
-  } finally {
-    document.body.removeChild(wrapper);
+    throw err; // Rethrow so caller knows rendering failed
   }
 }

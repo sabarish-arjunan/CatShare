@@ -9,12 +9,12 @@ import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage, MdSettings } from "react-icons/md";
+import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage, MdSettings, MdPublic } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
-import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues } from "./config/catalogueConfig";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
 
@@ -224,7 +224,7 @@ const handleBackup = async () => {
       await Filesystem.writeFile({
         path: filename,
         data: base64Data,
-        directory: Directory.External,
+        directory: Directory.Documents,
       });
 
       await FileSharer.share({
@@ -422,6 +422,10 @@ const exportProductsToCSV = (products) => {
         }
       }
 
+      // Auto-create legacy Resell catalogue if the backup has resell data (backward compatibility)
+      // This ensures old data from the 2-catalogue system is accessible in the new single-catalogue system
+      createLegacyResellCatalogueIfNeeded(rebuilt);
+
       // Re-run migrations after catalogues definition has been restored
       // This ensures all products have the proper field structure for the restored catalogues
       ensureProductsHaveStockFields();
@@ -533,6 +537,17 @@ const exportProductsToCSV = (products) => {
 >
   <MdSettings className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Settings</span>
+</button>
+
+<button
+  onClick={() => {
+    navigate("/website");
+    onClose();
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition shadow-md"
+>
+  <MdPublic className="text-white text-[18px]" />
+  <span className="text-sm font-medium">Website</span>
 </button>
 
 <button

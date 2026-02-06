@@ -9,8 +9,12 @@ import {
 import { App as CapacitorApp } from "@capacitor/app";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
+import { KeepAwake } from '@capacitor-community/keep-awake';
 import { initializeFieldSystem } from "./config/initializeFields";
 import { runMigrations } from "./utils/dataMigration";
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { initializeFirebaseMessaging, triggerBackgroundRendering } from "./services/firebaseService";
+import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -22,25 +26,28 @@ import WatermarkSettings from "./pages/WatermarkSettings";
 import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
+import Website from "./Website";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering.ts";
+import { getAllCatalogues } from "./config/catalogueConfig";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
   const location = useLocation();
   const [imageMap, setImageMap] = useState({});
   const [products, setProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("products") || "[]")
+    safeGetFromStorage("products", [])
   );
   const [deletedProducts, setDeletedProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("deletedProducts") || "[]")
+    safeGetFromStorage("deletedProducts", [])
   );
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : false;
+    return safeGetFromStorage("darkMode", false);
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
@@ -49,59 +56,53 @@ function AppWithBackHandler() {
 
   const isNative = Capacitor.getPlatform() !== "web";
 
-  // Handle rendering all PNGs
+
+  // Handle rendering all PNGs using background rendering service
   const handleRenderAllPNGs = useCallback(async () => {
-    const all = JSON.parse(localStorage.getItem("products") || "[]");
+    const all = safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
     setIsRendering(true);
     setRenderProgress(0);
 
-    for (let i = 0; i < all.length; i++) {
-      const product = all[i];
+    // Get all catalogues
+    const catalogues = getAllCatalogues();
 
-      // Skip products without images - don't error, just skip
-      if (!product.image && !product.imagePath) {
-        console.warn(`⚠️ Skipping ${product.name} - no image available`);
-        setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-        continue;
-      }
+    // Callbacks for progress updates
+    const onProgress = (progress: any) => {
+      setRenderProgress(progress.percentage);
+    };
 
-      try {
-        // Render for all catalogues
-        const { getAllCatalogues } = await import("./config/catalogueConfig");
-        const catalogues = getAllCatalogues();
+    const onComplete = (result: any) => {
+      setIsRendering(false);
+      setRenderResult({
+        status: result.status === "success" ? "success" : "error",
+        message: result.message,
+      });
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    };
 
-        for (const cat of catalogues) {
-          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+    const onError = (error: any) => {
+      setIsRendering(false);
+      setRenderResult({
+        status: "error",
+        message: `Rendering failed: ${error.message}`,
+      });
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    };
 
-          await saveRenderedImage(product, legacyType, {
-            resellUnit: product.resellUnit || "/ piece",
-            wholesaleUnit: product.wholesaleUnit || "/ piece",
-            packageUnit: product.packageUnit || "pcs / set",
-            ageGroupUnit: product.ageUnit || "months",
-            catalogueId: cat.id,
-            catalogueLabel: cat.label,
-            folder: cat.folder || cat.label,
-            priceField: cat.priceField,
-            priceUnitField: cat.priceUnitField,
-          });
-        }
-
-        console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
-      } catch (err) {
-        console.warn(`❌ Failed to render images for ${product.name}`, err);
-      }
-
-      setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+    // Start background rendering
+    try {
+      await startBackgroundRendering(all, catalogues, onProgress, onComplete, onError);
+    } catch (err) {
+      console.error("❌ Background rendering failed:", err);
+      setIsRendering(false);
+      setRenderResult({
+        status: "error",
+        message: `Rendering error: ${err.message}`,
+      });
+      window.dispatchEvent(new CustomEvent("renderComplete"));
     }
-
-    setRenderResult({
-      status: "success",
-      message: "PNG rendering completed for all products",
-    });
-    setIsRendering(false);
-    window.dispatchEvent(new CustomEvent("renderComplete"));
   }, []);
 
   useEffect(() => {
@@ -137,15 +138,15 @@ function AppWithBackHandler() {
   }, [isNative]);
 
   useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
+    safeSetInStorage("products", products);
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem("deletedProducts", JSON.stringify(deletedProducts));
+    safeSetInStorage("deletedProducts", deletedProducts);
   }, [deletedProducts]);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    safeSetInStorage("darkMode", darkMode);
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
@@ -158,10 +159,80 @@ function AppWithBackHandler() {
     initializeFieldSystem();
   }, []);
 
+  // Initialize Firebase messaging for notifications
+  useEffect(() => {
+    const setupFirebase = async () => {
+      // Ensure user has a unique ID
+      if (!localStorage.getItem("userId")) {
+        localStorage.setItem("userId", `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      }
+      await initializeFirebaseMessaging();
+    };
+    setupFirebase();
+
+    // Listen for Firebase notifications
+    const handleFirebaseNotification = (event: any) => {
+      console.log("Firebase notification received in app:", event.detail);
+      setRenderResult({
+        status: "success",
+        message: event.detail.body || "Rendering completed successfully!",
+      });
+      setRenderProgress(100);
+    };
+
+    window.addEventListener("firebaseNotification", handleFirebaseNotification);
+    return () => {
+      window.removeEventListener("firebaseNotification", handleFirebaseNotification);
+    };
+  }, []);
+
   // Initialize catalogue system with data migration
   useEffect(() => {
     runMigrations();
   }, []);
+
+  // Auto-resume rendering if it was interrupted by app close/crash
+  useEffect(() => {
+    const checkAndResumeRendering = async () => {
+      const { checkResumableRendering, resumeBackgroundRendering } = await import('./services/backgroundRendering');
+      const resumableState = checkResumableRendering();
+
+      if (resumableState && isNative) {
+        console.log("📋 Found interrupted rendering, attempting to resume...", resumableState);
+        setIsRendering(true);
+
+        const products = safeGetFromStorage("products", []);
+        const catalogues = getAllCatalogues();
+
+        try {
+          await resumeBackgroundRendering(
+            products,
+            catalogues,
+            (progress) => setRenderProgress(progress.percentage),
+            (result) => {
+              setIsRendering(false);
+              setRenderResult({
+                status: result.status === "success" ? "success" : "error",
+                message: result.message,
+              });
+            },
+            (error) => {
+              setIsRendering(false);
+              setRenderResult({
+                status: "error",
+                message: `Rendering failed: ${error.message}`,
+              });
+            }
+          );
+        } catch (err) {
+          console.error("❌ Failed to resume rendering:", err);
+          setIsRendering(false);
+        }
+      }
+    };
+
+    checkAndResumeRendering();
+  }, [isNative]);
 
   // Initialize watermark settings with defaults on first load
   useEffect(() => {
@@ -191,6 +262,10 @@ function AppWithBackHandler() {
   useEffect(() => {
     let removeListener: any;
     CapacitorApp.addListener("backButton", () => {
+      if (isRendering) {
+        CapacitorApp.minimizeApp();
+        return;
+      }
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       // Check for product preview modal backdrop (backdrop-blur-xl with z-50)
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
@@ -208,7 +283,7 @@ function AppWithBackHandler() {
     return () => {
       if (removeListener) removeListener();
     };
-  }, [location, navigate]);
+  }, [location, navigate, isRendering]);
 
   // Listen for render request from watermark settings and other components
   // Auto-dismiss render result popup after 5 seconds
@@ -236,6 +311,17 @@ function AppWithBackHandler() {
     window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
     return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
   }, [handleRenderAllPNGs]);
+
+  useEffect(() => {
+    if (isNative) {
+      // Request permissions for local notifications
+      LocalNotifications.requestPermissions().then((permission) => {
+        console.log("✅ Local notification permission requested:", permission);
+      }).catch((error) => {
+        console.error("❌ Failed to request local notification permissions:", error);
+      });
+    }
+  }, [isNative]);
 
   return (
     <div
@@ -352,6 +438,7 @@ function AppWithBackHandler() {
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/website" element={<Website />} />
       </Routes>
     </div>
   );
@@ -359,10 +446,12 @@ function AppWithBackHandler() {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <Router>
-        <AppWithBackHandler />
-      </Router>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <AppWithBackHandler />
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }

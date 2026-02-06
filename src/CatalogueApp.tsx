@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
-import Catalogue1Tab from "./Wholesale";
-import Catalogue2Tab from "./Resell";
+import CatalogueView from "./CatalogueView";
 import CataloguesList from "./CataloguesList";
 import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
@@ -24,6 +23,7 @@ export function openPreviewHtml(id, tab = null) {
 export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const scrollRef = useRef(null);
 
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
@@ -36,6 +36,36 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     const cats = getAllCatalogues();
     setCatalogues(cats);
   }, []);
+
+  // Handle catalogue query parameter - when returning from edit view
+  useEffect(() => {
+    const catalogueParam = searchParams.get("catalogue");
+    const tabParam = searchParams.get("tab");
+
+    if (tabParam === "catalogues" && catalogueParam) {
+      // Set the tab and selected catalogue
+      setTab("catalogues");
+      setSelectedCatalogueInCataloguesTab(catalogueParam);
+
+      // Clean up the URL to remove the query parameters
+      navigate("/?tab=catalogues", { replace: true });
+    }
+  }, [searchParams, navigate]);
+
+  // Restore scroll position when a catalogue is displayed
+  useEffect(() => {
+    if (selectedCatalogueInCataloguesTab && tab === "catalogues") {
+      const savedY = localStorage.getItem(`catalogueScroll-${selectedCatalogueInCataloguesTab}`);
+      if (savedY && scrollRef.current) {
+        // Use a timeout to ensure the DOM has fully rendered
+        const timeout = setTimeout(() => {
+          scrollRef.current.scrollTop = parseInt(savedY, 10);
+          localStorage.removeItem(`catalogueScroll-${selectedCatalogueInCataloguesTab}`);
+        }, 150);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [selectedCatalogueInCataloguesTab, tab]);
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
@@ -133,6 +163,21 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     window.addEventListener("open-preview", handler);
     return () => window.removeEventListener("open-preview", handler);
   }, [products]);
+
+  useEffect(() => {
+    const handleEditProduct = (e) => {
+      const { id, catalogueId, fromCatalogue } = e.detail || {};
+      if (id) {
+        localStorage.setItem("productScroll", scrollRef.current?.scrollTop || 0);
+        let url = `/create?id=${id}`;
+        if (catalogueId) url += `&catalogue=${catalogueId}`;
+        if (fromCatalogue) url += `&from=${fromCatalogue}`;
+        navigate(url);
+      }
+    };
+    window.addEventListener("edit-product", handleEditProduct);
+    return () => window.removeEventListener("edit-product", handleEditProduct);
+  }, [navigate, scrollRef]);
 
   useEffect(() => {
     const handleNewProduct = () => {
@@ -468,7 +513,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       )}
 
 
-      <main ref={scrollRef} className={`flex-1 min-h-0 ${(tab === 'products' || tab === 'catalogues') ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}
@@ -711,7 +756,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         {tab === "catalogues" && selectedCatalogueInCataloguesTab && (
           <div className="relative -mx-4">
             {/* Black bar for catalogues */}
-            <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+            <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
             {/* Render the selected catalogue */}
             {(() => {
               const selectedCat = catalogues.find((c) => c.id === selectedCatalogueInCataloguesTab);
@@ -719,56 +764,21 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
               return (
                 <div key={selectedCat.id}>
-                  {selectedCat.id === "cat1" ? (
-                    <Catalogue1Tab
-                      filtered={visible}
-                      allProducts={products}
-                      setProducts={setProducts}
-                      selected={selected}
-                      setSelected={setSelected}
-                      getLighterColor={getLighterColor}
-                      imageMap={imageMap}
-                      catalogueId={selectedCat.id}
-                      catalogueLabel={selectedCat.label}
-                      priceField={selectedCat.priceField}
-                      priceUnitField={selectedCat.priceUnitField}
-                      stockField={selectedCat.stockField}
-                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
-                    />
-                  ) : selectedCat.id === "cat2" ? (
-                    <Catalogue2Tab
-                      filtered={visible}
-                      allProducts={products}
-                      setProducts={setProducts}
-                      selected={selected}
-                      setSelected={setSelected}
-                      getLighterColor={getLighterColor}
-                      imageMap={imageMap}
-                      catalogueId={selectedCat.id}
-                      catalogueLabel={selectedCat.label}
-                      priceField={selectedCat.priceField}
-                      priceUnitField={selectedCat.priceUnitField}
-                      stockField={selectedCat.stockField}
-                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
-                    />
-                  ) : (
-                    /* For custom catalogues, use Wholesale component */
-                    <Catalogue1Tab
-                      filtered={visible}
-                      allProducts={products}
-                      setProducts={setProducts}
-                      selected={selected}
-                      setSelected={setSelected}
-                      getLighterColor={getLighterColor}
-                      imageMap={imageMap}
-                      catalogueId={selectedCat.id}
-                      catalogueLabel={selectedCat.label}
-                      priceField={selectedCat.priceField}
-                      priceUnitField={selectedCat.priceUnitField}
-                      stockField={selectedCat.stockField}
-                      onBack={() => setSelectedCatalogueInCataloguesTab(null)}
-                    />
-                  )}
+                  <CatalogueView
+                    filtered={visible}
+                    allProducts={products}
+                    setProducts={setProducts}
+                    selected={selected}
+                    setSelected={setSelected}
+                    getLighterColor={getLighterColor}
+                    imageMap={imageMap}
+                    catalogueId={selectedCat.id}
+                    catalogueLabel={selectedCat.label}
+                    priceField={selectedCat.priceField}
+                    priceUnitField={selectedCat.priceUnitField}
+                    stockField={selectedCat.stockField}
+                    onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                  />
                 </div>
               );
             })()}

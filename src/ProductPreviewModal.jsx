@@ -543,6 +543,24 @@ export default function ProductPreviewModal({
   const priceField = catalogueConfig?.priceField || "price1";
   const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
 
+  // Check if product has a valid price for this catalogue
+  const priceValue = catalogueData[priceField] || product[priceField];
+  const hasPriceValue = priceValue !== undefined && priceValue !== null && priceValue !== "" && priceValue !== 0;
+
+  // Helper function to check if a field has a valid value
+  const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
+
+  // Check each field - use only catalogue-specific data, not fallback to other catalogues
+  // Only fall back to legacy field names if field is undefined/null (not if it's an empty string)
+  const field1Value = catalogueData.field1 !== undefined && catalogueData.field1 !== null ? catalogueData.field1 : (product.color || "");
+  const hasField1 = hasFieldValue(field1Value);
+
+  const field2Value = catalogueData.field2 !== undefined && catalogueData.field2 !== null ? catalogueData.field2 : (product.package || "");
+  const hasField2 = hasFieldValue(field2Value);
+
+  const field3Value = catalogueData.field3 !== undefined && catalogueData.field3 !== null ? catalogueData.field3 : (product.age || "");
+  const hasField3 = hasFieldValue(field3Value);
+
   return (
     <>
       <div
@@ -560,7 +578,12 @@ export default function ProductPreviewModal({
             onDragEnd={handleDragEnd}
             custom={direction}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white max-w-[350px] w-[90%] rounded-xl overflow-hidden shadow-xl relative"
+            className="bg-white w-[75%] rounded-xl overflow-hidden shadow-xl relative"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxWidth: "340px",
+            }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
               x: 0,
@@ -579,10 +602,15 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: product.imageBgColor || "white",
                 textAlign: "center",
-                padding: 16,
+                padding: 0,
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                cursor: "pointer"
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                aspectRatio: product.cropAspectRatio || 1,
+                width: "100%",
               }}
               onClick={handleImageClick}
             >
@@ -590,8 +618,8 @@ export default function ProductPreviewModal({
                 src={imageUrl}
                 alt={product.name}
                 style={{
-                  maxWidth: "100%",
-                  maxHeight: "300px",
+                  width: "100%",
+                  height: "100%",
                   objectFit: "contain",
                   margin: "0 auto",
                 }}
@@ -663,92 +691,96 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
-                padding: 10,
-                fontSize: 17,
+                padding: 8,
+                fontSize: 13,
+                overflow: "auto",
+                flex: 1,
+                minHeight: 0,
+                touchAction: "pan-y",
+              }}
+              onTouchMove={(e) => {
+                // Allow the touch event to propagate to parent for swipe detection
+                // This ensures horizontal swipes work even in the scrollable area
               }}
             >
-              <div style={{ textAlign: "center", marginBottom: 6 }}>
+              <div style={{ textAlign: "center", marginBottom: 3 }}>
                 <p
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 28,
-                    margin: 3,
+                    fontSize: 20,
+                    margin: 2,
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}>
+                  <p style={{ fontStyle: "italic", fontSize: 14, margin: 2 }}>
                     ({product.subtitle})
                   </p>
                 )}
               </div>
-              <div style={{ textAlign: "left", lineHeight: 1.5 }}>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field1 || product.field1 || product.color}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field2 || product.field2 || product.package} {catalogueData.field2Unit || product.field2Unit || product.packageUnit}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{catalogueData.field3 || product.field3 || product.age} {catalogueData.field3Unit || product.field3Unit || product.ageUnit}
-                </p>
+              <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                {hasField1 && (
+                  <p style={{ margin: "2px 0", display: "flex" }}>
+                    <span style={{ width: "90px" }}>Colour</span>
+                    <span>:</span>
+                    <span style={{ marginLeft: "8px" }}>{field1Value}</span>
+                  </p>
+                )}
+                {hasField2 && (
+                  <p style={{ margin: "2px 0", display: "flex" }}>
+                    <span style={{ width: "90px" }}>Package</span>
+                    <span>:</span>
+                    <span style={{ marginLeft: "8px" }}>{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}</span>
+                  </p>
+                )}
+                {hasField3 && (
+                  <p style={{ margin: "2px 0", display: "flex" }}>
+                    <span style={{ width: "90px" }}>Age Group</span>
+                    <span>:</span>
+                    <span style={{ marginLeft: "8px" }}>{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}</span>
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Bottom Bar - Show price based on catalogue-specific data */}
-            <div
-              style={{
-                backgroundColor: product.bgColor || "#add8e6",
-                color: product.fontColor || "white",
-                padding: "8px",
-                textAlign: "center",
-                fontWeight: "normal",
-                fontSize: 19,
-              }}
-            >
-              Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField] || "0"} {catalogueData[priceUnitField] || product[priceUnitField] || "/ piece"}
-            </div>
+            {/* Bottom Bar - Show price based on catalogue-specific data (only if price exists) */}
+            {hasPriceValue && (
+              <div
+                style={{
+                  backgroundColor: product.bgColor || "#add8e6",
+                  color: product.fontColor || "white",
+                  padding: "6px 8px",
+                  textAlign: "center",
+                  fontWeight: "normal",
+                  fontSize: 15,
+                  flexShrink: 0,
+                }}
+              >
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
+              </div>
+            )}
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="px-4 py-3 bg-gray-100 border-t text-sm">
+              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
                 {/* First row: Edit, All In/Out, Close */}
-                <div className="flex justify-between gap-2 mb-2">
-                  <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white flex-1">
+                <div className="flex justify-between gap-1">
+                  <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
                     Edit
                   </button>
                   <button
                     onClick={() => onToggleMasterStock()}
-                    className={`px-3 py-1 rounded flex-1 ${
+                    className={`px-2 py-1 rounded flex-1 text-xs ${
                       getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
                     }`}
                     title="Toggle all catalogues"
                   >
-                    All {getAllStockStatus() ? "In" : "Out"}
+                    {getAllStockStatus() ? "In" : "Out"}
                   </button>
-                  <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white flex-1">
+                  <button onClick={onClose} className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs">
                     Close
-                  </button>
-                </div>
-                {/* Second row: Individual catalogue toggles */}
-                <div className="flex justify-between gap-2">
-                  <button
-                    onClick={() => onToggleStock("wholesaleStock")}
-                    className={`px-3 py-1 rounded flex-1 text-xs ${
-                      product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
-                    }`}
-                  >
-                    C1 {product.wholesaleStock ? "In" : "Out"}
-                  </button>
-                  <button
-                    onClick={() => onToggleStock("resellStock")}
-                    className={`px-3 py-1 rounded flex-1 text-xs ${
-                      product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
-                    }`}
-                  >
-                    C2 {product.resellStock ? "In" : "Out"}
                   </button>
                 </div>
               </div>

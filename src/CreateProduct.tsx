@@ -184,6 +184,8 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("id");
+  const catalogueParam = searchParams.get("catalogue");
+  const fromParam = searchParams.get("from");
   const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
@@ -197,7 +199,9 @@ export default function CreateProduct() {
     catalogueData: {},
   });
 
-  const [selectedCatalogue, setSelectedCatalogue] = useState<string>("cat1");
+  const [selectedCatalogue, setSelectedCatalogue] = useState<string>(catalogueParam || "cat1");
+  const [fetchFieldsChecked, setFetchFieldsChecked] = useState(false);
+  const [fetchPriceChecked, setFetchPriceChecked] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
@@ -276,10 +280,18 @@ export default function CreateProduct() {
     setCatalogues(cats);
   }, []);
 
+  // Reset checkboxes when catalogue changes
+  useEffect(() => {
+    setFetchFieldsChecked(false);
+    setFetchPriceChecked(false);
+  }, [selectedCatalogue]);
+
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [cropping, setCropping] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(1); // 1 for 1:1, 1.333 for 3:4
+  const [appliedAspectRatio, setAppliedAspectRatio] = useState(1); // Track which ratio was applied to current image
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
@@ -338,6 +350,7 @@ export default function CreateProduct() {
         setOverrideColor(migratedProduct.bgColor || "#d1b3c4");
         setFontColor(migratedProduct.fontColor || "white");
         setImageBgOverride(migratedProduct.imageBgColor || "white");
+        setAppliedAspectRatio(migratedProduct.cropAspectRatio || 1);
 
         if (migratedProduct.image && migratedProduct.image.startsWith("data:image")) {
           setImagePreview(migratedProduct.image);
@@ -396,6 +409,74 @@ export default function CreateProduct() {
         catalogueData: newCatalogueData
       };
     });
+  };
+
+  // Fetch only fields from default catalogue (cat1)
+  const handleFetchFieldsChange = (checked: boolean) => {
+    setFetchFieldsChecked(checked);
+
+    if (!checked) {
+      // Clear fields when unchecked
+      const updates: Partial<CatalogueData> = {
+        field1: "",
+        field2: "",
+        field2Unit: "pcs / set",
+        field3: "",
+        field3Unit: "months",
+      };
+      updateCatalogueData(updates);
+      return;
+    }
+
+    // Fetch from default catalogue when checked
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+
+    if (!selectedCat) return;
+
+    const updates: Partial<CatalogueData> = {
+      field1: defaultCatalogueData.field1 || "",
+      field2: defaultCatalogueData.field2 || "",
+      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field3: defaultCatalogueData.field3 || "",
+      field3Unit: defaultCatalogueData.field3Unit || "months",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
+  };
+
+  // Handle fetch price checkbox change
+  const handleFetchPriceChange = (checked: boolean) => {
+    setFetchPriceChecked(checked);
+
+    const selectedCat = catalogues.find((c) => c.id === selectedCatalogue);
+    if (!selectedCat) return;
+
+    if (!checked) {
+      // Clear price fields when unchecked
+      const updates: Partial<CatalogueData> = {
+        [selectedCat.priceField]: "",
+        [selectedCat.priceUnitField]: "/ piece",
+      };
+      updateCatalogueData(updates);
+      return;
+    }
+
+    // Fetch from default catalogue when checked
+    const defaultCatalogueData = getCatalogueData(formData, 'cat1');
+
+    // Prepare data to copy from default catalogue
+    const defaultPriceField = catalogues.find((c) => c.id === 'cat1')?.priceField || 'price1';
+    const defaultPriceUnitField = catalogues.find((c) => c.id === 'cat1')?.priceUnitField || 'price1Unit';
+
+    const updates: Partial<CatalogueData> = {
+      [selectedCat.priceField]: defaultCatalogueData[defaultPriceField] || "",
+      [selectedCat.priceUnitField]: defaultCatalogueData[defaultPriceUnitField] || "/ piece",
+    };
+
+    updateCatalogueData(updates);
+    showToast(`Price fetched from default catalogue to ${selectedCat.label}`, "success");
   };
 
   // Get the price field name for the selected catalogue
@@ -489,6 +570,7 @@ export default function CreateProduct() {
         croppedAreaPixels
       );
       setImagePreview(croppedBase64);
+      setAppliedAspectRatio(aspectRatio); // Save the aspect ratio that was used
       setCropping(false);
       setZoom(1);
       setCrop({ x: 0, y: 0 });
@@ -556,6 +638,7 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
+      cropAspectRatio: appliedAspectRatio, // Save the aspect ratio used for cropping
     };
 
     // Save price and stock fields for ALL catalogues to the product root level
@@ -629,16 +712,24 @@ setTimeout(async () => {
     console.warn("⏱️ PNG render failed:", err);
   }
 
-  navigate("/");
+  // If fromParam is a catalogue ID (cat1, cat2, etc.), navigate to catalogues tab with that catalogue selected
+  const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+  const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+  navigate(navigationPath);
 }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
     }
   };
 
-  const handleCancel = () => navigate("/");
+  const handleCancel = () => {
+    // If fromParam is a catalogue ID (cat1, cat2, etc.), navigate to catalogues tab with that catalogue selected
+    const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+    const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+    navigate(navigationPath);
+  };
   return (
-    <div className="px-4 max-w-lg mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
+    <div className="px-3 max-w-md mx-auto text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
       <div className="h-[40px]"></div>
       <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center justify-center px-4 relative">
@@ -646,10 +737,10 @@ setTimeout(async () => {
       </header>
 
 
-      <div className="mb-3">
+      <div className="mb-2">
         <button
           onClick={handleSelectImage}
-          className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+          className="group relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 text-sm"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -667,29 +758,87 @@ setTimeout(async () => {
       </div>
 
       {cropping && imagePreview && (
-        <div className="mb-4">
-          <div style={{ height: 300, position: "relative" }}>
-            <Cropper
-              image={imagePreview}
-              crop={crop}
-              zoom={zoom}
-              aspect={1}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
+        <div className="mb-4 bg-gradient-to-b from-blue-50 to-white rounded-xl shadow-lg border border-blue-100 p-4">
+          {/* Header */}
+          <div className="mb-4 text-center">
+            <h2 className="text-lg font-bold text-gray-800 mb-1">Crop Image</h2>
+            <p className="text-gray-500 text-xs">Adjust your product image to the perfect dimensions</p>
           </div>
-          <div className="flex gap-4 mt-2 justify-center">
+
+          {/* Aspect Ratio Buttons */}
+          <div className="flex gap-2 mb-4 justify-center">
+            <button
+              onClick={() => setAspectRatio(1)}
+              className={`px-4 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 ${
+                aspectRatio === 1
+                  ? "bg-blue-600 text-white shadow-lg scale-105"
+                  : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400 hover:text-blue-600"
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 3h18v18H3z" />
+              </svg>
+              Square
+            </button>
+            <button
+              onClick={() => setAspectRatio(3 / 4)}
+              className={`px-4 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 ${
+                aspectRatio === 3 / 4
+                  ? "bg-blue-600 text-white shadow-lg scale-105"
+                  : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400 hover:text-blue-600"
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 3h16v18H4z" />
+              </svg>
+              Portrait
+            </button>
+          </div>
+
+          {/* Info Tip */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
+            <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-blue-900">💡 Tip: Square format gives the best results</p>
+              <p className="text-xs text-blue-700 mt-1">Square images render with optimal clarity and look great in catalogs</p>
+            </div>
+          </div>
+
+          {/* Cropper Container */}
+          <div className="mb-4 rounded-lg overflow-hidden shadow-md border-2 border-blue-200 bg-white">
+            <div style={{ height: 300, position: "relative" }}>
+              <Cropper
+                image={imagePreview}
+                crop={crop}
+                zoom={zoom}
+                aspect={aspectRatio}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-center">
             <button
               onClick={applyCrop}
-              className="bg-blue-500 text-white px-4 py-1 rounded"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 text-sm"
             >
-              Apply Crop
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Apply
             </button>
             <button
               onClick={() => setCropping(false)}
-              className="bg-gray-300 px-4 py-1 rounded"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-sm"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
               Cancel
             </button>
           </div>
@@ -751,16 +900,42 @@ setTimeout(async () => {
               <h3 className="text-base font-semibold">
                 {catalogues.find((c) => c.id === selectedCatalogue)?.label || "Catalogue"} Details
               </h3>
-              <button
-                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                  isCatalogueEnabled(selectedCatalogue)
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-                }`}
-              >
-                {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
-              </button>
+              <div className="flex gap-4 items-center">
+                {selectedCatalogue !== 'cat1' && isCatalogueEnabled(selectedCatalogue) && (
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={fetchFieldsChecked}
+                        onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                        title="Fill fields (Colour, Package, Age Group) from default catalogue"
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">Fill Fields</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={fetchPriceChecked}
+                        onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                        title="Fill price from default catalogue"
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">Fill Price</span>
+                    </label>
+                  </div>
+                )}
+                <button
+                  onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                    isCatalogueEnabled(selectedCatalogue)
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                  }`}
+                >
+                  {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                </button>
+              </div>
             </div>
 
             {isCatalogueEnabled(selectedCatalogue) && (
@@ -988,16 +1163,21 @@ setTimeout(async () => {
         position: "relative",
         backgroundColor: imageBgOverride,
         textAlign: "center",
-        padding: 10,
+        padding: 0,
         boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+        aspectRatio: appliedAspectRatio,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
       }}
     >
       <img
         src={imagePreview}
         alt="Preview"
         style={{
-          maxWidth: "100%",
-          maxHeight: 300,
+          width: "100%",
+          height: "100%",
           objectFit: "contain",
           margin: "0 auto",
         }}
@@ -1071,7 +1251,7 @@ setTimeout(async () => {
       fontSize: 20,
     }}
   >
-    ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
   </div>
 </div>
 

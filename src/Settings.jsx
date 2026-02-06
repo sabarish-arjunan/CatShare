@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 import SideDrawer from "./SideDrawer";
 
 export default function Settings({
   darkMode = false,
   setDarkMode = (value) => {},
   products = [],
-  setProducts = () => {},
+  setProducts = (value) => {},
   deletedProducts = [],
-  setDeletedProducts = () => {},
+  setDeletedProducts = (value) => {},
   isRendering = false,
-  setIsRendering = () => {},
+  setIsRendering = (value) => {},
   renderProgress = 0,
-  setRenderProgress = () => {},
+  setRenderProgress = (value) => {},
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
@@ -50,6 +52,53 @@ export default function Settings({
   const handleRenderAllPNGs = () => {
     window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
   };
+
+  // Send notification helper
+  const sendNotification = async (title, body) => {
+    const isNative = Capacitor.getPlatform() !== "web";
+    if (!isNative) {
+      console.log("Notification (web):", title, body);
+      return;
+    }
+
+    try {
+      // Create channel
+      await LocalNotifications.createChannel({
+        id: 'default_channel',
+        name: 'App Notifications',
+        importance: 5,
+        visibility: 1,
+      });
+
+      // Schedule notification
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Math.floor(Math.random() * 100000) + 1,
+            title,
+            body,
+            channelId: 'default_channel',
+          },
+        ]
+      });
+
+      console.log("✅ Notification sent:", title);
+    } catch (error) {
+      console.error("❌ Notification failed:", error);
+    }
+  };
+
+  // Test notification
+  const testNotification = async () => {
+    await sendNotification("Test Notification", "If you see this, notifications are working! ✅");
+  };
+
+  // Show notification when rendering completes
+  useEffect(() => {
+    if (!isRendering && renderProgress > 0) {
+      sendNotification("Rendering Complete", "Your images have been processed and saved! 🎉");
+    }
+  }, [isRendering, renderProgress]);
 
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
@@ -130,6 +179,24 @@ export default function Settings({
                 <p className="text-xs text-gray-500">Add custom text to your product images</p>
               </div>
             </div>
+          </div>
+
+          {/* Test Notification Button */}
+          <div className="mt-4">
+            <button
+              onClick={testNotification}
+              className="w-full bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-300 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-400 transition p-4 text-left"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🔔</span>
+                    <h3 className="text-sm font-semibold text-blue-900">Test Notification</h3>
+                  </div>
+                  <p className="text-xs text-blue-700">Send a test notification to verify they're working</p>
+                </div>
+              </div>
+            </button>
           </div>
 
           {/* Pro Plan Card */}

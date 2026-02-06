@@ -2,10 +2,11 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
+import { RiEdit2Line } from "react-icons/ri";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import html2canvas from "html2canvas-pro";
+import { renderElementToCanvas, canvasToBlob } from "./utils/canvasRenderer";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
@@ -66,6 +67,8 @@ export default function ResellTab({
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
 
 useEffect(() => {
@@ -252,66 +255,65 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
         })
       );
 
-      // Use html2canvas to capture the rendered element
-      const canvas = await html2canvas(clonedElement, {
+      // Use Canvas API to capture the rendered element
+      const canvas = await renderElementToCanvas(clonedElement, {
         backgroundColor: '#ffffff',
         scale: 3,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
         width: 400,
         height: 400,
       });
 
       // Convert canvas to blob
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          console.error('Failed to create image blob');
-          document.body.removeChild(tempContainer);
-          return;
-        }
-
-        const filename = `${productName || 'product'}_${productId}.png`;
-
-        // Use FileSaver or Filesystem API for download
-        if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
-          try {
-            const handle = await (window as any).showSaveFilePicker({
-              suggestedName: filename,
-              types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
-            });
-            const writable = await handle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-          } catch (err) {
-            if (err.name !== 'AbortError') {
-              console.warn('Save file picker failed, trying download:', err);
-              // Fallback to blob download
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }
-          }
-        } else {
-          // Fallback: simple blob download
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }
-
-        // Clean up temporary container
+      const blob = await canvasToBlob(canvas);
+      if (!blob) {
+        console.error('Failed to create image blob');
         document.body.removeChild(tempContainer);
-      }, 'image/png');
+        return;
+      }
+
+      const filename = `${productName || 'product'}_${productId}.png`;
+
+      // Use FileSaver or Filesystem API for download
+      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+        try {
+          const handle = await (window as any).showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Save file picker failed, trying download:', err);
+            // Fallback to blob download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        // Fallback: simple blob download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Clean up temporary container
+      document.body.removeChild(tempContainer);
+      // Release canvas memory
+      canvas.width = 0;
+      canvas.height = 0;
     } catch (err) {
       console.error('Download failed:', err);
     }
@@ -349,6 +351,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessing,
           setProcessingIndex,
           setProcessingTotal,
+          folder: catalogueLabel,
           mode: "resell",
         });
       };
@@ -373,7 +376,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
   return (
     <>
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+    <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
   {/* Back/Close button that animates between arrow and X */}
   {!showSearch && onBack && (
     <motion.button
@@ -493,31 +496,6 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       </svg>
     </button>
 
-    {/* Bulk Editor Button */}
-    <button
-      onClick={() => setShowBulkEdit(true)}
-      className="text-xl text-gray-600 hover:text-black"
-      title="Bulk Edit"
-    >
-      <MdLayers className="w-5 h-5" />
-    </button>
-
-    {/* Filter Button */}
-    <button
-      onClick={() => setShowFilters(true)}
-      className="text-xl text-gray-600 hover:text-black"
-      title="Filter"
-    >
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        viewBox="0 0 24 24"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
-      </svg>
-    </button>
     <button
   onClick={() => setShowInfo((prev) => !prev)}
   className="text-gray-600 hover:text-black p-1"
@@ -538,10 +516,9 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   )}
 </button>
 
-
-    {/* Other buttons like share, select/deselect, count… */}
+    {/* Select/Share buttons when in selectMode */}
     {selectMode && (
-      <>   
+      <>
         <button
           onClick={() =>
             setSelected(
@@ -608,6 +585,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessing,
       setProcessingIndex,
       setProcessingTotal,
+      folder: catalogueLabel,
       mode: "resell",
     });
   }}
@@ -634,38 +612,121 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   </svg>
 </button>
 
-<button
-  onClick={() => {
-    const allProds = JSON.parse(localStorage.getItem("products") || "[]");
-    const updated = allProds.map((p) =>
-      selected.includes(p.id) ? { ...p, [stockField]: true } : p
-    );
-    setProducts(updated);
-    localStorage.setItem("products", JSON.stringify(updated));
-  }}
-  className="px-3 py-1.5 text-xs font-semibold rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
-  title="Mark as In Stock"
->
-  In Stock
-</button>
-
-<button
-  onClick={() => {
-    const allProds = JSON.parse(localStorage.getItem("products") || "[]");
-    const updated = allProds.map((p) =>
-      selected.includes(p.id) ? { ...p, [stockField]: false } : p
-    );
-    setProducts(updated);
-    localStorage.setItem("products", JSON.stringify(updated));
-  }}
-  className="px-3 py-1.5 text-xs font-semibold rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
-  title="Mark as Out of Stock"
->
-  Out of Stock
-</button>
 
       </>
     )}
+
+    {/* Tools Menu Button (3 dots) - Always on the right */}
+    <div className="relative ml-auto">
+      <button
+        onClick={() => setShowToolsMenu((prev) => !prev)}
+        className="text-xl text-gray-600 hover:text-black p-1"
+        title="More options"
+      >
+        <svg
+          className="w-5 h-5"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="5" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="19" r="2" />
+        </svg>
+      </button>
+
+      {/* Dropdown Menu */}
+      {showToolsMenu && (
+        <div className="absolute right-0 top-10 z-50 bg-white rounded-lg shadow-xl border border-gray-200 min-w-max py-1">
+          <button
+            onClick={() => {
+              setShowBulkEdit(true);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            title="Bulk Edit"
+          >
+            <RiEdit2Line className="w-4 h-4" />
+            Bulk Edit
+          </button>
+
+          <button
+            onClick={() => {
+              setShowFilters(true);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            title="Filter"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 10h12M10 15h4" />
+            </svg>
+            Filter
+          </button>
+
+          <div className="border-t border-gray-200 my-1" />
+          <button
+            onClick={() => {
+              setShowEdit((prev) => !prev);
+              setShowToolsMenu(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+            title={showEdit ? "Hide Edit Icons" : "Show Edit Icons"}
+          >
+            <FiEdit className="w-4 h-4" />
+            {showEdit ? "Hide Edit" : "Show Edit"}
+          </button>
+
+          {selectMode && (
+            <>
+              <div className="border-t border-gray-200 my-1" />
+              <button
+                onClick={() => {
+                  const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+                  const updated = allProds.map((p) =>
+                    selected.includes(p.id) ? { ...p, [stockField]: true } : p
+                  );
+                  setProducts(updated);
+                  localStorage.setItem("products", JSON.stringify(updated));
+                  setShowToolsMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                title="Mark as In Stock"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+                Mark as In Stock
+              </button>
+
+              <button
+                onClick={() => {
+                  const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+                  const updated = allProds.map((p) =>
+                    selected.includes(p.id) ? { ...p, [stockField]: false } : p
+                  );
+                  setProducts(updated);
+                  localStorage.setItem("products", JSON.stringify(updated));
+                  setShowToolsMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                title="Mark as Out of Stock"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+                Mark as Out of Stock
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   </div>
 </header>
 
@@ -760,7 +821,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
 
     
 
-<div className="px-0 pb-28">
+<div className="px-0 pb-28 pt-10">
       {/* Grid */}
       <div
         id="capture-area"
@@ -785,7 +846,7 @@ onMouseUp={handleTouchEnd}
 onMouseLeave={handleTouchEnd}
 
             >
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
+              <div className="relative aspect-square overflow-hidden bg-gray-100 group">
                 <img
                   src={imageMap[p.id]}
                   alt={p.name}
@@ -799,6 +860,25 @@ onMouseLeave={handleTouchEnd}
                   </div>
                 )}
 
+                {/* Edit Icon Button */}
+                {showEdit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Save scroll position before navigating - use main element scroll
+                      const mainElement = document.querySelector('main');
+                      if (mainElement) {
+                        localStorage.setItem(`catalogueScroll-${catalogueId}`, mainElement.scrollTop.toString());
+                      }
+                      const evt = new CustomEvent("edit-product", { detail: { id: p.id, catalogueId, fromCatalogue: catalogueId } });
+                      window.dispatchEvent(evt);
+                    }}
+                    className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200 z-10"
+                    title="Edit product"
+                  >
+                    <FiEdit className="w-4 h-4 text-blue-600" />
+                  </button>
+                )}
 
 <AnimatePresence>
   {isSelected && (
@@ -840,7 +920,7 @@ onMouseLeave={handleTouchEnd}
 {/* Price Badge Over Image */}
 {showInfo && (
 <div
-  className="absolute top-1.5 right-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
+  className="absolute top-1.5 left-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
   ₹{getProductCatalogueData(p).price}
 </div>
