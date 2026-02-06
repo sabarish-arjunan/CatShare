@@ -5,6 +5,7 @@ import ProductPreviewModal from "./ProductPreviewModal";
 import SideDrawer from "./SideDrawer";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { deleteRenderedImageForProduct } from "./Save";
 
 export default function Shelf({ deletedProducts, setDeletedProducts, setProducts, products, imageMap: globalImageMap }) {
   const [previewProduct, setPreviewProduct] = useState(null);
