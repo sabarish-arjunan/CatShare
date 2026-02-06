@@ -61,14 +61,9 @@ export async function renderProductImageOnTheFly(
         });
         product.image = `data:image/png;base64,${res.data}`;
       } catch (err) {
-        console.error("❌ Failed to load image for on-the-fly rendering:", err.message);
-        return null;
+        console.warn("⚠️ Failed to load image from filesystem, will render with placeholder:", err.message);
+        // Continue rendering even if image load fails - canvas renderer will show placeholder
       }
-    }
-
-    if (!product.image) {
-      console.warn(`❌ No image available for product ${product.id} to render`);
-      return null;
     }
 
     // Get catalogue-specific data if catalogueId is provided
