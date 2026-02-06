@@ -395,7 +395,7 @@ export async function renderProductToCanvas(
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
 
-  const labelWidth = 110 * scale;
+  const labelWidth = 90 * scale; // Matching preview modal label width
 
   if (product.field1) {
     ctx.fillText('Colour:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
