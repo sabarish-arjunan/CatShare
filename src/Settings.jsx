@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { cleanupProductStorage } from "./utils/dataMigration";
 import SideDrawer from "./SideDrawer";
 
 export default function Settings({
