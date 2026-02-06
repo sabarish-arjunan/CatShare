@@ -103,14 +103,14 @@ useEffect(() => {
       normalized[priceUnitField] = isNewCatalogue ? "/ piece" : (p[priceUnitField] || "/ piece");
     }
 
-    // Initialize other price fields to avoid uncontrolled input warnings
-    normalized.wholesale = p.wholesale || "";
-    normalized.wholesaleUnit = p.wholesaleUnit || "/ piece";
-    normalized.resell = p.resell || "";
-    normalized.resellUnit = p.resellUnit || "/ piece";
-    normalized.retail = p.retail || "";
-    normalized.retailUnit = p.retailUnit || "/ piece";
-    normalized.stock = p.stock || "";
+    // Initialize other price fields - empty for new catalogues, data for existing
+    normalized.wholesale = isNewCatalogue ? "" : (p.wholesale || "");
+    normalized.wholesaleUnit = isNewCatalogue ? "/ piece" : (p.wholesaleUnit || "/ piece");
+    normalized.resell = isNewCatalogue ? "" : (p.resell || "");
+    normalized.resellUnit = isNewCatalogue ? "/ piece" : (p.resellUnit || "/ piece");
+    normalized.retail = isNewCatalogue ? "" : (p.retail || "");
+    normalized.retailUnit = isNewCatalogue ? "/ piece" : (p.retailUnit || "/ piece");
+    normalized.stock = isNewCatalogue ? "" : (p.stock || "");
 
     return normalized;
   });
