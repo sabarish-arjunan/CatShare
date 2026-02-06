@@ -93,6 +93,37 @@ export default function Settings({
     await sendNotification("Test Notification", "If you see this, notifications are working! ✅");
   };
 
+  // Clear localStorage cache
+  const clearLocalStorageCache = () => {
+    if (window.confirm("Clear cached rendered images from storage?\n\nThis will free up space but won't delete your products or settings.\n\nYou can always re-render images later.")) {
+      try {
+        let clearedCount = 0;
+        const keysToDelete = [];
+
+        // Find all rendered image cache keys
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('rendered::')) {
+            keysToDelete.push(key);
+          }
+        }
+
+        // Delete them
+        keysToDelete.forEach(key => {
+          localStorage.removeItem(key);
+          clearedCount++;
+        });
+
+        const sizeFreed = (keysToDelete.length > 0 ? "multiple MB" : "no");
+        alert(`✅ Cleared ${clearedCount} cached images!\n\nFreed up space: ${sizeFreed}`);
+        console.log(`🗑️ Cleared ${clearedCount} cached rendered images from localStorage`);
+      } catch (err) {
+        alert(`❌ Error clearing cache: ${err.message}`);
+        console.error("Error clearing cache:", err);
+      }
+    }
+  };
+
   // Show notification when rendering completes
   useEffect(() => {
     if (!isRendering && renderProgress > 0) {
