@@ -121,6 +121,39 @@ useEffect(() => {
 
 
 
+  // Ensure all fields have proper defaults
+  const ensureFieldDefaults = (item) => {
+    return {
+      id: item.id,
+      name: item.name ?? "",
+      subtitle: item.subtitle ?? "",
+      badge: item.badge ?? "",
+      category: item.category ?? [],
+      field1: item.field1 ?? "",
+      color: item.color ?? "",
+      field2: item.field2 ?? "",
+      field2Unit: item.field2Unit ?? "pcs / set",
+      package: item.package ?? "",
+      packageUnit: item.packageUnit ?? "pcs / set",
+      field3: item.field3 ?? "",
+      field3Unit: item.field3Unit ?? "months",
+      age: item.age ?? "",
+      ageUnit: item.ageUnit ?? "months",
+      wholesale: item.wholesale ?? "",
+      wholesaleUnit: item.wholesaleUnit ?? "/ piece",
+      resell: item.resell ?? "",
+      resellUnit: item.resellUnit ?? "/ piece",
+      retail: item.retail ?? "",
+      retailUnit: item.retailUnit ?? "/ piece",
+      wholesaleStock: item.wholesaleStock ?? "",
+      resellStock: item.resellStock ?? "",
+      stock: item.stock ?? "",
+      image: item.image ?? "",
+      imagePath: item.imagePath ?? "",
+      ...item, // Keep any other properties
+    };
+  };
+
   const handleFieldChange = (id, field, value) => {
     setEditedData((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
