@@ -671,14 +671,17 @@ export default function ProductPreviewModal({
                     backgroundColor: badgeBg,
                     color: badgeText,
                     fontSize: 12,
-                    fontWeight: 600,
+                    fontWeight: 400,
                     padding: "5px 10px",
                     borderRadius: "999px",
                     opacity: 0.95,
                     boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                     border: `1px solid ${badgeBorder}`,
                     letterSpacing: "0.4px",
-                    pointerEvents: "none"
+                    pointerEvents: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   {product.badge.toUpperCase()}

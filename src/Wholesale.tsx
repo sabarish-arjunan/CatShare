@@ -986,7 +986,7 @@ onMouseLeave={handleTouchEnd}
       color:
         p.imageBgColor?.toLowerCase() === "white" ? "#000" : "#fff",
       fontSize: 11,
-      fontWeight: 700,
+      fontWeight: 400,
       padding: "4px 9px",
       borderRadius: "20px",
       opacity: 0.98,
@@ -997,7 +997,10 @@ onMouseLeave={handleTouchEnd}
           : "rgba(255,255,255,0.4)"
       }`,
       letterSpacing: "0.3px",
-      lineHeight: "1",
+      lineHeight: "1.4",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     }}
   >
     {p.badge.toUpperCase()}
