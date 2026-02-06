@@ -375,7 +375,7 @@ export async function renderProductToCanvas(
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += renderDetailsPadding + renderTitleFontSize + 3 * scale; // Title height + title bottom margin (3px in HTML p tag)
+  currentY += renderDetailsPadding + renderTitleFontSize + 12 * scale; // Title height + title bottom margin (increased for spacing)
 
   // Subtitle
   if (product.subtitle) {
@@ -385,10 +385,10 @@ export async function renderProductToCanvas(
     ctx.textAlign = 'center';
     ctx.fillText(`(${product.subtitle})`, canvasWidth / 2, currentY + renderSubtitleFontSize * 0.8);
     ctx.textAlign = 'left';
-    currentY += renderSubtitleFontSize; // Updated: removed + 5 * scale spacing (matching HTML margin: "0 0 0 0")
+    currentY += renderSubtitleFontSize + 10 * scale; // Added spacing after subtitle
   }
 
-  currentY += 6 * scale;
+  currentY += 12 * scale; // Increased spacing before fields
 
   // Fields - Match HTML format with aligned colons
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
