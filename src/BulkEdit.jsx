@@ -220,12 +220,12 @@ useEffect(() => {
       prev.map((item) => {
         if (item.id !== id) return item;
         const current = Array.isArray(item.category) ? item.category : [];
-        return {
+        return ensureFieldDefaults({
           ...item,
           category: current.includes(cat)
             ? current.filter((c) => c !== cat)
             : [...current, cat],
-        };
+        });
       })
     );
   };
