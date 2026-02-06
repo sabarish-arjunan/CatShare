@@ -782,7 +782,7 @@ useEffect(() => {
       <h2 className="text-lg font-bold text-gray-800 mb-3">Fill from Master Catalogue?</h2>
 
       <p className="text-sm text-gray-600 mb-4">
-        All data of this field will be overwritten from the master catalogue. Ok to proceed?
+        This will overwrite the current field value for <span className="font-semibold">all products</span> with the data from the master catalogue. This action cannot be undone. Continue?
       </p>
 
       <div className="flex justify-center gap-3">
