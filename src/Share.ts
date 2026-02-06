@@ -92,42 +92,10 @@ export async function handleShare({
     setProcessingIndex(processedCount);
   }
 
-  // Log diagnostic info if files weren't found
-  if (filesNotFound.length > 0) {
-    console.error("📋 Files not found for sharing:", filesNotFound);
-    console.log("💡 Hint: Make sure images have been rendered first by clicking 'Render All' in the Wholesale/Resell views.");
-  }
-
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    let message = "❌ No rendered images found to share.";
-
-    if (filesNotFound.length > 0) {
-      message += `\n\n🔍 DIAGNOSTIC INFO:\n`;
-      message += `Products searched: ${filesNotFound.map(f => f.id).join(", ")}\n`;
-      message += `Folder expected: ${targetFolder}/\n`;
-      message += `Files looked for pattern: product_<ID>_${catalogueLabel}.png\n`;
-      message += `\n📋 Files not found:\n`;
-      filesNotFound.forEach(f => {
-        message += `  - ${f.path}${f.reason ? ` (${f.reason})` : ""}\n`;
-      });
-
-      message += `\n✅ SOLUTIONS:\n`;
-      message += `1. Click 'Render All' button to render images for this catalogue\n`;
-      message += `2. Wait for all images to finish rendering\n`;
-      message += `3. Check the browser console (F12) for errors\n`;
-      message += `4. Ensure you have storage permissions granted to the app\n`;
-      message += `5. Check file paths in Android's file manager:\n`;
-      message += `   /storage/emulated/0/ or internal app storage`;
-    } else {
-      message += "\n\nMake sure you have:\n";
-      message += "1. Selected at least one product\n";
-      message += "2. Rendered the images using the 'Render All' button\n";
-      message += `3. Images should be saved in: ${targetFolder}/ folder`;
-    }
-
-    alert(message);
+    alert("❌ No products selected or no valid images available to share.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image");
     return;
   }
 
