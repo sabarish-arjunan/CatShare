@@ -376,6 +376,9 @@ export async function renderProductToCanvas(
   ctx.fillStyle = options.fontColor;
   ctx.textAlign = 'left';
 
+  // Add top spacing before title
+  currentY += 10 * scale;
+
   // Title
   const renderTitleFontSize = Math.floor(titleFontSizeBase * scale);
   const titleFont = `normal ${renderTitleFontSize}px Arial, sans-serif`;
@@ -385,11 +388,11 @@ export async function renderProductToCanvas(
   ctx.shadowOffsetX = 3 * scale;
   ctx.shadowOffsetY = 3 * scale;
   ctx.textAlign = 'center';
-  ctx.fillText(product.name, canvasWidth / 2, currentY + renderDetailsPadding + renderTitleFontSize * 0.8);
+  ctx.fillText(product.name, canvasWidth / 2, currentY + renderTitleFontSize * 0.8);
   ctx.shadowColor = 'transparent';
   ctx.textAlign = 'left';
 
-  currentY += renderDetailsPadding + renderTitleFontSize + spacingAfterTitle * scale; // Title height + spacing
+  currentY += renderTitleFontSize + spacingAfterTitle * scale; // Title height + spacing
 
   // Subtitle
   if (product.subtitle) {
