@@ -314,29 +314,29 @@ export async function renderProductToCanvas(
     const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(13 * scale);
-    const badgeFont = `${badgeFontSize}px Arial, sans-serif`;
+    const badgeFontSize = Math.floor(11 * scale); // Updated: 13 -> 11
+    const badgeFont = `700 ${badgeFontSize}px Arial, sans-serif`; // Updated: Added fontWeight 700
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
-    const badgePadding = 6 * scale;
+    const badgePadding = 4.5 * scale; // Updated: 6 -> 4.5 (4px 9px)
     const badgeWidth = badgeMetrics.width + badgePadding * 2;
     const badgeHeight = badgeFontSize + badgePadding;
-    const badgeRadius = badgeHeight / 2; // Pill shape: radius = height/2
+    const badgeRadius = 10 * scale; // Updated: height/2 -> 10px (20px borderRadius)
 
-    const badgeX = canvasWidth - badgeWidth - 10 * scale; // offset 10px from right
-    const badgeY = currentY + imageHeight - badgeHeight - 10 * scale; // offset 10px from bottom
+    const badgeX = canvasWidth - badgeWidth - 8 * scale; // Updated: 10 -> 8px
+    const badgeY = currentY + imageHeight - badgeHeight - 8 * scale; // Updated: 10 -> 8px
 
-    // Draw rounded rectangle badge background (pill shape)
+    // Draw rounded rectangle badge background (more defined pill shape)
     ctx.fillStyle = badgeBg;
-    ctx.globalAlpha = 0.95;
+    ctx.globalAlpha = 0.98; // Updated: 0.95 -> 0.98
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    // Badge border
+    // Badge border - more prominent
     ctx.strokeStyle = badgeBorder;
-    ctx.lineWidth = 1 * scale;
+    ctx.lineWidth = 1.5 * scale; // Updated: 1 -> 1.5
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
