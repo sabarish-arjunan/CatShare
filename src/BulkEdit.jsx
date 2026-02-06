@@ -156,7 +156,7 @@ useEffect(() => {
 
   const handleFieldChange = (id, field, value) => {
     setEditedData((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+      prev.map((item) => (item.id === id ? ensureFieldDefaults({ ...item, [field]: value }) : item))
     );
   };
 
