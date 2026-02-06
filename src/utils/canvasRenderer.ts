@@ -322,7 +322,7 @@ export async function renderProductToCanvas(
 
     const badgeText_str = product.badge.toUpperCase();
     const badgeFontSize = Math.floor(16 * scale); // Increased from 13px
-    const badgeFont = `600 ${badgeFontSize}px Arial, sans-serif`; // 600 weight like preview
+    const badgeFont = `400 ${badgeFontSize}px Arial, sans-serif`; // Normal weight (removed bold)
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
@@ -363,7 +363,8 @@ export async function renderProductToCanvas(
     ctx.fillStyle = badgeText;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+    const badgeTextOffsetY = 2 * scale; // Small offset to move text down for better vertical centering
+    ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2 + badgeTextOffsetY);
   }
 
   currentY += imageHeight;
