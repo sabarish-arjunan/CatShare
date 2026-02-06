@@ -776,6 +776,34 @@ useEffect(() => {
   </div>
 )}
 
+{confirmDialog.show && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+      <h2 className="text-lg font-bold text-gray-800 mb-3">Fill from Master Catalogue?</h2>
+
+      <p className="text-sm text-gray-600 mb-4">
+        All data of this field will be overwritten from the master catalogue. Ok to proceed?
+      </p>
+
+      <div className="flex justify-center gap-3">
+        <button
+          className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition text-sm"
+          onClick={() => setConfirmDialog({ show: false, fieldKey: null })}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
+          onClick={() => confirmFillFromMaster(confirmDialog.fieldKey)}
+        >
+          Yes, Fill
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
