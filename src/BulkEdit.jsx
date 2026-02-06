@@ -57,8 +57,14 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   useEffect(() => {
     const cats = getAllCatalogues();
     setCatalogues(cats);
-  }, []);
-
+    // If initialCatalogueId is provided, set the config immediately
+    if (initialCatalogueId) {
+      const config = cats.find(c => c.id === initialCatalogueId);
+      if (config) {
+        setSelectedCatalogueConfig(config);
+      }
+    }
+  }, [initialCatalogueId]);
 
 
 useEffect(() => {
