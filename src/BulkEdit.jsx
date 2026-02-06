@@ -658,6 +658,7 @@ useEffect(() => {
           </div>
         ))}
       </div>
+        )}
 
       <div className="shrink-0 bg-white border-t shadow-md flex justify-end gap-3 px-4 py-3 z-20">
       <button
