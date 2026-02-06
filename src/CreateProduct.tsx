@@ -638,8 +638,14 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      cropAspectRatio: appliedAspectRatio, // Save the aspect ratio used for cropping
+      cropAspectRatio: appliedAspectRatio,
     };
+
+    // 🧹 CRITICAL: Remove base64 image data from product object before saving to localStorage
+    // This prevents QuotaExceededError as images are now stored in Filesystem
+    if (newItem.image) {
+      delete newItem.image;
+    }
 
     // Save price and stock fields for ALL catalogues to the product root level
     for (const cat of allCatalogues) {
