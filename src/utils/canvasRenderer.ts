@@ -283,7 +283,7 @@ export async function renderProductToCanvas(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge if present
+  // Draw badge if present (rounded pill shape matching modal design)
   if (product.badge) {
     const badgeBg = isLightColor(imageBg) ? '#fff' : '#000';
     const badgeText = isLightColor(imageBg) ? '#000' : '#fff';
@@ -298,23 +298,22 @@ export async function renderProductToCanvas(
     const badgePadding = 6 * scale;
     const badgeWidth = badgeMetrics.width + badgePadding * 2;
     const badgeHeight = badgeFontSize + badgePadding;
+    const badgeRadius = badgeHeight / 2; // Pill shape: radius = height/2
 
-    const badgeX = canvasWidth - badgeWidth - 12 * scale;
-    const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
+    const badgeX = canvasWidth - badgeWidth - 10 * scale; // offset 10px from right
+    const badgeY = currentY + imageHeight - badgeHeight - 10 * scale; // offset 10px from bottom
 
-    // Badge background
+    // Draw rounded rectangle badge background (pill shape)
     ctx.fillStyle = badgeBg;
     ctx.globalAlpha = 0.95;
-    ctx.beginPath();
-    ctx.arc(badgeX + badgeWidth / 2, badgeY + badgeHeight / 2, badgeHeight / 2, 0, Math.PI * 2);
+    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.fill();
     ctx.globalAlpha = 1;
 
     // Badge border
     ctx.strokeStyle = badgeBorder;
     ctx.lineWidth = 1 * scale;
-    ctx.beginPath();
-    ctx.arc(badgeX + badgeWidth / 2, badgeY + badgeHeight / 2, badgeHeight / 2, 0, Math.PI * 2);
+    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
     // Badge text
