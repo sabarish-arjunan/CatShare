@@ -1,5 +1,7 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
+import { getRenderedImage, renderProductImageOnTheFly } from "./utils/renderingUtils";
+import { safeGetFromStorage } from "./utils/safeStorage";
 
 interface HandleShareParams {
   selected: any[];
