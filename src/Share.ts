@@ -67,21 +67,41 @@ export async function handleShare({
   if (missingProducts.length > 0) {
     console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering native rendering...`);
 
-    // Emit event that App.tsx listens to
+    // Set processing states to show the smaller popup in CatalogueView
+    setProcessing(true);
+    setProcessingIndex(0);
+    setProcessingTotal(missingProducts.length);
+
+    // Emit event that App.tsx listens to, but request to hide global overlay
     window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
-      detail: { products: missingProducts }
+      detail: {
+        products: missingProducts,
+        showOverlay: false
+      }
     }));
+
+    // Listen for progress events from the native renderer
+    const progressHandler = (event: any) => {
+      const { current, total } = event.detail;
+      setProcessingIndex(current);
+      setProcessingTotal(total);
+    };
+    window.addEventListener("renderProgress", progressHandler);
 
     // Wait for the renderComplete event from App.tsx
     await new Promise<void>((resolve) => {
-      const handler = () => {
-        window.removeEventListener("renderComplete", handler);
+      const completionHandler = () => {
+        window.removeEventListener("renderComplete", completionHandler);
+        window.removeEventListener("renderProgress", progressHandler);
         resolve();
       };
-      window.addEventListener("renderComplete", handler);
+      window.addEventListener("renderComplete", completionHandler);
     });
 
     console.log("✅ Native rendering complete, proceeding with sharing...");
+    // Reset processing for the actual share preparation step
+    setProcessingIndex(0);
+    setProcessingTotal(selected.length);
   }
 
   // Process all products to get their file URIs
