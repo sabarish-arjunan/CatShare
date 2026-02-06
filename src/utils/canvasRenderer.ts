@@ -382,7 +382,7 @@ export async function renderProductToCanvas(
     ctx.fillStyle = badgeText;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const badgeTextOffsetY = 2 * scale; // Small offset to move text down for better vertical centering
+    const badgeTextOffsetY = 1 * scale; // Minimal offset to move text down for better visual vertical centering
     ctx.fillText(badgeText_str, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2 + badgeTextOffsetY);
   }
 
