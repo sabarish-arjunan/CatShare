@@ -365,6 +365,13 @@ export async function renderProductToCanvas(
   ctx.fillStyle = detailsBgColor;
   ctx.fillRect(0, currentY, canvasWidth, canvasHeight - currentY);
 
+  // Draw shadow gradient on details section (naturally falling from image)
+  const shadowGradient = ctx.createLinearGradient(0, currentY, 0, currentY + 20 * scale);
+  shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0.15)');
+  shadowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = shadowGradient;
+  ctx.fillRect(0, currentY, canvasWidth, 20 * scale);
+
   ctx.fillStyle = options.fontColor;
   ctx.textAlign = 'left';
 
