@@ -115,41 +115,59 @@ export function ensureProductsHaveStockFields(): void {
  * - At least one catalogue exists
  * - All catalogues have required fields
  * - All field names are unique
+ * - AUTOMATICALLY FIXES DUPLICATES
  */
 export function validateCatalogueConfig(): boolean {
   try {
     const definition = getCataloguesDefinition();
+    let modified = false;
 
     if (!definition.catalogues || definition.catalogues.length === 0) {
-      console.error("❌ No catalogues defined");
-      return false;
+      console.error("❌ No catalogues defined, resetting to defaults");
+      localStorage.setItem("cataloguesDefinition", JSON.stringify({
+        version: 1,
+        catalogues: DEFAULT_CATALOGUES,
+        lastUpdated: Date.now()
+      }));
+      return true;
     }
 
     const priceFields = new Set<string>();
     const stockFields = new Set<string>();
+    const validCatalogues = [];
 
     for (const cat of definition.catalogues) {
       // Check required fields
       if (!cat.id || !cat.label || !cat.priceField || !cat.stockField) {
-        console.error(`❌ Catalogue ${cat.label} missing required fields`);
-        return false;
+        console.warn(`⚠️ Catalogue ${cat.label || 'Unknown'} missing required fields, removing`);
+        modified = true;
+        continue;
       }
 
       // Check for duplicates
       if (priceFields.has(cat.priceField)) {
-        console.error(`❌ Duplicate price field: ${cat.priceField}`);
-        return false;
+        console.error(`❌ Duplicate price field detected: ${cat.priceField}. Removing duplicate catalogue: ${cat.label}`);
+        modified = true;
+        continue;
       }
       if (stockFields.has(cat.stockField)) {
-        console.error(`❌ Duplicate stock field: ${cat.stockField}`);
-        return false;
+        console.error(`❌ Duplicate stock field detected: ${cat.stockField}. Removing duplicate catalogue: ${cat.label}`);
+        modified = true;
+        continue;
       }
 
       priceFields.add(cat.priceField);
       stockFields.add(cat.stockField);
+      validCatalogues.push(cat);
     }
 
-    console.log("✅ Catalogue configuration is valid");
+    if (modified) {
+      definition.catalogues = validCatalogues;
+      setCataloguesDefinition(definition);
+      console.log("✅ Automatically fixed catalogue configuration issues");
+    }
+
+    console.log("✅ Catalogue configuration check complete");
     return true;
   } catch (err) {
     console.error("❌ Failed to validate catalogue config:", err);
