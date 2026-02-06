@@ -332,7 +332,7 @@ export async function renderProductToCanvas(
     const badgePaddingV = 7 * scale; // Vertical padding
     const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
     const badgeHeight = badgeFontSize + badgePaddingV * 2;
-    const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
+    const badgeRadius = badgeHeight / 3; // Rounded sides (left and right) with straighter top and bottom
 
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
     const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
