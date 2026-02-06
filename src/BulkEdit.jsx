@@ -209,7 +209,7 @@ useEffect(() => {
             updates[priceUnitField] = "/ piece";
           }
 
-          return { ...item, ...updates };
+          return ensureFieldDefaults({ ...item, ...updates });
         })
       );
     }
