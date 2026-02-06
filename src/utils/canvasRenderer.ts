@@ -444,9 +444,10 @@ export async function renderProductToCanvas(
     ctx.font = priceFont;
     ctx.fillStyle = options.fontColor;
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle'; // Perfect vertical centering
 
     // Center price text vertically in the remaining space
-    const priceTextY = currentY + remainingHeight / 2 + priceFontSize * 0.3;
+    const priceTextY = currentY + remainingHeight / 2; // Exact center without offset
     const priceText = `Price   :   ₹${product.price} ${product.priceUnit || ''}`;
     ctx.fillText(priceText, canvasWidth / 2, priceTextY);
 
