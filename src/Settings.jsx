@@ -246,6 +246,24 @@ export default function Settings({
             </button>
           </div>
 
+          {/* Optimize Storage Button */}
+          <div className="mt-4">
+            <button
+              onClick={handleOptimizeStorage}
+              className="w-full bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition p-4 text-left"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🚀</span>
+                    <h3 className="text-sm font-semibold text-green-900">Optimize Storage</h3>
+                  </div>
+                  <p className="text-xs text-green-700">Move product images to filesystem to free up app space</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
           {/* Clear Cache Button */}
           <div className="mt-4">
             <button
