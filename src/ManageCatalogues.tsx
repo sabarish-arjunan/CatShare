@@ -42,8 +42,9 @@ export default function ManageCatalogues({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setFormError("Image size must be less than 2MB");
+    // Use a smaller limit for hero images to preserve localStorage quota
+    if (file.size > 500 * 1024) {
+      setFormError("Catalogue cover image must be less than 500KB to save space.");
       return;
     }
 
