@@ -174,13 +174,26 @@ useEffect(() => {
       imagePath: item.imagePath ?? "",
     };
 
-    // Merge with item, but don't override defaults with undefined values
-    return {
-      ...defaults,
-      ...Object.fromEntries(
-        Object.entries(item).filter(([_, v]) => v !== undefined && v !== null)
-      ),
-    };
+    // Also ensure dynamic price field is initialized
+    if (priceField && !(priceField in defaults)) {
+      defaults[priceField] = item[priceField] ?? "";
+    }
+    if (priceUnitField && !(priceUnitField in defaults)) {
+      defaults[priceUnitField] = item[priceUnitField] ?? "/ piece";
+    }
+    if (stockField && !(stockField in defaults)) {
+      defaults[stockField] = item[stockField] ?? "";
+    }
+
+    // Merge with item, ensuring all values are defined
+    const result = { ...defaults };
+    Object.entries(item).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        result[key] = value;
+      }
+    });
+
+    return result;
   };
 
   const handleFieldChange = (id, field, value) => {
