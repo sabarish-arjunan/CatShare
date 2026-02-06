@@ -51,7 +51,7 @@ export async function handleShare({
   let allProducts = products || JSON.parse(localStorage.getItem("products") || "[]");
 
   // If no products passed and we're in retail mode, also check retail products
-  if (!products && mode === "retail") {
+  if (!products && (mode === "retail" || mode === "cat2")) {
     const retailProducts = JSON.parse(localStorage.getItem("retailProducts") || "[]");
     if (retailProducts.length > 0) {
       allProducts = [...retailProducts, ...allProducts];
@@ -69,7 +69,8 @@ export async function handleShare({
       // If not rendered, render on-the-fly
       if (!imageDataUrl) {
         console.log(`⏳ Image not rendered yet, rendering on-the-fly...`);
-        const product = allProducts.find((p: any) => p.id === id);
+        // Use loose equality for ID matching to handle string vs number
+        const product = allProducts.find((p: any) => String(p.id) === String(id));
 
         if (!product) {
           console.error(`❌ Product not found: ${id}`);
@@ -78,8 +79,14 @@ export async function handleShare({
         }
 
         // Determine catalogue ID from folder/mode
-        let catalogueId = folder === "Wholesale" ? "cat1" : folder === "Retail" ? "cat2" : "cat2";
-        imageDataUrl = await renderProductImageOnTheFly(product, catalogueLabel, catalogueId);
+        // Use mode if it looks like a catalogue ID (catX), otherwise fallback to mapping
+        let effectiveCatalogueId = mode && mode.startsWith("cat") ? mode :
+                                  (folder === "Wholesale" ? "cat1" :
+                                   folder === "Retail" ? "cat2" :
+                                   (mode === "retail" ? "cat2" : "cat1"));
+
+        console.log(`🎨 Using catalogue ID for rendering: ${effectiveCatalogueId}`);
+        imageDataUrl = await renderProductImageOnTheFly(product, catalogueLabel, effectiveCatalogueId);
 
         if (!imageDataUrl) {
           console.warn(`⚠️ Could not render product ${id} - product may not have an image`);
@@ -107,6 +114,7 @@ export async function handleShare({
               path: cachedFilePath,
               data: base64Data,
               directory: Directory.External,
+              recursive: true,
             });
             console.log(`💾 Saved on-the-fly rendered image to filesystem: ${cachedFilePath}`);
           } catch (fsErr) {
@@ -126,7 +134,14 @@ export async function handleShare({
         const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
         try {
-          // Try to get URI for the cached file (if it exists from previous saves)
+          // IMPORTANT: Check if file exists before trying to get URI
+          // This prevents "Item not found" errors when sharing
+          await Filesystem.stat({
+            path: cachedFilePath,
+            directory: Directory.External,
+          });
+
+          // Try to get URI for the cached file
           const fileResult = await Filesystem.getUri({
             path: cachedFilePath,
             directory: Directory.External,
@@ -138,13 +153,13 @@ export async function handleShare({
             return fileResult.uri;
           } else {
             // If URI not available, use data URL directly
-            console.log(`✅ Using data URL for product ${id} (no cached file)`);
+            console.log(`✅ Using data URL for product ${id} (URI empty)`);
             setProcessingIndex(index + 1);
             return imageDataUrl;
           }
-        } catch (uriErr) {
-          // Cached file doesn't exist or URI retrieval failed, use data URL
-          console.log(`ℹ️  No cached file found for product ${id}, using data URL`);
+        } catch (statErr) {
+          // File doesn't exist or Stat failed, use data URL
+          console.log(`ℹ️  No cached file found or stat failed for product ${id}, using data URL`);
           setProcessingIndex(index + 1);
           return imageDataUrl;
         }
