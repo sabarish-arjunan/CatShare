@@ -606,6 +606,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessingTotal,
       folder: catalogueLabel,
       mode: catalogueId,
+      products: allProducts,
     });
   }}
   className="w-9 h-9 flex items-center justify-center rounded-md text-green-600 hover:text-green-700 transition-colors"
