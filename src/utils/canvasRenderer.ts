@@ -363,10 +363,10 @@ export async function renderProductToCanvas(
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 1 * scale;
 
-    // Draw rounded rectangle badge background (pill shape)
+    // Draw stadium shape badge background (rounded left and right sides, straight top and bottom)
     ctx.fillStyle = badgeBg;
     ctx.globalAlpha = 0.95;
-    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
+    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
     ctx.globalAlpha = 1;
 
@@ -375,7 +375,7 @@ export async function renderProductToCanvas(
     // Badge border
     ctx.strokeStyle = badgeBorder;
     ctx.lineWidth = 1 * scale;
-    roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
+    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
 
     // Badge text - perfectly centered vertically and horizontally
