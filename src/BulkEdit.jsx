@@ -34,13 +34,6 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const [selectedCatalogueConfig, setSelectedCatalogueConfig] = useState(null);
   const [catalogues, setCatalogues] = useState([]);
   const [filledFromMaster, setFilledFromMaster] = useState({}); // Track which fields are filled from master
-
-  // Reset filledFromMaster when catalogue changes
-  useEffect(() => {
-    // For new catalogues, all fields start unchecked (empty)
-    // For existing catalogues, fields with data start unchecked (since data is already loaded)
-    setFilledFromMaster({});
-  }, [catalogueId]);
   const { showToast } = useToast();
 
   // Use initial values or selected values
@@ -48,6 +41,13 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const priceField = selectedCatalogueConfig?.priceField || initialPriceField;
   const priceUnitField = selectedCatalogueConfig?.priceUnitField || initialPriceUnitField;
   const stockField = selectedCatalogueConfig?.stockField || initialStockField;
+
+  // Reset filledFromMaster when catalogue changes
+  useEffect(() => {
+    // For new catalogues, all fields start unchecked (empty)
+    // For existing catalogues, fields with data start unchecked (since data is already loaded)
+    setFilledFromMaster({});
+  }, [catalogueId]);
 
   const totalProducts = products.length;
   const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
