@@ -61,14 +61,9 @@ export async function renderProductImageOnTheFly(
         });
         product.image = `data:image/png;base64,${res.data}`;
       } catch (err) {
-        console.error("❌ Failed to load image for on-the-fly rendering:", err.message);
-        return null;
+        console.warn("⚠️ Failed to load image from filesystem, will render with placeholder:", err.message);
+        // Continue rendering even if image load fails - canvas renderer will show placeholder
       }
-    }
-
-    if (!product.image) {
-      console.warn(`❌ No image available for product ${product.id} to render`);
-      return null;
     }
 
     // Get catalogue-specific data if catalogueId is provided
@@ -147,7 +142,47 @@ export async function renderProductImageOnTheFly(
     console.log(`✅ Product rendered on-the-fly successfully`);
     return `data:image/png;base64,${base64}`;
   } catch (err) {
-    console.error(`❌ Failed to render product on-the-fly:`, err);
-    return null;
+    console.error(`❌ Error during rendering:`, err);
+    // Try to render with empty image as fallback - still render the product card
+    try {
+      const fallbackProductData = {
+        name: product.name || "Product",
+        subtitle: product.subtitle || "",
+        image: "", // Empty image will be skipped by canvas renderer
+        field1: product.field1 || "",
+        field2: product.field2 || "",
+        field2Unit: product.field2Unit || "",
+        field3: product.field3 || "",
+        field3Unit: product.field3Unit || "",
+        price: product.price || 0,
+        priceUnit: product.priceUnit || "",
+        badge: product.badge || "",
+        cropAspectRatio: product.cropAspectRatio || 1,
+      };
+
+      const fallbackCanvas = await renderProductToCanvas(
+        fallbackProductData,
+        {
+          width: 330,
+          scale: 3,
+          bgColor: product.bgColor || "#add8e6",
+          imageBgColor: product.imageBgColor || "white",
+          fontColor: product.fontColor || "white",
+          backgroundColor: "#ffffff",
+        },
+        {
+          enabled: false,
+          text: "",
+          position: "bottom-center",
+        }
+      );
+
+      const fallbackBase64 = canvasToBase64(fallbackCanvas);
+      console.log(`✅ Product rendered with fallback (no image)`);
+      return `data:image/png;base64,${fallbackBase64}`;
+    } catch (fallbackErr) {
+      console.error(`❌ Fallback render also failed:`, fallbackErr);
+      return null;
+    }
   }
 }
