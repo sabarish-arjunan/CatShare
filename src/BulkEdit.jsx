@@ -459,7 +459,9 @@ useEffect(() => {
           })}
         </div>
 
-        {editedData.map((item, index) => (
+        {editedData.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">Loading...</div>
+        ) : editedData.map((item, index) => (
           <div
             key={item.id}
             className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 items-center text-sm py-2 border-b"
