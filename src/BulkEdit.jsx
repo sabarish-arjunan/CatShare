@@ -385,6 +385,17 @@ useEffect(() => {
   }
 
   if (step === "select") {
+    // If we have initialCatalogueId but data not loaded yet, show loading
+    if (initialCatalogueId && editedData.length === 0) {
+      return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg">
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl">
+            <div className="text-center text-gray-600">Loading...</div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
       onClick={onClose}
