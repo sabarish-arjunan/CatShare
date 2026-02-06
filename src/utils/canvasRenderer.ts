@@ -321,15 +321,15 @@ export async function renderProductToCanvas(
     const badgeBorder = isLightColor(imageBg) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)';
 
     const badgeText_str = product.badge.toUpperCase();
-    const badgeFontSize = Math.floor(13 * scale); // 13px like preview
+    const badgeFontSize = Math.floor(16 * scale); // Increased from 13px
     const badgeFont = `600 ${badgeFontSize}px Arial, sans-serif`; // 600 weight like preview
 
     ctx.font = badgeFont;
     const badgeMetrics = ctx.measureText(badgeText_str);
 
-    // Padding: horizontal 10px, vertical 6px (matching preview: "6px 10px")
-    const badgePaddingH = 10 * scale; // Horizontal padding
-    const badgePaddingV = 6 * scale; // Vertical padding
+    // Padding: horizontal 12px, vertical 8px (larger padding)
+    const badgePaddingH = 12 * scale; // Horizontal padding
+    const badgePaddingV = 8 * scale; // Vertical padding
     const badgeWidth = badgeMetrics.width + badgePaddingH * 2;
     const badgeHeight = badgeFontSize + badgePaddingV * 2;
     const badgeRadius = badgeHeight / 2; // Perfect pill shape (radius = height/2)
@@ -359,7 +359,7 @@ export async function renderProductToCanvas(
     roundRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
     ctx.stroke();
 
-    // Badge text - perfectly centered
+    // Badge text - perfectly centered vertically and horizontally
     ctx.fillStyle = badgeText;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
