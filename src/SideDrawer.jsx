@@ -544,6 +544,7 @@ const exportProductsToCSV = (products) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="h-[40px] bg-black flex-shrink-0"></div>
+          <div className="overflow-y-auto flex-1 p-4">
           <h2 className="text-lg font-semibold mb-4">
             Me<span
               onClick={handleNClick}
@@ -846,6 +847,7 @@ const exportProductsToCSV = (products) => {
       Created by <span className="font-semibold text-gray-600">BazelWings</span>
     </div>
   </div>
+          </div>
 </div>
         </div>
 
