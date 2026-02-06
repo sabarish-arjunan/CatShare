@@ -108,6 +108,61 @@ useEffect(() => {
     );
   };
 
+  const toggleFillFromMaster = (fieldKey) => {
+    const newState = !filledFromMaster[fieldKey];
+    setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: newState }));
+
+    if (newState) {
+      // Fill from master catalogue for all products
+      const masterCatalogueId = catalogues[0]?.id; // Get the first catalogue (Master)
+      if (!masterCatalogueId) return;
+
+      setEditedData((prev) =>
+        prev.map((item) => {
+          const masterData = getCatalogueData(item, masterCatalogueId);
+          const updates = {};
+
+          if (fieldKey === "field1") {
+            updates.field1 = masterData.field1 || item.color || "";
+          } else if (fieldKey === "field2") {
+            updates.field2 = masterData.field2 || item.package || "";
+            updates.field2Unit = masterData.field2Unit || item.packageUnit || "pcs / set";
+          } else if (fieldKey === "field3") {
+            updates.field3 = masterData.field3 || item.age || "";
+            updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
+          } else if (fieldKey === priceField) {
+            updates[priceField] = masterData[priceField] || "";
+            updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
+          }
+
+          return { ...item, ...updates };
+        })
+      );
+    } else {
+      // Empty the field for all products
+      setEditedData((prev) =>
+        prev.map((item) => {
+          const updates = {};
+
+          if (fieldKey === "field1") {
+            updates.field1 = "";
+          } else if (fieldKey === "field2") {
+            updates.field2 = "";
+            updates.field2Unit = "pcs / set";
+          } else if (fieldKey === "field3") {
+            updates.field3 = "";
+            updates.field3Unit = "months";
+          } else if (fieldKey === priceField) {
+            updates[priceField] = "";
+            updates[priceUnitField] = "/ piece";
+          }
+
+          return { ...item, ...updates };
+        })
+      );
+    }
+  };
+
   const toggleCategory = (id, cat) => {
     setEditedData((prev) =>
       prev.map((item) => {
