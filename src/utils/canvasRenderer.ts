@@ -387,7 +387,7 @@ export async function renderProductToCanvas(
 
   currentY += 6 * scale;
 
-  // Fields
+  // Fields - Match HTML format with aligned colons
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
   const fieldFont = `${renderFieldFontSize}px Arial, sans-serif`;
   const renderFieldLineHeight = renderFieldFontSize * 1.4;
@@ -395,25 +395,37 @@ export async function renderProductToCanvas(
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
 
-  const labelWidth = 90 * scale; // Matching preview modal label width
+  // Measure the longest label to align colons
+  const labels = ['Colour', 'Package', 'Age Group'];
+  let maxLabelWidth = 0;
+  labels.forEach(label => {
+    const metrics = ctx.measureText(label);
+    maxLabelWidth = Math.max(maxLabelWidth, metrics.width);
+  });
+
+  const colonX = renderDetailsPadding + maxLabelWidth + 6 * scale; // Colon position aligned
+  const valueX = colonX + 16 * scale; // Space after colon
 
   if (product.field1) {
-    ctx.fillText('Colour:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
-    ctx.fillText(product.field1, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Colour', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(product.field1, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field2) {
-    ctx.fillText('Package:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Package', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field2Text = `${product.field2} ${product.field2Unit || ''}`;
-    ctx.fillText(field2Text, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field2Text, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field3) {
-    ctx.fillText('Age Group:', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText('Age Group', renderDetailsPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field3Text = `${product.field3} ${product.field3Unit || ''}`;
-    ctx.fillText(field3Text, renderDetailsPadding + labelWidth + 8 * scale, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field3Text, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
