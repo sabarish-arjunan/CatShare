@@ -284,8 +284,11 @@ export function migrateFromTwoCataloguesToOne(): void {
  * Run all migration and validation steps
  * Should be called on app startup
  */
-export function runMigrations(): void {
+export async function runMigrations(): Promise<void> {
   console.log("🔄 Running data migrations...");
+
+  // Step 0: Critical cleanup for storage quota
+  await cleanupProductStorage();
 
   // Step 1: Initialize catalogues if needed
   initializeCataloguesIfNeeded();
