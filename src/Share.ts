@@ -59,7 +59,13 @@ export async function handleShare({
   }
 
   // Process all products in parallel
-  const processingPromises = selected.map(async (id, index) => {
+  let completedCount = 0;
+  const updateProgress = () => {
+    completedCount++;
+    setProcessingIndex(completedCount);
+  };
+
+  const processingPromises = selected.map(async (id) => {
     try {
       console.log(`📦 Processing product ${id} for sharing...`);
 
@@ -74,7 +80,7 @@ export async function handleShare({
 
         if (!product) {
           console.error(`❌ Product not found: ${id}`);
-          setProcessingIndex(index + 1);
+          updateProgress();
           return null;
         }
 
@@ -90,7 +96,7 @@ export async function handleShare({
 
         if (!imageDataUrl) {
           console.warn(`⚠️ Could not render product ${id} - product may not have an image`);
-          setProcessingIndex(index + 1);
+          updateProgress();
           return null;
         }
 
@@ -149,29 +155,29 @@ export async function handleShare({
 
           if (fileResult.uri) {
             console.log(`✅ Using cached rendered image for product ${id}: ${cachedFilePath}`);
-            setProcessingIndex(index + 1);
+            updateProgress();
             return fileResult.uri;
           } else {
             // If URI not available, use data URL directly
             console.log(`✅ Using data URL for product ${id} (URI empty)`);
-            setProcessingIndex(index + 1);
+            updateProgress();
             return imageDataUrl;
           }
         } catch (statErr) {
           // File doesn't exist or Stat failed, use data URL
           console.log(`ℹ️  No cached file found or stat failed for product ${id}, using data URL`);
-          setProcessingIndex(index + 1);
+          updateProgress();
           return imageDataUrl;
         }
       } catch (err) {
         console.warn(`⚠️ Error processing image for product ${id}:`, err);
         console.log(`✅ Added image for product ${id} to share queue (data URL fallback)`);
-        setProcessingIndex(index + 1);
+        updateProgress();
         return imageDataUrl;
       }
     } catch (err) {
       console.error(`❌ Error processing product ${id}:`, err);
-      setProcessingIndex(index + 1);
+      updateProgress();
       return null;
     }
   });
