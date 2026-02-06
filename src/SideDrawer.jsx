@@ -602,6 +602,17 @@ const exportProductsToCSV = (products) => {
       <span className="text-gray-500">🖼️</span>
       <span className="text-sm font-medium">Media Library</span>
     </button>
+
+    <button
+      onClick={() => {
+        navigate("/website");
+        onClose();
+      }}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition shadow-md"
+    >
+      <MdPublic className="text-white text-[18px]" />
+      <span className="text-sm font-medium">Website</span>
+    </button>
   </>
 )}
 
@@ -622,17 +633,6 @@ const exportProductsToCSV = (products) => {
 >
   <MdSettings className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Settings</span>
-</button>
-
-<button
-  onClick={() => {
-    navigate("/website");
-    onClose();
-  }}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition shadow-md"
->
-  <MdPublic className="text-white text-[18px]" />
-  <span className="text-sm font-medium">Website</span>
 </button>
 
 <button
