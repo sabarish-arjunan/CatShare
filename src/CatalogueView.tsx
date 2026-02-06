@@ -1148,10 +1148,6 @@ onMouseLeave={handleTouchEnd}
           setProducts={setProducts}
           onClose={() => setShowBulkEdit(false)}
           triggerRender={() => {}}
-          catalogueId={catalogueId}
-          priceField={priceField}
-          priceUnitField={priceUnitField}
-          stockField={stockField}
         />
       )}
     </div>
