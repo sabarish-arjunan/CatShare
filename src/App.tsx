@@ -465,6 +465,8 @@ function AppWithBackHandler() {
               setIsRendering={setIsRendering}
               renderProgress={renderProgress}
               setRenderProgress={setRenderProgress}
+              renderingTotal={renderingTotal}
+              setRenderingTotal={setRenderingTotal}
               renderResult={renderResult}
               setRenderResult={setRenderResult}
             />
