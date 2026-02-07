@@ -1,6 +1,5 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { flushSync } from "react-dom";
 import { getRenderedImage } from "./utils/renderingUtils";
 import { safeGetFromStorage } from "./utils/safeStorage";
 
