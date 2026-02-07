@@ -125,6 +125,7 @@ function AppWithBackHandler() {
             flushSync(() => setRenderProgress(productIndex));
 
             // Dispatch progress event for listeners (with both count and percentage)
+            console.log(`📤 App.tsx dispatching renderProgress: ${productIndex}/${all.length} (${percentage}%)`);
             window.dispatchEvent(new CustomEvent("renderProgress", {
               detail: {
                 percentage: percentage,
