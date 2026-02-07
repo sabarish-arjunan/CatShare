@@ -236,10 +236,13 @@ const handleBackup = async () => {
   const dataForJson = [];
   const deletedForJson = [];
 
-  for (const p of products) {
+  // Helper function to backup a product with its image
+  const backupProductWithImage = async (p) => {
     const product = { ...p };
     delete product.imageBase64;
+    delete product.image; // Remove any base64 image data
 
+    // Try to back up the image
     if (p.imagePath) {
       try {
         const res = await Filesystem.readFile({
@@ -249,38 +252,35 @@ const handleBackup = async () => {
 
         const imageFilename = p.imagePath.split("/").pop();
         zip.file(`images/${imageFilename}`, res.data, { base64: true });
-
-        product.imageFilename = imageFilename; // map in JSON
+        product.imageFilename = imageFilename;
+        console.log(`✅ Backed up image for "${p.name}": ${imageFilename}`);
       } catch (err) {
-        console.warn("Could not read image:", p.imagePath);
+        console.warn(`⚠️ Image file not found for "${p.name}": ${p.imagePath}`);
+        // Image reference exists but file doesn't - this is a data inconsistency
       }
+    } else if (p.image && typeof p.image === 'string' && p.image.startsWith('data:')) {
+      // Product has base64 image but no imagePath - include it directly in the backup
+      console.log(`📝 Including base64 image for "${p.name}" in backup`);
+      product.image = p.image; // Keep base64 for this product
+    } else if (p.image) {
+      // Product has some image data - keep it
+      console.log(`📝 Including image data for "${p.name}" in backup`);
+      product.image = p.image;
     }
 
-    dataForJson.push(product);
+    return product;
+  };
+
+  // Back up all products
+  for (const p of products) {
+    const backupProduct = await backupProductWithImage(p);
+    dataForJson.push(backupProduct);
   }
 
   // Also process deleted products' images
   for (const p of deleted) {
-    const product = { ...p };
-    delete product.imageBase64;
-
-    if (p.imagePath) {
-      try {
-        const res = await Filesystem.readFile({
-          path: p.imagePath,
-          directory: Directory.Data,
-        });
-
-        const imageFilename = p.imagePath.split("/").pop();
-        zip.file(`images/${imageFilename}`, res.data, { base64: true });
-
-        product.imageFilename = imageFilename; // map in JSON
-      } catch (err) {
-        console.warn("Could not read image:", p.imagePath);
-      }
-    }
-
-    deletedForJson.push(product);
+    const backupProduct = await backupProductWithImage(p);
+    deletedForJson.push(backupProduct);
   }
 
   // Include catalogues definition and all settings in backup
