@@ -582,7 +582,7 @@ export default function ProductPreviewModal({
             style={{
               display: "flex",
               flexDirection: "column",
-              width: "min(90vw, 75vh)",
+              width: "min(75vw, 75vh)",
               maxWidth: "600px",
               minWidth: "280px",
             }}
