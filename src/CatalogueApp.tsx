@@ -286,9 +286,46 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setProducts((prev) => prev.map((p) => (p.id === item.id ? item : p)));
   };
 
-  const handleRenderAllPNGs = async () => {
+  const handleRenderAllPNGs = async (forceRerender: boolean = false) => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
+
+    const cats = getAllCatalogues();
+
+    // If forcing re-render, delete all existing rendered images first
+    if (forceRerender) {
+      console.log("🗑️ Force re-render enabled - clearing all rendered images...");
+      for (const cat of cats) {
+        const folderName = cat.folder || cat.label;
+        try {
+          const result = await Filesystem.readdir({
+            path: folderName,
+            directory: Directory.External,
+          });
+
+          if (result.files && result.files.length > 0) {
+            for (const file of result.files) {
+              try {
+                await Filesystem.deleteFile({
+                  path: `${folderName}/${file.name}`,
+                  directory: Directory.External,
+                });
+                console.log(`  ✓ Deleted: ${file.name}`);
+              } catch (err) {
+                console.warn(`  ⚠️ Could not delete ${file.name}:`, err.message);
+              }
+            }
+            console.log(`✅ Cleared ${result.files.length} images from ${folderName}`);
+          }
+        } catch (err) {
+          // Folder might not exist yet, which is fine
+          if (err.code !== 'NotFound') {
+            console.warn(`⚠️ Could not clear folder ${folderName}:`, err.message);
+          }
+        }
+      }
+      console.log("✅ Cache cleared. Re-rendering all images with latest settings...");
+    }
 
     // Force synchronous state updates so overlay renders with correct total
     flushSync(() => {
@@ -297,7 +334,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       propSetRenderingTotal?.(all.length);
     });
 
-    const cats = getAllCatalogues();
     const totalRenders = all.length * cats.length;
     let renderedCount = 0;
 
@@ -349,7 +385,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       propSetRenderResult?.({
         status: "success",
-        message: `PNG rendering completed for all products and catalogues`,
+        message: `PNG rendering completed for all products and catalogues${forceRerender ? ' (force re-rendered)' : ''}`,
       });
       propSetIsRendering?.(false);
       window.dispatchEvent(new CustomEvent("renderComplete"));
