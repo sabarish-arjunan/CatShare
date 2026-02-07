@@ -1,6 +1,5 @@
 // Web Worker for background image rendering
 import { renderProductToCanvas, canvasToBase64 } from '../utils/canvasRenderer';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 
 interface RenderData {
   items: Array<{
