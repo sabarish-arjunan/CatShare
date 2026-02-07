@@ -128,8 +128,13 @@ export async function handleShare({
     // Listen for progress events from the renderer
     const progressHandler = (event: any) => {
       const { current, total } = event.detail;
-      setProcessingIndex(current);
-      setProcessingTotal(total);
+      console.log(`📊 Share.ts received renderProgress: ${current}/${total}`);
+      // Use flushSync to ensure immediate UI updates
+      const { flushSync } = require("react-dom");
+      flushSync(() => {
+        setProcessingIndex(current);
+        setProcessingTotal(total);
+      });
     };
     window.addEventListener("renderProgress", progressHandler);
 
