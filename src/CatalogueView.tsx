@@ -75,6 +75,20 @@ export default function CatalogueView({
 
 
 useEffect(() => {
+  // Listen for render progress updates
+  const handleRenderProgress = (event: any) => {
+    const { current, total } = event.detail;
+    flushSync(() => {
+      setProcessingIndex(current);
+      setProcessingTotal(total);
+    });
+  };
+
+  window.addEventListener("renderProgress", handleRenderProgress);
+  return () => window.removeEventListener("renderProgress", handleRenderProgress);
+}, []);
+
+useEffect(() => {
   if (showSearch && searchInputRef.current) {
     searchInputRef.current.focus();
   }
