@@ -773,6 +773,26 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                       await Haptics.impact({ style: ImpactStyle.Heavy });
                       setProducts((prev) => prev.filter((x) => x.id !== shelfTarget.id));
                       setDeletedProducts((prev) => [shelfTarget, ...prev]);
+
+                      // If currently previewing this item, move to next
+                      if (previewProduct && previewProduct.id === shelfTarget.id) {
+                        const idx = previewList.findIndex(p => p.id === shelfTarget.id);
+                        if (idx !== -1) {
+                          const newPreviewList = previewList.filter(p => p.id !== shelfTarget.id);
+                          setPreviewList(newPreviewList);
+                          if (newPreviewList.length > 0) {
+                            const nextIdx = idx < newPreviewList.length ? idx : newPreviewList.length - 1;
+                            setPreviewProduct(newPreviewList[nextIdx]);
+                          } else {
+                            setPreviewProduct(null);
+                          }
+                        } else {
+                          setPreviewProduct(null);
+                        }
+                      } else {
+                        // Even if not previewing it, update the list in background
+                        setPreviewList(prev => prev.filter(p => p.id !== shelfTarget.id));
+                      }
                     }
                     setShowShelfConfirm(false);
                     setShelfTarget(null);
@@ -939,8 +959,29 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
             onShelf={(product) => {
-              setShelfTarget(product);
-              setShowShelfConfirm(true);
+              // Perform shelf action directly since ProductPreviewModal already showed confirmation
+              const toShelf = product || previewProduct;
+              if (!toShelf) return;
+
+              Haptics.impact({ style: ImpactStyle.Heavy });
+              setProducts((prev) => prev.filter((p) => p.id !== toShelf.id));
+              setDeletedProducts((prev) => [toShelf, ...prev]);
+
+              // Move to next item in preview
+              const idx = previewList.findIndex(p => p.id === toShelf.id);
+              if (idx !== -1) {
+                const newPreviewList = previewList.filter(p => p.id !== toShelf.id);
+                setPreviewList(newPreviewList);
+
+                if (newPreviewList.length > 0) {
+                  const nextIdx = idx < newPreviewList.length ? idx : newPreviewList.length - 1;
+                  setPreviewProduct(newPreviewList[nextIdx]);
+                } else {
+                  setPreviewProduct(null);
+                }
+              } else {
+                setPreviewProduct(null);
+              }
             }}
           />
         )}
