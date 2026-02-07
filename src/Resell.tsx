@@ -198,106 +198,90 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
         return;
       }
 
-      // Get just the image area (first div with relative aspect-square)
-      const imageArea = cardElement.querySelector('.relative.aspect-square');
-      if (!imageArea) {
-        console.error('Image area not found');
+      // Get the image element from the card
+      const imgElement = cardElement.querySelector('img');
+      if (!imgElement) {
+        console.error('Image not found in card');
         return;
       }
 
-      // Create a temporary container to capture the element
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'fixed';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '-9999px';
-      tempContainer.style.width = 'auto';
-      tempContainer.style.zIndex = '-1';
+      // Wait for image to load
+      if (!imgElement.complete) {
+        await new Promise((resolve) => {
+          imgElement.onload = resolve;
+          imgElement.onerror = resolve;
+        });
+      }
 
-      // Clone the image area to avoid modifying the original
-      const clonedElement = imageArea.cloneNode(true) as HTMLElement;
-      clonedElement.style.display = 'block';
-      clonedElement.style.margin = '0';
-      clonedElement.style.padding = '0';
-      clonedElement.style.width = '400px';
-      clonedElement.style.height = '400px';
+      // Create canvas and draw the image using Canvas API
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
 
-      tempContainer.appendChild(clonedElement);
-      document.body.appendChild(tempContainer);
+      if (!ctx) {
+        console.error('Failed to get canvas context');
+        return;
+      }
 
-      // Wait for images to load
-      const images = clonedElement.querySelectorAll('img');
-      await Promise.all(
-        Array.from(images).map(img => {
-          return new Promise((resolve) => {
-            if (img.complete) {
-              resolve(null);
+      // Fill white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 400, 400);
+
+      // Draw the image
+      try {
+        // Load the image source
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = imgElement.src;
+
+        await new Promise((resolve, reject) => {
+          img.onload = () => {
+            // Center and scale the image to fit the canvas
+            const maxWidth = 380;
+            const maxHeight = 380;
+            let width = img.width;
+            let height = img.height;
+            const ratio = width / height;
+
+            if (ratio > 1) {
+              width = maxWidth;
+              height = maxWidth / ratio;
             } else {
-              img.onload = () => resolve(null);
-              img.onerror = () => resolve(null);
+              height = maxHeight;
+              width = maxHeight * ratio;
             }
-          });
-        })
-      );
 
-      // Use html2canvas to capture the rendered element
-      const canvas = await html2canvas(clonedElement, {
-        backgroundColor: '#ffffff',
-        scale: 3,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        width: 400,
-        height: 400,
-      });
+            const x = (400 - width) / 2;
+            const y = (400 - height) / 2;
+
+            ctx.drawImage(img, x, y, width, height);
+            resolve(null);
+          };
+          img.onerror = () => reject(new Error('Failed to load image'));
+        });
+      } catch (imgErr) {
+        console.warn('Could not load and draw image, drawing white canvas:', imgErr);
+      }
 
       // Convert canvas to blob
       canvas.toBlob(async (blob) => {
         if (!blob) {
           console.error('Failed to create image blob');
-          document.body.removeChild(tempContainer);
           return;
         }
 
         const filename = `${productName || 'product'}_${productId}.png`;
 
-        // Use FileSaver or Filesystem API for download
-        if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
-          try {
-            const handle = await (window as any).showSaveFilePicker({
-              suggestedName: filename,
-              types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
-            });
-            const writable = await handle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-          } catch (err) {
-            if (err.name !== 'AbortError') {
-              console.warn('Save file picker failed, trying download:', err);
-              // Fallback to blob download
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }
-          }
-        } else {
-          // Fallback: simple blob download
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }
-
-        // Clean up temporary container
-        document.body.removeChild(tempContainer);
+        // Trigger download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       }, 'image/png');
     } catch (err) {
       console.error('Download failed:', err);
