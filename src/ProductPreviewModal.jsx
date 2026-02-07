@@ -344,6 +344,7 @@ export default function ProductPreviewModal({
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const [showShelfModal, setShowShelfModal] = useState(false);
   const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
