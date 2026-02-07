@@ -60,19 +60,24 @@ async function processRendering(renderData: RenderData): Promise<any> {
     try {
       console.log(`Worker: Rendering item ${i + 1}/${items.length}: ${item.id}`);
 
-      // Ensure the product has an image property for rendering
-      let productToRender = { ...item };
+      // Prepare product data with mapped image path
+      const imageUrl = item.imagePath || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
-      // Make sure we have at least a placeholder image for rendering
-      if (!productToRender.image) {
-        // Use a 1x1 transparent PNG placeholder
-        productToRender.image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-      }
+      const productToRender = {
+        name: item.name,
+        image: imageUrl,
+        ...item.renderConfig
+      };
 
       // Render the product to canvas
-      const canvas = await renderProductToCanvas(productToRender as any, {
+      const canvas = await renderProductToCanvas(productToRender, {
         width: width,
-        scale: 1
+        height: width,
+        scale: 1,
+        bgColor: '#ffffff',
+        imageBgColor: '#f5f5f5',
+        fontColor: '#333333',
+        backgroundColor: '#ffffff'
       }, {
         enabled: false, // No watermark for shared renders
         text: '',
