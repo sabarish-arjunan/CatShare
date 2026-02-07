@@ -223,7 +223,7 @@ export async function handleShare({
 
   if (fileUris.length === 0) {
     console.error(`❌ Share failed: No valid images to share. Failed products:`, failedProducts);
-    alert("❌ No products selected or no valid images available to share.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image\n\nFailed products: " + failedProducts.join(", "));
+    alert("❌ Cannot share: No products with images available.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image (original or rendered)\n\nFailed products: " + failedProducts.join(", "));
     return;
   }
 
