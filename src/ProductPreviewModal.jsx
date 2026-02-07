@@ -846,31 +846,31 @@ export default function ProductPreviewModal({
       {/* Shelf Modal - Overlay on top of preview */}
       {showShelfModal && (
         <div
-          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
           onClick={() => setShowShelfModal(false)}
         >
           <div
-            className="bg-white rounded-xl shadow-2xl border border-gray-200 p-8 max-w-sm w-[90%]"
+            className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 max-w-sm w-full text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Move to Shelf?</h2>
-            <p className="text-gray-600 mb-6">
-              Move <strong>{product.name}</strong> to shelf?
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">Shelf this item now?</h2>
+            <p className="text-sm text-gray-600 mb-5">
+              It stays safe and can be restored or deleted later.
             </p>
 
-            <div className="flex gap-3">
+            <div className="flex justify-center gap-4">
               <button
                 onClick={() => {
                   onShelf?.(product);
                   setShowShelfModal(false);
                 }}
-                className="flex-1 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-800 transition"
               >
-                Move to Shelf
+                Shelf
               </button>
               <button
                 onClick={() => setShowShelfModal(false)}
-                className="flex-1 px-4 py-3 rounded-lg bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition"
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition"
               >
                 Cancel
               </button>
