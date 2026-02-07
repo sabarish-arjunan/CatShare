@@ -46,6 +46,30 @@ export async function handleShare({
     }
   }
 
+  // Helper function to load image data from filesystem for a product
+  const loadProductImages = async (productsToLoad: any[]) => {
+    console.log(`📂 Loading images for ${productsToLoad.length} products...`);
+    for (const product of productsToLoad) {
+      // Skip if image is already loaded as base64
+      if (product.image) continue;
+
+      // Try to load from filesystem if imagePath is available
+      if (product.imagePath) {
+        try {
+          console.log(`📂 Loading image from filesystem: ${product.imagePath}`);
+          const res = await Filesystem.readFile({
+            path: product.imagePath,
+            directory: Directory.Data,
+          });
+          product.image = `data:image/png;base64,${res.data}`;
+          console.log(`✅ Image loaded for product ${product.id}`);
+        } catch (err) {
+          console.warn(`⚠️ Failed to load image for product ${product.id}: ${err.message}`);
+        }
+      }
+    }
+  };
+
   // 1. Identify products that need rendering using the native engine
   const missingProducts = [];
   for (const id of selected) {
@@ -66,6 +90,9 @@ export async function handleShare({
   // 2. If any missing, trigger native rendering (same as Render All) and wait
   if (missingProducts.length > 0) {
     console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering native rendering...`);
+
+    // Load images from filesystem before rendering
+    await loadProductImages(missingProducts);
 
     // Set processing states to show the smaller popup in CatalogueView
     setProcessing(true);
