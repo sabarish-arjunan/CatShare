@@ -79,7 +79,7 @@ export default function RenderingOverlay({ visible, current, total }) {
 
       <div className="w-64 h-3 mt-4 bg-[#e3caa3] rounded-full overflow-hidden relative">
         <div
-          className="h-full bg-[#6c3b2a] transition-all duration-500 relative"
+          className="h-full bg-[#6c3b2a] transition-all duration-200 relative"
           style={{ width: `${percentage}%` }}
         >
           {/* Shimmer effect for continuous activity feedback */}
