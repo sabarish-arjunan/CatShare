@@ -286,7 +286,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setProducts((prev) => prev.map((p) => (p.id === item.id ? item : p)));
   };
 
-  const handleRenderAllPNGs = async (forceRerender: boolean = false) => {
+  const handleRenderAllPNGs = async (forceRerender: boolean = true) => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
