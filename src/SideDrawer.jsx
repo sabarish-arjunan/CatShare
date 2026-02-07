@@ -815,48 +815,25 @@ const exportProductsToCSV = (products) => {
 
 {showRenderConfirm && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
-    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
-      <p className="text-lg font-medium text-gray-800 mb-4">Render product PNGs</p>
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
+      <p className="text-lg font-medium text-gray-800 mb-2">Render all product PNGs?</p>
+<p className="text-sm text-gray-600 mb-4">
+  Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
+</p>
 
-      <div className="space-y-3 mb-6">
-        {/* Quick render option */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-          <p className="text-sm font-semibold text-gray-800 mb-1">Quick Render</p>
-          <p className="text-xs text-gray-600 mb-2">Only render images that haven't been rendered yet</p>
-          <p className="text-xs text-gray-500">Estimated time: <span className="font-semibold">{estimatedSeconds}s</span> for {totalProducts} products</p>
-        </div>
-
-        {/* Force re-render option */}
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-left">
-          <p className="text-sm font-semibold text-gray-800 mb-1">Force Re-render</p>
-          <p className="text-xs text-gray-600 mb-2">Delete all images and render fresh with current settings (watermark, colors, etc.)</p>
-          <p className="text-xs text-orange-600 font-medium">Use this after changing watermark or other settings</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3">
+      <div className="flex justify-center gap-4">
         <button
-          className="w-full px-4 py-2.5 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
-          onClick={() => {
-            setShowRenderConfirm(false);
-            onClose();
-            setTimeout(() => handleRenderAllPNGs(false), 50);
-          }}
-        >
-          Quick Render
-        </button>
-        <button
-          className="w-full px-4 py-2.5 rounded-full bg-orange-600 text-white font-medium shadow hover:bg-orange-700 transition text-sm"
+          className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-900 transition"
           onClick={() => {
             setShowRenderConfirm(false);
             onClose();
             setTimeout(() => handleRenderAllPNGs(true), 50);
           }}
         >
-          Force Re-render
+          Yes
         </button>
         <button
-          className="w-full px-4 py-2.5 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition text-sm"
+          className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition"
           onClick={() => setShowRenderConfirm(false)}
         >
           Cancel
