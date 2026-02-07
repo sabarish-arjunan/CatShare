@@ -134,9 +134,6 @@ function AppWithBackHandler() {
                 total: all.length
               }
             }));
-
-            // Small delay to allow smooth animation before next update
-            await new Promise(resolve => setTimeout(resolve, 50));
           }
 
           console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
