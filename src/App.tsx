@@ -407,7 +407,7 @@ function AppWithBackHandler() {
       <ToastContainer />
       <RenderingOverlay
         visible={isRendering}
-        current={Math.round((renderProgress / 100) * renderingTotal)}
+        current={renderProgress}
         total={renderingTotal}
       />
 
