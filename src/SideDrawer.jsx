@@ -401,6 +401,7 @@ const exportProductsToCSV = (products) => {
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
+          let imageRestored = false;
           if (p.imageFilename && p.imagePath) {
             const imgFile = zip.file(`images/${p.imageFilename}`);
             if (imgFile) {
@@ -413,10 +414,16 @@ const exportProductsToCSV = (products) => {
                   directory: Directory.Data,
                   recursive: true,
                 });
+                imageRestored = true;
+                console.log(`📸 Image restored for "${p.name}": ${p.imagePath}`);
               } catch (err) {
-                console.warn("Image write failed:", p.imagePath);
+                console.warn(`❌ Image write failed for "${p.name}":`, p.imagePath, err);
               }
+            } else {
+              console.warn(`⚠️ Image file not found in ZIP for "${p.name}": images/${p.imageFilename}`);
             }
+          } else {
+            console.log(`ℹ️ No image data for "${p.name}" (imageFilename: ${p.imageFilename}, imagePath: ${p.imagePath})`);
           }
 
           const clean = { ...p };
