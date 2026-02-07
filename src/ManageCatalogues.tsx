@@ -15,6 +15,7 @@ interface ManageCataloguesProps {
   onCataloguesChanged: (catalogues: Catalogue[]) => void;
   products: any[];
   setProducts: (products: any[]) => void;
+  renamingCatalogueIds?: Set<string>;
 }
 
 export default function ManageCatalogues({
@@ -22,6 +23,7 @@ export default function ManageCatalogues({
   onCataloguesChanged,
   products,
   setProducts,
+  renamingCatalogueIds = new Set(),
 }: ManageCataloguesProps) {
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -148,7 +150,6 @@ export default function ManageCatalogues({
     }
 
     try {
-      setIsSaving(true);
       await Haptics.impact({ style: ImpactStyle.Medium });
 
       const newLabel = formLabel.trim();
@@ -156,9 +157,23 @@ export default function ManageCatalogues({
       const oldLabel = showEditForm.label;
       const newFolder = newLabel;
 
+      // Handle folder/label change - start rename in background if needed
       if (oldFolder !== newFolder || oldLabel !== newLabel) {
-        console.log(`📁 Catalogue changed from "${oldLabel}" to "${newLabel}"`);
-        await renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel);
+        console.log(`📁 Catalogue changed from "${oldLabel}" to "${newLabel}" - starting background rename`);
+
+        // Notify start of rename
+        window.dispatchEvent(new CustomEvent("catalogue-rename-start", { detail: { id: showEditForm.id } }));
+
+        // Fire and forget (don't await)
+        renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel)
+          .then(() => {
+            console.log(`✅ Background rename complete for: ${newLabel}`);
+            window.dispatchEvent(new CustomEvent("catalogue-rename-end", { detail: { id: showEditForm.id } }));
+          })
+          .catch((err) => {
+            console.error(`❌ Background rename failed for: ${newLabel}`, err);
+            window.dispatchEvent(new CustomEvent("catalogue-rename-end", { detail: { id: showEditForm.id } }));
+          });
       }
 
       const updates = {
@@ -177,8 +192,6 @@ export default function ManageCatalogues({
       resetFormFields();
     } catch (err) {
       setFormError("Failed to update catalogue: " + (err as Error).message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -374,9 +387,8 @@ export default function ManageCatalogues({
                     <input
                       type="text"
                       value={formLabel}
-                      disabled={isSaving}
                       onChange={(e) => setFormLabel(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
                   </div>
 
@@ -390,22 +402,20 @@ export default function ManageCatalogues({
                         <img src={formHeroImage} alt="Preview" className="w-full h-32 object-cover" />
                         <button
                           type="button"
-                          disabled={isSaving}
                           onClick={() => setFormHeroImage("")}
-                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition"
                         >
                           <FiX size={14} />
                         </button>
                       </div>
                     ) : (
-                      <label className={`flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-slate-100 transition ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-200'}`}>
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-slate-100 cursor-pointer hover:bg-slate-200 transition">
                         <FiImage size={20} className="text-slate-500 mb-1.5" />
                         <span className="text-xs font-medium text-gray-700">Click to upload image</span>
                         <span className="text-xs text-gray-500 mt-0.5">Max 2MB</span>
                         <input
                           type="file"
                           accept="image/*"
-                          disabled={isSaving}
                           onChange={handleImageUpload}
                           className="hidden"
                         />
@@ -420,10 +430,9 @@ export default function ManageCatalogues({
                     </label>
                     <textarea
                       value={formDescription}
-                      disabled={isSaving}
                       onChange={(e) => setFormDescription(e.target.value)}
                       placeholder="Add a description for this catalogue..."
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
                       rows={2}
                     />
                   </div>
@@ -439,29 +448,18 @@ export default function ManageCatalogues({
                   <div className="flex gap-2 pt-1">
                     <button
                       type="submit"
-                      disabled={isSaving}
-                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95"
                     >
-                      {isSaving ? (
-                        <>
-                          <FiLoader className="animate-spin" size={16} />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <FiCheck size={16} />
-                          Save Changes
-                        </>
-                      )}
+                      <FiCheck size={16} />
+                      Save Changes
                     </button>
                     <button
                       type="button"
-                      disabled={isSaving}
                       onClick={() => {
                         setShowEditForm(null);
                         resetFormFields();
                       }}
-                      className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-300 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-300 transition active:scale-95"
                     >
                       Cancel
                     </button>
@@ -509,6 +507,9 @@ export default function ManageCatalogues({
                             <h4 className="font-semibold text-gray-900 truncate text-sm">
                               {catalogue.label}
                             </h4>
+                            {renamingCatalogueIds.has(catalogue.id) && (
+                              <FiLoader className="animate-spin text-blue-500" size={12} />
+                            )}
                             {catalogue.isDefault && (
                               <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">
                                 Default
