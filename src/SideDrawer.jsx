@@ -430,6 +430,11 @@ const exportProductsToCSV = (products) => {
         })
       );
 
+      // Clear old deleted products to free up space
+      console.log("🗑️ Clearing old deleted products to free up space...");
+      setDeletedProducts([]);
+      localStorage.setItem("deletedProducts", JSON.stringify([]));
+
       setProducts(rebuilt);
       localStorage.setItem("products", JSON.stringify(rebuilt));
 
@@ -480,8 +485,14 @@ const exportProductsToCSV = (products) => {
           })
         );
 
-        setDeletedProducts(rebuiltDeleted);
-        localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
+        // Only restore deleted products if there's space
+        try {
+          setDeletedProducts(rebuiltDeleted);
+          localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
+        } catch (quotaErr) {
+          console.warn("⚠️ Could not restore deleted products (quota exceeded), skipping:", quotaErr.message);
+          // Just skip deleted products if quota is exceeded - main products are restored
+        }
       }
 
       // Restore catalogues definition from backup
