@@ -341,6 +341,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             // Calculate which product we're on (product index, not total render count)
             const productIndex = Math.floor(renderedCount / cats.length);
             flushSync(() => propSetRenderProgress?.(productIndex));
+            // Small delay to allow smooth animation before next update
+            await new Promise(resolve => setTimeout(resolve, 30));
           }
 
           console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
