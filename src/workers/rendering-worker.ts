@@ -11,6 +11,11 @@ interface RenderData {
   format?: 'png' | 'jpg' | 'jpeg';
   width?: number;
   height?: number;
+  watermark?: {
+    enabled: boolean;
+    text: string;
+    position: string;
+  };
 }
 
 interface MessageData {
@@ -47,7 +52,7 @@ self.onmessage = async (event: MessageEvent<MessageData>) => {
 };
 
 async function processRendering(renderData: RenderData): Promise<any> {
-  const { items, format = 'png', width = 1080, height = 1080 } = renderData;
+  const { items, format = 'png', width = 1080, height = 1080, watermark } = renderData;
 
   console.log(`Worker: Processing ${items.length} items for ${format} at ${width}x${height}`);
 
@@ -78,10 +83,10 @@ async function processRendering(renderData: RenderData): Promise<any> {
         imageBgColor: '#f5f5f5',
         fontColor: '#333333',
         backgroundColor: '#ffffff'
-      }, {
-        enabled: false, // No watermark for shared renders
+      }, watermark || {
+        enabled: false, // Default to disabled if not provided
         text: '',
-        position: 'bottom-right'
+        position: 'bottom-center'
       });
 
       // Convert canvas to base64
