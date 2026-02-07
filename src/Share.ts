@@ -91,6 +91,9 @@ export async function handleShare({
   if (missingProducts.length > 0) {
     console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering native rendering...`);
 
+    // Load images from filesystem before rendering
+    await loadProductImages(missingProducts);
+
     // Set processing states to show the smaller popup in CatalogueView
     setProcessing(true);
     setProcessingIndex(0);
