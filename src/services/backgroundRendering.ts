@@ -1,6 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 import BackgroundRenderer from '../plugins/background-renderer';
 
+import { safeGetFromStorage } from '../utils/safeStorage';
+
 interface RenderProgressCallback {
   (progress: { percentage: number; currentItem?: string }): void;
 }
@@ -88,6 +90,11 @@ export async function startBackgroundRendering(
   try {
     const isNative = Capacitor.getPlatform() !== 'web';
 
+    // Get watermark settings
+    const isWatermarkEnabled = safeGetFromStorage('showWatermark', false);
+    const watermarkText = safeGetFromStorage('watermarkText', 'Created using CatShare');
+    const watermarkPosition = safeGetFromStorage('watermarkPosition', 'bottom-center');
+
     // Prepare render data
     const renderData = {
       items: items.map((product) => ({
@@ -107,6 +114,11 @@ export async function startBackgroundRendering(
       format: 'png' as const,
       width: 1080,
       height: 1080,
+      watermark: {
+        enabled: isWatermarkEnabled,
+        text: watermarkText,
+        position: watermarkPosition,
+      },
     };
 
     if (isNative) {
