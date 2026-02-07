@@ -115,12 +115,12 @@ export async function handleShare({
     // Set processing states to show progress in CatalogueView
     setProcessing(true);
     setProcessingIndex(0);
-    setProcessingTotal(missingProducts.length);
+    setProcessingTotal(needsRendering.length);
 
     // Emit event that App.tsx listens to, with request to hide global overlay
     window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
       detail: {
-        products: missingProducts,
+        products: needsRendering,
         showOverlay: false
       }
     }));
