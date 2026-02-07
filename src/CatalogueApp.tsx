@@ -234,8 +234,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // If on products tab, let App.tsx handle it (close preview modal or exit app)
-      // Dispatch custom event so App.tsx can handle it properly
+      // If on products tab, check for open preview modals
+      const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
+      const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
+      if (fullScreenImageOpen || previewModalOpen) {
+        window.dispatchEvent(new CustomEvent("close-preview"));
+        return;
+      }
+
+      // If on products tab and no preview open, let App.tsx handle it
+      // Dispatch custom event so App.tsx can handle exit logic properly
       window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
     }).then((listener) => {
       removeListener = listener.remove;
