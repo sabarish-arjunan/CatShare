@@ -314,6 +314,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         if (!product.image && !product.imagePath) {
           console.warn(`⚠️ Skipping ${product.name} - no image available`);
           flushSync(() => propSetRenderProgress?.((i + 1)));
+          // Small delay to allow smooth animation
+          await new Promise(resolve => setTimeout(resolve, 50));
           continue;
         }
 
