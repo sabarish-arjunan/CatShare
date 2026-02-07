@@ -1144,7 +1144,7 @@ onMouseLeave={handleTouchEnd}
   <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
     <div className="bg-white rounded-xl shadow-xl px-6 py-4 text-center animate-fadeIn space-y-3 w-64">
       <div className="text-lg font-semibold text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
-        🖼️ Creating image {processingIndex} of {processingTotal}
+        🖼️ Creating image {processingIndex} of {processingTotal}... ({processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}%)
       </div>
       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
         <div
