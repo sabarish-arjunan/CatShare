@@ -939,8 +939,29 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
             onShelf={(product) => {
-              setShelfTarget(product);
-              setShowShelfConfirm(true);
+              // Perform shelf action directly since ProductPreviewModal already showed confirmation
+              const toShelf = product || previewProduct;
+              if (!toShelf) return;
+
+              Haptics.impact({ style: ImpactStyle.Heavy });
+              setProducts((prev) => prev.filter((p) => p.id !== toShelf.id));
+              setDeletedProducts((prev) => [toShelf, ...prev]);
+
+              // Move to next item in preview
+              const idx = previewList.findIndex(p => p.id === toShelf.id);
+              if (idx !== -1) {
+                const newPreviewList = previewList.filter(p => p.id !== toShelf.id);
+                setPreviewList(newPreviewList);
+
+                if (newPreviewList.length > 0) {
+                  const nextIdx = idx < newPreviewList.length ? idx : newPreviewList.length - 1;
+                  setPreviewProduct(newPreviewList[nextIdx]);
+                } else {
+                  setPreviewProduct(null);
+                }
+              } else {
+                setPreviewProduct(null);
+              }
             }}
           />
         )}
