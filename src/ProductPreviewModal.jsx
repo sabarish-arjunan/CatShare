@@ -696,7 +696,7 @@ export default function ProductPreviewModal({
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
                 padding: "12px 12px",
-                fontSize: 15,
+                fontSize: 17,
                 overflow: "auto",
                 flex: 1,
                 minHeight: 0,
@@ -712,14 +712,14 @@ export default function ProductPreviewModal({
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 24,
+                    fontSize: 28,
                     margin: "0 0 3px 0",
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 16, margin: "0 0 0 0" }}>
+                  <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
                     ({product.subtitle})
                   </p>
                 )}
@@ -758,7 +758,7 @@ export default function ProductPreviewModal({
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  fontSize: 17,
+                  fontSize: 19,
                   flexShrink: 0,
                 }}
               >
