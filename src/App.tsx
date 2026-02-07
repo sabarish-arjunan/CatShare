@@ -81,7 +81,8 @@ function AppWithBackHandler() {
         // Skip products without images
         if (!product.image && !product.imagePath) {
           console.warn(`⚠️ Skipping ${product.name} - no image available`);
-          setRenderProgress(Math.round(((i + 1) / all.length) * 100));
+          // Update progress with actual count (i + 1), not percentage
+          setRenderProgress(i + 1);
           // Dispatch progress event
           window.dispatchEvent(new CustomEvent("renderProgress", {
             detail: {
@@ -112,14 +113,18 @@ function AppWithBackHandler() {
             });
 
             renderedCount++;
-            const progress = Math.round((renderedCount / totalRenders) * 100);
-            setRenderProgress(progress);
+            // Calculate which product we're on (product index, not total render count)
+            const productIndex = Math.floor(renderedCount / catalogues.length);
+            const percentage = Math.round((productIndex / all.length) * 100);
 
-            // Dispatch progress event for listeners
+            // Update progress with actual product count
+            setRenderProgress(productIndex);
+
+            // Dispatch progress event for listeners (with both count and percentage)
             window.dispatchEvent(new CustomEvent("renderProgress", {
               detail: {
-                percentage: progress,
-                current: Math.floor((progress / 100) * all.length),
+                percentage: percentage,
+                current: productIndex,
                 total: all.length
               }
             }));
@@ -139,6 +144,8 @@ function AppWithBackHandler() {
         });
       }
       console.log(`✅ Rendering complete`);
+      // Set progress to 100% at the end
+      setRenderProgress(all.length);
       window.dispatchEvent(new CustomEvent("renderComplete"));
     } catch (err) {
       console.error("❌ Rendering failed:", err);
