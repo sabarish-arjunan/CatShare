@@ -351,8 +351,10 @@ function AppWithBackHandler() {
     let removeListener: any;
 
     // Handle back button press
-    // Note: This listener may be overridden by child components (like CatalogueApp's back handler)
-    // when they need to handle back navigation within their own context
+    // Note: This listener may be overridden by child components (like CatalogueApp)
+    // when they need to handle back navigation within their own context.
+    // For home page (/) routes, CatalogueApp handles back navigation and dispatches
+    // "catalogue-app-back-not-handled" event when it can't handle it.
     const handleBackPress = () => {
       if (isRendering) {
         CapacitorApp.minimizeApp();
@@ -370,20 +372,21 @@ function AppWithBackHandler() {
       }
     };
 
-    // Listen for custom event from CatalogueApp when back is pressed on products tab
-    const handleCatalogueAppBack = () => {
-      handleBackPress();
+    // Listen for fallback event from CatalogueApp when back is pressed on products tab
+    // and no internal navigation is possible
+    const handleCatalogueAppBackFallback = () => {
+      CapacitorApp.exitApp();
     };
 
     CapacitorApp.addListener("backButton", handleBackPress).then((listener) => {
       removeListener = listener.remove;
     });
 
-    window.addEventListener("catalogue-app-back-not-handled", handleCatalogueAppBack);
+    window.addEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
 
     return () => {
       if (removeListener) removeListener();
-      window.removeEventListener("catalogue-app-back-not-handled", handleCatalogueAppBack);
+      window.removeEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
     };
   }, [location, navigate, isRendering]);
 
