@@ -698,6 +698,7 @@ export default function Retail({ products = [] }) {
           onToggleStock={() => {}}
           onSwipeLeft={(next) => setPreviewProductRetail(next)}
           onSwipeRight={(prev) => setPreviewProductRetail(prev)}
+          onShelf={() => {}}
         />
       )}
 
