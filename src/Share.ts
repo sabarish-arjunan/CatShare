@@ -177,9 +177,11 @@ export async function handleShare({
     }));
   }
 
-  // Reset processing for the actual share preparation step
-  setProcessingIndex(0);
-  setProcessingTotal(selected.length);
+  // Transition to sharing phase if we had rendered
+  if (needsRendering.length > 0) {
+    setProcessingIndex(0);
+    setProcessingTotal(selected.length);
+  }
 
   // Process all products to get their rendered file URIs
   let completedCount = 0;
