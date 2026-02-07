@@ -46,11 +46,6 @@ export async function handleShare({
     }
   }
 
-  // ✅ Load images for all products first - this is critical for rendering
-  console.log(`📂 Pre-loading images for ${allProducts.length} products before rendering...`);
-  await loadProductImages(allProducts);
-  console.log(`✅ Images pre-loaded. Products with images: ${allProducts.filter((p: any) => p.image).length}`);
-
   // Helper function to load image data from filesystem for a product
   const loadProductImages = async (productsToLoad: any[]) => {
     console.log(`📂 Loading images for ${productsToLoad.length} products...`);
@@ -78,6 +73,11 @@ export async function handleShare({
       }
     }
   };
+
+  // ✅ Load images for all products first - this is critical for rendering
+  console.log(`📂 Pre-loading images for ${allProducts.length} products before rendering...`);
+  await loadProductImages(allProducts);
+  console.log(`✅ Images pre-loaded. Products with images: ${allProducts.filter((p: any) => p.image).length}`);
 
   // 1. Identify products that don't have rendered images for this catalogue
   const needsRendering = [];
