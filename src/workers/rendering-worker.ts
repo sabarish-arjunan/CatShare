@@ -61,28 +61,11 @@ async function processRendering(renderData: RenderData): Promise<any> {
       console.log(`Worker: Rendering item ${i + 1}/${items.length}: ${item.id}`);
 
       // Ensure the product has an image property for rendering
-      // If it only has imagePath, we need to load the image data
       let productToRender = { ...item };
 
-      if (!productToRender.image && productToRender.imagePath) {
-        try {
-          // Try to load image from filesystem using Capacitor
-          const imageFile = await Filesystem.readFile({
-            path: productToRender.imagePath,
-            directory: Directory.Data,
-          });
-          productToRender.image = `data:image/png;base64,${imageFile.data}`;
-          console.log(`Worker: Loaded image for product ${item.id}`);
-        } catch (imageLoadError) {
-          console.warn(`Worker: Could not load image for ${item.id}:`, imageLoadError);
-          // If we can't load the image, we need to provide a fallback or skip
-          // For now, we'll set an empty data URL which will show as a blank image
-          productToRender.image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-        }
-      }
-
-      // Make sure we have at least a placeholder image
+      // Make sure we have at least a placeholder image for rendering
       if (!productToRender.image) {
+        // Use a 1x1 transparent PNG placeholder
         productToRender.image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
       }
 
@@ -103,39 +86,13 @@ async function processRendering(renderData: RenderData): Promise<any> {
       const catalogueLabel = item.renderConfig?.catalogues?.[0]?.label || 'General';
       const filename = `product_${item.id}_${catalogueLabel}.png`;
 
-      // Save the rendered image to filesystem
-      try {
-        const filePath = `${catalogueLabel}/${filename}`;
-        await Filesystem.writeFile({
-          path: filePath,
-          data: base64,
-          directory: Directory.External,
-          recursive: true
-        });
-
-        console.log(`Worker: Saved rendered image for ${item.id}`);
-      } catch (fsError) {
-        console.warn(`Worker: Failed to save file for ${item.id}:`, fsError);
-        // Still count as success since we rendered it
-      }
-
-      // Also cache in localStorage for quick access
-      try {
-        const cacheKey = `rendered::${catalogueLabel}::${item.id}`;
-        localStorage.setItem(cacheKey, JSON.stringify({
-          base64,
-          timestamp: Date.now(),
-          filename
-        }));
-      } catch (storageError) {
-        console.warn(`Worker: Failed to cache in localStorage:`, storageError);
-      }
-
       successCount++;
       results.push({
         id: item.id,
         success: true,
-        filename: filename
+        filename: filename,
+        catalogueLabel: catalogueLabel,
+        base64: base64 // Send base64 to main thread for filesystem saving
       });
 
       // Send progress update to main thread
