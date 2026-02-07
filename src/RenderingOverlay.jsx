@@ -61,7 +61,7 @@ export default function RenderingOverlay({ visible, current, total }) {
     return null;
   }
 
-  const percentage = Math.round((current / total) * 100);
+  const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
