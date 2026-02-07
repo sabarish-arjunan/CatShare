@@ -290,62 +290,78 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
-    setIsRendering(true);
-    setRenderProgress(0);
+    // Force synchronous state updates so overlay renders with correct total
+    flushSync(() => {
+      propSetIsRendering?.(true);
+      propSetRenderProgress?.(0);
+      propSetRenderingTotal?.(all.length);
+    });
 
     const cats = getAllCatalogues();
     const totalRenders = all.length * cats.length;
     let renderedCount = 0;
 
-    for (let i = 0; i < all.length; i++) {
-      const product = all[i];
+    try {
+      for (let i = 0; i < all.length; i++) {
+        const product = all[i];
 
-      // Inject base64 from imageMap (used in CatalogueApp)
-      if (!product.image && imageMap[product.id]) {
-        product.image = imageMap[product.id];
-      }
-
-      // Skip products without images - don't error, just skip
-      if (!product.image && !product.imagePath) {
-        console.warn(`⚠️ Skipping ${product.name} - no image available`);
-        setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-        continue;
-      }
-
-      try {
-        // Render for all catalogues
-        for (const cat of cats) {
-          // For backward compatibility, map cat1->wholesale and cat2->resell
-          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
-
-          await saveRenderedImage(product, legacyType, {
-            resellUnit: product.resellUnit || "/ piece",
-            wholesaleUnit: product.wholesaleUnit || "/ piece",
-            packageUnit: product.packageUnit || "pcs / set",
-            ageGroupUnit: product.ageUnit || "months",
-            catalogueId: cat.id,
-            catalogueLabel: cat.label,
-            folder: cat.folder || cat.label,
-            priceField: cat.priceField,
-            priceUnitField: cat.priceUnitField,
-          });
-
-          renderedCount++;
-          setRenderProgress(Math.round((renderedCount / totalRenders) * 100));
+        // Inject base64 from imageMap (used in CatalogueApp)
+        if (!product.image && imageMap[product.id]) {
+          product.image = imageMap[product.id];
         }
 
-        console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
-      } catch (err) {
-        console.warn(`❌ Failed to render images for ${product.name}`, err);
-      }
-    }
+        // Skip products without images - don't error, just skip
+        if (!product.image && !product.imagePath) {
+          console.warn(`⚠️ Skipping ${product.name} - no image available`);
+          flushSync(() => propSetRenderProgress?.((i + 1)));
+          continue;
+        }
 
-    setRenderResult({
-      status: "success",
-      message: `PNG rendering completed for all products and catalogues`,
-    });
-    setIsRendering(false);
-    window.dispatchEvent(new CustomEvent("renderComplete"));
+        try {
+          // Render for all catalogues
+          for (const cat of cats) {
+            // For backward compatibility, map cat1->wholesale and cat2->resell
+            const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+            await saveRenderedImage(product, legacyType, {
+              resellUnit: product.resellUnit || "/ piece",
+              wholesaleUnit: product.wholesaleUnit || "/ piece",
+              packageUnit: product.packageUnit || "pcs / set",
+              ageGroupUnit: product.ageUnit || "months",
+              catalogueId: cat.id,
+              catalogueLabel: cat.label,
+              folder: cat.folder || cat.label,
+              priceField: cat.priceField,
+              priceUnitField: cat.priceUnitField,
+            });
+
+            renderedCount++;
+            // Calculate which product we're on (product index, not total render count)
+            const productIndex = Math.floor(renderedCount / cats.length);
+            flushSync(() => propSetRenderProgress?.(productIndex));
+          }
+
+          console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
+        } catch (err) {
+          console.warn(`❌ Failed to render images for ${product.name}`, err);
+        }
+      }
+
+      propSetRenderResult?.({
+        status: "success",
+        message: `PNG rendering completed for all products and catalogues`,
+      });
+      propSetIsRendering?.(false);
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    } catch (err) {
+      console.error("❌ Rendering failed:", err);
+      propSetRenderResult?.({
+        status: "error",
+        message: `Rendering error: ${err.message}`,
+      });
+      propSetIsRendering?.(false);
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    }
   };
 
   const handleDelete = async (id) => {
