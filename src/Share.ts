@@ -110,12 +110,14 @@ export async function handleShare({
 
   // 2. Trigger rendering for any products missing rendered images
   if (needsRendering.length > 0) {
-    console.log(`🎨 ${needsRendering.length} products need rendering. Triggering rendering...`);
+    console.log(`🎨 Share.ts: ${needsRendering.length} products need rendering`);
 
     // Show the modal and set initial state
+    console.log(`📊 Share.ts: Setting initial state - processing=true, index=0, total=${needsRendering.length}`);
     setProcessing(true);
     setProcessingIndex(0);
     setProcessingTotal(needsRendering.length);
+    console.log(`✅ Share.ts: Initial state set`);
 
     // Wait for the renderComplete event (CatalogueView listens to renderProgress directly)
     const completionPromise = new Promise<void>((resolve) => {
