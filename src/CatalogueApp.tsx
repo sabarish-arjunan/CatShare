@@ -32,6 +32,30 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [tab, setTab] = useState("products");
   const [selectedCatalogueInCataloguesTab, setSelectedCatalogueInCataloguesTab] = useState<string | null>(null);
   const [showManageCatalogues, setShowManageCatalogues] = useState(false);
+  const [renamingCatalogueIds, setRenamingCatalogueIds] = useState<Set<string>>(new Set());
+
+  // Listen for catalogue rename events
+  useEffect(() => {
+    const handleRenameStart = (e: any) => {
+      const { id } = e.detail;
+      setRenamingCatalogueIds((prev) => new Set(prev).add(id));
+    };
+    const handleRenameEnd = (e: any) => {
+      const { id } = e.detail;
+      setRenamingCatalogueIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+
+    window.addEventListener("catalogue-rename-start", handleRenameStart);
+    window.addEventListener("catalogue-rename-end", handleRenameEnd);
+    return () => {
+      window.removeEventListener("catalogue-rename-start", handleRenameStart);
+      window.removeEventListener("catalogue-rename-end", handleRenameEnd);
+    };
+  }, []);
 
   // Initialize catalogues on component mount
   useEffect(() => {
@@ -897,6 +921,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               imageMap={imageMap}
               products={products}
               onManageCatalogues={() => setShowManageCatalogues(true)}
+              renamingCatalogueIds={renamingCatalogueIds}
             />
           </div>
         )}
@@ -1070,6 +1095,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           }}
           products={products}
           setProducts={setProducts}
+          renamingCatalogueIds={renamingCatalogueIds}
         />
       )}
     </div>
