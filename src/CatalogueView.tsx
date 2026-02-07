@@ -1159,29 +1159,99 @@ onMouseLeave={handleTouchEnd}
       </div>
       {processing && (
   <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-    <div className="bg-white rounded-xl shadow-xl px-6 py-4 text-center animate-fadeIn space-y-3 w-64">
-      <div className="text-lg font-semibold text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
-        🖼️ Creating image {processingIndex} of {processingTotal}... ({processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}%)
-      </div>
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
-        <div
-          className="h-full bg-green-500 transition-all duration-200 ease-out relative"
-          style={{
-            width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
-            willChange: 'width',
-          }}
-        >
-          {/* Shimmer animation to show activity */}
-          <div
-            className="absolute inset-0 w-full h-full animate-shimmer"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-              backgroundSize: '200% 100%'
-            }}
-          />
+    <div className="bg-white rounded-xl shadow-xl px-6 py-4 text-center animate-fadeIn space-y-4 w-80 max-w-[90vw]">
+      {/* Title with phase indicator */}
+      <div className="space-y-1">
+        <div className="text-lg font-semibold text-gray-700">
+          {processingPhase === "rendering" ? "🖼️ Rendering Images" : "📦 Preparing Files"}
+        </div>
+        <div className="text-sm text-gray-500">
+          {processingPhase === "rendering"
+            ? `Image ${processingIndex} of ${processingTotal}`
+            : `Fetching ${processingIndex} of ${processingTotal}`}
         </div>
       </div>
-      <div className="text-xs text-gray-400">Please wait…</div>
+
+      {/* Rendering Phase Progress */}
+      {processingPhase === "rendering" && totalToRender > 0 && (
+        <div className="space-y-2">
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
+            <div
+              className="h-full bg-blue-500 transition-all duration-200 ease-out relative"
+              style={{
+                width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
+                willChange: 'width',
+              }}
+            >
+              <div
+                className="absolute inset-0 w-full h-full animate-shimmer"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                  backgroundSize: '200% 100%'
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-xs text-gray-600">
+            {processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}% complete
+          </div>
+        </div>
+      )}
+
+      {/* Sharing Phase Progress */}
+      {processingPhase === "sharing" && (
+        <div className="space-y-2">
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
+            <div
+              className="h-full bg-green-500 transition-all duration-200 ease-out relative"
+              style={{
+                width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
+                willChange: 'width',
+              }}
+            >
+              <div
+                className="absolute inset-0 w-full h-full animate-shimmer"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                  backgroundSize: '200% 100%'
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-xs text-gray-600">
+            {processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}% complete
+          </div>
+        </div>
+      )}
+
+      {/* Info Section - Show rendering details */}
+      {totalToRender > 0 && (
+        <div className="bg-blue-50 rounded-lg px-3 py-2 space-y-1 border border-blue-100">
+          <div className="text-xs font-semibold text-blue-900">
+            💡 First-time rendering
+          </div>
+          <div className="text-xs text-blue-800 leading-relaxed">
+            {totalToRender} image{totalToRender !== 1 ? 's' : ''} need rendering. This is a one-time process that makes future shares instant.
+          </div>
+          <div className="text-xs text-blue-700 font-medium pt-1">
+            Tip: Render all images at once to avoid waiting multiple times
+          </div>
+        </div>
+      )}
+
+      {/* Info Section - All cached */}
+      {totalToRender === 0 && processingPhase === "sharing" && (
+        <div className="bg-green-50 rounded-lg px-3 py-2 border border-green-100">
+          <div className="text-xs font-semibold text-green-900">
+            ⚡ All images cached
+          </div>
+          <div className="text-xs text-green-800">
+            Ready to share instantly!
+          </div>
+        </div>
+      )}
+
+      <div className="text-xs text-gray-400 pt-1">Please wait…</div>
     </div>
   </div>
 )}
