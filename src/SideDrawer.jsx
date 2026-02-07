@@ -435,17 +435,16 @@ const exportProductsToCSV = (products) => {
       setDeletedProducts([]);
       localStorage.clear(); // Nuclear option - clear EVERYTHING
 
-      // Aggressively clean products - remove ALL image data
+      // Aggressively clean products - remove ALL image data except imagePath reference
       const cleanedProducts = rebuilt.map(p => {
         const clean = { ...p };
-        // Remove ALL image-related fields
+        // Remove ALL image-related fields EXCEPT imagePath (which is the reference to the file on disk)
         delete clean.image; // base64 image
         delete clean.imageBase64;
         delete clean.imageData;
         delete clean.imageFilename;
         delete clean.renderedImages;
-        delete clean.imagePath; // Keep ONLY the reference, not the data
-        // Keep imagePath but not the actual image data
+        // KEEP imagePath - this is the reference to where the image file is stored on the filesystem
         return clean;
       });
 
