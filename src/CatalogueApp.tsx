@@ -252,19 +252,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // If inside a catalogue view, go back to catalogues list
-      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
-        setSelectedCatalogueInCataloguesTab(null);
-        return;
-      }
-
-      // If on catalogues tab (showing list), go back to products tab
-      if (tab === "catalogues") {
-        setTab("products");
-        return;
-      }
-
-      // If on products tab, check for open preview modals
+      // 1. Check for open preview modals or full-screen images first
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
       if (fullScreenImageOpen || previewModalOpen) {
@@ -272,7 +260,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // If on products tab and no preview open, let App.tsx handle exit
+      // 2. If inside a catalogue view, go back to catalogues list
+      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
+        setSelectedCatalogueInCataloguesTab(null);
+        return;
+      }
+
+      // 3. If on catalogues tab (showing list), go back to products tab
+      if (tab === "catalogues") {
+        setTab("products");
+        return;
+      }
+
+      // 4. If on products tab and no preview open, let App.tsx handle exit
       // Dispatch custom event so App.tsx can handle it properly
       window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
     }).then((listener) => {
