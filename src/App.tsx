@@ -198,11 +198,32 @@ function AppWithBackHandler() {
   }, [isNative]);
 
   useEffect(() => {
-    safeSetInStorage("products", products);
+    // Strip image data before saving to avoid quota exceeded errors
+    const cleanedProducts = products.map(p => {
+      const clean = { ...p };
+      delete clean.image; // Remove base64 image data
+      delete clean.imageBase64;
+      delete clean.imageData;
+      delete clean.imageFilename;
+      delete clean.renderedImages;
+      // Keep imagePath as a reference only
+      return clean;
+    });
+    safeSetInStorage("products", cleanedProducts);
   }, [products]);
 
   useEffect(() => {
-    safeSetInStorage("deletedProducts", deletedProducts);
+    // Strip image data from deleted products too
+    const cleanedDeleted = deletedProducts.map(p => {
+      const clean = { ...p };
+      delete clean.image;
+      delete clean.imageBase64;
+      delete clean.imageData;
+      delete clean.imageFilename;
+      delete clean.renderedImages;
+      return clean;
+    });
+    safeSetInStorage("deletedProducts", cleanedDeleted);
   }, [deletedProducts]);
 
   useEffect(() => {
