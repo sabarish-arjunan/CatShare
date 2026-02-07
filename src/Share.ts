@@ -198,8 +198,8 @@ export async function handleShare({
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    console.error(`❌ Share failed: No valid images to share. Failed products:`, failedProducts);
-    alert("❌ Cannot share: No products with images available.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image (original or rendered)\n\nFailed products: " + failedProducts.join(", "));
+    console.error(`❌ Share failed: No rendered images available. Failed products:`, failedProducts);
+    alert("❌ Cannot share: No rendered images available.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image\n\nThe app will automatically render products before sharing. If rendering failed, please:\n- Check that products have images\n- Try rendering manually first\n\nFailed products: " + failedProducts.join(", "));
     return;
   }
 
