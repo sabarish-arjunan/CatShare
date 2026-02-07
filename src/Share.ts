@@ -46,11 +46,6 @@ export async function handleShare({
     }
   }
 
-  // ✅ Load images for all products first - this is critical for rendering
-  console.log(`📂 Pre-loading images for ${allProducts.length} products before rendering...`);
-  await loadProductImages(allProducts);
-  console.log(`✅ Images pre-loaded. Products with images: ${allProducts.filter((p: any) => p.image).length}`);
-
   // Helper function to load image data from filesystem for a product
   const loadProductImages = async (productsToLoad: any[]) => {
     console.log(`📂 Loading images for ${productsToLoad.length} products...`);
@@ -79,9 +74,18 @@ export async function handleShare({
     }
   };
 
-  // 1. Identify products that need rendering
-  const missingProducts = [];
+  // ✅ Load images for all products first - this is critical for rendering
+  console.log(`📂 Pre-loading images for ${allProducts.length} products before rendering...`);
+  await loadProductImages(allProducts);
+  console.log(`✅ Images pre-loaded. Products with images: ${allProducts.filter((p: any) => p.image).length}`);
+
+  // 1. Identify products that don't have rendered images for this catalogue
+  const needsRendering = [];
+
   for (const id of selected) {
+    const product = allProducts.find((p: any) => String(p.id) === String(id));
+    if (!product) continue;
+
     try {
       const cachedFileName = `product_${id}_${catalogueLabel}.png`;
       const cachedFilePath = `${targetFolder}/${cachedFileName}`;
@@ -89,55 +93,62 @@ export async function handleShare({
         path: cachedFilePath,
         directory: Directory.External,
       });
+      // Rendered image exists, all good - no rendering needed
+      console.log(`✅ Rendered image already exists for ${product.name}`);
     } catch (err) {
-      // File not found on disk, need to render
-      const product = allProducts.find((p: any) => String(p.id) === String(id));
-      if (product) missingProducts.push(product);
+      // Rendered image not found - needs rendering
+      if (product.image || product.imagePath) {
+        // Has image, can render
+        needsRendering.push(product);
+        console.log(`🎨 Product ${product.name} needs rendering for ${catalogueLabel}`);
+      } else {
+        // No image at all
+        console.warn(`⚠️ Product ${product.name} has no image, cannot share or render`);
+      }
     }
   }
 
-  // 2. If any missing, trigger rendering (same as Render All)
-  if (missingProducts.length > 0) {
-    console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering rendering...`);
+  // 2. Trigger rendering for any products missing rendered images
+  if (needsRendering.length > 0) {
+    console.log(`🎨 Share.ts: ${needsRendering.length} products need rendering`);
 
-    // Set processing states to show progress in CatalogueView
+    // Show the modal and set initial state
+    console.log(`📊 Share.ts: Setting initial state - processing=true, index=0, total=${needsRendering.length}`);
     setProcessing(true);
     setProcessingIndex(0);
-    setProcessingTotal(missingProducts.length);
+    setProcessingTotal(needsRendering.length);
+    console.log(`✅ Share.ts: Initial state set`);
+
+    // Wait for the renderComplete event (CatalogueView listens to renderProgress directly)
+    const completionPromise = new Promise<void>((resolve) => {
+      const completionHandler = () => {
+        console.log("✅ renderComplete event received");
+        window.removeEventListener("renderComplete", completionHandler);
+        resolve();
+      };
+      window.addEventListener("renderComplete", completionHandler, { once: true });
+    });
 
     // Emit event that App.tsx listens to, with request to hide global overlay
+    console.log("📤 Dispatching requestRenderSelectedPNGs with " + needsRendering.length + " products");
     window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
       detail: {
-        products: missingProducts,
+        products: needsRendering,
         showOverlay: false
       }
     }));
 
-    // Listen for progress events from the renderer
-    const progressHandler = (event: any) => {
-      const { current, total } = event.detail;
-      setProcessingIndex(current);
-      setProcessingTotal(total);
-    };
-    window.addEventListener("renderProgress", progressHandler);
-
-    // Wait for the renderComplete event
-    await new Promise<void>((resolve) => {
-      const completionHandler = () => {
-        window.removeEventListener("renderComplete", completionHandler);
-        window.removeEventListener("renderProgress", progressHandler);
-        resolve();
-      };
-      window.addEventListener("renderComplete", completionHandler);
-    });
+    // Wait for rendering to complete
+    await completionPromise;
 
     console.log("✅ Rendering complete, proceeding with sharing...");
-    // Reset processing for the actual share preparation step
-    setProcessingIndex(0);
-    setProcessingTotal(selected.length);
   }
 
-  // Process all products to get their file URIs
+  // Reset processing for the actual share preparation step
+  setProcessingIndex(0);
+  setProcessingTotal(selected.length);
+
+  // Process all products to get their rendered file URIs
   let completedCount = 0;
   const updateProgress = () => {
     completedCount++;
@@ -149,26 +160,23 @@ export async function handleShare({
       const cachedFileName = `product_${id}_${catalogueLabel}.png`;
       const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
-      try {
-        // Get URI for the file on disk
-        const fileResult = await Filesystem.getUri({
-          path: cachedFilePath,
-          directory: Directory.External,
-        });
+      // Get the rendered image file URI
+      const fileResult = await Filesystem.getUri({
+        path: cachedFilePath,
+        directory: Directory.External,
+      });
 
-        if (fileResult.uri) {
-          updateProgress();
-          return fileResult.uri;
-        }
-      } catch (err) {
-        console.warn(`⚠️ Could not get URI for product ${id}:`, err);
-        // Fallback to base64 if URI fails (though shouldn't happen after render)
-        const imageDataUrl = await getRenderedImage(id, catalogueLabel);
+      if (fileResult.uri) {
         updateProgress();
-        return imageDataUrl;
+        return fileResult.uri;
       }
+
+      // If URI not available, try to get as base64
+      const imageDataUrl = await getRenderedImage(id, catalogueLabel);
+      updateProgress();
+      return imageDataUrl;
     } catch (err) {
-      console.error(`❌ Error processing product ${id}:`, err);
+      console.error(`❌ Error getting rendered image for product ${id}:`, err);
       updateProgress();
       return null;
     }
@@ -188,8 +196,8 @@ export async function handleShare({
   setProcessing(false);
 
   if (fileUris.length === 0) {
-    console.error(`❌ Share failed: No valid images to share. Failed products:`, failedProducts);
-    alert("❌ No products selected or no valid images available to share.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image\n\nFailed products: " + failedProducts.join(", "));
+    console.error(`❌ Share failed: No rendered images available. Failed products:`, failedProducts);
+    alert("❌ Cannot share: No rendered images available.\n\nPlease ensure you have:\n1. Selected at least one product\n2. That product has an image\n\nThe app will automatically render products before sharing. If rendering failed, please:\n- Check that products have images\n- Try rendering manually first\n\nFailed products: " + failedProducts.join(", "));
     return;
   }
 

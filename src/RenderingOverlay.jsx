@@ -61,7 +61,7 @@ export default function RenderingOverlay({ visible, current, total }) {
     return null;
   }
 
-  const percentage = Math.round((current / total) * 100);
+  const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
@@ -79,8 +79,8 @@ export default function RenderingOverlay({ visible, current, total }) {
 
       <div className="w-64 h-3 mt-4 bg-[#e3caa3] rounded-full overflow-hidden relative">
         <div
-          className="h-full bg-[#6c3b2a] transition-all duration-500 relative"
-          style={{ width: `${percentage}%` }}
+          className="h-full bg-[#6c3b2a] transition-all duration-300 ease-out relative"
+          style={{ width: `${percentage}%`, willChange: 'width' }}
         >
           {/* Shimmer effect for continuous activity feedback */}
           <div

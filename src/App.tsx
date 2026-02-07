@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { flushSync } from "react-dom";
 import {
   BrowserRouter as Router,
   Routes,
@@ -62,11 +63,14 @@ function AppWithBackHandler() {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
+    // Force synchronous state updates so overlay renders with correct total
     if (showOverlay) {
-      setIsRendering(true);
+      flushSync(() => setIsRendering(true));
     }
-    setRenderProgress(0);
-    setRenderingTotal(all.length);
+    flushSync(() => {
+      setRenderProgress(0);
+      setRenderingTotal(all.length);
+    });
 
     // Get all catalogues
     const catalogues = getAllCatalogues();
@@ -81,8 +85,8 @@ function AppWithBackHandler() {
         // Skip products without images
         if (!product.image && !product.imagePath) {
           console.warn(`⚠️ Skipping ${product.name} - no image available`);
-          // Update progress with actual count (i + 1), not percentage
-          setRenderProgress(i + 1);
+          // Update progress with actual count (i + 1), not percentage - force sync update
+          flushSync(() => setRenderProgress(i + 1));
           // Dispatch progress event
           window.dispatchEvent(new CustomEvent("renderProgress", {
             detail: {
@@ -117,10 +121,11 @@ function AppWithBackHandler() {
             const productIndex = Math.floor(renderedCount / catalogues.length);
             const percentage = Math.round((productIndex / all.length) * 100);
 
-            // Update progress with actual product count
-            setRenderProgress(productIndex);
+            // Force synchronous update so progress bar updates immediately
+            flushSync(() => setRenderProgress(productIndex));
 
             // Dispatch progress event for listeners (with both count and percentage)
+            console.log(`📤 App.tsx dispatching renderProgress: ${productIndex}/${all.length} (${percentage}%)`);
             window.dispatchEvent(new CustomEvent("renderProgress", {
               detail: {
                 percentage: percentage,
@@ -193,11 +198,32 @@ function AppWithBackHandler() {
   }, [isNative]);
 
   useEffect(() => {
-    safeSetInStorage("products", products);
+    // Strip image data before saving to avoid quota exceeded errors
+    const cleanedProducts = products.map(p => {
+      const clean = { ...p };
+      delete clean.image; // Remove base64 image data
+      delete clean.imageBase64;
+      delete clean.imageData;
+      delete clean.imageFilename;
+      delete clean.renderedImages;
+      // Keep imagePath as a reference only
+      return clean;
+    });
+    safeSetInStorage("products", cleanedProducts);
   }, [products]);
 
   useEffect(() => {
-    safeSetInStorage("deletedProducts", deletedProducts);
+    // Strip image data from deleted products too
+    const cleanedDeleted = deletedProducts.map(p => {
+      const clean = { ...p };
+      delete clean.image;
+      delete clean.imageBase64;
+      delete clean.imageData;
+      delete clean.imageFilename;
+      delete clean.renderedImages;
+      return clean;
+    });
+    safeSetInStorage("deletedProducts", cleanedDeleted);
   }, [deletedProducts]);
 
   useEffect(() => {
@@ -407,7 +433,7 @@ function AppWithBackHandler() {
       <ToastContainer />
       <RenderingOverlay
         visible={isRendering}
-        current={Math.round((renderProgress / 100) * renderingTotal)}
+        current={renderProgress}
         total={renderingTotal}
       />
 
@@ -461,6 +487,8 @@ function AppWithBackHandler() {
               setIsRendering={setIsRendering}
               renderProgress={renderProgress}
               setRenderProgress={setRenderProgress}
+              renderingTotal={renderingTotal}
+              setRenderingTotal={setRenderingTotal}
               renderResult={renderResult}
               setRenderResult={setRenderResult}
             />

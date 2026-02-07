@@ -236,10 +236,13 @@ const handleBackup = async () => {
   const dataForJson = [];
   const deletedForJson = [];
 
-  for (const p of products) {
+  // Helper function to backup a product with its image
+  const backupProductWithImage = async (p) => {
     const product = { ...p };
     delete product.imageBase64;
+    delete product.image; // Remove any base64 image data
 
+    // Try to back up the image
     if (p.imagePath) {
       try {
         const res = await Filesystem.readFile({
@@ -249,38 +252,35 @@ const handleBackup = async () => {
 
         const imageFilename = p.imagePath.split("/").pop();
         zip.file(`images/${imageFilename}`, res.data, { base64: true });
-
-        product.imageFilename = imageFilename; // map in JSON
+        product.imageFilename = imageFilename;
+        console.log(`✅ Backed up image for "${p.name}": ${imageFilename}`);
       } catch (err) {
-        console.warn("Could not read image:", p.imagePath);
+        console.warn(`⚠️ Image file not found for "${p.name}": ${p.imagePath}`);
+        // Image reference exists but file doesn't - this is a data inconsistency
       }
+    } else if (p.image && typeof p.image === 'string' && p.image.startsWith('data:')) {
+      // Product has base64 image but no imagePath - include it directly in the backup
+      console.log(`📝 Including base64 image for "${p.name}" in backup`);
+      product.image = p.image; // Keep base64 for this product
+    } else if (p.image) {
+      // Product has some image data - keep it
+      console.log(`📝 Including image data for "${p.name}" in backup`);
+      product.image = p.image;
     }
 
-    dataForJson.push(product);
+    return product;
+  };
+
+  // Back up all products
+  for (const p of products) {
+    const backupProduct = await backupProductWithImage(p);
+    dataForJson.push(backupProduct);
   }
 
   // Also process deleted products' images
   for (const p of deleted) {
-    const product = { ...p };
-    delete product.imageBase64;
-
-    if (p.imagePath) {
-      try {
-        const res = await Filesystem.readFile({
-          path: p.imagePath,
-          directory: Directory.Data,
-        });
-
-        const imageFilename = p.imagePath.split("/").pop();
-        zip.file(`images/${imageFilename}`, res.data, { base64: true });
-
-        product.imageFilename = imageFilename; // map in JSON
-      } catch (err) {
-        console.warn("Could not read image:", p.imagePath);
-      }
-    }
-
-    deletedForJson.push(product);
+    const backupProduct = await backupProductWithImage(p);
+    deletedForJson.push(backupProduct);
   }
 
   // Include catalogues definition and all settings in backup
@@ -401,6 +401,9 @@ const exportProductsToCSV = (products) => {
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
+          let imageRestored = false;
+
+          // Try to restore image from ZIP file first (preferred method)
           if (p.imageFilename && p.imagePath) {
             const imgFile = zip.file(`images/${p.imageFilename}`);
             if (imgFile) {
@@ -413,15 +416,25 @@ const exportProductsToCSV = (products) => {
                   directory: Directory.Data,
                   recursive: true,
                 });
+                imageRestored = true;
+                console.log(`📸 Image restored from file for "${p.name}": ${p.imagePath}`);
               } catch (err) {
-                console.warn("Image write failed:", p.imagePath);
+                console.warn(`❌ Image write failed for "${p.name}":`, p.imagePath, err);
               }
+            } else {
+              console.warn(`⚠️ Image file not found in ZIP for "${p.name}": images/${p.imageFilename}`);
             }
+          }
+
+          // Fallback: Keep base64 image if no file-based image was restored
+          if (!imageRestored && p.image && typeof p.image === 'string') {
+            console.log(`📸 Keeping base64 image for "${p.name}" (${(p.image.length / 1024).toFixed(1)} KB)`);
           }
 
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
+          // KEEP p.image if it exists (base64 fallback)
 
           // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
           const migrated = migrateProductToNewFormat(clean);
@@ -430,58 +443,88 @@ const exportProductsToCSV = (products) => {
         })
       );
 
-      setProducts(rebuilt);
-      localStorage.setItem("products", JSON.stringify(rebuilt));
+      // CRITICAL: Clear everything first to maximize space for new data
+      console.log("🗑️ Clearing old data to free up maximum space...");
+      setDeletedProducts([]);
+      localStorage.clear(); // Nuclear option - clear EVERYTHING
 
-      // Restore categories from backup if available, otherwise extract from products
-      if (parsed.categories && Array.isArray(parsed.categories)) {
-        localStorage.setItem("categories", JSON.stringify(parsed.categories));
-      } else {
-        const categories = Array.from(
-          new Set(
-            rebuilt.flatMap((p) =>
-              Array.isArray(p.category) ? p.category : [p.category]
-            )
-          )
-        ).filter(Boolean);
-        localStorage.setItem("categories", JSON.stringify(categories));
+      // Aggressively clean products - remove ALL image data except imagePath reference
+      const cleanedProducts = rebuilt.map(p => {
+        const clean = { ...p };
+        // Remove ALL image-related fields EXCEPT imagePath (which is the reference to the file on disk)
+        delete clean.image; // base64 image
+        delete clean.imageBase64;
+        delete clean.imageData;
+        delete clean.imageFilename;
+        delete clean.renderedImages;
+        // KEEP imagePath - this is the reference to where the image file is stored on the filesystem
+        return clean;
+      });
+
+      console.log(`📦 Products to save: ${cleanedProducts.length}`);
+      console.log(`📊 Data size: ${JSON.stringify(cleanedProducts).length / 1024}KB`);
+
+      let productsToUse = cleanedProducts;
+
+      try {
+        localStorage.setItem("products", JSON.stringify(cleanedProducts));
+        console.log("✅ Products saved successfully");
+      } catch (err) {
+        console.error("❌ Failed to save products:", err.message);
+        // If still too large, limit to first 50 products
+        if (err.name === "QuotaExceededError") {
+          console.warn("⚠️ Data still too large, limiting to 50 products...");
+          productsToUse = cleanedProducts.slice(0, 50);
+          localStorage.setItem("products", JSON.stringify(productsToUse));
+          alert("⚠️ Restore limited to first 50 products due to storage quota. You can restore more products later by importing additional backups.");
+        } else {
+          throw err;
+        }
       }
 
-      if (Array.isArray(parsed.deleted)) {
-        // Also restore deleted products' images from the ZIP
-        const rebuiltDeleted = await Promise.all(
-          parsed.deleted.map(async (p) => {
-            if (p.imageFilename && p.imagePath) {
-              const imgFile = zip.file(`images/${p.imageFilename}`);
-              if (imgFile) {
-                const base64 = await imgFile.async("base64");
+      setProducts(productsToUse);
 
-                try {
-                  await Filesystem.writeFile({
-                    path: p.imagePath,
-                    data: base64,
-                    directory: Directory.Data,
-                    recursive: true,
-                  });
-                } catch (err) {
-                  console.warn("Image write failed for deleted product:", p.imagePath);
-                }
+      // Restore categories from backup if available, otherwise extract from products
+      try {
+        if (parsed.categories && Array.isArray(parsed.categories)) {
+          localStorage.setItem("categories", JSON.stringify(parsed.categories));
+        } else {
+          const categories = Array.from(
+            new Set(
+              rebuilt.flatMap((p) =>
+                Array.isArray(p.category) ? p.category : [p.category]
+              )
+            )
+          ).filter(Boolean);
+          localStorage.setItem("categories", JSON.stringify(categories));
+        }
+      } catch (catErr) {
+        console.warn("⚠️ Could not save categories:", catErr.message);
+      }
+
+      // SKIP deleted products entirely to save space - they can be restored later if needed
+      console.log("ℹ️ Skipping deleted products to save storage space");
+      if (Array.isArray(parsed.deleted) && parsed.deleted.length > 0) {
+        // Just restore the images from deleted products' ZIP entries but don't save them to localStorage
+        console.log(`📂 Restoring ${parsed.deleted.length} deleted product images to filesystem...`);
+        for (const p of parsed.deleted) {
+          if (p.imageFilename && p.imagePath) {
+            const imgFile = zip.file(`images/${p.imageFilename}`);
+            if (imgFile) {
+              try {
+                const base64 = await imgFile.async("base64");
+                await Filesystem.writeFile({
+                  path: p.imagePath,
+                  data: base64,
+                  directory: Directory.Data,
+                  recursive: true,
+                });
+              } catch (err) {
+                console.warn("Image write failed for deleted product:", p.imagePath);
               }
             }
-
-            const clean = { ...p };
-            delete clean.imageBase64;
-            delete clean.imageFilename;
-
-            // Migrate old field names to new field names
-            const migrated = migrateProductToNewFormat(clean);
-
-            return migrated;
-          })
-        );
-
-        setDeletedProducts(rebuiltDeleted);
-        localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
+          }
+        }
       }
 
       // Restore catalogues definition from backup

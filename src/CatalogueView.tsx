@@ -1,6 +1,7 @@
 // Generic Catalogue View Component
 // Works with any catalogue (Master, Resell, custom, etc.)
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus, FiEdit } from "react-icons/fi";
@@ -72,6 +73,34 @@ export default function CatalogueView({
   const [showEdit, setShowEdit] = useState(false);
   const toolsMenuRef = useRef(null);
 
+
+useEffect(() => {
+  console.log("✅ CatalogueView: Setting up event listeners");
+
+  // Listen for progress updates directly
+  const handleRenderProgress = (event: any) => {
+    const { current, total } = event.detail;
+    console.log(`📊 CatalogueView renderProgress received: ${current}/${total}`);
+    setProcessingIndex(current);
+    setProcessingTotal(total);
+  };
+
+  // Listen for render complete to close modal
+  const handleRenderComplete = () => {
+    console.log("✅ CatalogueView renderComplete received");
+    setProcessing(false);
+  };
+
+  window.addEventListener("renderProgress", handleRenderProgress);
+  window.addEventListener("renderComplete", handleRenderComplete);
+
+  console.log("✅ CatalogueView: Event listeners attached");
+
+  return () => {
+    window.removeEventListener("renderProgress", handleRenderProgress);
+    window.removeEventListener("renderComplete", handleRenderComplete);
+  };
+}, []);
 
 useEffect(() => {
   if (showSearch && searchInputRef.current) {
@@ -1117,13 +1146,14 @@ onMouseLeave={handleTouchEnd}
   <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
     <div className="bg-white rounded-xl shadow-xl px-6 py-4 text-center animate-fadeIn space-y-3 w-64">
       <div className="text-lg font-semibold text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
-        🖼️ Creating image {processingIndex} of {processingTotal}
+        🖼️ Creating image {processingIndex} of {processingTotal}... ({processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}%)
       </div>
       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
         <div
-          className="h-full bg-green-500 transition-all duration-500 relative"
+          className="h-full bg-green-500 transition-all duration-200 ease-out relative"
           style={{
-            width: `${(processingIndex / processingTotal) * 100 || 0}%`,
+            width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
+            willChange: 'width',
           }}
         >
           {/* Shimmer animation to show activity */}
