@@ -793,7 +793,7 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
             setShowRenderAfterRestore(false);
-            handleRenderAllPNGs(false);
+            handleRenderAllPNGs(true);
           }}
         >
           Continue
