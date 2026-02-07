@@ -626,6 +626,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M6 12h12M10 17h8" />
               </svg>
             </button>
+
+            <button
+              onClick={() => window.open("https://docs.google.com/forms/d/e/1FAIpQLSeRdoXJAaLXEpuyGZa3de45urVBCO86mvSUr2HO6xoHJzLlCQ/viewform?usp=dialog", "_blank")}
+              className="text-xl text-gray-600 hover:text-blue-600 transition-colors"
+              title="Send Feedback"
+              aria-label="Send Feedback"
+            >
+              <FiMessageSquare />
+            </button>
           </div>
         </header>
         </>
