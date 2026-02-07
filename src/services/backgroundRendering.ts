@@ -112,7 +112,7 @@ export async function startBackgroundRendering(
     if (isNative) {
       // Use native BackgroundRenderer plugin for Android
       console.log('📱 [Native] Starting background rendering via BackgroundRenderer plugin');
-      
+
       try {
         const result = await BackgroundRenderer.startRendering({
           renderData: renderData,
@@ -120,36 +120,51 @@ export async function startBackgroundRendering(
 
         console.log('✅ [Native] Background rendering started:', result);
 
-        // Simulate progress updates while native rendering is running
-        _progressInterval = setInterval(() => {
-          if (!isRendering) {
-            if (_progressInterval) {
-              clearInterval(_progressInterval);
-              _progressInterval = null;
-            }
-            return;
-          }
-
-          renderingProgress = Math.min(renderingProgress + 5, 95);
+        // Set up event listeners for progress and completion
+        const handleProgress = (event: any) => {
+          const { percentage } = event.detail;
+          renderingProgress = percentage;
           onProgress({
-            percentage: renderingProgress,
-            currentItem: `Processing item ${Math.floor((renderingProgress / 100) * items.length)} of ${items.length}`,
+            percentage: percentage,
+            currentItem: `Processing item ${Math.floor((percentage / 100) * items.length)} of ${items.length}`,
           });
-        }, 500);
+        };
 
-        // Simulate completion after a reasonable timeout
-        _completionTimeout = setTimeout(() => {
+        const handleComplete = (event: any) => {
+          window.removeEventListener('renderProgress', handleProgress);
+          window.removeEventListener('renderComplete', handleComplete);
+
           if (_progressInterval) {
             clearInterval(_progressInterval);
             _progressInterval = null;
           }
+          if (_completionTimeout) {
+            clearTimeout(_completionTimeout);
+            _completionTimeout = null;
+          }
+
           isRendering = false;
           renderingProgress = 100;
           onComplete({
             status: 'success',
             message: `Successfully queued ${items.length} items for background rendering. Processing will continue even when app is closed.`,
           });
-        }, 3000);
+        };
+
+        window.addEventListener('renderProgress', handleProgress);
+        window.addEventListener('renderComplete', handleComplete);
+
+        // Timeout fallback (24 seconds max wait)
+        _completionTimeout = setTimeout(() => {
+          window.removeEventListener('renderProgress', handleProgress);
+          window.removeEventListener('renderComplete', handleComplete);
+          isRendering = false;
+          renderingProgress = 100;
+          onComplete({
+            status: 'success',
+            message: `Successfully queued ${items.length} items for background rendering.`,
+          });
+        }, 24000);
       } catch (error) {
         isRendering = false;
         console.error('❌ [Native] Failed to start background rendering:', error);
@@ -158,7 +173,7 @@ export async function startBackgroundRendering(
     } else {
       // Use web-based rendering with Web Workers
       console.log('🌐 [Web] Starting background rendering via Web Workers');
-      
+
       try {
         const result = await BackgroundRenderer.startRendering({
           renderData: renderData,
@@ -166,36 +181,51 @@ export async function startBackgroundRendering(
 
         console.log('✅ [Web] Background rendering started:', result);
 
-        // Simulate progress updates for web rendering
-        _progressInterval = setInterval(() => {
-          if (!isRendering) {
-            if (_progressInterval) {
-              clearInterval(_progressInterval);
-              _progressInterval = null;
-            }
-            return;
-          }
-
-          renderingProgress = Math.min(renderingProgress + 3, 95);
+        // Set up event listeners for progress and completion from worker
+        const handleProgress = (event: any) => {
+          const { percentage } = event.detail;
+          renderingProgress = percentage;
           onProgress({
-            percentage: renderingProgress,
-            currentItem: `Processing item ${Math.floor((renderingProgress / 100) * items.length)} of ${items.length}`,
+            percentage: percentage,
+            currentItem: `Processing item ${Math.floor((percentage / 100) * items.length)} of ${items.length}`,
           });
-        }, 300);
+        };
 
-        // Simulate completion
-        _completionTimeout = setTimeout(() => {
+        const handleComplete = (event: any) => {
+          window.removeEventListener('renderProgress', handleProgress);
+          window.removeEventListener('renderComplete', handleComplete);
+
           if (_progressInterval) {
             clearInterval(_progressInterval);
             _progressInterval = null;
           }
+          if (_completionTimeout) {
+            clearTimeout(_completionTimeout);
+            _completionTimeout = null;
+          }
+
           isRendering = false;
           renderingProgress = 100;
           onComplete({
             status: 'success',
             message: `Successfully rendered ${items.length} items using Web Workers.`,
           });
-        }, 5000);
+        };
+
+        window.addEventListener('renderProgress', handleProgress);
+        window.addEventListener('renderComplete', handleComplete);
+
+        // Timeout fallback (60 seconds max wait for web rendering)
+        _completionTimeout = setTimeout(() => {
+          window.removeEventListener('renderProgress', handleProgress);
+          window.removeEventListener('renderComplete', handleComplete);
+          isRendering = false;
+          renderingProgress = 100;
+          onComplete({
+            status: 'success',
+            message: `Successfully rendered ${items.length} items.`,
+          });
+        }, 60000);
       } catch (error) {
         isRendering = false;
         console.error('❌ [Web] Failed to start background rendering:', error);

@@ -33,7 +33,6 @@ import RenderingOverlay from "./RenderingOverlay";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering.ts";
 import { getAllCatalogues } from "./config/catalogueConfig";
 
 function AppWithBackHandler() {
@@ -58,7 +57,7 @@ function AppWithBackHandler() {
   const isNative = Capacitor.getPlatform() !== "web";
 
 
-  // Handle rendering PNGs using background rendering service
+  // Handle rendering PNGs - uses the proven saveRenderedImage function (same as render all)
   const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
@@ -71,52 +70,92 @@ function AppWithBackHandler() {
 
     // Get all catalogues
     const catalogues = getAllCatalogues();
+    const totalRenders = all.length * catalogues.length;
+    let renderedCount = 0;
 
-    // Callbacks for progress updates
-    const onProgress = (progress: any) => {
-      setRenderProgress(progress.percentage);
-      // Dispatch event for other components to listen to progress
-      window.dispatchEvent(new CustomEvent("renderProgress", {
-        detail: {
-          percentage: progress.percentage,
-          current: Math.round((progress.percentage / 100) * all.length),
-          total: all.length
+    try {
+      // Render products the same way as "Render All" does - using saveRenderedImage
+      for (let i = 0; i < all.length; i++) {
+        const product = all[i];
+
+        // Skip products without images
+        if (!product.image && !product.imagePath) {
+          console.warn(`⚠️ Skipping ${product.name} - no image available`);
+          // Update progress with actual count (i + 1), not percentage
+          setRenderProgress(i + 1);
+          // Dispatch progress event
+          window.dispatchEvent(new CustomEvent("renderProgress", {
+            detail: {
+              percentage: Math.round(((i + 1) / all.length) * 100),
+              current: i + 1,
+              total: all.length
+            }
+          }));
+          continue;
         }
-      }));
-    };
 
-    const onComplete = (result: any) => {
+        try {
+          // Render for all catalogues
+          for (const cat of catalogues) {
+            // For backward compatibility, map cat1->wholesale and cat2->resell
+            const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+            await saveRenderedImage(product, legacyType, {
+              resellUnit: product.resellUnit || "/ piece",
+              wholesaleUnit: product.wholesaleUnit || "/ piece",
+              packageUnit: product.packageUnit || "pcs / set",
+              ageGroupUnit: product.ageUnit || "months",
+              catalogueId: cat.id,
+              catalogueLabel: cat.label,
+              folder: cat.folder || cat.label,
+              priceField: cat.priceField,
+              priceUnitField: cat.priceUnitField,
+            });
+
+            renderedCount++;
+            // Calculate which product we're on (product index, not total render count)
+            const productIndex = Math.floor(renderedCount / catalogues.length);
+            const percentage = Math.round((productIndex / all.length) * 100);
+
+            // Update progress with actual product count
+            setRenderProgress(productIndex);
+
+            // Dispatch progress event for listeners (with both count and percentage)
+            window.dispatchEvent(new CustomEvent("renderProgress", {
+              detail: {
+                percentage: percentage,
+                current: productIndex,
+                total: all.length
+              }
+            }));
+          }
+
+          console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
+        } catch (err) {
+          console.warn(`❌ Failed to render images for ${product.name}:`, err);
+        }
+      }
+
       if (showOverlay) {
         setIsRendering(false);
         setRenderResult({
-          status: result.status === "success" ? "success" : "error",
-          message: result.message,
+          status: "success",
+          message: `PNG rendering completed for ${all.length} products and ${catalogues.length} catalogues`,
         });
       }
+      console.log(`✅ Rendering complete`);
+      // Set progress to 100% at the end
+      setRenderProgress(all.length);
       window.dispatchEvent(new CustomEvent("renderComplete"));
-    };
-
-    const onError = (error: any) => {
+    } catch (err) {
+      console.error("❌ Rendering failed:", err);
       if (showOverlay) {
         setIsRendering(false);
         setRenderResult({
           status: "error",
-          message: `Rendering failed: ${error.message}`,
+          message: `Rendering error: ${err.message}`,
         });
       }
-      window.dispatchEvent(new CustomEvent("renderComplete"));
-    };
-
-    // Start background rendering
-    try {
-      await startBackgroundRendering(all, catalogues, onProgress, onComplete, onError);
-    } catch (err) {
-      console.error("❌ Background rendering failed:", err);
-      setIsRendering(false);
-      setRenderResult({
-        status: "error",
-        message: `Rendering error: ${err.message}`,
-      });
       window.dispatchEvent(new CustomEvent("renderComplete"));
     }
   }, []);

@@ -1,4 +1,5 @@
 // Web Worker for background image rendering
+import { renderProductToCanvas, canvasToBase64 } from '../utils/canvasRenderer';
 
 interface RenderData {
   items: Array<{
@@ -25,16 +26,17 @@ self.onmessage = async (event: MessageEvent<MessageData>) => {
     try {
       // Process rendering task
       console.log('Worker: Starting render task', data);
-      
-      // Simulate rendering process
-      const result = await processRendering(data);
-      
+
+      // Process and render items
+      const results = await processRendering(data);
+
       self.postMessage({
         type: 'RENDERING_COMPLETE',
         success: true,
-        data: result
+        data: results
       });
     } catch (error) {
+      console.error('Worker rendering error:', error);
       self.postMessage({
         type: 'RENDERING_ERROR',
         success: false,
@@ -45,20 +47,90 @@ self.onmessage = async (event: MessageEvent<MessageData>) => {
 };
 
 async function processRendering(renderData: RenderData): Promise<any> {
-  // Implementation for rendering logic
-  // This can be extended based on actual requirements
-  
-  const { items, format = 'png', width = 800, height = 600 } = renderData;
-  
-  console.log(`Processing ${items.length} items for ${format} at ${width}x${height}`);
-  
-  // Placeholder for actual rendering logic
+  const { items, format = 'png', width = 1080, height = 1080 } = renderData;
+
+  console.log(`Worker: Processing ${items.length} items for ${format} at ${width}x${height}`);
+
+  const results = [];
+  let successCount = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    try {
+      console.log(`Worker: Rendering item ${i + 1}/${items.length}: ${item.id}`);
+
+      // Ensure the product has an image property for rendering
+      let productToRender = { ...item };
+
+      // Make sure we have at least a placeholder image for rendering
+      if (!productToRender.image) {
+        // Use a 1x1 transparent PNG placeholder
+        productToRender.image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      }
+
+      // Render the product to canvas
+      const canvas = await renderProductToCanvas(productToRender as any, {
+        width: width,
+        scale: 1
+      }, {
+        enabled: false, // No watermark for shared renders
+        text: '',
+        position: 'bottom-right'
+      });
+
+      // Convert canvas to base64
+      const base64 = canvasToBase64(canvas);
+
+      // Get catalogue label from renderConfig if available
+      const catalogueLabel = item.renderConfig?.catalogues?.[0]?.label || 'General';
+      const filename = `product_${item.id}_${catalogueLabel}.png`;
+
+      successCount++;
+      results.push({
+        id: item.id,
+        success: true,
+        filename: filename,
+        catalogueLabel: catalogueLabel,
+        base64: base64 // Send base64 to main thread for filesystem saving
+      });
+
+      // Send progress update to main thread
+      self.postMessage({
+        type: 'RENDERING_PROGRESS',
+        current: i + 1,
+        total: items.length,
+        percentage: Math.round(((i + 1) / items.length) * 100)
+      });
+
+    } catch (error) {
+      console.error(`Worker: Failed to render item ${item.id}:`, error);
+      results.push({
+        id: item.id,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown rendering error'
+      });
+
+      // Still send progress for failed items
+      self.postMessage({
+        type: 'RENDERING_PROGRESS',
+        current: i + 1,
+        total: items.length,
+        percentage: Math.round(((i + 1) / items.length) * 100)
+      });
+    }
+  }
+
+  console.log(`Worker: Rendering complete. ${successCount}/${items.length} items rendered successfully`);
+
   return {
     itemsProcessed: items.length,
+    itemsSuccessful: successCount,
     format,
     width,
     height,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    results
   };
 }
 
