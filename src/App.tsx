@@ -128,6 +128,9 @@ function AppWithBackHandler() {
                 total: all.length
               }
             }));
+
+            // Yield to allow React to update the UI and show progress
+            await new Promise(resolve => setTimeout(resolve, 0));
           }
 
           console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
