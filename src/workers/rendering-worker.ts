@@ -61,12 +61,40 @@ async function processRendering(renderData: RenderData): Promise<any> {
     try {
       console.log(`Worker: Rendering item ${i + 1}/${items.length}: ${item.id}`);
 
+      // Ensure the product has an image property for rendering
+      // If it only has imagePath, we need to load the image data
+      let productToRender = { ...item };
+
+      if (!productToRender.image && productToRender.imagePath) {
+        try {
+          // Try to load image from filesystem using Capacitor
+          const imageFile = await Filesystem.readFile({
+            path: productToRender.imagePath,
+            directory: Directory.Data,
+          });
+          productToRender.image = `data:image/png;base64,${imageFile.data}`;
+          console.log(`Worker: Loaded image for product ${item.id}`);
+        } catch (imageLoadError) {
+          console.warn(`Worker: Could not load image for ${item.id}:`, imageLoadError);
+          // If we can't load the image, we need to provide a fallback or skip
+          // For now, we'll set an empty data URL which will show as a blank image
+          productToRender.image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        }
+      }
+
+      // Make sure we have at least a placeholder image
+      if (!productToRender.image) {
+        productToRender.image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      }
+
       // Render the product to canvas
-      const canvas = await renderProductToCanvas(item, {
+      const canvas = await renderProductToCanvas(productToRender as any, {
         width: width,
         scale: 1
       }, {
-        enabled: false // No watermark for shared renders
+        enabled: false, // No watermark for shared renders
+        text: '',
+        position: 'bottom-right'
       });
 
       // Convert canvas to base64
