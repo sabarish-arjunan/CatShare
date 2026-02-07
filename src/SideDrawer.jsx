@@ -430,68 +430,80 @@ const exportProductsToCSV = (products) => {
         })
       );
 
-      // Clear old deleted products to free up space
-      console.log("🗑️ Clearing old deleted products to free up space...");
+      // CRITICAL: Clear everything first to maximize space for new data
+      console.log("🗑️ Clearing old data to free up maximum space...");
       setDeletedProducts([]);
-      localStorage.setItem("deletedProducts", JSON.stringify([]));
+      localStorage.removeItem("deletedProducts");
+
+      // Save products using a helper function that handles quota errors
+      const saveProductsSafely = (products) => {
+        try {
+          const json = JSON.stringify(products);
+          // Check if data is too large
+          if (json.length > 4 * 1024 * 1024) { // 4MB limit
+            console.warn("⚠️ Data too large, removing unnecessary fields...");
+            // Remove fields that take up space but aren't critical
+            const cleaned = products.map(p => {
+              const clean = { ...p };
+              delete clean.imageBase64;
+              delete clean.imageFilename;
+              delete clean.renderedImages; // Remove any cached rendered images
+              return clean;
+            });
+            localStorage.setItem("products", JSON.stringify(cleaned));
+          } else {
+            localStorage.setItem("products", JSON.stringify(products));
+          }
+          return true;
+        } catch (err) {
+          console.error("❌ Failed to save products:", err.message);
+          throw err;
+        }
+      };
 
       setProducts(rebuilt);
-      localStorage.setItem("products", JSON.stringify(rebuilt));
+      saveProductsSafely(rebuilt);
 
       // Restore categories from backup if available, otherwise extract from products
-      if (parsed.categories && Array.isArray(parsed.categories)) {
-        localStorage.setItem("categories", JSON.stringify(parsed.categories));
-      } else {
-        const categories = Array.from(
-          new Set(
-            rebuilt.flatMap((p) =>
-              Array.isArray(p.category) ? p.category : [p.category]
+      try {
+        if (parsed.categories && Array.isArray(parsed.categories)) {
+          localStorage.setItem("categories", JSON.stringify(parsed.categories));
+        } else {
+          const categories = Array.from(
+            new Set(
+              rebuilt.flatMap((p) =>
+                Array.isArray(p.category) ? p.category : [p.category]
+              )
             )
-          )
-        ).filter(Boolean);
-        localStorage.setItem("categories", JSON.stringify(categories));
+          ).filter(Boolean);
+          localStorage.setItem("categories", JSON.stringify(categories));
+        }
+      } catch (catErr) {
+        console.warn("⚠️ Could not save categories:", catErr.message);
       }
 
-      if (Array.isArray(parsed.deleted)) {
-        // Also restore deleted products' images from the ZIP
-        const rebuiltDeleted = await Promise.all(
-          parsed.deleted.map(async (p) => {
-            if (p.imageFilename && p.imagePath) {
-              const imgFile = zip.file(`images/${p.imageFilename}`);
-              if (imgFile) {
+      // SKIP deleted products entirely to save space - they can be restored later if needed
+      console.log("ℹ️ Skipping deleted products to save storage space");
+      if (Array.isArray(parsed.deleted) && parsed.deleted.length > 0) {
+        // Just restore the images from deleted products' ZIP entries but don't save them to localStorage
+        console.log(`📂 Restoring ${parsed.deleted.length} deleted product images to filesystem...`);
+        for (const p of parsed.deleted) {
+          if (p.imageFilename && p.imagePath) {
+            const imgFile = zip.file(`images/${p.imageFilename}`);
+            if (imgFile) {
+              try {
                 const base64 = await imgFile.async("base64");
-
-                try {
-                  await Filesystem.writeFile({
-                    path: p.imagePath,
-                    data: base64,
-                    directory: Directory.Data,
-                    recursive: true,
-                  });
-                } catch (err) {
-                  console.warn("Image write failed for deleted product:", p.imagePath);
-                }
+                await Filesystem.writeFile({
+                  path: p.imagePath,
+                  data: base64,
+                  directory: Directory.Data,
+                  recursive: true,
+                });
+              } catch (err) {
+                console.warn("Image write failed for deleted product:", p.imagePath);
               }
             }
-
-            const clean = { ...p };
-            delete clean.imageBase64;
-            delete clean.imageFilename;
-
-            // Migrate old field names to new field names
-            const migrated = migrateProductToNewFormat(clean);
-
-            return migrated;
-          })
-        );
-
-        // Only restore deleted products if there's space
-        try {
-          setDeletedProducts(rebuiltDeleted);
-          localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
-        } catch (quotaErr) {
-          console.warn("⚠️ Could not restore deleted products (quota exceeded), skipping:", quotaErr.message);
-          // Just skip deleted products if quota is exceeded - main products are restored
+          }
         }
       }
 
