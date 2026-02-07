@@ -79,9 +79,14 @@ export async function handleShare({
     }
   };
 
-  // 1. Identify products that need rendering
+  // 1. Identify products that need rendering (only if they don't have any images)
   const missingProducts = [];
+  const productsWithoutRendered = [];
+
   for (const id of selected) {
+    const product = allProducts.find((p: any) => String(p.id) === String(id));
+    if (!product) continue;
+
     try {
       const cachedFileName = `product_${id}_${catalogueLabel}.png`;
       const cachedFilePath = `${targetFolder}/${cachedFileName}`;
@@ -89,16 +94,23 @@ export async function handleShare({
         path: cachedFilePath,
         directory: Directory.External,
       });
+      // Rendered image exists, all good
     } catch (err) {
-      // File not found on disk, need to render
-      const product = allProducts.find((p: any) => String(p.id) === String(id));
-      if (product) missingProducts.push(product);
+      // Rendered image not found
+      if (product.image || product.imagePath) {
+        // Has original image, can share as-is
+        productsWithoutRendered.push(product);
+        console.log(`ℹ️ Product ${product.name} will be shared with original image (not rendered)`);
+      } else {
+        // No image at all, needs rendering
+        missingProducts.push(product);
+      }
     }
   }
 
-  // 2. If any missing, trigger rendering (same as Render All)
+  // 2. Only trigger rendering if there are products with NO images at all
   if (missingProducts.length > 0) {
-    console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering rendering...`);
+    console.log(`🎨 ${missingProducts.length} products have no images. Triggering rendering...`);
 
     // Set processing states to show progress in CatalogueView
     setProcessing(true);
@@ -132,10 +144,15 @@ export async function handleShare({
     });
 
     console.log("✅ Rendering complete, proceeding with sharing...");
-    // Reset processing for the actual share preparation step
-    setProcessingIndex(0);
-    setProcessingTotal(selected.length);
   }
+
+  if (productsWithoutRendered.length > 0) {
+    console.log(`ℹ️ ${productsWithoutRendered.length} product(s) will be shared with original images (not rendered)`);
+  }
+
+  // Reset processing for the actual share preparation step
+  setProcessingIndex(0);
+  setProcessingTotal(selected.length);
 
   // Process all products to get their file URIs
   let completedCount = 0;
