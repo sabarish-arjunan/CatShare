@@ -303,11 +303,22 @@ export async function saveRenderedImage(product, type, units = {}) {
       cropAspectRatio: cropAspectRatio,
     };
 
-    // Get watermark settings
-    const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
-    const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
-    // Get watermark position as plain string (not JSON)
-    const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
+    // Get watermark settings with proper fallbacks
+    let isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
+    let watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
+    let watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
+
+    // Additional safety check - ensure watermarkPosition is a string, not JSON
+    if (typeof watermarkPosition !== 'string' || !watermarkPosition) {
+      watermarkPosition = "bottom-center";
+    }
+
+    console.log(`✅ Watermark Settings:`, {
+      enabled: isWatermarkEnabled,
+      text: watermarkText,
+      position: watermarkPosition,
+      productName: product.name
+    });
 
     // Render using Canvas API
     let canvas;

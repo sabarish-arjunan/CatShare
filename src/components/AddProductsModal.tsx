@@ -24,7 +24,10 @@ export default function AddProductsModal({
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    // Sync modal state with parent when allProducts changes
+    // This ensures changes made in the modal reflect immediately in the parent
     setProducts(allProducts);
+    setSearch(""); // Reset search when products list changes
   }, [allProducts]);
 
   const filteredProducts = products.filter((p) =>

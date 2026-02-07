@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { flushSync } from "react-dom";
-import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
+import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu, FiMessageSquare } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
 import CatalogueView from "./CatalogueView";
@@ -12,6 +12,7 @@ import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { App as CapacitorApp } from "@capacitor/app";
 import { MdInventory2 } from "react-icons/md";
 import { saveRenderedImage, deleteRenderedImageForProduct } from "./Save";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
@@ -216,6 +217,48 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     }, 1);
     return () => clearTimeout(timeout);
   }, []);
+
+  // Handle back button for catalogue navigation
+  useEffect(() => {
+    let removeListener: any;
+    CapacitorApp.addListener("backButton", () => {
+      // If currently rendering, minimize app instead of navigating
+      if (isRendering) {
+        CapacitorApp.minimizeApp();
+        return;
+      }
+
+      // If inside a catalogue view, go back to catalogues list
+      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
+        setSelectedCatalogueInCataloguesTab(null);
+        return;
+      }
+
+      // If on catalogues tab (showing list), go back to products tab
+      if (tab === "catalogues") {
+        setTab("products");
+        return;
+      }
+
+      // If on products tab, check for open preview modals
+      const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
+      const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
+      if (fullScreenImageOpen || previewModalOpen) {
+        window.dispatchEvent(new CustomEvent("close-preview"));
+        return;
+      }
+
+      // If on products tab and no preview open, let App.tsx handle exit
+      // Dispatch custom event so App.tsx can handle it properly
+      window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
+    }).then((listener) => {
+      removeListener = listener.remove;
+    });
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [tab, selectedCatalogueInCataloguesTab, isRendering]);
 
   const handleTabChange = (key) => {
     setTab(key);
@@ -583,6 +626,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M6 12h12M10 17h8" />
               </svg>
             </button>
+
+            <button
+              onClick={() => window.open("https://docs.google.com/forms/d/e/1FAIpQLSeRdoXJAaLXEpuyGZa3de45urVBCO86mvSUr2HO6xoHJzLlCQ/viewform?usp=dialog", "_blank")}
+              className="text-xl text-gray-600 hover:text-blue-600 transition-colors"
+              title="Send Feedback"
+              aria-label="Send Feedback"
+            >
+              <FiMessageSquare />
+            </button>
           </div>
         </header>
         </>
@@ -886,6 +938,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
+            onShelf={(product) => {
+              setShelfTarget(product);
+              setShowShelfConfirm(true);
+            }}
           />
         )}
       </main>

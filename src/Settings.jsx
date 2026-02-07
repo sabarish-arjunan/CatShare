@@ -140,23 +140,28 @@ export default function Settings({
     }
   };
 
-  // Show notification when rendering completes
+  // Show notification only when rendering actually completes
   useEffect(() => {
-    if (!isRendering && renderProgress > 0) {
-      sendNotification("Rendering Complete", "Your images have been processed and saved! 🎉");
-    }
-  }, [isRendering, renderProgress]);
+    const handleRenderComplete = async () => {
+      await sendNotification("Rendering Complete", "Your images have been processed and saved! 🎉");
+    };
+
+    window.addEventListener("renderComplete", handleRenderComplete);
+    return () => {
+      window.removeEventListener("renderComplete", handleRenderComplete);
+    };
+  }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
+    <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950 relative">
       {/* Status bar placeholder */}
       <div className="sticky top-0 h-[40px] bg-black z-50"></div>
 
       {/* Header */}
-      <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+      <header className="sticky top-[40px] z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 h-14 flex items-center gap-3 px-4 relative">
         <button
           onClick={() => setMenuOpen(true)}
-          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700"
+          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition"
           aria-label="Menu"
           title="Menu"
         >
@@ -170,10 +175,10 @@ export default function Settings({
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M3 12h18M3 18h18" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold flex-1 text-center truncate whitespace-nowrap">Settings</h1>
+        <h1 className="text-xl font-bold flex-1 text-center truncate whitespace-nowrap dark:text-white">Settings</h1>
         <button
           onClick={() => navigate("/")}
-          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-200 transition"
+          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           title="Go to Home"
         >
           <MdOutlineHome size={24} />
@@ -184,16 +189,16 @@ export default function Settings({
       <main className="flex-1 overflow-y-auto px-4 py-4 pb-24">
         <div className="max-w-lg">
           {/* Settings List */}
-          <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
             {/* Dark Mode Setting */}
             <div
               onClick={() => navigate("/settings/appearance")}
-              className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
+              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer text-left"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-gray-800">Appearance</h3>
-                  <p className="text-xs text-gray-500 mt-1">Choose between dark and light mode</p>
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Appearance</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Choose between dark and light mode</p>
                 </div>
                 <div
                   onClick={(e) => {
@@ -214,16 +219,16 @@ export default function Settings({
             </div>
 
             {/* Divider */}
-            <div className="border-t border-gray-200"></div>
+            <div className="border-t border-gray-200 dark:border-gray-800"></div>
 
             {/* Watermark Setting */}
             <div
               onClick={() => navigate("/settings/watermark")}
-              className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
+              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer text-left"
             >
               <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-semibold text-gray-800">Watermark</h3>
-                <p className="text-xs text-gray-500">Add custom text to your product images</p>
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Watermark</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Add custom text to your product images</p>
               </div>
             </div>
           </div>
@@ -232,15 +237,15 @@ export default function Settings({
           <div className="mt-4">
             <button
               onClick={testNotification}
-              className="w-full bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-300 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-400 transition p-4 text-left"
+              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition p-4 text-left"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🔔</span>
-                    <h3 className="text-sm font-semibold text-blue-900">Test Notification</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Test Notification</h3>
                   </div>
-                  <p className="text-xs text-blue-700">Send a test notification to verify they're working</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Send a test notification to verify they're working</p>
                 </div>
               </div>
             </button>
@@ -250,15 +255,15 @@ export default function Settings({
           <div className="mt-4">
             <button
               onClick={handleOptimizeStorage}
-              className="w-full bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition p-4 text-left"
+              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition p-4 text-left"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🚀</span>
-                    <h3 className="text-sm font-semibold text-green-900">Optimize Storage</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Optimize Storage</h3>
                   </div>
-                  <p className="text-xs text-green-700">Move product images to filesystem to free up app space</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Move product images to filesystem to free up app space</p>
                 </div>
               </div>
             </button>
@@ -268,15 +273,15 @@ export default function Settings({
           <div className="mt-4">
             <button
               onClick={clearLocalStorageCache}
-              className="w-full bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-300 shadow-sm overflow-hidden hover:shadow-md hover:border-orange-400 transition p-4 text-left"
+              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition p-4 text-left"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🗑️</span>
-                    <h3 className="text-sm font-semibold text-orange-900">Clear Cache</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Clear Cache</h3>
                   </div>
-                  <p className="text-xs text-orange-700">Free up storage space by removing cached rendered images</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Free up storage space by removing cached rendered images</p>
                 </div>
               </div>
             </button>
@@ -286,15 +291,15 @@ export default function Settings({
           <div className="mt-4">
             <div
               onClick={() => navigate("/settings/pro")}
-              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition cursor-pointer text-left p-4"
+              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition cursor-pointer text-left p-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🎉</span>
-                    <h3 className="text-sm font-semibold text-green-900">Using Pro for FREE</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Using Pro for FREE</h3>
                   </div>
-                  <p className="text-xs text-green-700">Beta access to all premium features</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Beta access to all premium features</p>
                 </div>
               </div>
             </div>

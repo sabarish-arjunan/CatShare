@@ -58,7 +58,8 @@ function AppWithBackHandler() {
   const isNative = Capacitor.getPlatform() !== "web";
 
 
-  // Handle rendering PNGs - uses the proven saveRenderedImage function (same as render all)
+  // Handle rendering PNGs with chunked processing to prevent UI freeze
+  // Processes in small batches with UI yielding between chunks
   const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
@@ -74,71 +75,92 @@ function AppWithBackHandler() {
 
     // Get all catalogues
     const catalogues = getAllCatalogues();
-    const totalRenders = all.length * catalogues.length;
     let renderedCount = 0;
 
+    // Chunk size - process this many products before yielding to UI thread
+    // Smaller chunk = more responsive UI but slower overall
+    // Larger chunk = less responsive but faster overall
+    // 2-3 is optimal for Capacitor apps to avoid freezing
+    const CHUNK_SIZE = 2;
+
+    // Helper function to yield to UI thread
+    const yieldToUI = () => new Promise(resolve => setTimeout(resolve, 0));
+
     try {
-      // Render products the same way as "Render All" does - using saveRenderedImage
-      for (let i = 0; i < all.length; i++) {
-        const product = all[i];
+      // Process products in chunks
+      for (let chunkStart = 0; chunkStart < all.length; chunkStart += CHUNK_SIZE) {
+        const chunkEnd = Math.min(chunkStart + CHUNK_SIZE, all.length);
 
-        // Skip products without images
-        if (!product.image && !product.imagePath) {
-          console.warn(`⚠️ Skipping ${product.name} - no image available`);
-          // Update progress with actual count (i + 1), not percentage - force sync update
-          flushSync(() => setRenderProgress(i + 1));
-          // Dispatch progress event
-          window.dispatchEvent(new CustomEvent("renderProgress", {
-            detail: {
-              percentage: Math.round(((i + 1) / all.length) * 100),
-              current: i + 1,
-              total: all.length
-            }
-          }));
-          continue;
-        }
+        // Process all products in this chunk
+        const chunkPromises = [];
+        for (let i = chunkStart; i < chunkEnd; i++) {
+          const product = all[i];
 
-        try {
-          // Render for all catalogues
-          for (const cat of catalogues) {
-            // For backward compatibility, map cat1->wholesale and cat2->resell
-            const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
-
-            await saveRenderedImage(product, legacyType, {
-              resellUnit: product.resellUnit || "/ piece",
-              wholesaleUnit: product.wholesaleUnit || "/ piece",
-              packageUnit: product.packageUnit || "pcs / set",
-              ageGroupUnit: product.ageUnit || "months",
-              catalogueId: cat.id,
-              catalogueLabel: cat.label,
-              folder: cat.folder || cat.label,
-              priceField: cat.priceField,
-              priceUnitField: cat.priceUnitField,
-            });
-
-            renderedCount++;
-            // Calculate which product we're on (product index, not total render count)
-            const productIndex = Math.floor(renderedCount / catalogues.length);
-            const percentage = Math.round((productIndex / all.length) * 100);
-
-            // Force synchronous update so progress bar updates immediately
-            flushSync(() => setRenderProgress(productIndex));
-
-            // Dispatch progress event for listeners (with both count and percentage)
-            console.log(`📤 App.tsx dispatching renderProgress: ${productIndex}/${all.length} (${percentage}%)`);
+          // Skip products without images
+          if (!product.image && !product.imagePath) {
+            console.warn(`⚠️ Skipping ${product.name} - no image available`);
+            flushSync(() => setRenderProgress(i + 1));
             window.dispatchEvent(new CustomEvent("renderProgress", {
               detail: {
-                percentage: percentage,
-                current: productIndex,
+                percentage: Math.round(((i + 1) / all.length) * 100),
+                current: i + 1,
                 total: all.length
               }
             }));
+            continue;
           }
 
-          console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
-        } catch (err) {
-          console.warn(`❌ Failed to render images for ${product.name}:`, err);
+          // Create promise for this product's rendering
+          const renderProductPromise = (async () => {
+            try {
+              // Render for all catalogues
+              for (const cat of catalogues) {
+                // For backward compatibility, map cat1->wholesale and cat2->resell
+                const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+                await saveRenderedImage(product, legacyType, {
+                  resellUnit: product.resellUnit || "/ piece",
+                  wholesaleUnit: product.wholesaleUnit || "/ piece",
+                  packageUnit: product.packageUnit || "pcs / set",
+                  ageGroupUnit: product.ageUnit || "months",
+                  catalogueId: cat.id,
+                  catalogueLabel: cat.label,
+                  folder: cat.folder || cat.label,
+                  priceField: cat.priceField,
+                  priceUnitField: cat.priceUnitField,
+                });
+
+                renderedCount++;
+              }
+
+              console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
+
+              // Update progress after product completes
+              const productIndex = Math.floor(renderedCount / catalogues.length);
+              const percentage = Math.round((productIndex / all.length) * 100);
+
+              flushSync(() => setRenderProgress(productIndex));
+              window.dispatchEvent(new CustomEvent("renderProgress", {
+                detail: {
+                  percentage: percentage,
+                  current: productIndex,
+                  total: all.length
+                }
+              }));
+            } catch (err) {
+              console.warn(`❌ Failed to render images for ${product.name}:`, err);
+            }
+          })();
+
+          chunkPromises.push(renderProductPromise);
         }
+
+        // Wait for all products in this chunk to complete
+        await Promise.all(chunkPromises);
+
+        // Yield to UI thread between chunks to keep app responsive
+        // This prevents the app from freezing during rendering
+        await yieldToUI();
       }
 
       if (showOverlay) {
@@ -349,7 +371,13 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     let removeListener: any;
-    CapacitorApp.addListener("backButton", () => {
+
+    // Handle back button press
+    // Note: This listener may be overridden by child components (like CatalogueApp)
+    // when they need to handle back navigation within their own context.
+    // For home page (/) routes, CatalogueApp handles back navigation and dispatches
+    // "catalogue-app-back-not-handled" event when it can't handle it.
+    const handleBackPress = () => {
       if (isRendering) {
         CapacitorApp.minimizeApp();
         return;
@@ -364,12 +392,23 @@ function AppWithBackHandler() {
       } else {
         CapacitorApp.exitApp();
       }
-    }).then((listener) => {
+    };
+
+    // Listen for fallback event from CatalogueApp when back is pressed on products tab
+    // and no internal navigation is possible
+    const handleCatalogueAppBackFallback = () => {
+      CapacitorApp.exitApp();
+    };
+
+    CapacitorApp.addListener("backButton", handleBackPress).then((listener) => {
       removeListener = listener.remove;
     });
 
+    window.addEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
+
     return () => {
       if (removeListener) removeListener();
+      window.removeEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
     };
   }, [location, navigate, isRendering]);
 

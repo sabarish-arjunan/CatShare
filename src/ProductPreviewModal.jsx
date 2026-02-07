@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { MdInventory2 } from "react-icons/md";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
@@ -335,6 +336,7 @@ export default function ProductPreviewModal({
   onToggleStock,
   onSwipeLeft,
   onSwipeRight,
+  onShelf,
   filteredProducts = [],
 }) {
   const { showToast } = useToast();
@@ -342,6 +344,7 @@ export default function ProductPreviewModal({
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const [showShelfModal, setShowShelfModal] = useState(false);
   const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
@@ -578,11 +581,12 @@ export default function ProductPreviewModal({
             onDragEnd={handleDragEnd}
             custom={direction}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-[75%] rounded-xl overflow-hidden shadow-xl relative"
+            className="bg-white rounded-xl overflow-hidden shadow-xl relative"
             style={{
               display: "flex",
               flexDirection: "column",
-              maxWidth: "340px",
+              width: "85vw",
+              maxWidth: "380px",
             }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
@@ -694,8 +698,8 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
-                padding: "4px 8px",
-                fontSize: 13,
+                padding: "12px 12px",
+                fontSize: 17,
                 overflow: "auto",
                 flex: 1,
                 minHeight: 0,
@@ -711,14 +715,14 @@ export default function ProductPreviewModal({
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 20,
+                    fontSize: 28,
                     margin: "0 0 3px 0",
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 14, margin: "0 0 0 0" }}>
+                  <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
                     ({product.subtitle})
                   </p>
                 )}
@@ -757,7 +761,7 @@ export default function ProductPreviewModal({
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  fontSize: 15,
+                  fontSize: 19,
                   flexShrink: 0,
                 }}
               >
@@ -782,8 +786,12 @@ export default function ProductPreviewModal({
                   >
                     {getAllStockStatus() ? "In" : "Out"}
                   </button>
-                  <button onClick={onClose} className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs">
-                    Close
+                  <button
+                    onClick={() => setShowShelfModal(true)}
+                    className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs"
+                    title="Shelf Item"
+                  >
+                    Shelf
                   </button>
                 </div>
               </div>
@@ -831,6 +839,42 @@ export default function ProductPreviewModal({
             >
               OK
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Shelf Modal - Overlay on top of preview */}
+      {showShelfModal && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+          onClick={() => setShowShelfModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 max-w-sm w-full text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">Shelf this item now?</h2>
+            <p className="text-sm text-gray-600 mb-5">
+              It stays safe and can be restored or deleted later.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  onShelf?.(product);
+                  setShowShelfModal(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-800 transition"
+              >
+                Shelf
+              </button>
+              <button
+                onClick={() => setShowShelfModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
