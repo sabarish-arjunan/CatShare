@@ -8,7 +8,7 @@ import {
 } from "./config/catalogueConfig";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { deleteRenderedImagesFromFolder, renameRenderedImagesForCatalogue } from "./Save";
-import { FiX, FiPlus, FiEdit2, FiTrash2, FiImage, FiCheck } from "react-icons/fi";
+import { FiX, FiPlus, FiEdit2, FiTrash2, FiImage, FiCheck, FiLoader } from "react-icons/fi";
 
 interface ManageCataloguesProps {
   onClose: () => void;
@@ -27,6 +27,7 @@ export default function ManageCatalogues({
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState<Catalogue | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<Catalogue | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [formLabel, setFormLabel] = useState("");
   const [formDescription, setFormDescription] = useState("");
@@ -147,6 +148,7 @@ export default function ManageCatalogues({
     }
 
     try {
+      setIsSaving(true);
       await Haptics.impact({ style: ImpactStyle.Medium });
 
       const newLabel = formLabel.trim();
@@ -175,6 +177,8 @@ export default function ManageCatalogues({
       resetFormFields();
     } catch (err) {
       setFormError("Failed to update catalogue: " + (err as Error).message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -431,13 +435,24 @@ export default function ManageCatalogues({
                   <div className="flex gap-2 pt-1">
                     <button
                       type="submit"
-                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95"
+                      disabled={isSaving}
+                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-95 disabled:bg-blue-400 disabled:cursor-not-allowed"
                     >
-                      <FiCheck size={16} />
-                      Save Changes
+                      {isSaving ? (
+                        <>
+                          <FiLoader className="animate-spin" size={16} />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <FiCheck size={16} />
+                          Save Changes
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
+                      disabled={isSaving}
                       onClick={() => {
                         setShowEditForm(null);
                         resetFormFields();
