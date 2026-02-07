@@ -349,7 +349,11 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     let removeListener: any;
-    CapacitorApp.addListener("backButton", () => {
+
+    // Handle back button press
+    // Note: This listener may be overridden by child components (like CatalogueApp's back handler)
+    // when they need to handle back navigation within their own context
+    const handleBackPress = () => {
       if (isRendering) {
         CapacitorApp.minimizeApp();
         return;
@@ -364,12 +368,22 @@ function AppWithBackHandler() {
       } else {
         CapacitorApp.exitApp();
       }
-    }).then((listener) => {
+    };
+
+    // Listen for custom event from CatalogueApp when back is pressed on products tab
+    const handleCatalogueAppBack = () => {
+      handleBackPress();
+    };
+
+    CapacitorApp.addListener("backButton", handleBackPress).then((listener) => {
       removeListener = listener.remove;
     });
 
+    window.addEventListener("catalogue-app-back-not-handled", handleCatalogueAppBack);
+
     return () => {
       if (removeListener) removeListener();
+      window.removeEventListener("catalogue-app-back-not-handled", handleCatalogueAppBack);
     };
   }, [location, navigate, isRendering]);
 
