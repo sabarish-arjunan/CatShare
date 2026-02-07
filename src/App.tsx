@@ -33,7 +33,6 @@ import RenderingOverlay from "./RenderingOverlay";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering.ts";
 import { getAllCatalogues } from "./config/catalogueConfig";
 
 function AppWithBackHandler() {
