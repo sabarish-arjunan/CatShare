@@ -759,7 +759,7 @@ export default function ProductPreviewModal({
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  fontSize: 15,
+                  fontSize: 17,
                   flexShrink: 0,
                 }}
               >
