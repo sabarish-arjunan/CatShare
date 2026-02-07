@@ -178,6 +178,7 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
             onToggleStock={null}
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
+            onShelf={() => {}}
           />
         )}
       </main>
