@@ -113,41 +113,21 @@ export async function handleShare({
   if (needsRendering.length > 0) {
     console.log(`🎨 ${needsRendering.length} products need rendering. Triggering rendering...`);
 
-    // Set processing states to show progress in CatalogueView
+    // Show the modal by setting processing to true
     setProcessing(true);
-    setProcessingIndex(0);
-    setProcessingTotal(needsRendering.length);
 
-    // Wait a moment to ensure the modal renders before we set up listeners and start rendering
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    console.log("✅ Modal visible, setting up event listeners");
-
-    // Set up event listeners BEFORE dispatching the event
-    const progressHandler = (event: any) => {
-      const { current, total } = event.detail;
-      console.log(`📊 Share.ts renderProgress: ${current}/${total}`);
-      // Update state directly without flushSync (CatalogueView will re-render)
-      setProcessingIndex(current);
-      setProcessingTotal(total);
-    };
-
+    // Wait for the renderComplete event (CatalogueView listens to renderProgress directly)
     const completionPromise = new Promise<void>((resolve) => {
       const completionHandler = () => {
-        console.log("✅ renderComplete event received in Share.ts");
+        console.log("✅ renderComplete event received");
         window.removeEventListener("renderComplete", completionHandler);
-        window.removeEventListener("renderProgress", progressHandler);
         resolve();
       };
-      window.addEventListener("renderComplete", completionHandler);
+      window.addEventListener("renderComplete", completionHandler, { once: true });
     });
 
-    // Listen for progress events BEFORE triggering rendering
-    window.addEventListener("renderProgress", progressHandler);
-    console.log("📢 Progress listener attached");
-
-    // NOW emit event that App.tsx listens to, with request to hide global overlay
-    console.log("📤 Dispatching requestRenderSelectedPNGs event with " + needsRendering.length + " products");
+    // Emit event that App.tsx listens to, with request to hide global overlay
+    console.log("📤 Dispatching requestRenderSelectedPNGs with " + needsRendering.length + " products");
     window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
       detail: {
         products: needsRendering,
@@ -155,7 +135,7 @@ export async function handleShare({
       }
     }));
 
-    // Wait for the renderComplete event
+    // Wait for rendering to complete
     await completionPromise;
 
     console.log("✅ Rendering complete, proceeding with sharing...");
