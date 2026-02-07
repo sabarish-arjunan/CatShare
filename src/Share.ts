@@ -112,8 +112,10 @@ export async function handleShare({
   if (needsRendering.length > 0) {
     console.log(`🎨 ${needsRendering.length} products need rendering. Triggering rendering...`);
 
-    // Show the modal by setting processing to true
+    // Show the modal and set initial state
     setProcessing(true);
+    setProcessingIndex(0);
+    setProcessingTotal(needsRendering.length);
 
     // Wait for the renderComplete event (CatalogueView listens to renderProgress directly)
     const completionPromise = new Promise<void>((resolve) => {
