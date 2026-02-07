@@ -374,8 +374,9 @@ export default function ManageCatalogues({
                     <input
                       type="text"
                       value={formLabel}
+                      disabled={isSaving}
                       onChange={(e) => setFormLabel(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -389,20 +390,22 @@ export default function ManageCatalogues({
                         <img src={formHeroImage} alt="Preview" className="w-full h-32 object-cover" />
                         <button
                           type="button"
+                          disabled={isSaving}
                           onClick={() => setFormHeroImage("")}
-                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition"
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                           <FiX size={14} />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-slate-100 cursor-pointer hover:bg-slate-200 transition">
+                      <label className={`flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-slate-100 transition ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-200'}`}>
                         <FiImage size={20} className="text-slate-500 mb-1.5" />
                         <span className="text-xs font-medium text-gray-700">Click to upload image</span>
                         <span className="text-xs text-gray-500 mt-0.5">Max 2MB</span>
                         <input
                           type="file"
                           accept="image/*"
+                          disabled={isSaving}
                           onChange={handleImageUpload}
                           className="hidden"
                         />
@@ -417,9 +420,10 @@ export default function ManageCatalogues({
                     </label>
                     <textarea
                       value={formDescription}
+                      disabled={isSaving}
                       onChange={(e) => setFormDescription(e.target.value)}
                       placeholder="Add a description for this catalogue..."
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                       rows={2}
                     />
                   </div>
@@ -457,7 +461,7 @@ export default function ManageCatalogues({
                         setShowEditForm(null);
                         resetFormFields();
                       }}
-                      className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-300 transition active:scale-95"
+                      className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-sm hover:bg-gray-300 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>
