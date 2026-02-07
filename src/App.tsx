@@ -82,8 +82,8 @@ function AppWithBackHandler() {
         // Skip products without images
         if (!product.image && !product.imagePath) {
           console.warn(`⚠️ Skipping ${product.name} - no image available`);
-          // Update progress with actual count (i + 1), not percentage
-          setRenderProgress(i + 1);
+          // Update progress with actual count (i + 1), not percentage - force sync update
+          flushSync(() => setRenderProgress(i + 1));
           // Dispatch progress event
           window.dispatchEvent(new CustomEvent("renderProgress", {
             detail: {
@@ -92,8 +92,6 @@ function AppWithBackHandler() {
               total: all.length
             }
           }));
-          // Yield to allow React to update the UI and show progress
-          await new Promise(resolve => setTimeout(resolve, 0));
           continue;
         }
 
