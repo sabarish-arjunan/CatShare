@@ -458,6 +458,8 @@ const exportProductsToCSV = (products) => {
       console.log(`📦 Products to save: ${cleanedProducts.length}`);
       console.log(`📊 Data size: ${JSON.stringify(cleanedProducts).length / 1024}KB`);
 
+      let productsToUse = cleanedProducts;
+
       try {
         localStorage.setItem("products", JSON.stringify(cleanedProducts));
         console.log("✅ Products saved successfully");
@@ -466,15 +468,15 @@ const exportProductsToCSV = (products) => {
         // If still too large, limit to first 50 products
         if (err.name === "QuotaExceededError") {
           console.warn("⚠️ Data still too large, limiting to 50 products...");
-          const limited = cleanedProducts.slice(0, 50);
-          localStorage.setItem("products", JSON.stringify(limited));
+          productsToUse = cleanedProducts.slice(0, 50);
+          localStorage.setItem("products", JSON.stringify(productsToUse));
           alert("⚠️ Restore limited to first 50 products due to storage quota. You can restore more products later by importing additional backups.");
         } else {
           throw err;
         }
       }
 
-      setProducts(cleanedProducts);
+      setProducts(productsToUse);
 
       // Restore categories from backup if available, otherwise extract from products
       try {
