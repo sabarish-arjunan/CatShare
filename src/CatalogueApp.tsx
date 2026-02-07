@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
+import { flushSync } from "react-dom";
+import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu, FiMessageSquare } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
 import CatalogueView from "./CatalogueView";
@@ -11,8 +12,9 @@ import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { App as CapacitorApp } from "@capacitor/app";
 import { MdInventory2 } from "react-icons/md";
-import { saveRenderedImage } from "./Save";
+import { saveRenderedImage, deleteRenderedImageForProduct } from "./Save";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 
 export function openPreviewHtml(id, tab = null) {
@@ -20,7 +22,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderingTotal: propRenderingTotal, setRenderingTotal: propSetRenderingTotal, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderingTotal?: number; setRenderingTotal?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -35,6 +37,18 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   useEffect(() => {
     const cats = getAllCatalogues();
     setCatalogues(cats);
+  }, []);
+
+  // Listen for catalogue changes (e.g., after restore or when ManageCatalogues updates)
+  useEffect(() => {
+    const handleCataloguesChanged = () => {
+      const cats = getAllCatalogues();
+      setCatalogues(cats);
+      console.log("✅ Catalogues refreshed from event");
+    };
+
+    window.addEventListener("catalogues-changed", handleCataloguesChanged);
+    return () => window.removeEventListener("catalogues-changed", handleCataloguesChanged);
   }, []);
 
   // Handle catalogue query parameter - when returning from edit view
@@ -204,6 +218,48 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => clearTimeout(timeout);
   }, []);
 
+  // Handle back button for catalogue navigation
+  useEffect(() => {
+    let removeListener: any;
+    CapacitorApp.addListener("backButton", () => {
+      // If currently rendering, minimize app instead of navigating
+      if (isRendering) {
+        CapacitorApp.minimizeApp();
+        return;
+      }
+
+      // If inside a catalogue view, go back to catalogues list
+      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
+        setSelectedCatalogueInCataloguesTab(null);
+        return;
+      }
+
+      // If on catalogues tab (showing list), go back to products tab
+      if (tab === "catalogues") {
+        setTab("products");
+        return;
+      }
+
+      // If on products tab, check for open preview modals
+      const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
+      const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
+      if (fullScreenImageOpen || previewModalOpen) {
+        window.dispatchEvent(new CustomEvent("close-preview"));
+        return;
+      }
+
+      // If on products tab and no preview open, let App.tsx handle exit
+      // Dispatch custom event so App.tsx can handle it properly
+      window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
+    }).then((listener) => {
+      removeListener = listener.remove;
+    });
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [tab, selectedCatalogueInCataloguesTab, isRendering]);
+
   const handleTabChange = (key) => {
     setTab(key);
     setSelected([]);
@@ -273,66 +329,118 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setProducts((prev) => prev.map((p) => (p.id === item.id ? item : p)));
   };
 
-  const handleRenderAllPNGs = async () => {
+  const handleRenderAllPNGs = async (forceRerender: boolean = true) => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
-    setIsRendering(true);
-    setRenderProgress(0);
-
     const cats = getAllCatalogues();
+
+    // If forcing re-render, delete all existing rendered images first
+    if (forceRerender) {
+      console.log("🗑️ Force re-render enabled - clearing all rendered images...");
+      for (const cat of cats) {
+        const folderName = cat.folder || cat.label;
+        try {
+          const result = await Filesystem.readdir({
+            path: folderName,
+            directory: Directory.External,
+          });
+
+          if (result.files && result.files.length > 0) {
+            for (const file of result.files) {
+              try {
+                await Filesystem.deleteFile({
+                  path: `${folderName}/${file.name}`,
+                  directory: Directory.External,
+                });
+                console.log(`  ✓ Deleted: ${file.name}`);
+              } catch (err) {
+                console.warn(`  ⚠️ Could not delete ${file.name}:`, err.message);
+              }
+            }
+            console.log(`✅ Cleared ${result.files.length} images from ${folderName}`);
+          }
+        } catch (err) {
+          // Folder might not exist yet, which is fine
+          if (err.code !== 'NotFound') {
+            console.warn(`⚠️ Could not clear folder ${folderName}:`, err.message);
+          }
+        }
+      }
+      console.log("✅ Cache cleared. Re-rendering all images with latest settings...");
+    }
+
+    // Force synchronous state updates so overlay renders with correct total
+    flushSync(() => {
+      propSetIsRendering?.(true);
+      propSetRenderProgress?.(0);
+      propSetRenderingTotal?.(all.length);
+    });
+
     const totalRenders = all.length * cats.length;
     let renderedCount = 0;
 
-    for (let i = 0; i < all.length; i++) {
-      const product = all[i];
+    try {
+      for (let i = 0; i < all.length; i++) {
+        const product = all[i];
 
-      // Inject base64 from imageMap (used in CatalogueApp)
-      if (!product.image && imageMap[product.id]) {
-        product.image = imageMap[product.id];
-      }
-
-      // Skip products without images - don't error, just skip
-      if (!product.image && !product.imagePath) {
-        console.warn(`⚠️ Skipping ${product.name} - no image available`);
-        setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-        continue;
-      }
-
-      try {
-        // Render for all catalogues
-        for (const cat of cats) {
-          // For backward compatibility, map cat1->wholesale and cat2->resell
-          const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
-
-          await saveRenderedImage(product, legacyType, {
-            resellUnit: product.resellUnit || "/ piece",
-            wholesaleUnit: product.wholesaleUnit || "/ piece",
-            packageUnit: product.packageUnit || "pcs / set",
-            ageGroupUnit: product.ageUnit || "months",
-            catalogueId: cat.id,
-            catalogueLabel: cat.label,
-            folder: cat.folder || cat.label,
-            priceField: cat.priceField,
-            priceUnitField: cat.priceUnitField,
-          });
-
-          renderedCount++;
-          setRenderProgress(Math.round((renderedCount / totalRenders) * 100));
+        // Inject base64 from imageMap (used in CatalogueApp)
+        if (!product.image && imageMap[product.id]) {
+          product.image = imageMap[product.id];
         }
 
-        console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
-      } catch (err) {
-        console.warn(`❌ Failed to render images for ${product.name}`, err);
-      }
-    }
+        // Skip products without images - don't error, just skip
+        if (!product.image && !product.imagePath) {
+          console.warn(`⚠️ Skipping ${product.name} - no image available`);
+          flushSync(() => propSetRenderProgress?.((i + 1)));
+          continue;
+        }
 
-    setRenderResult({
-      status: "success",
-      message: `PNG rendering completed for all products and catalogues`,
-    });
-    setIsRendering(false);
-    window.dispatchEvent(new CustomEvent("renderComplete"));
+        try {
+          // Render for all catalogues
+          for (const cat of cats) {
+            // For backward compatibility, map cat1->wholesale and cat2->resell
+            const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+            await saveRenderedImage(product, legacyType, {
+              resellUnit: product.resellUnit || "/ piece",
+              wholesaleUnit: product.wholesaleUnit || "/ piece",
+              packageUnit: product.packageUnit || "pcs / set",
+              ageGroupUnit: product.ageUnit || "months",
+              catalogueId: cat.id,
+              catalogueLabel: cat.label,
+              folder: cat.folder || cat.label,
+              priceField: cat.priceField,
+              priceUnitField: cat.priceUnitField,
+            });
+
+            renderedCount++;
+            // Calculate which product we're on (product index, not total render count)
+            const productIndex = Math.floor(renderedCount / cats.length);
+            flushSync(() => propSetRenderProgress?.(productIndex));
+          }
+
+          console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
+        } catch (err) {
+          console.warn(`❌ Failed to render images for ${product.name}`, err);
+        }
+      }
+
+      propSetRenderResult?.({
+        status: "success",
+        message: `PNG rendering completed for all products and catalogues${forceRerender ? ' (force re-rendered)' : ''}`,
+      });
+      propSetIsRendering?.(false);
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    } catch (err) {
+      console.error("❌ Rendering failed:", err);
+      propSetRenderResult?.({
+        status: "error",
+        message: `Rendering error: ${err.message}`,
+      });
+      propSetIsRendering?.(false);
+      window.dispatchEvent(new CustomEvent("renderComplete"));
+    }
   };
 
   const handleDelete = async (id) => {
@@ -343,6 +451,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       await Haptics.impact({ style: ImpactStyle.Heavy });
       setProducts((prev) => prev.filter((p) => p.id !== id));
       setDeletedProducts((prev) => [toDelete, ...prev]);
+
+      // 🧹 Clean up rendered images for this product to save space
+      // They can be re-rendered if the product is restored
+      try {
+        await deleteRenderedImageForProduct(id);
+      } catch (err) {
+        console.warn(`⚠️ Failed to clean up rendered images for product ${id}:`, err);
+      }
     }
   };
 
@@ -379,6 +495,11 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   const visible = [...filtered];
   if (sortBy === "name") visible.sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortBy.endsWith(":out")) {
+    // Out of stock sorting
+    const field = sortBy.replace(":out", "");
+    visible.sort((a, b) => (a[field] ? 1 : -1));
+  }
   else if (sortBy === "wholesaleStock") visible.sort((a, b) => a.wholesaleStock ? -1 : 1);
   else if (sortBy === "resellStock") visible.sort((a, b) => a.resellStock ? -1 : 1);
   else if (sortBy === "category") visible.sort((a, b) => {
@@ -390,12 +511,12 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
   return (
     <div
-      className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100 relative"
+      className="w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-white to-gray-100"
     >
 
       {tab === "products" && (
         <>
-          <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+          <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50"></div>
           <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
         
           {/* Menu Button */}
@@ -435,10 +556,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               {[
                 { label: "Original", value: "" },
                 { label: "A - Z", value: "name" },
-                ...catalogues.map((cat) => ({
-                  label: `${cat.label} IN`,
-                  value: cat.stockField,
-                })),
+                { label: "In Stock", value: catalogues[0]?.stockField || "wholesaleStock" },
+                { label: "Out of Stock", value: `${catalogues[0]?.stockField || "wholesaleStock"}:out` },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -507,13 +626,22 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M6 12h12M10 17h8" />
               </svg>
             </button>
+
+            <button
+              onClick={() => window.open("https://docs.google.com/forms/d/e/1FAIpQLSeRdoXJAaLXEpuyGZa3de45urVBCO86mvSUr2HO6xoHJzLlCQ/viewform?usp=dialog", "_blank")}
+              className="text-xl text-gray-600 hover:text-blue-600 transition-colors"
+              title="Send Feedback"
+              aria-label="Send Feedback"
+            >
+              <FiMessageSquare />
+            </button>
           </div>
         </header>
         </>
       )}
 
 
-      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto' : ''} px-4 pb-24`}>
+      <main ref={scrollRef} className={`flex-1 min-h-0 ${tab === 'products' ? 'overflow-y-auto pt-6' : ''} px-4 pb-24`}>
         {tab === "products" && visible.length === 0 && (
           <EmptyStateIntro onCreateProduct={() => navigate("/create")} />
         )}
@@ -810,6 +938,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
+            onShelf={(product) => {
+              setShelfTarget(product);
+              setShowShelfConfirm(true);
+            }}
           />
         )}
       </main>

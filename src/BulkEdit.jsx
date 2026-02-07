@@ -33,6 +33,8 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const [selectedCatalogueId, setSelectedCatalogueId] = useState(initialCatalogueId || null);
   const [selectedCatalogueConfig, setSelectedCatalogueConfig] = useState(null);
   const [catalogues, setCatalogues] = useState([]);
+  const [filledFromMaster, setFilledFromMaster] = useState({}); // Track which fields are filled from master
+  const [confirmDialog, setConfirmDialog] = useState({ show: false, fieldKey: null }); // Confirmation dialog
   const { showToast } = useToast();
 
   // Use initial values or selected values
@@ -40,6 +42,13 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const priceField = selectedCatalogueConfig?.priceField || initialPriceField;
   const priceUnitField = selectedCatalogueConfig?.priceUnitField || initialPriceUnitField;
   const stockField = selectedCatalogueConfig?.stockField || initialStockField;
+
+  // Reset filledFromMaster when catalogue changes
+  useEffect(() => {
+    // For new catalogues, all fields start unchecked (empty)
+    // For existing catalogues, fields with data start unchecked (since data is already loaded)
+    setFilledFromMaster({});
+  }, [catalogueId]);
 
   const totalProducts = products.length;
   const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
@@ -49,8 +58,14 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   useEffect(() => {
     const cats = getAllCatalogues();
     setCatalogues(cats);
-  }, []);
-
+    // If initialCatalogueId is provided, set the config immediately
+    if (initialCatalogueId) {
+      const config = cats.find(c => c.id === initialCatalogueId);
+      if (config) {
+        setSelectedCatalogueConfig(config);
+      }
+    }
+  }, [initialCatalogueId]);
 
 
 useEffect(() => {
@@ -58,53 +73,198 @@ useEffect(() => {
   setCategories(storedCategories);
 
   const normalized = products.map((p) => {
-    // Get catalogue-specific data for this product
-    const catData = getCatalogueData(p, catalogueId);
+    // Get catalogue-specific data
+    const catData = catalogueId ? getCatalogueData(p, catalogueId) : {};
 
+    // Show field if it has data, otherwise leave empty
     const normalized = {
       ...p,
-      // Use catalogue-specific field values
-      field1: catData.field1 || p.field1 || p.color || "",
-      field2: catData.field2 || p.field2 || p.package || "",
-      field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
-      field3: catData.field3 || p.field3 || p.age || "",
-      field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+      // Keep product identity
+      name: p.name || "",
+      subtitle: p.subtitle || "",
+      badge: p.badge || "",
+      category: p.category || [],
+      // Show if exists in catalogue, otherwise empty
+      field1: catData.field1 || "",
+      color: catData.field1 || p.color || "",
+      field2: catData.field2 || "",
+      field2Unit: catData.field2Unit || "pcs / set",
+      package: catData.field2 || p.package || "",
+      packageUnit: catData.field2Unit || p.packageUnit || "pcs / set",
+      field3: catData.field3 || "",
+      field3Unit: catData.field3Unit || "months",
+      age: catData.field3 || p.age || "",
+      ageUnit: catData.field3Unit || p.ageUnit || "months",
       wholesaleStock:
         typeof p.wholesaleStock === "boolean"
           ? p.wholesaleStock ? "in" : "out"
-          : p.wholesaleStock,
+          : p.wholesaleStock || "",
       resellStock:
         typeof p.resellStock === "boolean"
           ? p.resellStock ? "in" : "out"
-          : p.resellStock,
+          : p.resellStock || "",
     };
 
     // Handle catalogue-specific stock field
     if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
       normalized[stockField] = typeof p[stockField] === "boolean"
         ? p[stockField] ? "in" : "out"
-        : p[stockField];
+        : (p[stockField] || "");
     }
 
     // Add price field for the current catalogue
     if (priceField) {
-      normalized[priceField] = catData[priceField] || p[priceField] || "";
-      normalized[priceUnitField] = catData[priceUnitField] || p[priceUnitField] || "/ piece";
+      normalized[priceField] = catData[priceField] || "";
+      normalized[priceUnitField] = catData[priceUnitField] || "/ piece";
     }
+
+    // Initialize other price fields - show if they exist
+    normalized.wholesale = p.wholesale || "";
+    normalized.wholesaleUnit = p.wholesaleUnit || "/ piece";
+    normalized.resell = p.resell || "";
+    normalized.resellUnit = p.resellUnit || "/ piece";
+    normalized.retail = p.retail || "";
+    normalized.retailUnit = p.retailUnit || "/ piece";
+    normalized.stock = p.stock || "";
 
     return normalized;
   });
 
-  setEditedData(normalized);
-}, [products, stockField, catalogueId, priceField, priceUnitField]);
+  setEditedData(normalized.map(item => ensureFieldDefaults(item)));
+}, [products, stockField, catalogueId, priceField, priceUnitField, initialCatalogueId]);
 
 
 
+
+  // Ensure all fields have proper defaults
+  const ensureFieldDefaults = (item) => {
+    const defaults = {
+      id: item.id,
+      name: item.name ?? "",
+      subtitle: item.subtitle ?? "",
+      badge: item.badge ?? "",
+      category: item.category ?? [],
+      field1: item.field1 ?? "",
+      color: item.color ?? "",
+      field2: item.field2 ?? "",
+      field2Unit: item.field2Unit ?? "pcs / set",
+      package: item.package ?? "",
+      packageUnit: item.packageUnit ?? "pcs / set",
+      field3: item.field3 ?? "",
+      field3Unit: item.field3Unit ?? "months",
+      age: item.age ?? "",
+      ageUnit: item.ageUnit ?? "months",
+      wholesale: item.wholesale ?? "",
+      wholesaleUnit: item.wholesaleUnit ?? "/ piece",
+      resell: item.resell ?? "",
+      resellUnit: item.resellUnit ?? "/ piece",
+      retail: item.retail ?? "",
+      retailUnit: item.retailUnit ?? "/ piece",
+      // Initialize all possible price fields to avoid undefined
+      price: item.price ?? "",
+      priceUnit: item.priceUnit ?? "/ piece",
+      price1: item.price1 ?? "",
+      price1Unit: item.price1Unit ?? "/ piece",
+      price2: item.price2 ?? "",
+      price2Unit: item.price2Unit ?? "/ piece",
+      wholesaleStock: item.wholesaleStock ?? "",
+      resellStock: item.resellStock ?? "",
+      retailStock: item.retailStock ?? "",
+      stock: item.stock ?? "",
+      image: item.image ?? "",
+      imagePath: item.imagePath ?? "",
+    };
+
+    // Also ensure dynamic price field is initialized
+    if (priceField && !(priceField in defaults)) {
+      defaults[priceField] = item[priceField] ?? "";
+    }
+    if (priceUnitField && !(priceUnitField in defaults)) {
+      defaults[priceUnitField] = item[priceUnitField] ?? "/ piece";
+    }
+    if (stockField && !(stockField in defaults)) {
+      defaults[stockField] = item[stockField] ?? "";
+    }
+
+    // Merge with item, ensuring all values are defined
+    const result = { ...defaults };
+    Object.entries(item).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        result[key] = value;
+      }
+    });
+
+    return result;
+  };
 
   const handleFieldChange = (id, field, value) => {
     setEditedData((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+      prev.map((item) => (item.id === id ? ensureFieldDefaults({ ...item, [field]: value }) : item))
     );
+  };
+
+  const toggleFillFromMaster = (fieldKey) => {
+    const newState = !filledFromMaster[fieldKey];
+
+    if (newState) {
+      // Show confirmation before filling from master
+      setConfirmDialog({ show: true, fieldKey });
+    } else {
+      // Directly empty the field without confirmation
+      setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: false }));
+
+      setEditedData((prev) =>
+        prev.map((item) => {
+          const updates = {};
+
+          if (fieldKey === "field1") {
+            updates.field1 = "";
+          } else if (fieldKey === "field2") {
+            updates.field2 = "";
+            updates.field2Unit = "pcs / set";
+          } else if (fieldKey === "field3") {
+            updates.field3 = "";
+            updates.field3Unit = "months";
+          } else if (fieldKey === priceField) {
+            updates[priceField] = "";
+            updates[priceUnitField] = "/ piece";
+          }
+
+          return ensureFieldDefaults({ ...item, ...updates });
+        })
+      );
+    }
+  };
+
+  const confirmFillFromMaster = (fieldKey) => {
+    const masterCatalogueId = catalogues[0]?.id;
+    if (!masterCatalogueId) return;
+
+    setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: true }));
+
+    setEditedData((prev) =>
+      prev.map((item) => {
+        const masterData = getCatalogueData(item, masterCatalogueId);
+        const updates = {};
+
+        if (fieldKey === "field1") {
+          updates.field1 = masterData.field1 || item.color || "";
+        } else if (fieldKey === "field2") {
+          updates.field2 = masterData.field2 || item.package || "";
+          updates.field2Unit = masterData.field2Unit || item.packageUnit || "pcs / set";
+        } else if (fieldKey === "field3") {
+          updates.field3 = masterData.field3 || item.age || "";
+          updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
+        } else if (fieldKey === priceField) {
+          updates[priceField] = masterData[priceField] || "";
+          updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
+        }
+
+        return ensureFieldDefaults({ ...item, ...updates });
+      })
+    );
+
+    setConfirmDialog({ show: false, fieldKey: null });
   };
 
   const toggleCategory = (id, cat) => {
@@ -112,12 +272,12 @@ useEffect(() => {
       prev.map((item) => {
         if (item.id !== id) return item;
         const current = Array.isArray(item.category) ? item.category : [];
-        return {
+        return ensureFieldDefaults({
           ...item,
           category: current.includes(cat)
             ? current.filter((c) => c !== cat)
             : [...current, cat],
-        };
+        });
       })
     );
   };
@@ -247,6 +407,17 @@ useEffect(() => {
   }
 
   if (step === "select") {
+    // If we have initialCatalogueId but data not loaded yet, show loading
+    if (initialCatalogueId && editedData.length === 0) {
+      return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg">
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl">
+            <div className="text-center text-gray-600">Loading...</div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
       onClick={onClose}
@@ -333,12 +504,27 @@ useEffect(() => {
         <div className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 font-semibold text-xs py-2 border-b">
           <div>#</div>
           <div>Image</div>
-          {selectedFields.map((field) => (
-            <div key={field}>{FIELD_OPTIONS.find((f) => f.key === field)?.label}</div>
-          ))}
+          {selectedFields.map((field) => {
+            const fieldLabel = FIELD_OPTIONS.find((f) => f.key === field)?.label;
+            const isFilledFromMaster = filledFromMaster[field];
+            return (
+              <div key={field} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={isFilledFromMaster}
+                  onChange={() => toggleFillFromMaster(field)}
+                  title={isFilledFromMaster ? "Uncheck to clear all values" : "Check to fill from Master catalogue"}
+                  className="appearance-none w-4 h-4 border border-gray-400 rounded checked:bg-green-600 checked:border-green-600 cursor-pointer"
+                />
+                <span>{fieldLabel}</span>
+              </div>
+            );
+          })}
         </div>
 
-        {editedData.map((item, index) => (
+        {editedData.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">Loading...</div>
+        ) : editedData.map((item, index) => (
           <div
             key={item.id}
             className="grid grid-cols-[32px_64px_repeat(auto-fill,minmax(190px,1fr))] gap-2 items-center text-sm py-2 border-b"
@@ -360,7 +546,7 @@ useEffect(() => {
 
             {selectedFields.includes("name") && (
               <input
-                value={item.name || ""}
+                value={item.name}
                 onChange={(e) => handleFieldChange(item.id, "name", e.target.value)}
                 className="border rounded px-2 py-1"
               />
@@ -368,7 +554,7 @@ useEffect(() => {
 
             {selectedFields.includes("subtitle") && (
               <input
-                value={item.subtitle || ""}
+                value={item.subtitle}
                 onChange={(e) => handleFieldChange(item.id, "subtitle", e.target.value)}
                 className="border rounded px-2 py-1"
               />
@@ -376,7 +562,7 @@ useEffect(() => {
 
             {selectedFields.includes("field1") && (
               <input
-                value={item.field1 || item.color || ""}
+                value={item.field1}
                 onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
@@ -385,12 +571,12 @@ useEffect(() => {
             {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.field2 || item.package || ""}
+      value={item.field2}
       onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
       className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.field2Unit || item.packageUnit || ""}
+      value={item.field2Unit}
       onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
@@ -405,12 +591,12 @@ useEffect(() => {
             {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.field3 || item.age || ""}
+                  value={item.field3}
                   onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.field3Unit || item.ageUnit || ""}
+                  value={item.field3Unit}
                   onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -424,13 +610,13 @@ useEffect(() => {
             {priceField && selectedFields.includes(priceField) && (
               <div className="flex gap-2">
                 <input
-                  value={item[priceField] || ""}
+                  value={item[priceField] ?? ""}
                   onChange={(e) => handleFieldChange(item.id, priceField, e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                   placeholder="Price"
                 />
                 <select
-                  value={item[priceUnitField] || ""}
+                  value={item[priceUnitField] ?? "/ piece"}
                   onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -444,12 +630,12 @@ useEffect(() => {
             {selectedFields.includes("wholesale") && (
               <div className="flex gap-2">
                 <input
-                  value={item.wholesale || ""}
+                  value={item.wholesale}
                   onChange={(e) => handleFieldChange(item.id, "wholesale", e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.wholesaleUnit || ""}
+                  value={item.wholesaleUnit}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -463,12 +649,12 @@ useEffect(() => {
             {selectedFields.includes("resell") && (
               <div className="flex gap-2">
                 <input
-                  value={item.resell || ""}
+                  value={item.resell}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.resellUnit || ""}
+                  value={item.resellUnit}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -481,7 +667,7 @@ useEffect(() => {
 
             {selectedFields.includes("badge") && (
               <input
-                value={item.badge || ""}
+                value={item.badge}
                 onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
                 placeholder="Enter badge"
                 className="border rounded px-2 py-1 w-full"
@@ -518,15 +704,15 @@ useEffect(() => {
   <div className="flex gap-2">
     <button
       onClick={() =>
-        handleFieldChange(item.id, stockField, item[stockField] === "in" ? "out" : "in")
+        handleFieldChange(item.id, stockField, (item[stockField] ?? "") === "in" ? "out" : "in")
       }
       className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-        item[stockField] === "in"
+        (item[stockField] ?? "") === "in"
           ? "bg-green-600 text-white"
           : "bg-gray-300 text-gray-800"
       }`}
     >
-      {stockField === 'wholesaleStock' ? 'WS' : stockField === 'resellStock' ? 'RS' : 'Stock'}: {item[stockField] === "in" ? "In" : "Out"}
+      {stockField === 'wholesaleStock' ? 'WS' : stockField === 'resellStock' ? 'RS' : 'Stock'}: {(item[stockField] ?? "") === "in" ? "In" : "Out"}
     </button>
   </div>
 )}
@@ -583,6 +769,34 @@ useEffect(() => {
   }}
         >
           Maybe later
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{confirmDialog.show && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+      <h2 className="text-lg font-bold text-gray-800 mb-3">Fill from Master Catalogue?</h2>
+
+      <p className="text-sm text-gray-600 mb-4">
+        This will overwrite the current field value for <span className="font-semibold">all products</span> with the data from the master catalogue. Continue?
+      </p>
+
+      <div className="flex justify-center gap-3">
+        <button
+          className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition text-sm"
+          onClick={() => setConfirmDialog({ show: false, fieldKey: null })}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
+          onClick={() => confirmFillFromMaster(confirmDialog.fieldKey)}
+        >
+          Yes, Fill
         </button>
       </div>
     </div>

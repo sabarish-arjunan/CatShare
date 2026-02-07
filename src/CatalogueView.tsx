@@ -1,13 +1,14 @@
 // Generic Catalogue View Component
 // Works with any catalogue (Master, Resell, custom, etc.)
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus, FiEdit } from "react-icons/fi";
 import { MdLayers } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import html2canvas from "html2canvas-pro";
+import { renderElementToCanvas, canvasToBlob } from "./utils/canvasRenderer";
 import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
@@ -62,6 +63,9 @@ export default function CatalogueView({
   const [processing, setProcessing] = useState(false);
   const [processingIndex, setProcessingIndex] = useState(0);
   const [processingTotal, setProcessingTotal] = useState(0);
+  const [processingPhase, setProcessingPhase] = useState("rendering"); // "rendering" or "sharing"
+  const [totalToRender, setTotalToRender] = useState(0);
+  const [totalToShare, setTotalToShare] = useState(0);
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
@@ -72,6 +76,46 @@ export default function CatalogueView({
   const [showEdit, setShowEdit] = useState(false);
   const toolsMenuRef = useRef(null);
 
+
+useEffect(() => {
+  console.log("✅ CatalogueView: Setting up event listeners");
+
+  // Listen for progress updates directly
+  const handleRenderProgress = (event: any) => {
+    const { current, total } = event.detail;
+    console.log(`📊 CatalogueView renderProgress received: ${current}/${total}`);
+    setProcessingIndex(current);
+    setProcessingTotal(total);
+  };
+
+  // Listen for render complete to close modal
+  const handleRenderComplete = () => {
+    console.log("✅ CatalogueView renderComplete received");
+    setProcessing(false);
+  };
+
+  // Listen for phase changes
+  const handlePhaseChange = (event: any) => {
+    const { phase, totalToRender, totalToShare } = event.detail;
+    console.log(`📊 CatalogueView phaseChange received: ${phase}`);
+    setProcessingPhase(phase);
+    setTotalToRender(totalToRender);
+    setTotalToShare(totalToShare);
+    setProcessingIndex(0); // Reset progress when phase changes
+  };
+
+  window.addEventListener("renderProgress", handleRenderProgress);
+  window.addEventListener("renderComplete", handleRenderComplete);
+  window.addEventListener("processingPhaseChange", handlePhaseChange);
+
+  console.log("✅ CatalogueView: Event listeners attached");
+
+  return () => {
+    window.removeEventListener("renderProgress", handleRenderProgress);
+    window.removeEventListener("renderComplete", handleRenderComplete);
+    window.removeEventListener("processingPhaseChange", handlePhaseChange);
+  };
+}, []);
 
 useEffect(() => {
   if (showSearch && searchInputRef.current) {
@@ -271,66 +315,65 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
         })
       );
 
-      // Use html2canvas to capture the rendered element
-      const canvas = await html2canvas(clonedElement, {
+      // Use Canvas API to capture the rendered element
+      const canvas = await renderElementToCanvas(clonedElement, {
         backgroundColor: '#ffffff',
         scale: 3,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
         width: 400,
         height: 400,
       });
 
       // Convert canvas to blob
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          console.error('Failed to create image blob');
-          document.body.removeChild(tempContainer);
-          return;
-        }
-
-        const filename = `${productName || 'product'}_${productId}.png`;
-
-        // Use FileSaver or Filesystem API for download
-        if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
-          try {
-            const handle = await (window as any).showSaveFilePicker({
-              suggestedName: filename,
-              types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
-            });
-            const writable = await handle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-          } catch (err) {
-            if (err.name !== 'AbortError') {
-              console.warn('Save file picker failed, trying download:', err);
-              // Fallback to blob download
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }
-          }
-        } else {
-          // Fallback: simple blob download
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }
-
-        // Clean up temporary container
+      const blob = await canvasToBlob(canvas);
+      if (!blob) {
+        console.error('Failed to create image blob');
         document.body.removeChild(tempContainer);
-      }, 'image/png');
+        return;
+      }
+
+      const filename = `${productName || 'product'}_${productId}.png`;
+
+      // Use FileSaver or Filesystem API for download
+      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+        try {
+          const handle = await (window as any).showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: 'Image', accept: { 'image/png': ['.png'] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Save file picker failed, trying download:', err);
+            // Fallback to blob download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        // Fallback: simple blob download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Clean up temporary container
+      document.body.removeChild(tempContainer);
+      // Release canvas memory
+      canvas.width = 0;
+      canvas.height = 0;
     } catch (err) {
       console.error('Download failed:', err);
     }
@@ -370,6 +413,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
           setProcessingTotal,
           folder: catalogueLabel,
           mode: catalogueId,
+          products: allProducts,
         });
       };
       container.appendChild(shareBtn);
@@ -606,6 +650,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       setProcessingTotal,
       folder: catalogueLabel,
       mode: catalogueId,
+      products: allProducts,
     });
   }}
   className="w-9 h-9 flex items-center justify-center rounded-md text-green-600 hover:text-green-700 transition-colors"
@@ -973,22 +1018,6 @@ onMouseLeave={handleTouchEnd}
     backgroundColor: "#fff",
                 }}
               >
-                <h2
-                  style={{
-                    backgroundColor: p.bgColor || "#add8e6",
-                    color: p.fontColor || "white",
-                    padding: 5,
-                    textAlign: "center",
-                    fontWeight: "normal",
-                    fontSize: 19,
-                    margin: 0,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
-                  {getProductCatalogueData(p).priceUnit}
-                </h2>
-
                 <div
                   style={{
                     backgroundColor: p.imageBgColor || "white",
@@ -1012,24 +1041,28 @@ onMouseLeave={handleTouchEnd}
   <div
     style={{
       position: "absolute",
-      bottom: 10,
-      right: 10,
+      bottom: 8,
+      right: 8,
       backgroundColor:
         p.imageBgColor?.toLowerCase() === "white" ? "#fff" : "#000",
       color:
         p.imageBgColor?.toLowerCase() === "white" ? "#000" : "#fff",
-      fontSize: 12,
-      fontWeight: 600,
-      padding: "5px 10px",
-      borderRadius: "999px",
-      opacity: 0.95,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-      border: `1px solid ${
+      fontSize: 11,
+      fontWeight: 400,
+      padding: "4px 9px",
+      borderRadius: "20px",
+      opacity: 0.98,
+      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+      border: `1.5px solid ${
         p.imageBgColor?.toLowerCase() === "white"
           ? "rgba(0,0,0,0.4)"
           : "rgba(255,255,255,0.4)"
       }`,
-      letterSpacing: "0.4px",
+      letterSpacing: "0.3px",
+      lineHeight: "1.4",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     }}
   >
     {p.badge.toUpperCase()}
@@ -1063,7 +1096,7 @@ onMouseLeave={handleTouchEnd}
                   style={{
                     backgroundColor: getLighterColor(p.bgColor || "#add8e6"),
                     color: p.fontColor || "white",
-                    padding: 10,
+                    padding: "4px 8px",
                     fontSize: 17,
                   }}
                 >
@@ -1073,14 +1106,14 @@ onMouseLeave={handleTouchEnd}
                         fontWeight: "normal",
                         textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
                         fontSize: 28,
-                        margin: 3,
+                        margin: "0 0 3px 0",
                       }}
                     >
                       {p.name}
                     </p>
                     {p.subtitle && (
                       <p
-                        style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}
+                        style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}
                       >
                         ({p.subtitle})
                       </p>
@@ -1103,6 +1136,22 @@ onMouseLeave={handleTouchEnd}
                     </p>
                   </div>
                 </div>
+
+                <h2
+                  style={{
+                    backgroundColor: p.bgColor || "#add8e6",
+                    color: p.fontColor || "white",
+                    padding: "5px 8px",
+                    textAlign: "center",
+                    fontWeight: "normal",
+                    fontSize: 19,
+                    margin: 0,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getProductCatalogueData(p).price}{" "}
+                  {getProductCatalogueData(p).priceUnit}
+                </h2>
               </div>
             </div>
           );
@@ -1110,19 +1159,99 @@ onMouseLeave={handleTouchEnd}
       </div>
       {processing && (
   <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-    <div className="bg-white rounded-xl shadow-xl px-6 py-4 text-center animate-fadeIn space-y-3 w-64">
-      <div className="text-lg font-semibold text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
-        🖼️ Creating image {processingIndex} of {processingTotal}
+    <div className="bg-white rounded-xl shadow-xl px-6 py-4 text-center animate-fadeIn space-y-4 w-80 max-w-[90vw]">
+      {/* Title with phase indicator */}
+      <div className="space-y-1">
+        <div className="text-lg font-semibold text-gray-700">
+          {processingPhase === "rendering" ? "🖼️ Rendering Images" : "📦 Preparing Files"}
+        </div>
+        <div className="text-sm text-gray-500">
+          {processingPhase === "rendering"
+            ? `Image ${processingIndex} of ${processingTotal}`
+            : `Fetching ${processingIndex} of ${processingTotal}`}
+        </div>
       </div>
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-green-500 transition-all duration-300"
-          style={{
-            width: `${(processingIndex / processingTotal) * 100 || 0}%`,
-          }}
-        ></div>
-      </div>
-      <div className="text-xs text-gray-400">Please wait…</div>
+
+      {/* Rendering Phase Progress */}
+      {processingPhase === "rendering" && totalToRender > 0 && (
+        <div className="space-y-2">
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
+            <div
+              className="h-full bg-blue-500 transition-all duration-200 ease-out relative"
+              style={{
+                width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
+                willChange: 'width',
+              }}
+            >
+              <div
+                className="absolute inset-0 w-full h-full animate-shimmer"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                  backgroundSize: '200% 100%'
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-xs text-gray-600">
+            {processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}% complete
+          </div>
+        </div>
+      )}
+
+      {/* Sharing Phase Progress */}
+      {processingPhase === "sharing" && (
+        <div className="space-y-2">
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
+            <div
+              className="h-full bg-green-500 transition-all duration-200 ease-out relative"
+              style={{
+                width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
+                willChange: 'width',
+              }}
+            >
+              <div
+                className="absolute inset-0 w-full h-full animate-shimmer"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                  backgroundSize: '200% 100%'
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-xs text-gray-600">
+            {processingTotal > 0 ? Math.round((processingIndex / processingTotal) * 100) : 0}% complete
+          </div>
+        </div>
+      )}
+
+      {/* Info Section - Show rendering details */}
+      {totalToRender > 0 && (
+        <div className="bg-blue-50 rounded-lg px-3 py-2 space-y-1 border border-blue-100">
+          <div className="text-xs font-semibold text-blue-900">
+            💡 First-time rendering
+          </div>
+          <div className="text-xs text-blue-800 leading-relaxed">
+            {totalToRender} image{totalToRender !== 1 ? 's' : ''} need rendering. This is a one-time process that makes future shares instant.
+          </div>
+          <div className="text-xs text-blue-700 font-medium pt-1">
+            Tip: Render all images at once to avoid waiting multiple times
+          </div>
+        </div>
+      )}
+
+      {/* Info Section - All cached */}
+      {totalToRender === 0 && processingPhase === "sharing" && (
+        <div className="bg-green-50 rounded-lg px-3 py-2 border border-green-100">
+          <div className="text-xs font-semibold text-green-900">
+            ⚡ All images cached
+          </div>
+          <div className="text-xs text-green-800">
+            Ready to share instantly!
+          </div>
+        </div>
+      )}
+
+      <div className="text-xs text-gray-400 pt-1">Please wait…</div>
     </div>
   </div>
 )}

@@ -9,7 +9,7 @@ import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage, MdSettings } from "react-icons/md";
+import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage, MdSettings, MdPublic } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
@@ -67,6 +67,7 @@ const { showToast } = useToast();
   try {
     const zip = new JSZip();
     let hasImages = false;
+    let totalSize = 0;
 
     // Get all catalogues dynamically
     const catalogues = getAllCatalogues();
@@ -88,12 +89,18 @@ const { showToast } = useToast();
 
         for (const file of files.files) {
           if (file.name.endsWith(".png")) {
-            const fileData = await Filesystem.readFile({
-              path: `${folderName}/${file.name}`,
-              directory: Directory.External,
-            });
-            zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
-            hasImages = true;
+            try {
+              const fileData = await Filesystem.readFile({
+                path: `${folderName}/${file.name}`,
+                directory: Directory.External,
+              });
+              zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+              totalSize += fileData.data.length;
+              hasImages = true;
+            } catch (readErr) {
+              console.warn(`Could not read file ${folderName}/${file.name}:`, readErr.message);
+              // Skip individual files that fail to read
+            }
           }
         }
       } catch (err) {
@@ -107,39 +114,116 @@ const { showToast } = useToast();
       return;
     }
 
-    const blob = await zip.generateAsync({ type: "blob" });
-    const reader = new FileReader();
+    console.log(`📦 Creating ZIP with ${totalSize} bytes of image data...`);
 
-    reader.onloadend = async () => {
-      const base64Data = reader.result.split(",")[1];
+    try {
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      console.log(`✅ ZIP created successfully. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
 
       const now = new Date();
       const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
       const filename = `catshare-rendered-images-${timestamp}.zip`;
 
       try {
-        await Filesystem.writeFile({
-          path: filename,
-          data: base64Data,
-          directory: Directory.External,
-        });
+        // For large files, skip FileSharer and use browser download directly
+        // FileSharer has issues with files larger than ~10MB base64 (~7.5MB binary)
+        const MAX_FILESHARER_SIZE = 10 * 1024 * 1024; // 10MB base64
 
-        await FileSharer.share({
-          filename,
-          base64Data,
-          contentType: "application/zip",
-        });
+        if (blob.size > 5 * 1024 * 1024) {
+          // File is large (>5MB), use browser download directly
+          console.log(`📦 File is large (${(blob.size / 1024 / 1024).toFixed(2)}MB), using browser download...`);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          // Keep URL object alive briefly, then revoke
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          showToast("ZIP file downloaded to your device!", "success");
+        } else {
+          // File is smaller, try FileSharer for better mobile experience
+          console.log(`📝 Writing file: ${filename}`);
 
-        showToast("Rendered images downloaded successfully!", "success");
-      } catch (err) {
-        showToast("Failed to download images: " + err.message, "error");
+          // Convert blob to base64 more safely for smaller chunks
+          const arrayBuffer = await blob.arrayBuffer();
+          const bytes = new Uint8Array(arrayBuffer);
+
+          // Convert to base64 in chunks to avoid "Invalid array length" error
+          let binary = '';
+          const chunkSize = 8192; // Process in 8KB chunks
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          const base64Data = btoa(binary);
+
+          // Safety check: if base64 is too large, fall back to direct download
+          if (base64Data.length > MAX_FILESHARER_SIZE) {
+            console.warn(`⚠️ Base64 data too large for FileSharer (${(base64Data.length / 1024 / 1024).toFixed(2)}MB), using browser download...`);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast("ZIP file downloaded to your device!", "success");
+            return;
+          }
+
+          console.log(`📤 Sharing file via FileSharer...`);
+          try {
+            await FileSharer.share({
+              filename,
+              base64Data,
+              contentType: "application/zip",
+            });
+            showToast("Rendered images downloaded successfully!", "success");
+          } catch (fileSharerErr) {
+            console.warn(`⚠️ FileSharer failed, falling back to browser download:`, fileSharerErr.message);
+
+            // FileSharer failed, use browser download as fallback
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast("ZIP file downloaded to your device!", "success");
+          }
+        }
+      } catch (shareErr) {
+        console.error("Share/Write error:", shareErr);
+
+        // Final fallback: Try direct download without anything else
+        try {
+          console.log(`📥 Using final fallback: direct blob download...`);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          showToast("ZIP file downloaded to your device!", "success");
+        } catch (fallbackErr) {
+          console.error("All download methods failed:", fallbackErr);
+          showToast("Failed to download images: " + (fallbackErr.message || shareErr.message), "error");
+        }
       }
-    };
-
-    reader.readAsDataURL(blob);
+    } catch (genErr) {
+      console.error("ZIP generation failed:", genErr);
+      showToast("Failed to create ZIP: " + genErr.message, "error");
+    }
   } catch (err) {
     console.error("Download rendered images failed:", err);
-    showToast("Failed to download rendered images", "error");
+    showToast("Failed to download rendered images: " + err.message, "error");
   }
 };
 
@@ -152,10 +236,13 @@ const handleBackup = async () => {
   const dataForJson = [];
   const deletedForJson = [];
 
-  for (const p of products) {
+  // Helper function to backup a product with its image
+  const backupProductWithImage = async (p) => {
     const product = { ...p };
     delete product.imageBase64;
+    delete product.image; // Remove any base64 image data
 
+    // Try to back up the image
     if (p.imagePath) {
       try {
         const res = await Filesystem.readFile({
@@ -165,38 +252,35 @@ const handleBackup = async () => {
 
         const imageFilename = p.imagePath.split("/").pop();
         zip.file(`images/${imageFilename}`, res.data, { base64: true });
-
-        product.imageFilename = imageFilename; // map in JSON
+        product.imageFilename = imageFilename;
+        console.log(`✅ Backed up image for "${p.name}": ${imageFilename}`);
       } catch (err) {
-        console.warn("Could not read image:", p.imagePath);
+        console.warn(`⚠️ Image file not found for "${p.name}": ${p.imagePath}`);
+        // Image reference exists but file doesn't - this is a data inconsistency
       }
+    } else if (p.image && typeof p.image === 'string' && p.image.startsWith('data:')) {
+      // Product has base64 image but no imagePath - include it directly in the backup
+      console.log(`📝 Including base64 image for "${p.name}" in backup`);
+      product.image = p.image; // Keep base64 for this product
+    } else if (p.image) {
+      // Product has some image data - keep it
+      console.log(`📝 Including image data for "${p.name}" in backup`);
+      product.image = p.image;
     }
 
-    dataForJson.push(product);
+    return product;
+  };
+
+  // Back up all products
+  for (const p of products) {
+    const backupProduct = await backupProductWithImage(p);
+    dataForJson.push(backupProduct);
   }
 
   // Also process deleted products' images
   for (const p of deleted) {
-    const product = { ...p };
-    delete product.imageBase64;
-
-    if (p.imagePath) {
-      try {
-        const res = await Filesystem.readFile({
-          path: p.imagePath,
-          directory: Directory.Data,
-        });
-
-        const imageFilename = p.imagePath.split("/").pop();
-        zip.file(`images/${imageFilename}`, res.data, { base64: true });
-
-        product.imageFilename = imageFilename; // map in JSON
-      } catch (err) {
-        console.warn("Could not read image:", p.imagePath);
-      }
-    }
-
-    deletedForJson.push(product);
+    const backupProduct = await backupProductWithImage(p);
+    deletedForJson.push(backupProduct);
   }
 
   // Include catalogues definition and all settings in backup
@@ -317,6 +401,9 @@ const exportProductsToCSV = (products) => {
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
+          let imageRestored = false;
+
+          // Try to restore image from ZIP file first (preferred method)
           if (p.imageFilename && p.imagePath) {
             const imgFile = zip.file(`images/${p.imageFilename}`);
             if (imgFile) {
@@ -329,15 +416,25 @@ const exportProductsToCSV = (products) => {
                   directory: Directory.Data,
                   recursive: true,
                 });
+                imageRestored = true;
+                console.log(`📸 Image restored from file for "${p.name}": ${p.imagePath}`);
               } catch (err) {
-                console.warn("Image write failed:", p.imagePath);
+                console.warn(`❌ Image write failed for "${p.name}":`, p.imagePath, err);
               }
+            } else {
+              console.warn(`⚠️ Image file not found in ZIP for "${p.name}": images/${p.imageFilename}`);
             }
+          }
+
+          // Fallback: Keep base64 image if no file-based image was restored
+          if (!imageRestored && p.image && typeof p.image === 'string') {
+            console.log(`📸 Keeping base64 image for "${p.name}" (${(p.image.length / 1024).toFixed(1)} KB)`);
           }
 
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
+          // KEEP p.image if it exists (base64 fallback)
 
           // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
           const migrated = migrateProductToNewFormat(clean);
@@ -346,58 +443,88 @@ const exportProductsToCSV = (products) => {
         })
       );
 
-      setProducts(rebuilt);
-      localStorage.setItem("products", JSON.stringify(rebuilt));
+      // CRITICAL: Clear everything first to maximize space for new data
+      console.log("🗑️ Clearing old data to free up maximum space...");
+      setDeletedProducts([]);
+      localStorage.clear(); // Nuclear option - clear EVERYTHING
 
-      // Restore categories from backup if available, otherwise extract from products
-      if (parsed.categories && Array.isArray(parsed.categories)) {
-        localStorage.setItem("categories", JSON.stringify(parsed.categories));
-      } else {
-        const categories = Array.from(
-          new Set(
-            rebuilt.flatMap((p) =>
-              Array.isArray(p.category) ? p.category : [p.category]
-            )
-          )
-        ).filter(Boolean);
-        localStorage.setItem("categories", JSON.stringify(categories));
+      // Aggressively clean products - remove ALL image data except imagePath reference
+      const cleanedProducts = rebuilt.map(p => {
+        const clean = { ...p };
+        // Remove ALL image-related fields EXCEPT imagePath (which is the reference to the file on disk)
+        delete clean.image; // base64 image
+        delete clean.imageBase64;
+        delete clean.imageData;
+        delete clean.imageFilename;
+        delete clean.renderedImages;
+        // KEEP imagePath - this is the reference to where the image file is stored on the filesystem
+        return clean;
+      });
+
+      console.log(`📦 Products to save: ${cleanedProducts.length}`);
+      console.log(`📊 Data size: ${JSON.stringify(cleanedProducts).length / 1024}KB`);
+
+      let productsToUse = cleanedProducts;
+
+      try {
+        localStorage.setItem("products", JSON.stringify(cleanedProducts));
+        console.log("✅ Products saved successfully");
+      } catch (err) {
+        console.error("❌ Failed to save products:", err.message);
+        // If still too large, limit to first 50 products
+        if (err.name === "QuotaExceededError") {
+          console.warn("⚠️ Data still too large, limiting to 50 products...");
+          productsToUse = cleanedProducts.slice(0, 50);
+          localStorage.setItem("products", JSON.stringify(productsToUse));
+          alert("⚠️ Restore limited to first 50 products due to storage quota. You can restore more products later by importing additional backups.");
+        } else {
+          throw err;
+        }
       }
 
-      if (Array.isArray(parsed.deleted)) {
-        // Also restore deleted products' images from the ZIP
-        const rebuiltDeleted = await Promise.all(
-          parsed.deleted.map(async (p) => {
-            if (p.imageFilename && p.imagePath) {
-              const imgFile = zip.file(`images/${p.imageFilename}`);
-              if (imgFile) {
-                const base64 = await imgFile.async("base64");
+      setProducts(productsToUse);
 
-                try {
-                  await Filesystem.writeFile({
-                    path: p.imagePath,
-                    data: base64,
-                    directory: Directory.Data,
-                    recursive: true,
-                  });
-                } catch (err) {
-                  console.warn("Image write failed for deleted product:", p.imagePath);
-                }
+      // Restore categories from backup if available, otherwise extract from products
+      try {
+        if (parsed.categories && Array.isArray(parsed.categories)) {
+          localStorage.setItem("categories", JSON.stringify(parsed.categories));
+        } else {
+          const categories = Array.from(
+            new Set(
+              rebuilt.flatMap((p) =>
+                Array.isArray(p.category) ? p.category : [p.category]
+              )
+            )
+          ).filter(Boolean);
+          localStorage.setItem("categories", JSON.stringify(categories));
+        }
+      } catch (catErr) {
+        console.warn("⚠️ Could not save categories:", catErr.message);
+      }
+
+      // SKIP deleted products entirely to save space - they can be restored later if needed
+      console.log("ℹ️ Skipping deleted products to save storage space");
+      if (Array.isArray(parsed.deleted) && parsed.deleted.length > 0) {
+        // Just restore the images from deleted products' ZIP entries but don't save them to localStorage
+        console.log(`📂 Restoring ${parsed.deleted.length} deleted product images to filesystem...`);
+        for (const p of parsed.deleted) {
+          if (p.imageFilename && p.imagePath) {
+            const imgFile = zip.file(`images/${p.imageFilename}`);
+            if (imgFile) {
+              try {
+                const base64 = await imgFile.async("base64");
+                await Filesystem.writeFile({
+                  path: p.imagePath,
+                  data: base64,
+                  directory: Directory.Data,
+                  recursive: true,
+                });
+              } catch (err) {
+                console.warn("Image write failed for deleted product:", p.imagePath);
               }
             }
-
-            const clean = { ...p };
-            delete clean.imageBase64;
-            delete clean.imageFilename;
-
-            // Migrate old field names to new field names
-            const migrated = migrateProductToNewFormat(clean);
-
-            return migrated;
-          })
-        );
-
-        setDeletedProducts(rebuiltDeleted);
-        localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
+          }
+        }
       }
 
       // Restore catalogues definition from backup
@@ -452,14 +579,15 @@ const exportProductsToCSV = (products) => {
         onClick={onClose}
       >
         <div
-          className="absolute left-0 w-64 bg-white shadow-lg p-4 overflow-y-auto"
+          className="absolute left-0 w-64 bg-white shadow-lg flex flex-col overflow-hidden"
           style={{
             top: 0,
             height: "100%",
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4"></div>
+          <div className="h-[40px] bg-black flex-shrink-0"></div>
+          <div className="overflow-y-auto flex-1 p-4">
           <h2 className="text-lg font-semibold mb-4">
             Me<span
               onClick={handleNClick}
@@ -516,6 +644,17 @@ const exportProductsToCSV = (products) => {
     >
       <span className="text-gray-500">🖼️</span>
       <span className="text-sm font-medium">Media Library</span>
+    </button>
+
+    <button
+      onClick={() => {
+        navigate("/website");
+        onClose();
+      }}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition shadow-md"
+    >
+      <MdPublic className="text-white text-[18px]" />
+      <span className="text-sm font-medium">Website</span>
     </button>
   </>
 )}
@@ -654,7 +793,7 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
             setShowRenderAfterRestore(false);
-            handleRenderAllPNGs();
+            handleRenderAllPNGs(true);
           }}
         >
           Continue
@@ -688,7 +827,7 @@ const exportProductsToCSV = (products) => {
           onClick={() => {
             setShowRenderConfirm(false);
             onClose();
-            setTimeout(() => handleRenderAllPNGs(), 50);
+            setTimeout(() => handleRenderAllPNGs(true), 50);
           }}
         >
           Yes
@@ -751,6 +890,7 @@ const exportProductsToCSV = (products) => {
       Created by <span className="font-semibold text-gray-600">BazelWings</span>
     </div>
   </div>
+          </div>
 </div>
         </div>
 

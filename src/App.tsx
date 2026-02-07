@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { flushSync } from "react-dom";
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,6 +15,7 @@ import { initializeFieldSystem } from "./config/initializeFields";
 import { runMigrations } from "./utils/dataMigration";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { initializeFirebaseMessaging, triggerBackgroundRendering } from "./services/firebaseService";
+import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -25,12 +27,13 @@ import WatermarkSettings from "./pages/WatermarkSettings";
 import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
+import Website from "./Website";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import { startBackgroundRendering, cancelBackgroundRendering, getRenderingProgress } from "./services/backgroundRendering";
 import { getAllCatalogues } from "./config/catalogueConfig";
 
 function AppWithBackHandler() {
@@ -38,66 +41,148 @@ function AppWithBackHandler() {
   const location = useLocation();
   const [imageMap, setImageMap] = useState({});
   const [products, setProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("products") || "[]")
+    safeGetFromStorage("products", [])
   );
   const [deletedProducts, setDeletedProducts] = useState(() =>
-    JSON.parse(localStorage.getItem("deletedProducts") || "[]")
+    safeGetFromStorage("deletedProducts", [])
   );
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : false;
+    return safeGetFromStorage("darkMode", false);
   });
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [renderingTotal, setRenderingTotal] = useState(0);
   const [renderResult, setRenderResult] = useState(null);
   const renderResultTimeoutRef = useRef(null);
 
   const isNative = Capacitor.getPlatform() !== "web";
 
-  // Handle rendering all PNGs using background rendering service
-  const handleRenderAllPNGs = useCallback(async () => {
-    const all = JSON.parse(localStorage.getItem("products") || "[]");
+
+  // Handle rendering PNGs with chunked processing to prevent UI freeze
+  // Processes in small batches with UI yielding between chunks
+  const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
+    const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
-    setIsRendering(true);
-    setRenderProgress(0);
+    // Force synchronous state updates so overlay renders with correct total
+    if (showOverlay) {
+      flushSync(() => setIsRendering(true));
+    }
+    flushSync(() => {
+      setRenderProgress(0);
+      setRenderingTotal(all.length);
+    });
 
     // Get all catalogues
     const catalogues = getAllCatalogues();
+    let renderedCount = 0;
 
-    // Callbacks for progress updates
-    const onProgress = (progress: any) => {
-      setRenderProgress(progress.percentage);
-    };
+    // Chunk size - process this many products before yielding to UI thread
+    // Smaller chunk = more responsive UI but slower overall
+    // Larger chunk = less responsive but faster overall
+    // 2-3 is optimal for Capacitor apps to avoid freezing
+    const CHUNK_SIZE = 2;
 
-    const onComplete = (result: any) => {
-      setIsRendering(false);
-      setRenderResult({
-        status: result.status === "success" ? "success" : "error",
-        message: result.message,
-      });
-      window.dispatchEvent(new CustomEvent("renderComplete"));
-    };
+    // Helper function to yield to UI thread
+    const yieldToUI = () => new Promise(resolve => setTimeout(resolve, 0));
 
-    const onError = (error: any) => {
-      setIsRendering(false);
-      setRenderResult({
-        status: "error",
-        message: `Rendering failed: ${error.message}`,
-      });
-      window.dispatchEvent(new CustomEvent("renderComplete"));
-    };
-
-    // Start background rendering
     try {
-      await startBackgroundRendering(all, catalogues, onProgress, onComplete, onError);
+      // Process products in chunks
+      for (let chunkStart = 0; chunkStart < all.length; chunkStart += CHUNK_SIZE) {
+        const chunkEnd = Math.min(chunkStart + CHUNK_SIZE, all.length);
+
+        // Process all products in this chunk
+        const chunkPromises = [];
+        for (let i = chunkStart; i < chunkEnd; i++) {
+          const product = all[i];
+
+          // Skip products without images
+          if (!product.image && !product.imagePath) {
+            console.warn(`⚠️ Skipping ${product.name} - no image available`);
+            flushSync(() => setRenderProgress(i + 1));
+            window.dispatchEvent(new CustomEvent("renderProgress", {
+              detail: {
+                percentage: Math.round(((i + 1) / all.length) * 100),
+                current: i + 1,
+                total: all.length
+              }
+            }));
+            continue;
+          }
+
+          // Create promise for this product's rendering
+          const renderProductPromise = (async () => {
+            try {
+              // Render for all catalogues
+              for (const cat of catalogues) {
+                // For backward compatibility, map cat1->wholesale and cat2->resell
+                const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
+
+                await saveRenderedImage(product, legacyType, {
+                  resellUnit: product.resellUnit || "/ piece",
+                  wholesaleUnit: product.wholesaleUnit || "/ piece",
+                  packageUnit: product.packageUnit || "pcs / set",
+                  ageGroupUnit: product.ageUnit || "months",
+                  catalogueId: cat.id,
+                  catalogueLabel: cat.label,
+                  folder: cat.folder || cat.label,
+                  priceField: cat.priceField,
+                  priceUnitField: cat.priceUnitField,
+                });
+
+                renderedCount++;
+              }
+
+              console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
+
+              // Update progress after product completes
+              const productIndex = Math.floor(renderedCount / catalogues.length);
+              const percentage = Math.round((productIndex / all.length) * 100);
+
+              flushSync(() => setRenderProgress(productIndex));
+              window.dispatchEvent(new CustomEvent("renderProgress", {
+                detail: {
+                  percentage: percentage,
+                  current: productIndex,
+                  total: all.length
+                }
+              }));
+            } catch (err) {
+              console.warn(`❌ Failed to render images for ${product.name}:`, err);
+            }
+          })();
+
+          chunkPromises.push(renderProductPromise);
+        }
+
+        // Wait for all products in this chunk to complete
+        await Promise.all(chunkPromises);
+
+        // Yield to UI thread between chunks to keep app responsive
+        // This prevents the app from freezing during rendering
+        await yieldToUI();
+      }
+
+      if (showOverlay) {
+        setIsRendering(false);
+        setRenderResult({
+          status: "success",
+          message: `PNG rendering completed for ${all.length} products and ${catalogues.length} catalogues`,
+        });
+      }
+      console.log(`✅ Rendering complete`);
+      // Set progress to 100% at the end
+      setRenderProgress(all.length);
+      window.dispatchEvent(new CustomEvent("renderComplete"));
     } catch (err) {
-      console.error("❌ Background rendering failed:", err);
-      setIsRendering(false);
-      setRenderResult({
-        status: "error",
-        message: `Rendering error: ${err.message}`,
-      });
+      console.error("❌ Rendering failed:", err);
+      if (showOverlay) {
+        setIsRendering(false);
+        setRenderResult({
+          status: "error",
+          message: `Rendering error: ${err.message}`,
+        });
+      }
       window.dispatchEvent(new CustomEvent("renderComplete"));
     }
   }, []);
@@ -135,15 +220,36 @@ function AppWithBackHandler() {
   }, [isNative]);
 
   useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
+    // Strip image data before saving to avoid quota exceeded errors
+    const cleanedProducts = products.map(p => {
+      const clean = { ...p };
+      delete clean.image; // Remove base64 image data
+      delete clean.imageBase64;
+      delete clean.imageData;
+      delete clean.imageFilename;
+      delete clean.renderedImages;
+      // Keep imagePath as a reference only
+      return clean;
+    });
+    safeSetInStorage("products", cleanedProducts);
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem("deletedProducts", JSON.stringify(deletedProducts));
+    // Strip image data from deleted products too
+    const cleanedDeleted = deletedProducts.map(p => {
+      const clean = { ...p };
+      delete clean.image;
+      delete clean.imageBase64;
+      delete clean.imageData;
+      delete clean.imageFilename;
+      delete clean.renderedImages;
+      return clean;
+    });
+    safeSetInStorage("deletedProducts", cleanedDeleted);
   }, [deletedProducts]);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    safeSetInStorage("darkMode", darkMode);
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
@@ -185,8 +291,58 @@ function AppWithBackHandler() {
 
   // Initialize catalogue system with data migration
   useEffect(() => {
-    runMigrations();
+    const runAsyncMigrations = async () => {
+      try {
+        await runMigrations();
+      } catch (err) {
+        console.error("❌ Migrations failed:", err);
+      }
+    };
+    runAsyncMigrations();
   }, []);
+
+  // Auto-resume rendering if it was interrupted by app close/crash
+  useEffect(() => {
+    const checkAndResumeRendering = async () => {
+      const { checkResumableRendering, resumeBackgroundRendering } = await import('./services/backgroundRendering');
+      const resumableState = checkResumableRendering();
+
+      if (resumableState && isNative) {
+        console.log("📋 Found interrupted rendering, attempting to resume...", resumableState);
+        setIsRendering(true);
+
+        const products = safeGetFromStorage("products", []);
+        const catalogues = getAllCatalogues();
+
+        try {
+          await resumeBackgroundRendering(
+            products,
+            catalogues,
+            (progress) => setRenderProgress(progress.percentage),
+            (result) => {
+              setIsRendering(false);
+              setRenderResult({
+                status: result.status === "success" ? "success" : "error",
+                message: result.message,
+              });
+            },
+            (error) => {
+              setIsRendering(false);
+              setRenderResult({
+                status: "error",
+                message: `Rendering failed: ${error.message}`,
+              });
+            }
+          );
+        } catch (err) {
+          console.error("❌ Failed to resume rendering:", err);
+          setIsRendering(false);
+        }
+      }
+    };
+
+    checkAndResumeRendering();
+  }, [isNative]);
 
   // Initialize watermark settings with defaults on first load
   useEffect(() => {
@@ -215,7 +371,13 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     let removeListener: any;
-    CapacitorApp.addListener("backButton", () => {
+
+    // Handle back button press
+    // Note: This listener may be overridden by child components (like CatalogueApp)
+    // when they need to handle back navigation within their own context.
+    // For home page (/) routes, CatalogueApp handles back navigation and dispatches
+    // "catalogue-app-back-not-handled" event when it can't handle it.
+    const handleBackPress = () => {
       if (isRendering) {
         CapacitorApp.minimizeApp();
         return;
@@ -230,12 +392,23 @@ function AppWithBackHandler() {
       } else {
         CapacitorApp.exitApp();
       }
-    }).then((listener) => {
+    };
+
+    // Listen for fallback event from CatalogueApp when back is pressed on products tab
+    // and no internal navigation is possible
+    const handleCatalogueAppBackFallback = () => {
+      CapacitorApp.exitApp();
+    };
+
+    CapacitorApp.addListener("backButton", handleBackPress).then((listener) => {
       removeListener = listener.remove;
     });
 
+    window.addEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
+
     return () => {
       if (removeListener) removeListener();
+      window.removeEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
     };
   }, [location, navigate, isRendering]);
 
@@ -259,12 +432,23 @@ function AppWithBackHandler() {
 
   useEffect(() => {
     const handleRequestRenderAllPNGs = () => {
-      handleRenderAllPNGs();
+      handleRenderPNGs();
+    };
+
+    const handleRequestRenderSelectedPNGs = (event: any) => {
+      const { products, showOverlay = true } = event.detail;
+      if (products && products.length > 0) {
+        handleRenderPNGs(products, showOverlay);
+      }
     };
 
     window.addEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-    return () => window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
-  }, [handleRenderAllPNGs]);
+    window.addEventListener("requestRenderSelectedPNGs", handleRequestRenderSelectedPNGs);
+    return () => {
+      window.removeEventListener("requestRenderAllPNGs", handleRequestRenderAllPNGs);
+      window.removeEventListener("requestRenderSelectedPNGs", handleRequestRenderSelectedPNGs);
+    };
+  }, [handleRenderPNGs]);
 
   useEffect(() => {
     if (isNative) {
@@ -288,8 +472,8 @@ function AppWithBackHandler() {
       <ToastContainer />
       <RenderingOverlay
         visible={isRendering}
-        current={Math.round((renderProgress / 100) * products.length)}
-        total={products.length}
+        current={renderProgress}
+        total={renderingTotal}
       />
 
       {/* Global Success/Error Popup after rendering completes */}
@@ -342,6 +526,8 @@ function AppWithBackHandler() {
               setIsRendering={setIsRendering}
               renderProgress={renderProgress}
               setRenderProgress={setRenderProgress}
+              renderingTotal={renderingTotal}
+              setRenderingTotal={setRenderingTotal}
               renderResult={renderResult}
               setRenderResult={setRenderResult}
             />
@@ -392,6 +578,7 @@ function AppWithBackHandler() {
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/website" element={<Website />} />
       </Routes>
     </div>
   );
@@ -399,10 +586,12 @@ function AppWithBackHandler() {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <Router>
-        <AppWithBackHandler />
-      </Router>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <AppWithBackHandler />
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }

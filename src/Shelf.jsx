@@ -5,6 +5,7 @@ import ProductPreviewModal from "./ProductPreviewModal";
 import SideDrawer from "./SideDrawer";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { deleteRenderedImageForProduct } from "./Save";
 
 export default function Shelf({ deletedProducts, setDeletedProducts, setProducts, products, imageMap: globalImageMap }) {
   const [previewProduct, setPreviewProduct] = useState(null);
@@ -49,11 +50,32 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
     setShowDeleteConfirm(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteTargetId) {
+      const toDelete = deletedProducts.find(p => p.id === deleteTargetId);
+
       setDeletedProducts((prev) => prev.filter((p) => p.id !== deleteTargetId));
       setDeleteTargetId(null);
       setShowDeleteConfirm(false);
+
+      // 🧹 Final cleanup: delete source image and rendered images
+      if (toDelete) {
+        try {
+          // Delete rendered images (already done when shelved, but good to be sure)
+          await deleteRenderedImageForProduct(toDelete.id);
+
+          // Delete source image from Filesystem
+          if (toDelete.imagePath) {
+            await Filesystem.deleteFile({
+              path: toDelete.imagePath,
+              directory: Directory.Data,
+            });
+            console.log(`🗑️ Deleted source image: ${toDelete.imagePath}`);
+          }
+        } catch (err) {
+          console.warn(`⚠️ Failed to fully clean up files for product ${toDelete.id}:`, err);
+        }
+      }
     }
   };
 
@@ -156,6 +178,7 @@ export default function Shelf({ deletedProducts, setDeletedProducts, setProducts
             onToggleStock={null}
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
+            onShelf={() => {}}
           />
         )}
       </main>

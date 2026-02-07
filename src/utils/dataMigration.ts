@@ -6,6 +6,67 @@
  */
 
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES } from "../config/catalogueConfig";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+
+/**
+ * Move base64 images to Filesystem and remove from localStorage
+ * This is CRITICAL for preventing QuotaExceededError
+ */
+export async function cleanupProductStorage(): Promise<void> {
+  try {
+    const stored = localStorage.getItem("products");
+    if (!stored) return;
+
+    const products = JSON.parse(stored);
+    let modified = false;
+
+    for (const p of products) {
+      // 1. If product has base64 image, move it to Filesystem
+      if (p.image && typeof p.image === 'string' && p.image.startsWith("data:image")) {
+        const id = p.id || Date.now().toString();
+        const imagePath = `catalogue/product-${id}.png`;
+        const base64Data = p.image.split(",")[1];
+
+        try {
+          await Filesystem.writeFile({
+            path: imagePath,
+            data: base64Data,
+            directory: Directory.Data,
+            recursive: true,
+          });
+
+          p.imagePath = imagePath;
+          delete p.image;
+          modified = true;
+          console.log(`📦 Moved image for product ${id} to Filesystem`);
+        } catch (fsErr) {
+          console.error(`❌ Failed to move image for product ${id}:`, fsErr);
+        }
+      } else if (p.image) {
+        // If image exists but isn't base64 (maybe a legacy path),
+        // and we already have imagePath, just delete the redundant field.
+        if (p.imagePath) {
+          delete p.image;
+          modified = true;
+        }
+      }
+
+      // 2. Clean up other redundant base64 data if any
+      // Some old versions might have stored rendered images in products (rare but possible)
+      if (p.renderedImage) {
+        delete p.renderedImage;
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      localStorage.setItem("products", JSON.stringify(products));
+      console.log("✅ Cleanup: All base64 images moved to Filesystem and localStorage freed");
+    }
+  } catch (err) {
+    console.error("❌ Failed to cleanup product storage:", err);
+  }
+}
 
 /**
  * Check if this is the first time the app is running with the new catalogue system
@@ -115,41 +176,59 @@ export function ensureProductsHaveStockFields(): void {
  * - At least one catalogue exists
  * - All catalogues have required fields
  * - All field names are unique
+ * - AUTOMATICALLY FIXES DUPLICATES
  */
 export function validateCatalogueConfig(): boolean {
   try {
     const definition = getCataloguesDefinition();
+    let modified = false;
 
     if (!definition.catalogues || definition.catalogues.length === 0) {
-      console.error("❌ No catalogues defined");
-      return false;
+      console.error("❌ No catalogues defined, resetting to defaults");
+      localStorage.setItem("cataloguesDefinition", JSON.stringify({
+        version: 1,
+        catalogues: DEFAULT_CATALOGUES,
+        lastUpdated: Date.now()
+      }));
+      return true;
     }
 
     const priceFields = new Set<string>();
     const stockFields = new Set<string>();
+    const validCatalogues = [];
 
     for (const cat of definition.catalogues) {
       // Check required fields
       if (!cat.id || !cat.label || !cat.priceField || !cat.stockField) {
-        console.error(`❌ Catalogue ${cat.label} missing required fields`);
-        return false;
+        console.warn(`⚠️ Catalogue ${cat.label || 'Unknown'} missing required fields, removing`);
+        modified = true;
+        continue;
       }
 
       // Check for duplicates
       if (priceFields.has(cat.priceField)) {
-        console.error(`❌ Duplicate price field: ${cat.priceField}`);
-        return false;
+        console.error(`❌ Duplicate price field detected: ${cat.priceField}. Removing duplicate catalogue: ${cat.label}`);
+        modified = true;
+        continue;
       }
       if (stockFields.has(cat.stockField)) {
-        console.error(`❌ Duplicate stock field: ${cat.stockField}`);
-        return false;
+        console.error(`❌ Duplicate stock field detected: ${cat.stockField}. Removing duplicate catalogue: ${cat.label}`);
+        modified = true;
+        continue;
       }
 
       priceFields.add(cat.priceField);
       stockFields.add(cat.stockField);
+      validCatalogues.push(cat);
     }
 
-    console.log("✅ Catalogue configuration is valid");
+    if (modified) {
+      definition.catalogues = validCatalogues;
+      setCataloguesDefinition(definition);
+      console.log("✅ Automatically fixed catalogue configuration issues");
+    }
+
+    console.log("✅ Catalogue configuration check complete");
     return true;
   } catch (err) {
     console.error("❌ Failed to validate catalogue config:", err);
@@ -205,8 +284,11 @@ export function migrateFromTwoCataloguesToOne(): void {
  * Run all migration and validation steps
  * Should be called on app startup
  */
-export function runMigrations(): void {
+export async function runMigrations(): Promise<void> {
   console.log("🔄 Running data migrations...");
+
+  // Step 0: Critical cleanup for storage quota
+  await cleanupProductStorage();
 
   // Step 1: Initialize catalogues if needed
   initializeCataloguesIfNeeded();

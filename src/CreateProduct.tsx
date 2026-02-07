@@ -638,8 +638,14 @@ export default function CreateProduct() {
       fontColor: fontColor || "white",
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
-      cropAspectRatio: appliedAspectRatio, // Save the aspect ratio used for cropping
+      cropAspectRatio: appliedAspectRatio,
     };
+
+    // 🧹 CRITICAL: Remove base64 image data from product object before saving to localStorage
+    // This prevents QuotaExceededError as images are now stored in Filesystem
+    if (newItem.image) {
+      delete newItem.image;
+    }
 
     // Save price and stock fields for ALL catalogues to the product root level
     for (const cat of allCatalogues) {
@@ -1208,13 +1214,16 @@ setTimeout(async () => {
             backgroundColor: badgeBg,
             color: badgeText,
             fontSize: 13,
-            fontWeight: 600,
+            fontWeight: 400,
             padding: "6px 10px",
             borderRadius: "999px",
             opacity: 0.95,
             boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
             border: `1px solid ${badgeBorder}`,
             letterSpacing: "0.5px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {formData.badge.toUpperCase()}

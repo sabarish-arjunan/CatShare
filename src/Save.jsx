@@ -1,6 +1,45 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import html2canvas from "html2canvas-pro";
 import { getCatalogueData } from "./config/catalogueProductUtils";
+import { safeGetFromStorage } from "./utils/safeStorage";
+import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
+import { getAllCatalogues } from "./config/catalogueConfig";
+
+/**
+ * Delete all rendered images for a specific product
+ * across all catalogues
+ */
+export async function deleteRenderedImageForProduct(productId) {
+  if (!productId) return;
+
+  try {
+    const catalogues = getAllCatalogues();
+    for (const cat of catalogues) {
+      const folder = cat.folder || cat.label;
+      const filename = `product_${productId}_${folder}.png`;
+      const filePath = `${folder}/${filename}`;
+
+      try {
+        await Filesystem.deleteFile({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`  ✓ Deleted rendered image: ${filePath}`);
+      } catch (err) {
+        // Ignore errors if file doesn't exist
+      }
+
+      // Also remove from localStorage cache
+      try {
+        const storageKey = `rendered::${folder}::${productId}`;
+        localStorage.removeItem(storageKey);
+      } catch (err) {
+        // Ignore errors
+      }
+    }
+  } catch (err) {
+    console.warn(`⚠️ Could not clean up rendered images for product ${productId}:`, err.message);
+  }
+}
 
 /**
  * Rename rendered images when catalogue name changes
@@ -174,13 +213,22 @@ export async function saveRenderedImage(product, type, units = {}) {
   };
 
   // ✅ Load image from Filesystem if not present
+  console.log(`🖼️ Product image status:`, {
+    hasImage: !!product.image,
+    hasImagePath: !!product.imagePath,
+    imagePath: product.imagePath,
+    imageLength: product.image?.length,
+  });
+
   if (!product.image && product.imagePath) {
     try {
+      console.log(`📂 Loading image from filesystem: ${product.imagePath}`);
       const res = await Filesystem.readFile({
         path: product.imagePath,
         directory: Directory.Data,
       });
       product.image = `data:image/png;base64,${res.data}`;
+      console.log(`✅ Image loaded from filesystem. Base64 length: ${product.image.length}`);
     } catch (err) {
       console.error("❌ Failed to load image for rendering:", err.message);
       return;
@@ -190,6 +238,12 @@ export async function saveRenderedImage(product, type, units = {}) {
   // ✅ Ensure product.image exists before rendering
   if (!product.image) {
     console.error("❌ Failed to load image for rendering: File does not exist.");
+    console.error("Product object:", {
+      id: product.id,
+      name: product.name,
+      imagePath: product.imagePath,
+      hasImage: !!product.image,
+    });
     return;
   }
 
@@ -197,28 +251,6 @@ export async function saveRenderedImage(product, type, units = {}) {
   const cropAspectRatio = product.cropAspectRatio || 1;
   const baseWidth = 330;
   const baseHeight = baseWidth / cropAspectRatio;
-
-  const wrapper = document.createElement("div");
-  Object.assign(wrapper.style, {
-    position: "absolute",
-    top: "0",
-    left: "0",
-    width: `${baseWidth}px`,
-    height: "auto",
-    backgroundColor: "transparent",
-    opacity: "0",
-    pointerEvents: "none",
-    overflow: "hidden",
-    padding: "0",
-    boxSizing: "border-box",
-  });
-
-  const container = document.createElement("div");
-  container.className = `full-detail-${id}-${type}`;
-  container.style.backgroundColor = getLighterColor(bgColor);
-  container.style.overflow = "visible";
-  container.style.display = "flex";
-  container.style.flexDirection = "column";
 
   // Get catalogue-specific data if catalogueId is provided
   let catalogueData = product;
@@ -249,302 +281,77 @@ export async function saveRenderedImage(product, type, units = {}) {
   const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
   const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
-  // Only create and append price bar if product has a price for this catalogue
-  const hasPriceValue = price !== undefined && price !== null && price !== "" && price !== 0;
-
-  // Helper function to check if a field has a valid value
-  const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
-
-  // Check each field for values
-  const hasField1 = hasFieldValue(catalogueData.field1);
-  const hasField2 = hasFieldValue(catalogueData.field2);
-  const hasField3 = hasFieldValue(catalogueData.field3);
-
-  let priceBar = null;
-  if (hasPriceValue) {
-    priceBar = document.createElement("h2");
-    Object.assign(priceBar.style, {
-      backgroundColor: bgColor,
-      color: fontColor,
-      padding: "8px",
-      textAlign: "center",
-      fontWeight: "normal",
-      fontSize: "19px",
-      margin: 0,
-      lineHeight: 1.2,
-      width: "100%",
-      boxSizing: "border-box",
-      flexShrink: 0,
-    });
-    priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
-  }
-
-  // Price bar at bottom for all catalogues
-  const isPriceOnTop = false;
-
-  if (isPriceOnTop && priceBar) {
-    container.appendChild(priceBar); // Price on top
-  }
-
-  const imageShadowWrap = document.createElement("div");
-  Object.assign(imageShadowWrap.style, {
-    boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-    marginBottom: "1px",
-    borderRadius: "0",
-    width: "100%",
-    flexShrink: 0,
-  });
-  imageShadowWrap.id = `image-shadow-wrap-${id}`;
-
-  const imageWrap = document.createElement("div");
-  Object.assign(imageWrap.style, {
-    backgroundColor: imageBg,
-    textAlign: "center",
-    padding: "0",
-    position: "relative",
-    overflow: "visible",
-    width: "100%",
-    aspectRatio: `${cropAspectRatio}`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  });
-  imageWrap.id = `image-wrap-${id}`;
-
-  const img = document.createElement("img");
-  img.alt = catalogueData.name;
-  img.style.width = "100%";
-  img.style.height = "100%";
-  img.style.objectFit = "contain";
-  img.style.margin = "0 auto";
-  imageWrap.appendChild(img);
-  img.src = catalogueData.image || product.image;
-
-  await new Promise((resolve) => {
-    img.onload = resolve;
-    img.onerror = resolve;
-  });
-
-  if (catalogueData.badge) {
-    const badge = document.createElement("div");
-    Object.assign(badge.style, {
-      position: "absolute",
-      bottom: "12px",
-      right: "12px",
-      backgroundColor: badgeBg,
-      color: badgeText,
-      fontSize: "13px",
-      fontWeight: 600,
-      padding: "6px 10px",
-      borderRadius: "999px",
-      opacity: 0.95,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-      border: `1px solid ${badgeBorder}`,
-      letterSpacing: "0.5px",
-    });
-    badge.innerText = catalogueData.badge.toUpperCase();
-    imageWrap.appendChild(badge);
-  }
-
-  imageShadowWrap.appendChild(imageWrap);
-  container.appendChild(imageShadowWrap);
-
-  const details = document.createElement("div");
-  details.style.backgroundColor = getLighterColor(bgColor);
-  details.style.color = fontColor;
-  details.style.padding = "10px";
-  details.style.fontSize = "17px";
-  details.style.width = "100%";
-  details.style.boxSizing = "border-box";
-  details.style.flexShrink = 0;
-
-  // Build field rows conditionally - only include fields that have values
-  let fieldRowsHTML = "";
-  if (hasField1) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Colour</span><span>:</span><span style="margin-left:8px">${catalogueData.field1}</span></p>`;
-  }
-  if (hasField2) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Package</span><span>:</span><span style="margin-left:8px">${catalogueData.field2} ${catalogueData.field2Unit}</span></p>`;
-  }
-  if (hasField3) {
-    fieldRowsHTML += `<p style="margin:2px 0;display:flex"><span style="width:110px">Age Group</span><span>:</span><span style="margin-left:8px">${catalogueData.field3} ${catalogueData.field3Unit}</span></p>`;
-  }
-
-  details.innerHTML = `
-    <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${catalogueData.name}</p>
-      ${catalogueData.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${catalogueData.subtitle})</p>` : ""}
-    </div>
-    <div style="text-align:left;line-height:1.4">
-      ${fieldRowsHTML}
-    </div>
-  `;
-  container.appendChild(details);
-
-  if (!isPriceOnTop && priceBar) {
-    container.appendChild(priceBar); // Price at bottom
-  }
-
-  wrapper.appendChild(container);
-  document.body.appendChild(wrapper);
-
-  await new Promise((r) => setTimeout(r, 30));
-  wrapper.style.opacity = "1";
-
   try {
-    // Keep scale at 3 for high quality output
+    // Prepare product data for Canvas rendering
     const renderScale = 3;
 
-    // Render at high quality with optimizations
-    const canvas = await html2canvas(wrapper, {
-      scale: renderScale,
-      backgroundColor: "#ffffff",
-      logging: false,
-      useCORS: true,
-      allowTaint: false,
-      // Additional optimizations for faster rendering
-      imageTimeout: 5000,
-      removeContainer: true,
-    });
+    console.log(`🎨 Starting Canvas render for product: ${product.name || product.id}`);
+    console.log(`🖼️ Image source: ${catalogueData.image || product.image}`);
 
-    const croppedCanvas = document.createElement("canvas");
-    croppedCanvas.width = canvas.width;
-    croppedCanvas.height = canvas.height - 3;
+    const productData = {
+      name: catalogueData.name,
+      subtitle: catalogueData.subtitle,
+      image: catalogueData.image || product.image,
+      field1: catalogueData.field1,
+      field2: catalogueData.field2,
+      field2Unit: catalogueData.field2Unit,
+      field3: catalogueData.field3,
+      field3Unit: catalogueData.field3Unit,
+      price: price !== "" && price !== 0 ? price : undefined,
+      priceUnit: price ? priceUnit : undefined,
+      badge: catalogueData.badge,
+      cropAspectRatio: cropAspectRatio,
+    };
 
-    const ctx = croppedCanvas.getContext("2d");
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(canvas, 0, 0);
+    // Get watermark settings with proper fallbacks
+    let isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
+    let watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
+    let watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 
-    // Release canvas memory immediately to prevent buildup
-    canvas.width = 0;
-    canvas.height = 0;
-
-    // Add watermark - Only if enabled in settings
-    const showWatermark = localStorage.getItem("showWatermark");
-    const isWatermarkEnabled = showWatermark !== null ? JSON.parse(showWatermark) : false; // Default: false (disabled)
-
-    if (isWatermarkEnabled) {
-      // Get custom watermark text from localStorage, default to "Created using CatShare"
-      const watermarkText = localStorage.getItem("watermarkText") || "Created using CatShare";
-      const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
-
-      // Get the imageWrap and imageShadowWrap elements to determine position in the rendered canvas
-      const imageWrapEl = document.getElementById(`image-wrap-${id}`);
-      const imageShadowWrapEl = document.getElementById(`image-shadow-wrap-${id}`);
-      const containerEl = imageWrapEl?.closest(`.full-detail-${id}-${type}`);
-
-      if (imageWrapEl && imageShadowWrapEl && containerEl) {
-        // html2canvas renders at 3x scale
-        const scale = 3;
-        const containerWidth = baseWidth; // wrapper width in px
-        const scaledContainerWidth = containerWidth * scale;
-
-        // Get the computed dimensions of the image wrap
-        const imageWrapStyle = window.getComputedStyle(imageWrapEl);
-        const imageShadowWrapStyle = window.getComputedStyle(imageShadowWrapEl);
-        const imagePadding = 16; // padding in imageWrap
-
-        // Calculate dimensions accounting for all parent elements
-        const imageWrapWidth = containerWidth * renderScale; // Full container width
-
-        // Calculate offset from top
-        // For wholesale: priceBar (≈36px) + imageShadowWrap offset
-        // For resell: imageShadowWrap offset + other content
-        let imageWrapOffsetTop = 0;
-        let currentEl = imageShadowWrapEl;
-
-        // Sum up the heights of all previous siblings
-        while (currentEl.previousElementSibling) {
-          const prevEl = currentEl.previousElementSibling;
-          const prevHeight = prevEl.offsetHeight || 0;
-          imageWrapOffsetTop += prevHeight;
-          currentEl = prevEl;
-        }
-
-        imageWrapOffsetTop *= renderScale;
-
-        // Image section height includes padding and the image itself
-        const imageWrapHeight = imageWrapEl.offsetHeight * renderScale;
-        const imageWrapOffsetLeft = 0;
-
-        // Watermark font size should be relative to image section width
-        // Matches the preview sizing logic
-        const previewFontSize = 10; // Base font size in preview
-        const watermarkSize = previewFontSize * renderScale; // Scale up proportionally
-        ctx.font = `${Math.floor(watermarkSize)}px Arial, sans-serif`;
-
-        // Check if background is light or dark and set watermark color accordingly
-        const isLightBg = imageBg.toLowerCase() === "white" || imageBg.toLowerCase() === "#ffffff";
-        ctx.fillStyle = isLightBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)";
-
-        // Calculate position based on watermarkPosition, relative to image section only
-        const padding = 10 * renderScale; // Scale padding to match canvas scale (50% towards corner)
-        let watermarkX, watermarkY;
-
-        switch(watermarkPosition) {
-          case "top-left":
-            ctx.textAlign = "left";
-            ctx.textBaseline = "top";
-            watermarkX = imageWrapOffsetLeft + padding;
-            watermarkY = imageWrapOffsetTop + padding;
-            break;
-          case "top-center":
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
-            watermarkY = imageWrapOffsetTop + padding;
-            break;
-          case "top-right":
-            ctx.textAlign = "right";
-            ctx.textBaseline = "top";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
-            watermarkY = imageWrapOffsetTop + padding;
-            break;
-          case "middle-left":
-            ctx.textAlign = "left";
-            ctx.textBaseline = "middle";
-            watermarkX = imageWrapOffsetLeft + padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
-            break;
-          case "middle-center":
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
-            break;
-          case "middle-right":
-            ctx.textAlign = "right";
-            ctx.textBaseline = "middle";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight / 2;
-            break;
-          case "bottom-left":
-            ctx.textAlign = "left";
-            ctx.textBaseline = "bottom";
-            watermarkX = imageWrapOffsetLeft + padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
-            break;
-          case "bottom-right":
-            ctx.textAlign = "right";
-            ctx.textBaseline = "bottom";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth - padding;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
-            break;
-          case "bottom-center":
-          default:
-            ctx.textAlign = "center";
-            ctx.textBaseline = "bottom";
-            watermarkX = imageWrapOffsetLeft + imageWrapWidth / 2;
-            watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
-            break;
-        }
-
-        ctx.fillText(watermarkText, watermarkX, watermarkY);
-      }
+    // Additional safety check - ensure watermarkPosition is a string, not JSON
+    if (typeof watermarkPosition !== 'string' || !watermarkPosition) {
+      watermarkPosition = "bottom-center";
     }
 
-    const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
+    console.log(`✅ Watermark Settings:`, {
+      enabled: isWatermarkEnabled,
+      text: watermarkText,
+      position: watermarkPosition,
+      productName: product.name
+    });
+
+    // Render using Canvas API
+    let canvas;
+    try {
+      canvas = await renderProductToCanvas(productData, {
+        width: baseWidth,
+        scale: renderScale,
+        bgColor: bgColor,
+        imageBgColor: imageBg,
+        fontColor: fontColor,
+        backgroundColor: "#ffffff",
+      }, {
+        enabled: isWatermarkEnabled,
+        text: watermarkText,
+        position: watermarkPosition,
+      });
+      console.log(`✅ Canvas rendered successfully. Size: ${canvas.width}x${canvas.height}`);
+    } catch (renderErr) {
+      console.error(`❌ Canvas rendering failed:`, renderErr);
+      throw renderErr;
+    }
+
+    let base64;
+    try {
+      base64 = canvasToBase64(canvas);
+      console.log(`✅ Canvas converted to base64. Length: ${base64.length} chars`);
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 conversion resulted in empty string");
+      }
+    } catch (b64Err) {
+      console.error(`❌ Base64 conversion failed:`, b64Err);
+      throw b64Err;
+    }
 
     // Use folder name (which is set to catalogue name) for organizing rendered images
     let folder;
@@ -577,7 +384,18 @@ export async function saveRenderedImage(product, type, units = {}) {
       console.log(`📝 Writing file to: ${filePath}`);
       console.log(`📁 Using directory: Directory.External (App-specific external storage)`);
       console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`);
+      console.log(`📊 Base64 data details:`, {
+        length: base64?.length || 0,
+        isString: typeof base64 === 'string',
+        first20chars: base64?.substring(0, 20) || 'N/A',
+        isEmpty: !base64 || base64.length === 0,
+      });
 
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 data is empty - canvas may not have rendered correctly");
+      }
+
+      console.log(`📤 Starting writeFile operation...`);
       await Filesystem.writeFile({
         path: filePath,
         data: base64,
@@ -585,10 +403,45 @@ export async function saveRenderedImage(product, type, units = {}) {
         recursive: true,
       });
 
-      console.log("✅ Image saved:", filePath);
+      console.log("✅ Image saved successfully:", filePath);
+      console.log(`📝 Written base64 data length: ${base64.length} characters`);
+
+      // Try to store rendered image in localStorage for quick access during sharing
+      // This is optional and won't block if quota is exceeded
+      try {
+        const storageKey = `rendered::${catalogueLabel}::${id}`;
+        const dataToStore = JSON.stringify({
+          base64,
+          timestamp: Date.now(),
+          filename,
+          catalogueLabel,
+        });
+
+        // Check estimated size before storing (rough estimate: each character ~1 byte)
+        const estimatedSizeKB = (dataToStore.length / 1024).toFixed(2);
+
+        if (dataToStore.length > 2 * 1024 * 1024) {
+          // Skip if larger than 2MB to preserve localStorage quota
+          console.warn(`⚠️ Image too large for localStorage cache (${estimatedSizeKB}KB) - skipping cache. File saved to disk.`);
+        } else {
+          localStorage.setItem(storageKey, dataToStore);
+          console.log(`💾 Stored rendered image in localStorage: ${storageKey} (${estimatedSizeKB}KB)`);
+        }
+      } catch (cacheErr) {
+        // localStorage quota exceeded - this is not critical
+        // The image is already saved to disk, which is what matters
+        if (cacheErr.name === 'QuotaExceededError') {
+          console.warn(`⚠️ localStorage quota exceeded - skipping cache. Image saved to disk successfully.`);
+          console.warn(`💡 To free up space: Clear app cache or export products and delete old catalogs`);
+        } else {
+          console.warn(`⚠️ Could not cache image in localStorage:`, cacheErr.message);
+        }
+        // Don't rethrow - the image is safely saved to disk
+      }
 
       // Verify the file was actually written
       try {
+        console.log(`🔍 Verifying file at: ${filePath}`);
         const stat = await Filesystem.stat({
           path: filePath,
           directory: Directory.External,
@@ -624,7 +477,6 @@ export async function saveRenderedImage(product, type, units = {}) {
     }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
-  } finally {
-    document.body.removeChild(wrapper);
+    throw err; // Rethrow so caller knows rendering failed
   }
 }

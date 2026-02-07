@@ -166,18 +166,24 @@ export function setProductEnabledForCatalogue(
   catalogueId: string,
   enabled: boolean
 ): ProductWithCatalogueData {
-  if (!product.catalogueData) {
-    product.catalogueData = initializeCatalogueData(product);
-  }
+  const catalogueData = product.catalogueData ? { ...product.catalogueData } : initializeCatalogueData(product);
 
-  if (!product.catalogueData[catalogueId]) {
+  if (!catalogueData[catalogueId]) {
     // Initialize with full default structure
-    product.catalogueData[catalogueId] = getDefaultCatalogueData(catalogueId);
+    catalogueData[catalogueId] = getDefaultCatalogueData(catalogueId);
+  } else {
+    // Create a new object for this catalogue to ensure React detects the change
+    catalogueData[catalogueId] = {
+      ...catalogueData[catalogueId],
+      enabled: enabled,
+    };
   }
 
-  product.catalogueData[catalogueId].enabled = enabled;
-
-  return product;
+  // Return a new product object with updated catalogueData to ensure React detects the change
+  return {
+    ...product,
+    catalogueData: catalogueData,
+  };
 }
 
 /**
