@@ -118,8 +118,8 @@ function AppWithBackHandler() {
             const productIndex = Math.floor(renderedCount / catalogues.length);
             const percentage = Math.round((productIndex / all.length) * 100);
 
-            // Update progress with actual product count
-            setRenderProgress(productIndex);
+            // Force synchronous update so progress bar updates immediately
+            flushSync(() => setRenderProgress(productIndex));
 
             // Dispatch progress event for listeners (with both count and percentage)
             window.dispatchEvent(new CustomEvent("renderProgress", {
@@ -129,9 +129,6 @@ function AppWithBackHandler() {
                 total: all.length
               }
             }));
-
-            // Yield to allow React to update the UI and show progress
-            await new Promise(resolve => setTimeout(resolve, 0));
           }
 
           console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
