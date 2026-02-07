@@ -1,6 +1,7 @@
 // Generic Catalogue View Component
 // Works with any catalogue (Master, Resell, custom, etc.)
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus, FiEdit } from "react-icons/fi";
