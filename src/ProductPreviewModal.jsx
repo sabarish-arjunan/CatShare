@@ -842,6 +842,42 @@ export default function ProductPreviewModal({
           </div>
         </div>
       )}
+
+      {/* Shelf Modal - Overlay on top of preview */}
+      {showShelfModal && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowShelfModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl border border-gray-200 p-8 max-w-sm w-[90%]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Move to Shelf?</h2>
+            <p className="text-gray-600 mb-6">
+              Move <strong>{product.name}</strong> to shelf?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  onShelf?.(product);
+                  setShowShelfModal(false);
+                }}
+                className="flex-1 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+              >
+                Move to Shelf
+              </button>
+              <button
+                onClick={() => setShowShelfModal(false)}
+                className="flex-1 px-4 py-3 rounded-lg bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
