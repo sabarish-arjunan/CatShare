@@ -150,7 +150,7 @@ export async function handleShare({
       const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
       try {
-        // Get URI for the file on disk
+        // First, try to get the rendered image
         const fileResult = await Filesystem.getUri({
           path: cachedFilePath,
           directory: Directory.External,
@@ -161,12 +161,46 @@ export async function handleShare({
           return fileResult.uri;
         }
       } catch (err) {
-        console.warn(`⚠️ Could not get URI for product ${id}:`, err);
-        // Fallback to base64 if URI fails (though shouldn't happen after render)
-        const imageDataUrl = await getRenderedImage(id, catalogueLabel);
-        updateProgress();
-        return imageDataUrl;
+        console.warn(`⚠️ Could not get rendered URI for product ${id}, falling back to original image:`, err);
+
+        // Fallback 1: Try to get the rendered image as base64
+        try {
+          const imageDataUrl = await getRenderedImage(id, catalogueLabel);
+          if (imageDataUrl) {
+            updateProgress();
+            return imageDataUrl;
+          }
+        } catch (renderErr) {
+          console.warn(`⚠️ Could not get rendered image for product ${id}:`, renderErr);
+        }
+
+        // Fallback 2: Use original product image if available
+        const product = allProducts.find((p: any) => String(p.id) === String(id));
+        if (product && product.image) {
+          console.log(`✅ Using original product image for product ${id} (not rendered)`);
+          updateProgress();
+          return product.image; // Return base64 image directly
+        }
+
+        // Fallback 3: Try to load from imagePath
+        if (product && product.imagePath) {
+          try {
+            console.log(`📂 Loading original image from filesystem for product ${id}`);
+            const res = await Filesystem.readFile({
+              path: product.imagePath,
+              directory: Directory.Data,
+            });
+            const imageData = `data:image/png;base64,${res.data}`;
+            updateProgress();
+            return imageData;
+          } catch (pathErr) {
+            console.warn(`⚠️ Could not load image from path for product ${id}:`, pathErr);
+          }
+        }
       }
+
+      updateProgress();
+      return null;
     } catch (err) {
       console.error(`❌ Error processing product ${id}:`, err);
       updateProgress();
