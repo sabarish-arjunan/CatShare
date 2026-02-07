@@ -95,6 +95,8 @@ function AppWithBackHandler() {
               total: all.length
             }
           }));
+          // Small delay to allow smooth animation
+          await new Promise(resolve => setTimeout(resolve, 50));
           continue;
         }
 
