@@ -1,5 +1,185 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import html2canvas from "html2canvas-pro";
+import { getCatalogueData } from "./config/catalogueProductUtils";
+import { safeGetFromStorage } from "./utils/safeStorage";
+import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
+import { getAllCatalogues } from "./config/catalogueConfig";
+
+/**
+ * Delete all rendered images for a specific product
+ * across all catalogues
+ */
+export async function deleteRenderedImageForProduct(productId) {
+  if (!productId) return;
+
+  try {
+    const catalogues = getAllCatalogues();
+    for (const cat of catalogues) {
+      const folder = cat.folder || cat.label;
+      const filename = `product_${productId}_${folder}.png`;
+      const filePath = `${folder}/${filename}`;
+
+      try {
+        await Filesystem.deleteFile({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`  ✓ Deleted rendered image: ${filePath}`);
+      } catch (err) {
+        // Ignore errors if file doesn't exist
+      }
+
+      // Also remove from localStorage cache
+      try {
+        const storageKey = `rendered::${folder}::${productId}`;
+        localStorage.removeItem(storageKey);
+      } catch (err) {
+        // Ignore errors
+      }
+    }
+  } catch (err) {
+    console.warn(`⚠️ Could not clean up rendered images for product ${productId}:`, err.message);
+  }
+}
+
+/**
+ * Rename rendered images when catalogue name changes
+ * Moves files from old folder/name pattern to new folder/name pattern
+ */
+export async function renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel) {
+  if (!oldFolder || !newFolder) return;
+
+  try {
+    console.log(`📁 Renaming rendered images from folder "${oldFolder}" (label: "${oldLabel}") to folder "${newFolder}" (label: "${newLabel}")`);
+
+    // List all files in the old folder
+    let oldFiles = [];
+    try {
+      const result = await Filesystem.readdir({
+        path: oldFolder,
+        directory: Directory.External,
+      });
+      oldFiles = result.files || [];
+    } catch (err) {
+      // Old folder might not exist (no images rendered yet)
+      if (err.code !== 'NotFound') {
+        console.warn(`⚠️  Could not read old folder ${oldFolder}:`, err.message);
+      }
+      return;
+    }
+
+    if (oldFiles.length === 0) {
+      console.log(`✅ No files found in old folder: ${oldFolder}`);
+      return;
+    }
+
+    // Process each file
+    for (const file of oldFiles) {
+      try {
+        const oldPath = `${oldFolder}/${file.name}`;
+
+        // Extract product ID from filename pattern: product_<id>_<label>.png
+        const fileMatch = file.name.match(/^product_([^_]+)_.*\.png$/);
+        if (!fileMatch) {
+          console.warn(`  ⚠️  Skipping file with unexpected format: ${file.name}`);
+          continue;
+        }
+
+        const productId = fileMatch[1];
+        const newFileName = `product_${productId}_${newLabel}.png`;
+        const newPath = `${newFolder}/${newFileName}`;
+
+        // Read the file from old location
+        const fileData = await Filesystem.readFile({
+          path: oldPath,
+          directory: Directory.External,
+        });
+
+        // Write to new location with new filename
+        await Filesystem.writeFile({
+          path: newPath,
+          data: fileData.data,
+          directory: Directory.External,
+          recursive: true,
+        });
+
+        console.log(`  ✓ Renamed: ${file.name} → ${newFileName}`);
+
+        // Delete the old file
+        try {
+          await Filesystem.deleteFile({
+            path: oldPath,
+            directory: Directory.External,
+          });
+          console.log(`    ✓ Cleaned up old file: ${file.name}`);
+        } catch (delErr) {
+          console.warn(`    ⚠️  Could not delete old file ${file.name}:`, delErr.message);
+        }
+      } catch (err) {
+        console.warn(`  ⚠️  Could not process file ${file.name}:`, err.message);
+      }
+    }
+
+    // Delete the now-empty old folder
+    try {
+      await Filesystem.rmdir({
+        path: oldFolder,
+        directory: Directory.External,
+        recursive: false, // Only delete if folder is empty
+      });
+      console.log(`✅ Deleted empty old folder: ${oldFolder}`);
+    } catch (rmErr) {
+      // Folder might not be empty or other issues, but this is not critical
+      console.warn(`⚠️  Could not delete old folder ${oldFolder}:`, rmErr.message);
+    }
+
+    console.log(`✅ Renaming completed for catalogue images`);
+  } catch (err) {
+    console.warn(`⚠️  Could not rename catalogue images:`, err.message);
+  }
+}
+
+/**
+ * Delete all rendered images from a folder
+ * Used when catalogue is deleted
+ */
+export async function deleteRenderedImagesFromFolder(folderName) {
+  if (!folderName) return;
+
+  try {
+    console.log(`🗑️  Cleaning up rendered images from folder: ${folderName}`);
+
+    // List all files in the folder
+    const result = await Filesystem.readdir({
+      path: folderName,
+      directory: Directory.External,
+    });
+
+    if (!result.files || result.files.length === 0) {
+      console.log(`✅ Folder is empty or doesn't exist: ${folderName}`);
+      return;
+    }
+
+    // Delete each file
+    for (const file of result.files) {
+      try {
+        await Filesystem.deleteFile({
+          path: `${folderName}/${file.name}`,
+          directory: Directory.External,
+        });
+        console.log(`  ✓ Deleted: ${file.name}`);
+      } catch (err) {
+        console.warn(`  ⚠️  Could not delete ${file.name}:`, err.message);
+      }
+    }
+
+    console.log(`✅ Cleanup completed for folder: ${folderName}`);
+  } catch (err) {
+    // Folder might not exist yet, which is fine
+    if (err.code !== 'NotFound') {
+      console.warn(`⚠️  Could not clean up folder ${folderName}:`, err.message);
+    }
+  }
+}
 
 export async function saveRenderedImage(product, type, units = {}) {
   const id = product.id || "temp-id";
@@ -33,170 +213,259 @@ export async function saveRenderedImage(product, type, units = {}) {
   };
 
   // ✅ Load image from Filesystem if not present
+  console.log(`🖼️ Product image status:`, {
+    hasImage: !!product.image,
+    hasImagePath: !!product.imagePath,
+    imagePath: product.imagePath,
+    imageLength: product.image?.length,
+  });
+
   if (!product.image && product.imagePath) {
     try {
+      console.log(`📂 Loading image from filesystem: ${product.imagePath}`);
       const res = await Filesystem.readFile({
         path: product.imagePath,
         directory: Directory.Data,
       });
       product.image = `data:image/png;base64,${res.data}`;
+      console.log(`✅ Image loaded from filesystem. Base64 length: ${product.image.length}`);
     } catch (err) {
       console.error("❌ Failed to load image for rendering:", err.message);
       return;
     }
   }
 
-  const wrapper = document.createElement("div");
-  Object.assign(wrapper.style, {
-    position: "absolute",
-    top: "0",
-    left: "0",
-    width: "330px",
-    backgroundColor: "transparent",
-    opacity: "0",
-    pointerEvents: "none",
-    overflow: "visible",
-    padding: "0",
-    boxSizing: "border-box",
-  });
-
-  const container = document.createElement("div");
-  container.className = `full-detail-${id}-${type}`;
-  container.style.backgroundColor = getLighterColor(bgColor);
-  container.style.overflow = "visible";
-
-  const priceUnit = type === "resell" ? units.resellUnit : units.wholesaleUnit;
-  const price = type === "resell" ? product.resell : product.wholesale;
-
-  const priceBar = document.createElement("h2");
-  Object.assign(priceBar.style, {
-    backgroundColor: bgColor,
-    color: fontColor,
-    padding: "8px",
-    textAlign: "center",
-    fontWeight: "normal",
-    fontSize: "19px",
-    margin: 0,
-    lineHeight: 1.2,
-  });
-  priceBar.innerText = `Price   :   ₹${price} ${priceUnit}`;
-
-  if (type === "wholesale") {
-    container.appendChild(priceBar); // Price on top
-  }
-
-  const imageShadowWrap = document.createElement("div");
-  Object.assign(imageShadowWrap.style, {
-    boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-    marginBottom: "1px",
-    borderRadius: "0",
-  });
-
-  const imageWrap = document.createElement("div");
-  Object.assign(imageWrap.style, {
-    backgroundColor: imageBg,
-    textAlign: "center",
-    padding: "16px",
-    position: "relative",
-    overflow: "visible",
-  });
-
-  const img = document.createElement("img");
-  img.alt = product.name;
-  img.style.maxWidth = "100%";
-  img.style.maxHeight = "300px";
-  img.style.objectFit = "contain";
-  img.style.margin = "0 auto";
-  imageWrap.appendChild(img);
-  img.src = product.image;
-
-  await new Promise((resolve) => {
-    img.onload = resolve;
-    img.onerror = resolve;
-  });
-
-  if (product.badge) {
-    const badge = document.createElement("div");
-    Object.assign(badge.style, {
-      position: "absolute",
-      bottom: "12px",
-      right: "12px",
-      backgroundColor: badgeBg,
-      color: badgeText,
-      fontSize: "13px",
-      fontWeight: 600,
-      padding: "6px 10px",
-      borderRadius: "999px",
-      opacity: 0.95,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-      border: `1px solid ${badgeBorder}`,
-      letterSpacing: "0.5px",
+  // ✅ Ensure product.image exists before rendering
+  if (!product.image) {
+    console.error("❌ Failed to load image for rendering: File does not exist.");
+    console.error("Product object:", {
+      id: product.id,
+      name: product.name,
+      imagePath: product.imagePath,
+      hasImage: !!product.image,
     });
-    badge.innerText = product.badge.toUpperCase();
-    imageWrap.appendChild(badge);
+    return;
   }
 
-  imageShadowWrap.appendChild(imageWrap);
-  container.appendChild(imageShadowWrap);
+  // Calculate dimensions based on crop aspect ratio
+  const cropAspectRatio = product.cropAspectRatio || 1;
+  const baseWidth = 330;
+  const baseHeight = baseWidth / cropAspectRatio;
 
-  const details = document.createElement("div");
-  details.style.backgroundColor = getLighterColor(bgColor);
-  details.style.color = fontColor;
-  details.style.padding = "10px";
-  details.style.fontSize = "17px";
-  details.innerHTML = `
-    <div style="text-align:center;margin-bottom:6px">
-      <p style="font-weight:normal;text-shadow:3px 3px 5px rgba(0,0,0,0.2);font-size:28px;margin:3px">${product.name}</p>
-      ${product.subtitle ? `<p style="font-style:italic;font-size:18px;margin:5px">(${product.subtitle})</p>` : ""}
-    </div>
-    <div style="text-align:left;line-height:1.4">
-      <p style="margin:2px 0">Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.color}</p>
-      <p style="margin:2px 0">Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;${product.package} ${units.packageUnit}</p>
-      <p style="margin:2px 0">Age Group &nbsp;&nbsp;: &nbsp;&nbsp;${product.age} ${units.ageGroupUnit}</p>
-    </div>
-  `;
-  container.appendChild(details);
-
-  if (type === "resell") {
-    container.appendChild(priceBar); // Price at bottom
+  // Get catalogue-specific data if catalogueId is provided
+  let catalogueData = product;
+  if (units.catalogueId) {
+    const catData = getCatalogueData(product, units.catalogueId);
+    catalogueData = {
+      ...product,
+      // Use only catalogue-specific data, fall back only to legacy field names (not other catalogues)
+      // Check explicitly for undefined/null, not just falsy (to preserve empty strings as intentional)
+      field1: catData.field1 !== undefined && catData.field1 !== null ? catData.field1 : (product.color || ""),
+      field2: catData.field2 !== undefined && catData.field2 !== null ? catData.field2 : (product.package || ""),
+      field2Unit: catData.field2Unit !== undefined && catData.field2Unit !== null ? catData.field2Unit : (product.packageUnit || "pcs / set"),
+      field3: catData.field3 !== undefined && catData.field3 !== null ? catData.field3 : (product.age || ""),
+      field3Unit: catData.field3Unit !== undefined && catData.field3Unit !== null ? catData.field3Unit : (product.ageUnit || "months"),
+      // Include all catalogue price fields - fall back to legacy names only
+      price1: catData.price1 !== undefined && catData.price1 !== null ? catData.price1 : (product.wholesale || ""),
+      price1Unit: catData.price1Unit !== undefined && catData.price1Unit !== null ? catData.price1Unit : (product.wholesaleUnit || "/ piece"),
+      price2: catData.price2 !== undefined && catData.price2 !== null ? catData.price2 : (product.resell || ""),
+      price2Unit: catData.price2Unit !== undefined && catData.price2Unit !== null ? catData.price2Unit : (product.resellUnit || "/ piece"),
+    };
   }
 
-  wrapper.appendChild(container);
-  document.body.appendChild(wrapper);
+  // Support both legacy and dynamic catalogue parameters
+  const priceField = units.priceField || (type === "resell" ? "price2" : type === "wholesale" ? "price1" : type);
+  const priceUnitField = units.priceUnitField || (type === "resell" ? "price2Unit" : type === "wholesale" ? "price1Unit" : `${type}Unit`);
 
-  await new Promise((r) => setTimeout(r, 30));
-  wrapper.style.opacity = "1";
+  // Get price from catalogueData using dynamic field
+  const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
+  const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
 
   try {
-    const canvas = await html2canvas(wrapper, {
-      scale: 3,
-      backgroundColor: "#ffffff",
-    });
+    // Prepare product data for Canvas rendering
+    const renderScale = 3;
 
-    const croppedCanvas = document.createElement("canvas");
-    croppedCanvas.width = canvas.width;
-    croppedCanvas.height = canvas.height - 3;
+    console.log(`🎨 Starting Canvas render for product: ${product.name || product.id}`);
+    console.log(`🖼️ Image source: ${catalogueData.image || product.image}`);
 
-    const ctx = croppedCanvas.getContext("2d");
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(canvas, 0, 0);
+    const productData = {
+      name: catalogueData.name,
+      subtitle: catalogueData.subtitle,
+      image: catalogueData.image || product.image,
+      field1: catalogueData.field1,
+      field2: catalogueData.field2,
+      field2Unit: catalogueData.field2Unit,
+      field3: catalogueData.field3,
+      field3Unit: catalogueData.field3Unit,
+      price: price !== "" && price !== 0 ? price : undefined,
+      priceUnit: price ? priceUnit : undefined,
+      badge: catalogueData.badge,
+      cropAspectRatio: cropAspectRatio,
+    };
 
-    const base64 = croppedCanvas.toDataURL("image/png").split(",")[1];
-    const filename = `product_${id}_${type}.png`;
-    const folder = type === "wholesale" ? "Wholesale" : "Resell";
+    // Get watermark settings
+    const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
+    const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
+    // Get watermark position as plain string (not JSON)
+    const watermarkPosition = localStorage.getItem("watermarkPosition") || "bottom-center";
 
-    await Filesystem.writeFile({
-      path: `${folder}/${filename}`,
-      data: base64,
-      directory: Directory.External,
-      recursive: true,
-    });
+    // Render using Canvas API
+    let canvas;
+    try {
+      canvas = await renderProductToCanvas(productData, {
+        width: baseWidth,
+        scale: renderScale,
+        bgColor: bgColor,
+        imageBgColor: imageBg,
+        fontColor: fontColor,
+        backgroundColor: "#ffffff",
+      }, {
+        enabled: isWatermarkEnabled,
+        text: watermarkText,
+        position: watermarkPosition,
+      });
+      console.log(`✅ Canvas rendered successfully. Size: ${canvas.width}x${canvas.height}`);
+    } catch (renderErr) {
+      console.error(`❌ Canvas rendering failed:`, renderErr);
+      throw renderErr;
+    }
 
-    console.log("✅ Image saved:", `${folder}/${filename}`);
+    let base64;
+    try {
+      base64 = canvasToBase64(canvas);
+      console.log(`✅ Canvas converted to base64. Length: ${base64.length} chars`);
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 conversion resulted in empty string");
+      }
+    } catch (b64Err) {
+      console.error(`❌ Base64 conversion failed:`, b64Err);
+      throw b64Err;
+    }
+
+    // Use folder name (which is set to catalogue name) for organizing rendered images
+    let folder;
+    let catalogueLabel;
+    if (units.folder) {
+      // Folder name passed directly (set to catalogue name/label)
+      folder = units.folder;
+      catalogueLabel = units.folder;
+    } else if (units.catalogueLabel) {
+      // Use catalogue label/name as folder name
+      folder = units.catalogueLabel;
+      catalogueLabel = units.catalogueLabel;
+    } else if (units.catalogueId) {
+      // Fallback: use catalogue ID if label not provided
+      folder = units.catalogueId;
+      catalogueLabel = units.catalogueId;
+    } else {
+      // Final fallback: use the type parameter as folder name
+      // This ensures the correct folder is used even for old products
+      folder = type;
+      catalogueLabel = type;
+    }
+
+    // Filename includes catalogue label for proper identification and organization
+    const filename = `product_${id}_${catalogueLabel}.png`;
+
+    const filePath = `${folder}/${filename}`;
+
+    try {
+      console.log(`📝 Writing file to: ${filePath}`);
+      console.log(`📁 Using directory: Directory.External (App-specific external storage)`);
+      console.log(`📍 Android path: /storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`);
+      console.log(`📊 Base64 data details:`, {
+        length: base64?.length || 0,
+        isString: typeof base64 === 'string',
+        first20chars: base64?.substring(0, 20) || 'N/A',
+        isEmpty: !base64 || base64.length === 0,
+      });
+
+      if (!base64 || base64.length === 0) {
+        throw new Error("Base64 data is empty - canvas may not have rendered correctly");
+      }
+
+      console.log(`📤 Starting writeFile operation...`);
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64,
+        directory: Directory.External,
+        recursive: true,
+      });
+
+      console.log("✅ Image saved successfully:", filePath);
+      console.log(`📝 Written base64 data length: ${base64.length} characters`);
+
+      // Try to store rendered image in localStorage for quick access during sharing
+      // This is optional and won't block if quota is exceeded
+      try {
+        const storageKey = `rendered::${catalogueLabel}::${id}`;
+        const dataToStore = JSON.stringify({
+          base64,
+          timestamp: Date.now(),
+          filename,
+          catalogueLabel,
+        });
+
+        // Check estimated size before storing (rough estimate: each character ~1 byte)
+        const estimatedSizeKB = (dataToStore.length / 1024).toFixed(2);
+
+        if (dataToStore.length > 2 * 1024 * 1024) {
+          // Skip if larger than 2MB to preserve localStorage quota
+          console.warn(`⚠️ Image too large for localStorage cache (${estimatedSizeKB}KB) - skipping cache. File saved to disk.`);
+        } else {
+          localStorage.setItem(storageKey, dataToStore);
+          console.log(`💾 Stored rendered image in localStorage: ${storageKey} (${estimatedSizeKB}KB)`);
+        }
+      } catch (cacheErr) {
+        // localStorage quota exceeded - this is not critical
+        // The image is already saved to disk, which is what matters
+        if (cacheErr.name === 'QuotaExceededError') {
+          console.warn(`⚠️ localStorage quota exceeded - skipping cache. Image saved to disk successfully.`);
+          console.warn(`💡 To free up space: Clear app cache or export products and delete old catalogs`);
+        } else {
+          console.warn(`⚠️ Could not cache image in localStorage:`, cacheErr.message);
+        }
+        // Don't rethrow - the image is safely saved to disk
+      }
+
+      // Verify the file was actually written
+      try {
+        console.log(`🔍 Verifying file at: ${filePath}`);
+        const stat = await Filesystem.stat({
+          path: filePath,
+          directory: Directory.External,
+        });
+        console.log(`✅ File verified - exists at: ${filePath}`, stat);
+
+        // Try to get the file URI to see the actual path
+        try {
+          const uriResult = await Filesystem.getUri({
+            path: filePath,
+            directory: Directory.External,
+          });
+          console.log(`📍 File URI: ${uriResult.uri}`);
+        } catch (uriErr) {
+          console.log(`⚠️ Could not get file URI: ${uriErr.message}`);
+        }
+      } catch (verifyErr) {
+        console.error(`❌ CRITICAL: File write succeeded but file not found during verification: ${filePath}`, verifyErr);
+        console.error(`This suggests the file was saved to a different location than expected`);
+        throw new Error(`File verification failed - files may not be saved to correct location: ${verifyErr.message}`);
+      }
+    } catch (writeErr) {
+      console.error(`❌ Failed to write file: ${filePath}`, writeErr);
+      console.error(`📋 Error details:`, {
+        message: writeErr.message,
+        code: writeErr.code,
+        folder,
+        filename,
+        directorySetting: "Directory.External",
+        androidPath: `/storage/emulated/0/Android/data/com.catshare.official/files/${filePath}`
+      });
+      throw writeErr;
+    }
   } catch (err) {
     console.error("❌ saveRenderedImage failed:", err.message || err);
-  } finally {
-    document.body.removeChild(wrapper);
+    throw err; // Rethrow so caller knows rendering failed
   }
 }

@@ -27,3 +27,7 @@ ios/build/
 .DS_Store
 Thumbs.db
 *.log
+
+# Signin Key Files
+android/key.properties
+android/app/catshare-release-key.jks

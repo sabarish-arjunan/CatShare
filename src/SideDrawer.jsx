@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { FileSharer } from "@byteowls/capacitor-filesharer";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -8,10 +7,16 @@ import BulkEdit from "./BulkEdit";
 import { App } from "@capacitor/app";
 import JSZip from "jszip";
 import { saveRenderedImage } from "./Save";
-import RenderingOverlay from "./RenderingOverlay"; // path to the Lottie animation overlay
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { MdInventory2 } from "react-icons/md";
+import { MdInventory2, MdBackup, MdCategory, MdBook, MdImage, MdSettings, MdPublic } from "react-icons/md";
+import { RiEdit2Line } from "react-icons/ri";
+import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { APP_VERSION } from "./config/version";
+import { useToast } from "./context/ToastContext";
+import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
+import { ensureProductsHaveStockFields } from "./utils/dataMigration";
+import { migrateProductToNewFormat } from "./config/fieldMigration";
 
 
 export default function SideDrawer({
@@ -22,28 +27,214 @@ export default function SideDrawer({
   setProducts,
   setDeletedProducts,
   selected,
+  onShowTutorial,
+  darkMode,
+  setDarkMode,
+  isRendering,
+  renderProgress,
+  renderResult,
+  setRenderResult,
+  handleRenderAllPNGs,
 }) {
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
    const [showBulkEdit, setShowBulkEdit] = useState(false);
-   const [renderProgress, setRenderProgress] = useState(0);
-const [isRendering, setIsRendering] = useState(false);
-const shouldRender = useRef(false);
 const [showRenderConfirm, setShowRenderConfirm] = useState(false);
+const [clickCountN, setClickCountN] = useState(0);
+const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
 const allproducts = JSON.parse(localStorage.getItem("products") || "[]");
 const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
 const [showBackupPopup, setShowBackupPopup] = useState(false);
+const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
+const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
 const navigate = useNavigate();
+const { showToast } = useToast();
 
 
   if (!open) return null;
 
-  const handleBackup = async () => {
+  const handleNClick = () => {
+    const newCount = clickCountN + 1;
+    setClickCountN(newCount);
+    if (newCount === 7) {
+      setShowHiddenFeatures(true);
+      setClickCountN(0); // Reset counter
+    }
+  };
+
+  const handleDownloadRenderedImages = async () => {
+  try {
+    const zip = new JSZip();
+    let hasImages = false;
+    let totalSize = 0;
+
+    // Get all catalogues dynamically
+    const catalogues = getAllCatalogues();
+
+    // Also check for legacy folders for backward compatibility
+    const foldersToCheck = [
+      ...catalogues.map(cat => cat.folder || cat.label), // Use folder name (which is now set to catalogue name)
+      "Wholesale", // Legacy support
+      "Resell"     // Legacy support
+    ];
+
+    // Try to read each catalogue folder
+    for (const folderName of foldersToCheck) {
+      try {
+        const files = await Filesystem.readdir({
+          path: folderName,
+          directory: Directory.External,
+        });
+
+        for (const file of files.files) {
+          if (file.name.endsWith(".png")) {
+            try {
+              const fileData = await Filesystem.readFile({
+                path: `${folderName}/${file.name}`,
+                directory: Directory.External,
+              });
+              zip.file(`${folderName}/${file.name}`, fileData.data, { base64: true });
+              totalSize += fileData.data.length;
+              hasImages = true;
+            } catch (readErr) {
+              console.warn(`Could not read file ${folderName}/${file.name}:`, readErr.message);
+              // Skip individual files that fail to read
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`Could not read ${folderName} folder:`, err.message);
+        // Continue to next folder if this one doesn't exist
+      }
+    }
+
+    if (!hasImages) {
+      showToast("No rendered images found. Please render images first.", "info");
+      return;
+    }
+
+    console.log(`📦 Creating ZIP with ${totalSize} bytes of image data...`);
+
+    try {
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      console.log(`✅ ZIP created successfully. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
+
+      const now = new Date();
+      const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
+      const filename = `catshare-rendered-images-${timestamp}.zip`;
+
+      try {
+        // For large files, skip FileSharer and use browser download directly
+        // FileSharer has issues with files larger than ~10MB base64 (~7.5MB binary)
+        const MAX_FILESHARER_SIZE = 10 * 1024 * 1024; // 10MB base64
+
+        if (blob.size > 5 * 1024 * 1024) {
+          // File is large (>5MB), use browser download directly
+          console.log(`📦 File is large (${(blob.size / 1024 / 1024).toFixed(2)}MB), using browser download...`);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          // Keep URL object alive briefly, then revoke
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          showToast("ZIP file downloaded to your device!", "success");
+        } else {
+          // File is smaller, try FileSharer for better mobile experience
+          console.log(`📝 Writing file: ${filename}`);
+
+          // Convert blob to base64 more safely for smaller chunks
+          const arrayBuffer = await blob.arrayBuffer();
+          const bytes = new Uint8Array(arrayBuffer);
+
+          // Convert to base64 in chunks to avoid "Invalid array length" error
+          let binary = '';
+          const chunkSize = 8192; // Process in 8KB chunks
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          const base64Data = btoa(binary);
+
+          // Safety check: if base64 is too large, fall back to direct download
+          if (base64Data.length > MAX_FILESHARER_SIZE) {
+            console.warn(`⚠️ Base64 data too large for FileSharer (${(base64Data.length / 1024 / 1024).toFixed(2)}MB), using browser download...`);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast("ZIP file downloaded to your device!", "success");
+            return;
+          }
+
+          console.log(`📤 Sharing file via FileSharer...`);
+          try {
+            await FileSharer.share({
+              filename,
+              base64Data,
+              contentType: "application/zip",
+            });
+            showToast("Rendered images downloaded successfully!", "success");
+          } catch (fileSharerErr) {
+            console.warn(`⚠️ FileSharer failed, falling back to browser download:`, fileSharerErr.message);
+
+            // FileSharer failed, use browser download as fallback
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast("ZIP file downloaded to your device!", "success");
+          }
+        }
+      } catch (shareErr) {
+        console.error("Share/Write error:", shareErr);
+
+        // Final fallback: Try direct download without anything else
+        try {
+          console.log(`📥 Using final fallback: direct blob download...`);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          showToast("ZIP file downloaded to your device!", "success");
+        } catch (fallbackErr) {
+          console.error("All download methods failed:", fallbackErr);
+          showToast("Failed to download images: " + (fallbackErr.message || shareErr.message), "error");
+        }
+      }
+    } catch (genErr) {
+      console.error("ZIP generation failed:", genErr);
+      showToast("Failed to create ZIP: " + genErr.message, "error");
+    }
+  } catch (err) {
+    console.error("Download rendered images failed:", err);
+    showToast("Failed to download rendered images: " + err.message, "error");
+  }
+};
+
+const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
+  const cataloguesDefinition = getCataloguesDefinition();
+  const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const zip = new JSZip();
 
   const dataForJson = [];
+  const deletedForJson = [];
 
   for (const p of products) {
     const product = { ...p };
@@ -68,7 +259,40 @@ const navigate = useNavigate();
     dataForJson.push(product);
   }
 
-  zip.file("catalogue-data.json", JSON.stringify({ products: dataForJson, deleted }, null, 2));
+  // Also process deleted products' images
+  for (const p of deleted) {
+    const product = { ...p };
+    delete product.imageBase64;
+
+    if (p.imagePath) {
+      try {
+        const res = await Filesystem.readFile({
+          path: p.imagePath,
+          directory: Directory.Data,
+        });
+
+        const imageFilename = p.imagePath.split("/").pop();
+        zip.file(`images/${imageFilename}`, res.data, { base64: true });
+
+        product.imageFilename = imageFilename; // map in JSON
+      } catch (err) {
+        console.warn("Could not read image:", p.imagePath);
+      }
+    }
+
+    deletedForJson.push(product);
+  }
+
+  // Include catalogues definition and all settings in backup
+  zip.file("catalogue-data.json", JSON.stringify({
+    version: 2, // Increment version for future compatibility
+    products: dataForJson,
+    deleted: deletedForJson,
+    cataloguesDefinition,
+    categories,
+    backupDate: new Date().toISOString(),
+    appVersion: APP_VERSION
+  }, null, 2));
 
   const blob = await zip.generateAsync({ type: "blob" });
   const reader = new FileReader();
@@ -84,7 +308,7 @@ const navigate = useNavigate();
       await Filesystem.writeFile({
         path: filename,
         data: base64Data,
-        directory: Directory.External,
+        directory: Directory.Documents,
       });
 
       await FileSharer.share({
@@ -93,64 +317,27 @@ const navigate = useNavigate();
         contentType: "application/zip",
       });
 
-      alert("✅ Backup ZIP created and shared.");
+      setBackupResult({
+        status: "success",
+        message: "Backup ZIP created and shared",
+      });
     } catch (err) {
-      alert("❌ Backup failed: " + err.message);
+      setBackupResult({
+        status: "error",
+        message: "Backup failed: " + err.message,
+      });
     }
-
-    onClose();
   };
 
   reader.readAsDataURL(blob);
 };
 
  
-const handleRenderAllPNGs = async () => {
-  const all = JSON.parse(localStorage.getItem("products") || "[]");
-  if (all.length === 0) return;
-
-  setIsRendering(true);
-  setRenderProgress(0);
-
-  for (let i = 0; i < all.length; i++) {
-    const product = all[i];
-
-    // 🧠 Inject base64 from imageMap (used in CatalogueApp)
-    if (!product.image && imageMap[product.id]) {
-      product.image = imageMap[product.id];
-    }
-
-    try {
-      await saveRenderedImage(product, "resell", {
-        resellUnit: product.resellUnit || "/ piece",
-        wholesaleUnit: product.wholesaleUnit || "/ piece",
-        packageUnit: product.packageUnit || "pcs / set",
-        ageGroupUnit: product.ageUnit || "months",
-      });
-
-      await saveRenderedImage(product, "wholesale", {
-        resellUnit: product.resellUnit || "/ piece",
-        wholesaleUnit: product.wholesaleUnit || "/ piece",
-        packageUnit: product.packageUnit || "pcs / set",
-        ageGroupUnit: product.ageUnit || "months",
-      });
-
-      console.log(`✅ Rendered PNGs for ${product.name}`);
-    } catch (err) {
-      console.warn(`❌ Failed to render PNGs for ${product.name}`, err);
-    }
-
-    setRenderProgress(Math.round(((i + 1) / all.length) * 100));
-  }
-
-  alert("✅ PNG rendering completed for all products.");
-  setIsRendering(false);
-};
 
 
 const exportProductsToCSV = (products) => {
   if (!products || products.length === 0) {
-    alert("No products to export!");
+    showToast("No products to export!", "warning");
     return;
   }
 
@@ -202,10 +389,15 @@ const exportProductsToCSV = (products) => {
       const zip = await JSZip.loadAsync(event.target.result);
       const jsonFile = zip.file("catalogue-data.json");
 
-      if (!jsonFile) throw new Error("Missing JSON");
+      if (!jsonFile) throw new Error("Missing catalogue-data.json in backup");
 
       const jsonText = await jsonFile.async("text");
       const parsed = JSON.parse(jsonText);
+
+      // Validate backup format
+      if (!parsed.products || !Array.isArray(parsed.products)) {
+        throw new Error("Invalid backup format: missing products array");
+      }
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
@@ -230,33 +422,108 @@ const exportProductsToCSV = (products) => {
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
-          return clean;
+
+          // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
+          const migrated = migrateProductToNewFormat(clean);
+
+          return migrated;
         })
       );
 
       setProducts(rebuilt);
+      localStorage.setItem("products", JSON.stringify(rebuilt));
 
-      const categories = Array.from(
-        new Set(
-          rebuilt.flatMap((p) =>
-            Array.isArray(p.category) ? p.category : [p.category]
+      // Restore categories from backup if available, otherwise extract from products
+      if (parsed.categories && Array.isArray(parsed.categories)) {
+        localStorage.setItem("categories", JSON.stringify(parsed.categories));
+      } else {
+        const categories = Array.from(
+          new Set(
+            rebuilt.flatMap((p) =>
+              Array.isArray(p.category) ? p.category : [p.category]
+            )
           )
-        )
-      ).filter(Boolean);
-
-      localStorage.setItem("categories", JSON.stringify(categories));
-
-      if (Array.isArray(parsed.deleted)) {
-        setDeletedProducts(parsed.deleted);
-        localStorage.setItem("deletedProducts", JSON.stringify(parsed.deleted));
+        ).filter(Boolean);
+        localStorage.setItem("categories", JSON.stringify(categories));
       }
 
-      alert("✅ Restore complete");
-    } catch (err) {
-      alert("❌ Restore failed: " + err.message);
-    }
+      if (Array.isArray(parsed.deleted)) {
+        // Also restore deleted products' images from the ZIP
+        const rebuiltDeleted = await Promise.all(
+          parsed.deleted.map(async (p) => {
+            if (p.imageFilename && p.imagePath) {
+              const imgFile = zip.file(`images/${p.imageFilename}`);
+              if (imgFile) {
+                const base64 = await imgFile.async("base64");
 
-    onClose();
+                try {
+                  await Filesystem.writeFile({
+                    path: p.imagePath,
+                    data: base64,
+                    directory: Directory.Data,
+                    recursive: true,
+                  });
+                } catch (err) {
+                  console.warn("Image write failed for deleted product:", p.imagePath);
+                }
+              }
+            }
+
+            const clean = { ...p };
+            delete clean.imageBase64;
+            delete clean.imageFilename;
+
+            // Migrate old field names to new field names
+            const migrated = migrateProductToNewFormat(clean);
+
+            return migrated;
+          })
+        );
+
+        setDeletedProducts(rebuiltDeleted);
+        localStorage.setItem("deletedProducts", JSON.stringify(rebuiltDeleted));
+      }
+
+      // Restore catalogues definition from backup
+      // If the backup doesn't have cataloguesDefinition (old backups v1), use defaults
+      if (parsed.cataloguesDefinition) {
+        setCataloguesDefinition(parsed.cataloguesDefinition);
+        console.log("✅ Restored catalogues definition from backup");
+      } else {
+        // Backward compatibility: old backups don't have cataloguesDefinition
+        // Use the current one if it exists, otherwise use defaults
+        const currentCatalogues = getCataloguesDefinition();
+        if (!currentCatalogues || currentCatalogues.catalogues.length === 0) {
+          // If no catalogues exist, restore defaults
+          setCataloguesDefinition({
+            version: 1,
+            catalogues: DEFAULT_CATALOGUES,
+            lastUpdated: Date.now(),
+          });
+          console.log("⚠️ Old backup detected - using default catalogues");
+        } else {
+          console.log("ℹ️ Using existing catalogue configuration");
+        }
+      }
+
+      // Auto-create legacy Resell catalogue if the backup has resell data (backward compatibility)
+      // This ensures old data from the 2-catalogue system is accessible in the new single-catalogue system
+      createLegacyResellCatalogueIfNeeded(rebuilt);
+
+      // Re-run migrations after catalogues definition has been restored
+      // This ensures all products have the proper field structure for the restored catalogues
+      ensureProductsHaveStockFields();
+
+      console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+
+      setShowRenderAfterRestore(true);
+    } catch (err) {
+      console.error("❌ Restore failed:", err);
+      setBackupResult({
+        status: "error",
+        message: "Restore failed: " + err.message,
+      });
+    }
   };
 
   reader.readAsArrayBuffer(file);
@@ -269,21 +536,28 @@ const exportProductsToCSV = (products) => {
         onClick={onClose}
       >
         <div
-          className="absolute left-0 w-64 bg-white shadow-lg p-4 overflow-y-auto"
+          className="absolute left-0 w-64 bg-white shadow-lg flex flex-col overflow-hidden"
           style={{
             top: 0,
             height: "100%",
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="-mt-4 -mx-4 h-[40px] bg-black mb-4"></div>
-          <h2 className="text-lg font-semibold mb-4">Menu</h2>
+          <div className="h-[40px] bg-black flex-shrink-0"></div>
+          <div className="overflow-y-auto flex-1 p-4">
+          <h2 className="text-lg font-semibold mb-4">
+            Me<span
+              onClick={handleNClick}
+              className="cursor-pointer"
+              title={showHiddenFeatures ? "Features unlocked! 🎉" : ""}
+            >n</span>u
+          </h2>
 
           <button
   onClick={() => setShowBackupPopup(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="w-5 text-gray-500">🛠️</span>
+  <MdBackup className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Backup & Restore</span>
 </button>
 
@@ -304,36 +578,73 @@ const exportProductsToCSV = (products) => {
   onClick={() => setShowCategories(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="text-gray-500">🗂️</span>
+  <MdCategory className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Manage Categories</span>
 </button>
 
-<button
-  onClick={() => {
-    navigate('/retail');
-    onClose();
-  }}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  <span className="text-gray-500">🛍️</span>
-  <span className="text-sm font-medium">Retail</span>
-</button>
+{showHiddenFeatures && (
+  <>
+    <button
+      onClick={() => {
+        navigate('/retail');
+        onClose();
+      }}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+    >
+      <span className="text-gray-500">🛍️</span>
+      <span className="text-sm font-medium">Retail</span>
+    </button>
 
-<button
-  onClick={() => setShowMediaLibrary(true)}
-  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
->
-  <span className="text-gray-500">🖼️</span>
-  <span className="text-sm font-medium">Media Library</span>
-</button>
+    <button
+      onClick={() => setShowMediaLibrary(true)}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+    >
+      <span className="text-gray-500">🖼️</span>
+      <span className="text-sm font-medium">Media Library</span>
+    </button>
+
+    <button
+      onClick={() => {
+        navigate("/website");
+        onClose();
+      }}
+      className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition shadow-md"
+    >
+      <MdPublic className="text-white text-[18px]" />
+      <span className="text-sm font-medium">Website</span>
+    </button>
+  </>
+)}
 
 <button
   onClick={() => setShowBulkEdit(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
-  <span className="text-gray-500">✏️</span>
+  <RiEdit2Line className="text-gray-500 text-[18px]" />
   <span className="text-sm font-medium">Bulk Editor</span>
 </button>
+
+<button
+  onClick={() => {
+    navigate("/settings");
+    onClose();
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+>
+  <MdSettings className="text-gray-500 text-[18px]" />
+  <span className="text-sm font-medium">Settings</span>
+</button>
+
+<button
+  onClick={() => {
+    onShowTutorial();
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
+>
+  <MdBook className="text-gray-500 text-[18px]" />
+  <span className="text-sm font-medium">Tutorial</span>
+</button>
+
 <div>
 <button
   onClick={() => setShowRenderConfirm(true)}
@@ -344,13 +655,22 @@ const exportProductsToCSV = (products) => {
       : "bg-gray-800 text-white hover:bg-gray-700"
   }`}
 >
-  <span>🔁</span>
-  <span>{isRendering ? "Rendering PNGs..." : "Render PNGs"}</span>
+  <MdImage className={`text-[18px] ${isRendering ? "text-gray-400" : "text-white"}`} />
+  <span>{isRendering ? "Rendering images..." : "Render images"}</span>
 </button>
 
-<div className="pt-4 mt-5 border-t text-center text-xs text-gray-400">
-    Created by <span className="font-semibold text-gray-600">Sabarish Arjunan</span>
-  </div>
+{showHiddenFeatures && (
+  <button
+    onClick={() => handleDownloadRenderedImages()}
+    className="w-full flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium transition shadow-sm bg-blue-600 text-white hover:bg-blue-700 mb-2"
+    title="Download all rendered product images"
+  >
+    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+    <span>Download PNGs</span>
+  </button>
+)}
 
 {showBackupPopup && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
@@ -404,6 +724,52 @@ const exportProductsToCSV = (products) => {
   </div>
 )}
 
+{showRenderAfterRestore && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-lg z-50 flex items-center justify-center px-4">
+    <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs">
+      <h2 className="text-lg font-bold text-gray-800 mb-3 text-center">Render images?</h2>
+
+      <div className="space-y-3 mb-4">
+        <p className="text-sm text-gray-600">
+          Your catalogue has been restored. Would you like to render images now?
+        </p>
+
+        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+          <p className="text-xs text-red-800">
+            <span className="font-semibold">⚠️ Important:</span> Rendering images is <span className="font-semibold">must to share</span> the images. Without rendering, you cannot share product images with customers.
+          </p>
+        </div>
+
+        <p className="text-sm text-gray-600">
+          Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
+        </p>
+      </div>
+
+      <div className="flex justify-center gap-4 pb-[env(safe-area-inset-bottom)]">
+        <button
+          className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
+          onClick={() => {
+            setShowRenderAfterRestore(false);
+            handleRenderAllPNGs();
+          }}
+        >
+          Continue
+        </button>
+
+        <button
+          className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition text-sm"
+          onClick={() => {
+            setShowRenderAfterRestore(false);
+            onClose();
+          }}
+        >
+          Maybe later
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 {showRenderConfirm && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
     <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
@@ -417,7 +783,8 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-900 transition"
           onClick={() => {
             setShowRenderConfirm(false);
-            handleRenderAllPNGs();
+            onClose();
+            setTimeout(() => handleRenderAllPNGs(), 50);
           }}
         >
           Yes
@@ -433,6 +800,37 @@ const exportProductsToCSV = (products) => {
   </div>
 )}
 
+{backupResult && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+      <div className="flex justify-center mb-4">
+        {backupResult.status === "success" ? (
+          <FiCheckCircle className="w-12 h-12 text-green-500" />
+        ) : (
+          <FiAlertCircle className="w-12 h-12 text-red-500" />
+        )}
+      </div>
+
+      <h2 className="text-lg font-semibold text-gray-800 mb-2">
+        {backupResult.status === "success" ? "Success!" : "Failed"}
+      </h2>
+
+      <p className="text-sm text-gray-600 mb-5">
+        {backupResult.message}
+      </p>
+
+      <button
+        onClick={() => {
+          setBackupResult(null);
+          onClose();
+        }}
+        className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
 
 
   {isRendering && (
@@ -443,50 +841,74 @@ const exportProductsToCSV = (products) => {
       />
     </div>
   )}
+
+<div className="pt-4 mt-5 border-t">
+    <div className="text-center text-xs text-gray-400 mb-3">
+      Created by <span className="font-semibold text-gray-600">BazelWings</span>
+    </div>
+  </div>
+          </div>
 </div>
+        </div>
 
-
-
+        {/* Legal Links - Fixed at Bottom */}
+        <div className="absolute left-0 w-64 bottom-0 bg-white pt-3 pb-4">
+          <div className="flex flex-col items-center gap-2 mb-3 px-4">
+            <span className="text-xs text-gray-500">CatShare v{APP_VERSION}</span>
+          </div>
+          <div className="flex justify-center items-center gap-3 text-xs px-4">
+            <button
+              onClick={() => {
+                navigate("/privacy");
+                onClose();
+              }}
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <button
+              onClick={() => {
+                navigate("/terms");
+                onClose();
+              }}
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            >
+              Terms of Service
+            </button>
+          </div>
         </div>
       </div>
 
-{showMediaLibrary && (
-  <MediaLibrary
-    onClose={() => setShowMediaLibrary(false)}
-    onSelect={() => setShowMediaLibrary(false)} // ← temp, will connect to product later
-  />
-)}  
+      {showMediaLibrary && (
+        <MediaLibrary
+          onClose={() => setShowMediaLibrary(false)}
+          onSelect={() => setShowMediaLibrary(false)}
+        />
+      )}
 
-{showBulkEdit && (() => {
-  try {
-    return (
-      <BulkEdit
-  products={products}
-  imageMap={imageMap}   // ✅ this is the missing prop
-  setProducts={setProducts}
-  onClose={() => setShowBulkEdit(false)}
-  triggerRender={handleRenderAllPNGs}
-/>
-
-
-
-    );
-  } catch (err) {
-    console.error("💥 Error in BulkEdit:", err);
-    return <div className='text-red-600'>BulkEdit crashed.</div>;
-  }
-})()}
-
+      {showBulkEdit && (() => {
+        try {
+          const allProds = JSON.parse(localStorage.getItem("products") || "[]");
+          return (
+            <BulkEdit
+              products={products}
+              allProducts={allProds}
+              imageMap={imageMap}
+              setProducts={setProducts}
+              onClose={() => setShowBulkEdit(false)}
+              triggerRender={handleRenderAllPNGs}
+            />
+          );
+        } catch (err) {
+          console.error("💥 Error in BulkEdit:", err);
+          return <div className='text-red-600'>BulkEdit crashed.</div>;
+        }
+      })()}
 
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />
       )}
-      
-      <RenderingOverlay
-  visible={isRendering}
-  current={Math.round((renderProgress / 100) * products.length)}
-  total={products.length}
-/>
 
     </>
   );

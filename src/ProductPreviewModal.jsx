@@ -2,12 +2,39 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { FiX, FiShare2 } from "react-icons/fi";
+import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
+import { useToast } from "./context/ToastContext";
+import { getCatalogueData } from "./config/catalogueProductUtils";
+import { getAllCatalogues } from "./config/catalogueConfig";
+
+// Helper function to get CSS styles based on watermark position
+const getWatermarkPositionStyles = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none"
+  };
+
+  const positionMap = {
+    "top-left": { top: 10, left: 10, transform: "none" },
+    "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 10, right: 10, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
+    "bottom-left": { bottom: 10, left: 10, transform: "none" },
+    "bottom-center": { bottom: 10, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
+  };
+
+  return { ...baseStyles, ...positionMap[position] };
+};
 
 // Full Screen Image Viewer Component
-const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
+const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWatermark, watermarkText, watermarkPosition }) => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -222,16 +249,19 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error sharing image:', error);
-      alert('Unable to share image. Please try again.');
+      setShareResult({
+        status: "error",
+        message: "Unable to share image. Please try again.",
+      });
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center cursor-pointer" data-fullscreen-image="true" onClick={onClose}>
       {/* Header with close and share buttons */}
-      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }}>
+      <div className="absolute left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent" style={{ top: 0 }} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onClose}
           className="text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-black/30 backdrop-blur-sm"
@@ -250,7 +280,8 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
       {/* Image container */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center overflow-hidden touch-none"
+        className="flex items-center justify-center overflow-hidden touch-none relative"
+        onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -273,6 +304,21 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
           }}
           draggable={false}
         />
+
+        {/* Watermark overlay - White/light for full-screen view against dark background */}
+        {showWatermark && (
+          <div
+            style={{
+              ...getWatermarkPositionStyles(watermarkPosition),
+              fontSize: "14px",
+              color: "rgba(255, 255, 255, 0.4)",
+              letterSpacing: "0.5px",
+              zIndex: 5
+            }}
+          >
+            {watermarkText}
+          </div>
+        )}
       </div>
 
     </div>
@@ -283,6 +329,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose }) => {
 export default function ProductPreviewModal({
   product,
   tab,
+  catalogueId: externalCatalogueId,
   onClose,
   onEdit,
   onToggleStock,
@@ -290,9 +337,12 @@ export default function ProductPreviewModal({
   onSwipeRight,
   filteredProducts = [],
 }) {
+  const { showToast } = useToast();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
+  const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
+  const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -310,8 +360,20 @@ export default function ProductPreviewModal({
     }
   };
 
+  // Update ref whenever showFullScreenImage changes
   useEffect(() => {
-    const handler = () => onClose();
+    fullScreenImageRef.current = showFullScreenImage;
+  }, [showFullScreenImage]);
+
+  useEffect(() => {
+    const handler = () => {
+      // If full screen image is open, close it instead of closing the preview
+      if (fullScreenImageRef.current) {
+        setShowFullScreenImage(false);
+      } else {
+        onClose();
+      }
+    };
     window.addEventListener("close-preview", handler);
     return () => window.removeEventListener("close-preview", handler);
   }, [onClose]);
@@ -321,6 +383,61 @@ export default function ProductPreviewModal({
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [onClose]);
+
+  // Check if watermark should be shown
+  const [showWatermark, setShowWatermark] = useState(() => {
+    const stored = localStorage.getItem("showWatermark");
+    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
+  });
+
+  // Get custom watermark text
+  const [watermarkText, setWatermarkText] = useState(() => {
+    return localStorage.getItem("watermarkText") || "Created using CatShare";
+  });
+
+  // Get watermark position
+  const [watermarkPosition, setWatermarkPosition] = useState(() => {
+    return localStorage.getItem("watermarkPosition") || "bottom-center";
+  });
+
+  // Listen for watermark setting changes from Settings modal
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handleWatermarkChange = () => {
+      const stored = localStorage.getItem("showWatermark");
+      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
+
+      const textStored = localStorage.getItem("watermarkText");
+      setWatermarkText(textStored || "Created using CatShare");
+
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    const handlePositionChange = (e) => {
+      const positionStored = localStorage.getItem("watermarkPosition");
+      setWatermarkPosition(positionStored || "bottom-center");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("watermarkPositionChanged", handlePositionChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+      window.removeEventListener("watermarkPositionChanged", handlePositionChange);
+    };
+  }, []);
 
   useEffect(() => {
     const loadImage = async () => {
@@ -380,11 +497,76 @@ export default function ProductPreviewModal({
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
+  // Helper function to check if ALL catalogues have product in stock
+  const getAllStockStatus = () => {
+    const allCatalogues = getAllCatalogues();
+    return allCatalogues.every((cat) => product[cat.stockField]);
+  };
+
+  // Helper function to toggle stock for ALL catalogues
+  const onToggleMasterStock = () => {
+    const allCatalogues = getAllCatalogues();
+    const allInStock = getAllStockStatus();
+    const newStatus = !allInStock;
+
+    // Create updated product with all catalogue stock fields toggled
+    const updatedProduct = { ...product };
+    allCatalogues.forEach((cat) => {
+      updatedProduct[cat.stockField] = newStatus;
+    });
+
+    // Update product in parent component
+    if (onToggleStock) {
+      // Pass the updated product directly - we'll modify parent signature
+      onToggleStock(updatedProduct, true); // true indicates master toggle
+    }
+  };
+
+  // Get catalogue data based on which tab is being viewed
+  const getCatalogueIdFromTab = () => {
+    // If a catalogue ID was explicitly passed (from catalogue view), use that
+    if (externalCatalogueId) return externalCatalogueId;
+    // Handle legacy tab names
+    if (tab === "catalogue1") return "cat1";
+    if (tab === "catalogue2") return "cat2";
+    // Handle direct catalogue IDs (cat1, cat2, cat3, etc.)
+    if (tab && tab.startsWith("cat")) return tab;
+    // For products tab, default to cat1
+    return "cat1";
+  };
+
+  const catalogueId = getCatalogueIdFromTab();
+  const catalogueData = getCatalogueData(product, catalogueId);
+
+  // Get the catalogue configuration for price field info
+  const catalogueConfig = getAllCatalogues().find(c => c.id === catalogueId);
+  const priceField = catalogueConfig?.priceField || "price1";
+  const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
+
+  // Check if product has a valid price for this catalogue
+  const priceValue = catalogueData[priceField] || product[priceField];
+  const hasPriceValue = priceValue !== undefined && priceValue !== null && priceValue !== "" && priceValue !== 0;
+
+  // Helper function to check if a field has a valid value
+  const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
+
+  // Check each field - use only catalogue-specific data, not fallback to other catalogues
+  // Only fall back to legacy field names if field is undefined/null (not if it's an empty string)
+  const field1Value = catalogueData.field1 !== undefined && catalogueData.field1 !== null ? catalogueData.field1 : (product.color || "");
+  const hasField1 = hasFieldValue(field1Value);
+
+  const field2Value = catalogueData.field2 !== undefined && catalogueData.field2 !== null ? catalogueData.field2 : (product.package || "");
+  const hasField2 = hasFieldValue(field2Value);
+
+  const field3Value = catalogueData.field3 !== undefined && catalogueData.field3 !== null ? catalogueData.field3 : (product.age || "");
+  const hasField3 = hasFieldValue(field3Value);
+
   return (
     <>
       <div
-        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50"
+        className="fixed inset-0 backdrop-blur-xl bg-black/75 flex items-center justify-center z-50 pointer-events-auto"
         onClick={onClose}
+        role="presentation"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
@@ -396,7 +578,12 @@ export default function ProductPreviewModal({
             onDragEnd={handleDragEnd}
             custom={direction}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white max-w-[350px] w-[90%] rounded-xl overflow-hidden shadow-xl relative"
+            className="bg-white w-[75%] rounded-xl overflow-hidden shadow-xl relative"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxWidth: "340px",
+            }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
               x: 0,
@@ -409,31 +596,21 @@ export default function ProductPreviewModal({
               transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
             })}
           >
-            {/* Top Bar */}
-            {tab !== "resell" && (
-              <div
-                style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
-                  padding: "8px",
-                  textAlign: "center",
-                  fontWeight: "normal",
-                  fontSize: 19,
-                }}
-              >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.wholesale} {product.wholesaleUnit}
-              </div>
-            )}
 
             {/* Image Section - Click to open full screen */}
             <div
               style={{
                 backgroundColor: product.imageBgColor || "white",
                 textAlign: "center",
-                padding: 16,
+                padding: 0,
                 position: "relative",
                 boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                cursor: "pointer"
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                aspectRatio: product.cropAspectRatio || 1,
+                width: "100%",
               }}
               onClick={handleImageClick}
             >
@@ -441,14 +618,27 @@ export default function ProductPreviewModal({
                 src={imageUrl}
                 alt={product.name}
                 style={{
-                  maxWidth: "100%",
-                  maxHeight: "300px",
+                  width: "100%",
+                  height: "100%",
                   objectFit: "contain",
                   margin: "0 auto",
                 }}
               />
 
-            
+              {/* Watermark - Adaptive color based on background */}
+              {showWatermark && (
+                <div
+                  style={{
+                    ...getWatermarkPositionStyles(watermarkPosition),
+                    fontSize: "10px",
+                    letterSpacing: "0.3px",
+                    color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
+                  }}
+                >
+                  {watermarkText}
+                </div>
+              )}
+
               {bothOut && (
                 <div
                   style={{
@@ -471,7 +661,7 @@ export default function ProductPreviewModal({
                   OUT OF STOCK
                 </div>
               )}
-              
+
               {product.badge && (
                 <div
                   style={{
@@ -481,14 +671,17 @@ export default function ProductPreviewModal({
                     backgroundColor: badgeBg,
                     color: badgeText,
                     fontSize: 12,
-                    fontWeight: 600,
+                    fontWeight: 400,
                     padding: "5px 10px",
                     borderRadius: "999px",
                     opacity: 0.95,
                     boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
                     border: `1px solid ${badgeBorder}`,
                     letterSpacing: "0.4px",
-                    pointerEvents: "none"
+                    pointerEvents: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   {product.badge.toUpperCase()}
@@ -501,8 +694,16 @@ export default function ProductPreviewModal({
               style={{
                 backgroundColor: getLighterColor(product.bgColor),
                 color: product.fontColor || "white",
-                padding: 10,
-                fontSize: 17,
+                padding: "4px 8px",
+                fontSize: 13,
+                overflow: "auto",
+                flex: 1,
+                minHeight: 0,
+                touchAction: "pan-y",
+              }}
+              onTouchMove={(e) => {
+                // Allow the touch event to propagate to parent for swipe detection
+                // This ensures horizontal swipes work even in the scrollable area
               }}
             >
               <div style={{ textAlign: "center", marginBottom: 6 }}>
@@ -510,72 +711,81 @@ export default function ProductPreviewModal({
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 28,
-                    margin: 3,
+                    fontSize: 20,
+                    margin: "0 0 3px 0",
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 18, margin: 5 }}>
+                  <p style={{ fontStyle: "italic", fontSize: 14, margin: "0 0 0 0" }}>
                     ({product.subtitle})
                   </p>
                 )}
               </div>
-              <div style={{ textAlign: "left", lineHeight: 1.5 }}>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Colour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.color}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;{product.package} {product.packageUnit}
-                </p>
-                <p style={{ margin: "3px 0" }}>
-                  &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{product.age} {product.ageUnit}
-                </p>
+              <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                {hasField1 && (
+                  <p style={{ margin: "2px 0", display: "flex" }}>
+                    <span style={{ width: "90px" }}>Colour</span>
+                    <span>:</span>
+                    <span style={{ marginLeft: "8px" }}>{field1Value}</span>
+                  </p>
+                )}
+                {hasField2 && (
+                  <p style={{ margin: "2px 0", display: "flex" }}>
+                    <span style={{ width: "90px" }}>Package</span>
+                    <span>:</span>
+                    <span style={{ marginLeft: "8px" }}>{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}</span>
+                  </p>
+                )}
+                {hasField3 && (
+                  <p style={{ margin: "2px 0", display: "flex" }}>
+                    <span style={{ width: "90px" }}>Age Group</span>
+                    <span>:</span>
+                    <span style={{ marginLeft: "8px" }}>{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}</span>
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Bottom Bar */}
-            {tab !== "wholesale" && (
+            {/* Bottom Bar - Show price based on catalogue-specific data (only if price exists) */}
+            {hasPriceValue && (
               <div
                 style={{
                   backgroundColor: product.bgColor || "#add8e6",
                   color: product.fontColor || "white",
-                  padding: "8px",
+                  padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
-                  fontSize: 19,
+                  fontSize: 15,
+                  flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{product.resell} {product.resellUnit}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
               </div>
             )}
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="flex justify-between px-4 py-3 bg-gray-100 border-t text-sm">
-                <button onClick={onEdit} className="px-3 py-1 rounded bg-blue-500 text-white">
-                  Edit
-                </button>
-                <button
-                  onClick={() => onToggleStock("wholesaleStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.wholesaleStock ? "bg-green-700 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  WS {product.wholesaleStock ? "In" : "Out"}
-                </button>
-                <button
-                  onClick={() => onToggleStock("resellStock")}
-                  className={`px-3 py-1 rounded ${
-                    product.resellStock ? "bg-amber-500 text-white" : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  RS {product.resellStock ? "In" : "Out"}
-                </button>
-                <button onClick={onClose} className="px-3 py-1 rounded bg-red-600 text-white">
-                  Close
-                </button>
+              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
+                {/* First row: Edit, All In/Out, Close */}
+                <div className="flex justify-between gap-1">
+                  <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onToggleMasterStock()}
+                    className={`px-2 py-1 rounded flex-1 text-xs ${
+                      getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
+                    }`}
+                    title="Toggle all catalogues"
+                  >
+                    {getAllStockStatus() ? "In" : "Out"}
+                  </button>
+                  <button onClick={onClose} className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs">
+                    Close
+                  </button>
+                </div>
               </div>
             )}
           </motion.div>
@@ -589,7 +799,40 @@ export default function ProductPreviewModal({
           productName={product.name}
           isOpen={showFullScreenImage}
           onClose={() => setShowFullScreenImage(false)}
+          showWatermark={showWatermark}
+          watermarkText={watermarkText}
+          watermarkPosition={watermarkPosition}
         />
+      )}
+
+      {/* Share Result Modal */}
+      {shareResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+            <div className="flex justify-center mb-4">
+              {shareResult.status === "success" ? (
+                <FiCheckCircle className="w-12 h-12 text-green-500" />
+              ) : (
+                <FiAlertCircle className="w-12 h-12 text-red-500" />
+              )}
+            </div>
+
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              {shareResult.status === "success" ? "Success!" : "Failed"}
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-5">
+              {shareResult.message}
+            </p>
+
+            <button
+              onClick={() => setShareResult(null)}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition font-medium"
+            >
+              OK
+            </button>
+          </div>
+        </div>
       )}
     </>
   );

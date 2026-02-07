@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { FiSettings, FiPlus } from "react-icons/fi";
+import { FiSettings, FiPlus, FiEdit } from "react-icons/fi";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCroppedImg } from "./cropUtils";
@@ -10,9 +10,11 @@ import { handleShare } from "./Share";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import ProductPreviewModal from "./ProductPreviewModal";
+import { useToast } from "./context/ToastContext";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [retailProducts, setRetailProducts] = useState(() =>
     JSON.parse(localStorage.getItem("retailProducts") || "[]")
   );
@@ -120,14 +122,14 @@ export default function Retail({ products = [] }) {
     if (selectMode) {
       const count = document.createElement("span");
       count.className = "text-xs bg-red-500 text-white rounded-full px-1";
-      count.innerText = selected.length;
+      count.innerText = String(selected.length);
       container.appendChild(count);
 
       const shareBtn = document.createElement("button");
       shareBtn.className = "text-green-600 hover:text-green-800 ml-2";
       shareBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' stroke-width='1.5' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M16.5 12a4.5 4.5 0 01-9 0m9 0A4.5 4.5 0 007.5 12m9 0V5.25M7.5 12V5.25m0 0h9' /></svg>`;
       shareBtn.onclick = async () => {
-        await handleShare({ selected, setProcessing, setProcessingIndex, setProcessingTotal, mode: "retail" });
+        await handleShare({ selected, setProcessing, setProcessingIndex, setProcessingTotal, mode: "retail", products: retailProducts });
       };
       container.appendChild(shareBtn);
 
@@ -244,8 +246,56 @@ export default function Retail({ products = [] }) {
     return color;
   };
 
+  // Sync a retail product into the global products list stored under localStorage 'products'
+  const syncUpsertProductToGlobal = (prod) => {
+    try {
+      const all = JSON.parse(localStorage.getItem("products") || "[]");
+      const idx = all.findIndex((p) => p.id === prod.id);
+      const entry = {
+        id: prod.id,
+        name: prod.name || "",
+        subtitle: prod.subtitle || "",
+        price1: prod.price1 || prod.wholesale || 0,
+        price2: prod.price2 || prod.resell || prod.retail || 0,
+        // Keep old names for backward compatibility
+        wholesale: prod.price1 || prod.wholesale || 0,
+        resell: prod.price2 || prod.resell || prod.retail || 0,
+        image: prod.image || prod.imagePath || "",
+        imagePath: prod.imagePath || prod.image || "",
+        category: prod.category || [],
+        note: prod.note || "",
+      };
+      if (idx > -1) {
+        all[idx] = { ...all[idx], ...entry };
+      } else {
+        all.unshift(entry);
+      }
+      localStorage.setItem("products", JSON.stringify(all));
+      window.dispatchEvent(new CustomEvent("product-added"));
+    } catch (err) {
+      console.warn("Failed to sync product to global products", err);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
+    try {
+      localStorage.setItem("retailProducts", JSON.stringify(retailProducts));
+    } catch (err) {
+      console.warn("localStorage quota exceeded while saving retailProducts, stripping large data URLs and retrying", err);
+      try {
+        const sanitized = retailProducts.map((p) => {
+          const copy = { ...p };
+          if (copy.image && typeof copy.image === "string" && copy.image.startsWith("data:image")) {
+            // Remove large base64 image payloads before saving
+            copy.image = "";
+          }
+          return copy;
+        });
+        localStorage.setItem("retailProducts", JSON.stringify(sanitized));
+      } catch (err2) {
+        console.warn("Failed to save sanitized retailProducts to localStorage", err2);
+      }
+    }
   }, [retailProducts]);
 
   useEffect(() => {
@@ -266,14 +316,17 @@ export default function Retail({ products = [] }) {
   const importSelected = () => {
     const toImport = products.filter((p) => selectedToPull.includes(p.id));
     const copies = toImport.map((p) => {
-      const wholesale = Number(p.wholesale || p.wholesalePrice || 0) || 0;
-      const retailPrice = Math.round(wholesale + (wholesale * markupPercent) / 100);
+      const price1 = Number(p.price1 || p.wholesale || p.wholesalePrice || 0) || 0;
+      const retailPrice = Math.round(price1 + (price1 * markupPercent) / 100);
       return {
         id: uuidv4(),
         sourceId: p.id,
         name: p.name || "",
         subtitle: p.subtitle || "",
-        wholesale: wholesale,
+        price1: price1,
+        price2: retailPrice,
+        // Keep old names for backward compatibility
+        wholesale: price1,
         retail: retailPrice,
         image: p.image || p.imagePath || "",
         imagePath: p.imagePath || (p.image && typeof p.image === 'string' && (p.image.startsWith('retail/') || p.image.startsWith('catalogue/')) ? p.image : undefined),
@@ -284,10 +337,18 @@ export default function Retail({ products = [] }) {
 
     setRetailProducts((prev) => [...copies, ...prev]);
     setShowPullModal(false);
+
+    // Imported copies come from the global products list already, so no need to sync.
   };
 
   const saveEditedProduct = () => {
     setRetailProducts((prev) => prev.map((p) => (p.id === editingId ? editingProduct : p)));
+    // Also update global products if this item exists there (created from Retail)
+    try {
+      syncUpsertProductToGlobal(editingProduct);
+    } catch (err) {
+      console.warn('Failed to sync edited product to global products', err);
+    }
     setEditingId(null);
     setEditingProduct(null);
   };
@@ -297,6 +358,9 @@ export default function Retail({ products = [] }) {
       id: uuidv4(),
       name: "New Product",
       subtitle: "",
+      price1: 0,
+      price2: 0,
+      // Keep old names for backward compatibility
       wholesale: 0,
       retail: 0,
       image: "",
@@ -304,6 +368,12 @@ export default function Retail({ products = [] }) {
       note: "",
     };
     setRetailProducts((prev) => [p, ...prev]);
+    // Also create a corresponding entry in global products so it's available in Wholesale
+    try {
+      syncUpsertProductToGlobal(p);
+    } catch (err) {
+      console.warn('Failed to add new retail product to global products', err);
+    }
     setEditingId(p.id);
     setEditingProduct(p);
   };
@@ -345,6 +415,74 @@ export default function Retail({ products = [] }) {
       setImageMap(map);
     })();
   }, [retailProducts]);
+
+  const handleDownload = async (e, productId, productName) => {
+    e.stopPropagation();
+    try {
+      const imageUrl = imageMap[productId];
+      if (!imageUrl) return;
+
+      // Convert data URL or fetch the image
+      let blob;
+      if (imageUrl.startsWith('data:')) {
+        const arr = imageUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+        const bstr = atob(arr[1]);
+        const n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) {
+          u8arr[i] = bstr.charCodeAt(i);
+        }
+        blob = new Blob([u8arr], { type: mime });
+      } else {
+        const response = await fetch(imageUrl);
+        blob = await response.blob();
+      }
+
+      // Get file extension from mime type
+      const mimeType = blob.type || 'image/png';
+      const ext = mimeType.split('/')[1] || 'png';
+      const filename = `${productName || 'product'}_${productId}.${ext}`;
+
+      // Use FileSaver or Filesystem API for download
+      if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+        try {
+          const handle = await (window as any).showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: 'Image', accept: { [mimeType]: [`.${ext}`] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('Save file picker failed, trying download:', err);
+            // Fallback to blob download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        // Fallback: simple blob download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
 
   return (
     <div className="w-full min-h-[100dvh] bg-gradient-to-b from-white to-gray-100 relative">
@@ -437,8 +575,30 @@ export default function Retail({ products = [] }) {
                 )}
 
                 <div className="absolute top-1 right-1 flex gap-1 z-10">
-                  <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm">✎</button>
-                  <button onClick={(e) => { e.stopPropagation(); setRetailProducts((prev) => prev.filter((x) => x.id !== p.id)); }} className="w-8 h-8 bg-white/90 rounded flex items-center justify-center shadow text-sm text-red-600">🗑️</button>
+                  <button onClick={(e) => handleDownload(e, p.id, p.name)} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-gray-700 hover:text-gray-900 transition-colors" title="Download image">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                  <button onClick={async (e) => { e.stopPropagation(); setEditingId(p.id); setEditingProduct({ ...p }); try { if (p.image && typeof p.image === 'string' && p.image.startsWith('retail/')) { const res = await Filesystem.readFile({ path: p.image, directory: Directory.Data }); setImagePreview(`data:image/png;base64,${res.data}`); } else if (p.image && p.image.startsWith('data:image')) { setImagePreview(p.image); } else { setImagePreview(null); } } catch (err) { console.warn('Failed to read image for edit:', err); setImagePreview(null); } }} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-blue-600 hover:text-blue-800 transition-colors" title="Edit product">
+                    <FiEdit className="w-4 h-4" />
+                  </button>
+                  <button onClick={(e) => {
+                    e.stopPropagation();
+                    // remove from retail list
+                    setRetailProducts((prev) => prev.filter((x) => x.id !== p.id));
+                    // If this retail product was created locally (no sourceId), remove from global products as well
+                    try {
+                      if (!p.sourceId) {
+                        const all = JSON.parse(localStorage.getItem('products') || '[]');
+                        const updated = all.filter((x) => x.id !== p.id);
+                        localStorage.setItem('products', JSON.stringify(updated));
+                        window.dispatchEvent(new CustomEvent('product-added'));
+                      }
+                    } catch (err) {
+                      console.warn('Failed to remove product from global products', err);
+                    }
+                  }} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-red-600 hover:text-red-800 transition-colors" title="Delete product">🗑️</button>
                 </div>
               </div>
 
@@ -527,6 +687,7 @@ export default function Retail({ products = [] }) {
         <ProductPreviewModal
           product={previewProductRetail}
           tab="retail"
+          catalogueId={null}
           filteredProducts={retailProducts}
           onClose={() => setPreviewProductRetail(null)}
           onEdit={() => {
@@ -559,7 +720,7 @@ export default function Retail({ products = [] }) {
                       const base64 = imagePreview.split(',')[1];
                       imagePath = `retail/product-${id}.png`;
                       await Filesystem.writeFile({ path: imagePath, data: base64, directory: Directory.Data, recursive: true });
-                      // Also save a copy to external folder for sharing (consistent filename pattern)
+                      // Also save a copy to external storage for sharing (consistent filename pattern)
                       try {
                         const shareFilename = `product_${id}_retail.png`;
                         await Filesystem.writeFile({ path: `Retail/${shareFilename}`, data: base64, directory: Directory.External, recursive: true });
@@ -567,7 +728,15 @@ export default function Retail({ products = [] }) {
                         console.warn('Could not write external share copy:', err);
                       }
                       const dataUrl = `data:image/png;base64,${base64}`;
-                      setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: dataUrl, imagePath } : p));
+                      // Store only the imagePath in state to avoid persisting large base64 strings in localStorage
+                      const updatedProduct = { ...editingProduct, image: imagePath, imagePath };
+                      setRetailProducts(prev => prev.map(p => p.id===id ? updatedProduct : p));
+                      // Sync the saved retail product to global products (wholesale/resell)
+                      try {
+                        syncUpsertProductToGlobal(updatedProduct);
+                      } catch (err) {
+                        console.warn('Failed to sync saved retail product to global products', err);
+                      }
                     } else {
                       setRetailProducts(prev => prev.map(p => p.id===id ? { ...editingProduct, image: imagePath, imagePath } : p));
                     }
@@ -575,7 +744,7 @@ export default function Retail({ products = [] }) {
                     setEditingProduct(null);
                     setImagePreview(null);
                   } catch (err) {
-                    alert('Image save failed: ' + err.message);
+                    showToast('Image save failed: ' + err.message, 'error');
                   }
                 }} className="px-3 py-2 rounded bg-blue-600 text-white">Save</button>
               </div>
@@ -605,13 +774,13 @@ export default function Retail({ products = [] }) {
                       <input className="border p-2 rounded w-full mb-2" placeholder="Model Name" value={editingProduct.name} onChange={(e) => setEditingProduct((s) => ({ ...s, name: e.target.value }))} />
                       <input className="border p-2 rounded w-full mb-2" placeholder="Subtitle" value={editingProduct.subtitle} onChange={(e) => setEditingProduct((s) => ({ ...s, subtitle: e.target.value }))} />
                       <div className="flex gap-2 mb-2">
-                        <input name="wholesale" value={editingProduct.wholesale} onChange={(e) => setEditingProduct((s) => ({ ...s, wholesale: Number(e.target.value) }))} placeholder="Wholesale Price" className="border p-2 w-full rounded" />
-                        <input name="retail" value={editingProduct.retail} onChange={(e) => setEditingProduct((s) => ({ ...s, retail: Number(e.target.value) }))} placeholder="Retail Price" className="border p-2 w-full rounded" />
+                        <input name="price1" value={editingProduct.price1 || editingProduct.wholesale || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price1: Number(e.target.value), wholesale: Number(e.target.value) }))} placeholder="Price 1" className="border p-2 w-full rounded" />
+                        <input name="price2" value={editingProduct.price2 || editingProduct.retail || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price2: Number(e.target.value), retail: Number(e.target.value) }))} placeholder="Price 2" className="border p-2 w-full rounded" />
                       </div>
 
                       <div className="flex gap-2 mb-2">
-                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, package: e.target.value }))} />
-                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, age: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Package" value={editingProduct.field2 || editingProduct.package || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, field2: e.target.value, package: e.target.value }))} />
+                        <input className="border p-2 w-full rounded" placeholder="Age Group" value={editingProduct.field3 || editingProduct.age || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, field3: e.target.value, age: e.target.value }))} />
                       </div>
 
                       <label className="block text-sm font-medium mb-1">Product Badge</label>
@@ -652,7 +821,7 @@ export default function Retail({ products = [] }) {
                       {/* Preview */}
                       <div id="catalogue-preview" className="mt-6 border rounded shadow overflow-hidden" style={{ maxWidth: 330, width: '100%' }}>
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.wholesale} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price1 || editingProduct.wholesale} / piece
                         </div>
 
                         {imagePreview && (
@@ -665,14 +834,14 @@ export default function Retail({ products = [] }) {
                           <h2 className="text-lg font-semibold text-center">{editingProduct.name}</h2>
                           {editingProduct.subtitle && <p className="text-center italic text-sm">({editingProduct.subtitle})</p>}
                           <div className="text-sm mt-2 space-y-1">
-                            <p>Colour&nbsp;&nbsp;: {editingProduct.color || ''}</p>
-                            <p>Package&nbsp;: {editingProduct.package || ''}</p>
-                            <p>Age Group&nbsp;: {editingProduct.age || ''}</p>
+                            <p>Colour&nbsp;&nbsp;: {editingProduct.field1 || editingProduct.color || ''}</p>
+                            <p>Package&nbsp;: {editingProduct.field2 || editingProduct.package || ''}</p>
+                            <p>Age Group&nbsp;: {editingProduct.field3 || editingProduct.age || ''}</p>
                           </div>
                         </div>
 
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.retail} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price2 || editingProduct.retail} / piece
                         </div>
                       </div>
 

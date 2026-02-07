@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { KeepAwake } from "@capacitor-community/keep-awake";
+import ReactDOM from "react-dom";
 
 const getPageBackgroundColor = () => {
   try {
@@ -46,30 +46,25 @@ const withAlpha = (color, alpha = 0.9) => {
 export default function RenderingOverlay({ visible, current, total }) {
   const [pageBg, setPageBg] = useState("#ffffff");
 
-  // Keep screen awake while rendering and compute page background
+  // Compute page background color
   useEffect(() => {
-    const toggleAwake = async () => {
-      try {
-        if (visible) {
-          setPageBg(getPageBackgroundColor());
-          await KeepAwake.keepAwake();
-        } else {
-          await KeepAwake.allowSleep();
-        }
-      } catch (err) {
-        console.warn("KeepAwake failed:", err);
-      }
-    };
-    toggleAwake();
-    return () => {
-      KeepAwake.allowSleep().catch(() => {});
-    };
+    if (visible) {
+      setPageBg(getPageBackgroundColor());
+    }
   }, [visible]);
 
   if (!visible) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
+  const portalRoot = document.getElementById("portal-root");
+  if (!portalRoot) {
+    console.warn("Portal root not found, overlay may not display correctly");
+    return null;
+  }
+
+  const percentage = Math.round((current / total) * 100);
+
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center text-center" style={{ backgroundColor: "#f3f4f6" }}>
       <div className="w-64 h-64">
         <video
           src="/sim-render.mp4"
@@ -82,20 +77,30 @@ export default function RenderingOverlay({ visible, current, total }) {
         />
       </div>
 
-      <div className="w-64 h-3 mt-4 bg-[#e3caa3] rounded-full overflow-hidden">
+      <div className="w-64 h-3 mt-4 bg-[#e3caa3] rounded-full overflow-hidden relative">
         <div
-          className="h-full bg-[#6c3b2a] transition-all duration-300"
-          style={{ width: `${(current / total) * 100}%` }}
-        />
+          className="h-full bg-[#6c3b2a] transition-all duration-500 relative"
+          style={{ width: `${percentage}%` }}
+        >
+          {/* Shimmer effect for continuous activity feedback */}
+          <div
+            className="absolute inset-0 w-full h-full animate-shimmer"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+              backgroundSize: '200% 100%'
+            }}
+          />
+        </div>
       </div>
 
       <p className="mt-3 text-sm text-[#4b2b22] font-medium">
-        Rendering image {current} of {total}...
+        Rendering image {current} of {total}... ({percentage}%)
       </p>
 
-      <p className="text-xs text-red-500 mt-2">
-        ⚠️ Please keep the app open until rendering completes.
+      <p className="mt-6 text-xs text-red-600 font-semibold max-w-sm px-4 leading-relaxed">
+        ⚠️ Important: Please keep the app open while rendering is in progress. Closing the app may interrupt the process.
       </p>
-    </div>
+    </div>,
+    portalRoot
   );
 }

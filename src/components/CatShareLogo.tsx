@@ -17,36 +17,45 @@ export default function CatShareLogo({ size = 24, title = "CatShare logo", class
       className={className}
     >
       <defs>
-        <linearGradient id="catshare-g" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#ec4899" />
-        </linearGradient>
-        <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" />
+        <filter id="catshare-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.12" />
         </filter>
       </defs>
 
-      <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#catshare-g)" />
+      {/* White background */}
+      <rect width="128" height="128" fill="#ffffff" />
 
-      {/* Minimal cat head */}
+      {/* Blue triangle top-left */}
+      <path d="M 18 106 L 56 25 L 81 50 Z" fill="#0084D4" filter="url(#catshare-shadow)" />
+
+      {/* Gray edge element */}
+      <path d="M 56 25 L 81 50 L 62 69 Z" fill="#E8E8E8" filter="url(#catshare-shadow)" />
+
+      {/* Dark outline for blue triangle */}
       <path
-        d="M64 86c-16.5 0-30-10.5-30-26.5 0-7.6 2.9-14.2 7.8-19.1l6.8-6.8c1.2-1.2 3.2-.8 3.8.8l5.1 13.5c.6 1.6 2.5 2.3 4 1.5a27.5 27.5 0 0 1 24.8 0c1.5.8 3.4.1 4-1.5L95.4 34c.6-1.6 2.6-2 3.8-.8l6.8 6.8C111.1 45.3 114 51.9 114 59.5 114 75.5 100.5 86 84 86H64z"
-        fill="#fff"
-        opacity="0.92"
-        filter="url(#soft)"
+        d="M 18 106 L 56 25 L 81 50 Z"
+        fill="none"
+        stroke="#1a1a1a"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
 
-      {/* Share arrow */}
-      <g transform="translate(44,46)">
-        <circle cx="11" cy="11" r="6" fill="#1f2937" opacity="0.15" />
-        <path
-          d="M38 4a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-24 16a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm24 16a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
-          fill="#fff"
-          opacity="0.95"
-        />
-        <path d="M30 6L14 18" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity="0.95" />
-        <path d="M14 26l16 10" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity="0.95" />
-      </g>
+      {/* Red triangle bottom-right */}
+      <path d="M 62 69 L 87 50 L 106 106 Z" fill="#FF4444" filter="url(#catshare-shadow)" />
+
+      {/* Dark outline for red triangle */}
+      <path
+        d="M 62 69 L 87 50 L 106 106 Z"
+        fill="none"
+        stroke="#1a1a1a"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Left vertical line element */}
+      <path d="M 31 81 L 44 106" stroke="#2a2a2a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

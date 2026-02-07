@@ -8,13 +8,106 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="mask-icon" href="/icons/icon-192.png" color="#3b82f6" />
-    <!-- For best results generate icons: npm run generate-icons (creates public/icons/*) -->
-    <title>CatShare</title>
+
+    <!-- Primary Meta Tags for SEO & ASO -->
+    <title>CatShare - Share faster, sell quicker | Product Catalog Manager</title>
+    <meta name="description" content="CatShare - Share faster, sell quicker. Powerful product catalog and inventory management app. Create, organize, and share product listings. Bulk editing, image rendering, multi-channel export, and dual pricing support." />
+    <meta name="keywords" content="create catalogue, catalog manager, create catalog, catalogue manager, product catalogue, product catalog, catalogue maker, catalog maker, product management, dual pricing catalogue, share catalogue, dukaan, share easy, sell fast, catalogue software, catalog software, inventory management, ecommerce tools, product listing, retail management, wholesale pricing" />
+    <meta name="author" content="BazelWings" />
+    <meta name="credit" content="Developed by Sabarish Arjunan" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="language" content="en" />
+
+    <!-- Open Graph / Facebook Meta Tags for Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://catshare.app/" />
+    <meta property="og:title" content="CatShare - Share faster, sell quicker" />
+    <meta property="og:description" content="CatShare - Share faster, sell quicker. Manage and share product catalogs effortlessly. Create stunning product listings, bulk edit inventory, and export to multiple channels." />
+    <meta property="og:image" content="/logo-catalogue-share.svg" />
+    <meta property="og:site_name" content="CatShare" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://catshare.app/" />
+    <meta property="twitter:title" content="CatShare - Share faster, sell quicker" />
+    <meta property="twitter:description" content="CatShare - Share faster, sell quicker. Manage and share product catalogs effortlessly. Create stunning product listings, bulk edit inventory, and export to multiple channels." />
+    <meta property="twitter:image" content="/logo-catalogue-share.svg" />
+
+    <!-- Apple App Meta Tags for App Store Optimization -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CatShare" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="app-name" content="CatShare" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Android & Google Play Store Meta Tags -->
+    <meta name="google-play-app" content="app-id=com.catshare.official" />
+
+    <!-- App Store & Marketplace Optimization -->
+    <meta name="application-name" content="CatShare" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+
+    <!-- Canonical URL for SEO -->
+    <link rel="canonical" href="https://catshare.app/" />
+
+    <!-- For best results generate icons: npm run generate-icons (creates public/icons/*) -->
   </head>
   <body>
     <div id="root"></div>
+    <div id="portal-root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Structured Data for Search Engine Optimization (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CatShare - Share faster, sell quicker",
+      "alternateName": ["Catalogue Manager", "Catalog Manager", "Product Catalog", "Inventory Manager"],
+      "description": "CatShare - Share faster, sell quicker. A powerful mobile-first product catalog and inventory management app. Create, organize, and share product listings with customers across multiple channels. Features bulk editing, image rendering, multi-format export, and dual pricing support for wholesale and retail businesses.",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "operatingSystem": ["Android", "iOS", "Web"],
+      "softwareVersion": "1.0",
+      "url": "https://catshare.app/",
+      "author": {
+        "@type": "Organization",
+        "name": "BazelWings"
+      },
+      "developer": {
+        "@type": "Person",
+        "name": "Sabarish Arjunan"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1250"
+      },
+      "featureList": [
+        "Product Catalog Management",
+        "Create & Share Catalogs",
+        "Inventory Tracking",
+        "Bulk Product Editor",
+        "Image Rendering Engine",
+        "Multi-Channel Export",
+        "CSV Export",
+        "Backup & Restore",
+        "Category Management",
+        "Dual Pricing (Wholesale & Retail)",
+        "Share Easy - Fast Sharing",
+        "Dark Mode",
+        "Offline Support",
+        "Catalog Maker",
+        "Dukaan Integration Ready"
+      ]
+    }
+    </script>
   </body>
 </html>
