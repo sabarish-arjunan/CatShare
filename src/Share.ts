@@ -79,9 +79,8 @@ export async function handleShare({
     }
   };
 
-  // 1. Identify products that need rendering (only if they don't have any images)
-  const missingProducts = [];
-  const productsWithoutRendered = [];
+  // 1. Identify products that don't have rendered images for this catalogue
+  const needsRendering = [];
 
   for (const id of selected) {
     const product = allProducts.find((p: any) => String(p.id) === String(id));
@@ -94,23 +93,24 @@ export async function handleShare({
         path: cachedFilePath,
         directory: Directory.External,
       });
-      // Rendered image exists, all good
+      // Rendered image exists, all good - no rendering needed
+      console.log(`✅ Rendered image already exists for ${product.name}`);
     } catch (err) {
-      // Rendered image not found
+      // Rendered image not found - needs rendering
       if (product.image || product.imagePath) {
-        // Has original image, can share as-is
-        productsWithoutRendered.push(product);
-        console.log(`ℹ️ Product ${product.name} will be shared with original image (not rendered)`);
+        // Has image, can render
+        needsRendering.push(product);
+        console.log(`🎨 Product ${product.name} needs rendering for ${catalogueLabel}`);
       } else {
-        // No image at all, needs rendering
-        missingProducts.push(product);
+        // No image at all
+        console.warn(`⚠️ Product ${product.name} has no image, cannot share or render`);
       }
     }
   }
 
-  // 2. Only trigger rendering if there are products with NO images at all
-  if (missingProducts.length > 0) {
-    console.log(`🎨 ${missingProducts.length} products have no images. Triggering rendering...`);
+  // 2. Trigger rendering for any products missing rendered images
+  if (needsRendering.length > 0) {
+    console.log(`🎨 ${needsRendering.length} products need rendering. Triggering rendering...`);
 
     // Set processing states to show progress in CatalogueView
     setProcessing(true);
