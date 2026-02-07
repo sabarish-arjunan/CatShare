@@ -153,15 +153,15 @@ export default function Settings({
   }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
+    <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 dark:from-slate-900 dark:to-slate-800 relative">
       {/* Status bar placeholder */}
       <div className="sticky top-0 h-[40px] bg-black z-50"></div>
 
-      {/* Header */}
-      <header className="sticky top-[40px] z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200 h-14 flex items-center gap-3 px-4 relative">
+      {/* Header with smooth dark mode support */}
+      <header className="sticky top-[40px] z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-slate-700 h-14 flex items-center gap-3 px-4 relative shadow-sm">
         <button
           onClick={() => setMenuOpen(true)}
-          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700"
+          className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md transition-colors"
           aria-label="Menu"
           title="Menu"
         >
@@ -175,10 +175,10 @@ export default function Settings({
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M3 12h18M3 18h18" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold flex-1 text-center truncate whitespace-nowrap">Settings</h1>
+        <h1 className="text-xl font-bold flex-1 text-center truncate whitespace-nowrap text-gray-900 dark:text-white">Settings</h1>
         <button
           onClick={() => navigate("/")}
-          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-200 transition"
+          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
           title="Go to Home"
         >
           <MdOutlineHome size={24} />
