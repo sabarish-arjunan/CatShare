@@ -117,6 +117,16 @@ export async function handleShare({
     setProcessing(true);
     setProcessingIndex(0);
     setProcessingTotal(needsRendering.length);
+
+    // Dispatch event with phase information
+    window.dispatchEvent(new CustomEvent("processingPhaseChange", {
+      detail: {
+        phase: "rendering",
+        totalToRender: needsRendering.length,
+        totalToShare: selected.length,
+        message: "Rendering images..."
+      }
+    }));
     console.log(`✅ Share.ts: Initial state set`);
 
     // Wait for the renderComplete event (CatalogueView listens to renderProgress directly)
@@ -142,6 +152,29 @@ export async function handleShare({
     await completionPromise;
 
     console.log("✅ Rendering complete, proceeding with sharing...");
+
+    // Dispatch phase change event
+    window.dispatchEvent(new CustomEvent("processingPhaseChange", {
+      detail: {
+        phase: "sharing",
+        totalToRender: needsRendering.length,
+        totalToShare: selected.length,
+        message: "Preparing files for sharing..."
+      }
+    }));
+  } else {
+    // All images already rendered, moving straight to sharing
+    console.log("✅ All images already rendered, skipping rendering phase");
+
+    // Dispatch event indicating we're going straight to sharing
+    window.dispatchEvent(new CustomEvent("processingPhaseChange", {
+      detail: {
+        phase: "sharing",
+        totalToRender: 0,
+        totalToShare: selected.length,
+        message: "Preparing files for sharing..."
+      }
+    }));
   }
 
   // Reset processing for the actual share preparation step
