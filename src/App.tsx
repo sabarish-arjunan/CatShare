@@ -63,11 +63,14 @@ function AppWithBackHandler() {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
+    // Force synchronous state updates so overlay renders with correct total
     if (showOverlay) {
-      setIsRendering(true);
+      flushSync(() => setIsRendering(true));
     }
-    setRenderProgress(0);
-    setRenderingTotal(all.length);
+    flushSync(() => {
+      setRenderProgress(0);
+      setRenderingTotal(all.length);
+    });
 
     // Get all catalogues
     const catalogues = getAllCatalogues();
