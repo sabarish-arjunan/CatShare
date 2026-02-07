@@ -249,15 +249,15 @@ export default function Settings({
           <div className="mt-4">
             <button
               onClick={testNotification}
-              className="w-full bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-300 shadow-sm overflow-hidden hover:shadow-md hover:border-blue-400 transition p-4 text-left"
+              className="w-full bg-gradient-to-r from-blue-50 dark:from-blue-900/20 to-cyan-50 dark:to-cyan-900/20 rounded-lg border border-blue-300 dark:border-blue-700 shadow-sm dark:shadow-md overflow-hidden hover:shadow-md dark:hover:shadow-lg hover:border-blue-400 dark:hover:border-blue-600 transition p-4 text-left"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🔔</span>
-                    <h3 className="text-sm font-semibold text-blue-900">Test Notification</h3>
+                    <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300">Test Notification</h3>
                   </div>
-                  <p className="text-xs text-blue-700">Send a test notification to verify they're working</p>
+                  <p className="text-xs text-blue-700 dark:text-blue-400">Send a test notification to verify they're working</p>
                 </div>
               </div>
             </button>
@@ -267,15 +267,15 @@ export default function Settings({
           <div className="mt-4">
             <button
               onClick={handleOptimizeStorage}
-              className="w-full bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition p-4 text-left"
+              className="w-full bg-gradient-to-r from-green-50 dark:from-green-900/20 to-blue-50 dark:to-blue-900/20 rounded-lg border border-green-300 dark:border-green-700 shadow-sm dark:shadow-md overflow-hidden hover:shadow-md dark:hover:shadow-lg hover:border-green-400 dark:hover:border-green-600 transition p-4 text-left"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🚀</span>
-                    <h3 className="text-sm font-semibold text-green-900">Optimize Storage</h3>
+                    <h3 className="text-sm font-semibold text-green-900 dark:text-green-300">Optimize Storage</h3>
                   </div>
-                  <p className="text-xs text-green-700">Move product images to filesystem to free up app space</p>
+                  <p className="text-xs text-green-700 dark:text-green-400">Move product images to filesystem to free up app space</p>
                 </div>
               </div>
             </button>
@@ -285,15 +285,15 @@ export default function Settings({
           <div className="mt-4">
             <button
               onClick={clearLocalStorageCache}
-              className="w-full bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-300 shadow-sm overflow-hidden hover:shadow-md hover:border-orange-400 transition p-4 text-left"
+              className="w-full bg-gradient-to-r from-orange-50 dark:from-orange-900/20 to-red-50 dark:to-red-900/20 rounded-lg border border-orange-300 dark:border-orange-700 shadow-sm dark:shadow-md overflow-hidden hover:shadow-md dark:hover:shadow-lg hover:border-orange-400 dark:hover:border-orange-600 transition p-4 text-left"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🗑️</span>
-                    <h3 className="text-sm font-semibold text-orange-900">Clear Cache</h3>
+                    <h3 className="text-sm font-semibold text-orange-900 dark:text-orange-300">Clear Cache</h3>
                   </div>
-                  <p className="text-xs text-orange-700">Free up storage space by removing cached rendered images</p>
+                  <p className="text-xs text-orange-700 dark:text-orange-400">Free up storage space by removing cached rendered images</p>
                 </div>
               </div>
             </button>
@@ -303,15 +303,15 @@ export default function Settings({
           <div className="mt-4">
             <div
               onClick={() => navigate("/settings/pro")}
-              className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-300 shadow-sm overflow-hidden hover:shadow-md hover:border-green-400 transition cursor-pointer text-left p-4"
+              className="w-full bg-gradient-to-r from-green-50 dark:from-green-900/20 to-emerald-50 dark:to-emerald-900/20 rounded-lg border border-green-300 dark:border-green-700 shadow-sm dark:shadow-md overflow-hidden hover:shadow-md dark:hover:shadow-lg hover:border-green-400 dark:hover:border-green-600 transition cursor-pointer text-left p-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base flex-shrink-0">🎉</span>
-                    <h3 className="text-sm font-semibold text-green-900">Using Pro for FREE</h3>
+                    <h3 className="text-sm font-semibold text-green-900 dark:text-green-300">Using Pro for FREE</h3>
                   </div>
-                  <p className="text-xs text-green-700">Beta access to all premium features</p>
+                  <p className="text-xs text-green-700 dark:text-green-400">Beta access to all premium features</p>
                 </div>
               </div>
             </div>
