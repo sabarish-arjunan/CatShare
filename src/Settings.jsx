@@ -189,7 +189,7 @@ export default function Settings({
       <main className="flex-1 overflow-y-auto px-4 py-4 pb-24">
         <div className="max-w-lg">
           {/* Settings List */}
-          <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+          <div className="bg-white dark:bg-slate-800 rounded-lg overflow-hidden border border-gray-200 dark:border-slate-700 shadow-sm dark:shadow-lg">
             {/* Dark Mode Setting */}
             <div
               onClick={() => navigate("/settings/appearance")}
