@@ -114,26 +114,27 @@ export async function handleShare({
     console.log(`🎨 ${needsRendering.length} products need rendering. Triggering rendering...`);
 
     // Set processing states to show progress in CatalogueView
-    flushSync(() => {
-      setProcessing(true);
-      setProcessingIndex(0);
-      setProcessingTotal(needsRendering.length);
-    });
+    setProcessing(true);
+    setProcessingIndex(0);
+    setProcessingTotal(needsRendering.length);
+
+    // Wait a moment to ensure the modal renders before we set up listeners and start rendering
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    console.log("✅ Modal visible, setting up event listeners");
 
     // Set up event listeners BEFORE dispatching the event
     const progressHandler = (event: any) => {
       const { current, total } = event.detail;
-      console.log(`📊 Share.ts received renderProgress: ${current}/${total}`);
-      // Use flushSync to ensure immediate UI updates
-      flushSync(() => {
-        setProcessingIndex(current);
-        setProcessingTotal(total);
-      });
+      console.log(`📊 Share.ts renderProgress: ${current}/${total}`);
+      // Update state directly without flushSync (CatalogueView will re-render)
+      setProcessingIndex(current);
+      setProcessingTotal(total);
     };
 
     const completionPromise = new Promise<void>((resolve) => {
       const completionHandler = () => {
-        console.log("✅ renderComplete event received");
+        console.log("✅ renderComplete event received in Share.ts");
         window.removeEventListener("renderComplete", completionHandler);
         window.removeEventListener("renderProgress", progressHandler);
         resolve();
@@ -143,9 +144,10 @@ export async function handleShare({
 
     // Listen for progress events BEFORE triggering rendering
     window.addEventListener("renderProgress", progressHandler);
+    console.log("📢 Progress listener attached");
 
     // NOW emit event that App.tsx listens to, with request to hide global overlay
-    console.log("📤 Dispatching requestRenderSelectedPNGs event");
+    console.log("📤 Dispatching requestRenderSelectedPNGs event with " + needsRendering.length + " products");
     window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
       detail: {
         products: needsRendering,
