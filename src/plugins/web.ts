@@ -4,6 +4,8 @@
 import { WebPlugin } from '@capacitor/core';
 import type { BackgroundRendererPlugin } from './background-renderer';
 
+let activeWorker: Worker | null = null;
+
 export class BackgroundRendererWeb extends WebPlugin implements BackgroundRendererPlugin {
   async startRendering(options: {
     renderData: {
@@ -18,18 +20,65 @@ export class BackgroundRendererWeb extends WebPlugin implements BackgroundRender
       height?: number;
     };
   }): Promise<{ success: boolean; message: string }> {
-    console.log('Starting web-based rendering (using Web Workers)');
-    
+    console.log('🌐 [Web] Starting web-based rendering (using Web Workers)');
+
+    // Stop any existing worker
+    if (activeWorker) {
+      activeWorker.terminate();
+      activeWorker = null;
+    }
+
     // Use Web Workers for background processing in browser
     const worker = new Worker(new URL('../workers/rendering-worker.ts', import.meta.url), {
       type: 'module'
     });
-    
+
+    activeWorker = worker;
+
+    // Set up message handler to forward progress and completion events
+    worker.onmessage = (event) => {
+      const { type, current, total, percentage, success, data, error } = event.data;
+
+      if (type === 'RENDERING_PROGRESS') {
+        // Forward progress to main thread via window event
+        window.dispatchEvent(new CustomEvent('renderProgress', {
+          detail: {
+            percentage: percentage || 0,
+            current: current || 0,
+            total: total || 0
+          }
+        }));
+      } else if (type === 'RENDERING_COMPLETE') {
+        console.log('✅ [Web] Worker rendering complete:', data);
+        // Dispatch completion event
+        window.dispatchEvent(new CustomEvent('renderComplete', {
+          detail: { status: 'success', message: 'Rendering completed' }
+        }));
+        activeWorker = null;
+      } else if (type === 'RENDERING_ERROR') {
+        console.error('❌ [Web] Worker rendering error:', error);
+        // Dispatch error event
+        window.dispatchEvent(new CustomEvent('renderComplete', {
+          detail: { status: 'error', message: error }
+        }));
+        activeWorker = null;
+      }
+    };
+
+    worker.onerror = (error) => {
+      console.error('❌ [Web] Worker error:', error);
+      window.dispatchEvent(new CustomEvent('renderComplete', {
+        detail: { status: 'error', message: error.message }
+      }));
+      activeWorker = null;
+    };
+
+    // Start rendering in the worker
     worker.postMessage({
       type: 'START_RENDERING',
       data: options.renderData
     });
-    
+
     return {
       success: true,
       message: 'Web rendering started with Web Workers'
@@ -37,7 +86,11 @@ export class BackgroundRendererWeb extends WebPlugin implements BackgroundRender
   }
 
   async stopRendering(): Promise<{ success: boolean; message: string }> {
-    console.log('Stopping web rendering');
+    console.log('🛑 Stopping web rendering');
+    if (activeWorker) {
+      activeWorker.terminate();
+      activeWorker = null;
+    }
     return {
       success: true,
       message: 'Web rendering stopped'
@@ -45,6 +98,6 @@ export class BackgroundRendererWeb extends WebPlugin implements BackgroundRender
   }
 
   async getStatus(): Promise<{ isRunning: boolean }> {
-    return { isRunning: false };
+    return { isRunning: activeWorker !== null };
   }
 }
