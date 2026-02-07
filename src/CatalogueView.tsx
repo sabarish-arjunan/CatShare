@@ -75,27 +75,17 @@ export default function CatalogueView({
 
 
 useEffect(() => {
-  // Listen for render progress updates
-  const handleRenderProgress = (event: any) => {
-    const { current, total } = event.detail;
-    console.log(`📊 CatalogueView received renderProgress: ${current}/${total}`);
+  // Share.ts handles progress updates, we just listen for completion
+  const handleRenderComplete = () => {
+    console.log("✅ CatalogueView renderComplete received");
     flushSync(() => {
-      setProcessingIndex(current);
-      setProcessingTotal(total);
+      setProcessing(false);
     });
   };
 
-  // Listen for render complete to reset
-  const handleRenderComplete = () => {
-    console.log("✅ CatalogueView renderComplete received");
-    setProcessing(false);
-  };
-
-  window.addEventListener("renderProgress", handleRenderProgress);
   window.addEventListener("renderComplete", handleRenderComplete);
 
   return () => {
-    window.removeEventListener("renderProgress", handleRenderProgress);
     window.removeEventListener("renderComplete", handleRenderComplete);
   };
 }, []);
