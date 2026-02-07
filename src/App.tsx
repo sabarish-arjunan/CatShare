@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { flushSync } from "react-dom";
 import {
   BrowserRouter as Router,
   Routes,
