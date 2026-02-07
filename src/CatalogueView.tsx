@@ -94,14 +94,26 @@ useEffect(() => {
     setProcessing(false);
   };
 
+  // Listen for phase changes
+  const handlePhaseChange = (event: any) => {
+    const { phase, totalToRender, totalToShare } = event.detail;
+    console.log(`📊 CatalogueView phaseChange received: ${phase}`);
+    setProcessingPhase(phase);
+    setTotalToRender(totalToRender);
+    setTotalToShare(totalToShare);
+    setProcessingIndex(0); // Reset progress when phase changes
+  };
+
   window.addEventListener("renderProgress", handleRenderProgress);
   window.addEventListener("renderComplete", handleRenderComplete);
+  window.addEventListener("processingPhaseChange", handlePhaseChange);
 
   console.log("✅ CatalogueView: Event listeners attached");
 
   return () => {
     window.removeEventListener("renderProgress", handleRenderProgress);
     window.removeEventListener("renderComplete", handleRenderComplete);
+    window.removeEventListener("processingPhaseChange", handlePhaseChange);
   };
 }, []);
 
