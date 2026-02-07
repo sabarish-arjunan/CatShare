@@ -114,19 +114,13 @@ export async function handleShare({
     console.log(`🎨 ${needsRendering.length} products need rendering. Triggering rendering...`);
 
     // Set processing states to show progress in CatalogueView
-    setProcessing(true);
-    setProcessingIndex(0);
-    setProcessingTotal(needsRendering.length);
+    flushSync(() => {
+      setProcessing(true);
+      setProcessingIndex(0);
+      setProcessingTotal(needsRendering.length);
+    });
 
-    // Emit event that App.tsx listens to, with request to hide global overlay
-    window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
-      detail: {
-        products: needsRendering,
-        showOverlay: false
-      }
-    }));
-
-    // Listen for progress events from the renderer
+    // Set up event listeners BEFORE dispatching the event
     const progressHandler = (event: any) => {
       const { current, total } = event.detail;
       console.log(`📊 Share.ts received renderProgress: ${current}/${total}`);
@@ -136,17 +130,31 @@ export async function handleShare({
         setProcessingTotal(total);
       });
     };
-    window.addEventListener("renderProgress", progressHandler);
 
-    // Wait for the renderComplete event
-    await new Promise<void>((resolve) => {
+    const completionPromise = new Promise<void>((resolve) => {
       const completionHandler = () => {
+        console.log("✅ renderComplete event received");
         window.removeEventListener("renderComplete", completionHandler);
         window.removeEventListener("renderProgress", progressHandler);
         resolve();
       };
       window.addEventListener("renderComplete", completionHandler);
     });
+
+    // Listen for progress events BEFORE triggering rendering
+    window.addEventListener("renderProgress", progressHandler);
+
+    // NOW emit event that App.tsx listens to, with request to hide global overlay
+    console.log("📤 Dispatching requestRenderSelectedPNGs event");
+    window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
+      detail: {
+        products: needsRendering,
+        showOverlay: false
+      }
+    }));
+
+    // Wait for the renderComplete event
+    await completionPromise;
 
     console.log("✅ Rendering complete, proceeding with sharing...");
   }
