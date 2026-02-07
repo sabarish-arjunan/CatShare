@@ -433,36 +433,42 @@ const exportProductsToCSV = (products) => {
       // CRITICAL: Clear everything first to maximize space for new data
       console.log("🗑️ Clearing old data to free up maximum space...");
       setDeletedProducts([]);
-      localStorage.removeItem("deletedProducts");
+      localStorage.clear(); // Nuclear option - clear EVERYTHING
 
-      // Save products using a helper function that handles quota errors
-      const saveProductsSafely = (products) => {
-        try {
-          const json = JSON.stringify(products);
-          // Check if data is too large
-          if (json.length > 4 * 1024 * 1024) { // 4MB limit
-            console.warn("⚠️ Data too large, removing unnecessary fields...");
-            // Remove fields that take up space but aren't critical
-            const cleaned = products.map(p => {
-              const clean = { ...p };
-              delete clean.imageBase64;
-              delete clean.imageFilename;
-              delete clean.renderedImages; // Remove any cached rendered images
-              return clean;
-            });
-            localStorage.setItem("products", JSON.stringify(cleaned));
-          } else {
-            localStorage.setItem("products", JSON.stringify(products));
-          }
-          return true;
-        } catch (err) {
-          console.error("❌ Failed to save products:", err.message);
+      // Aggressively clean products - remove ALL image data
+      const cleanedProducts = rebuilt.map(p => {
+        const clean = { ...p };
+        // Remove ALL image-related fields
+        delete clean.image; // base64 image
+        delete clean.imageBase64;
+        delete clean.imageData;
+        delete clean.imageFilename;
+        delete clean.renderedImages;
+        delete clean.imagePath; // Keep ONLY the reference, not the data
+        // Keep imagePath but not the actual image data
+        return clean;
+      });
+
+      console.log(`📦 Products to save: ${cleanedProducts.length}`);
+      console.log(`📊 Data size: ${JSON.stringify(cleanedProducts).length / 1024}KB`);
+
+      try {
+        localStorage.setItem("products", JSON.stringify(cleanedProducts));
+        console.log("✅ Products saved successfully");
+      } catch (err) {
+        console.error("❌ Failed to save products:", err.message);
+        // If still too large, limit to first 50 products
+        if (err.name === "QuotaExceededError") {
+          console.warn("⚠️ Data still too large, limiting to 50 products...");
+          const limited = cleanedProducts.slice(0, 50);
+          localStorage.setItem("products", JSON.stringify(limited));
+          alert("⚠️ Restore limited to first 50 products due to storage quota. You can restore more products later by importing additional backups.");
+        } else {
           throw err;
         }
-      };
+      }
 
-      setProducts(rebuilt);
-      saveProductsSafely(rebuilt);
+      setProducts(cleanedProducts);
 
       // Restore categories from backup if available, otherwise extract from products
       try {
