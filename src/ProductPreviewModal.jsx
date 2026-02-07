@@ -713,14 +713,14 @@ export default function ProductPreviewModal({
                   style={{
                     fontWeight: "normal",
                     textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                    fontSize: 20,
+                    fontSize: 24,
                     margin: "0 0 3px 0",
                   }}
                 >
                   {product.name}
                 </p>
                 {product.subtitle && (
-                  <p style={{ fontStyle: "italic", fontSize: 14, margin: "0 0 0 0" }}>
+                  <p style={{ fontStyle: "italic", fontSize: 16, margin: "0 0 0 0" }}>
                     ({product.subtitle})
                   </p>
                 )}
