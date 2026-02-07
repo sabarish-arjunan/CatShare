@@ -78,14 +78,26 @@ useEffect(() => {
   // Listen for render progress updates
   const handleRenderProgress = (event: any) => {
     const { current, total } = event.detail;
+    console.log(`📊 CatalogueView received renderProgress: ${current}/${total}`);
     flushSync(() => {
       setProcessingIndex(current);
       setProcessingTotal(total);
     });
   };
 
+  // Listen for render complete to reset
+  const handleRenderComplete = () => {
+    console.log("✅ CatalogueView renderComplete received");
+    setProcessing(false);
+  };
+
   window.addEventListener("renderProgress", handleRenderProgress);
-  return () => window.removeEventListener("renderProgress", handleRenderProgress);
+  window.addEventListener("renderComplete", handleRenderComplete);
+
+  return () => {
+    window.removeEventListener("renderProgress", handleRenderProgress);
+    window.removeEventListener("renderComplete", handleRenderComplete);
+  };
 }, []);
 
 useEffect(() => {
