@@ -218,6 +218,34 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => clearTimeout(timeout);
   }, []);
 
+  // Handle back button for catalogue navigation
+  useEffect(() => {
+    let removeListener: any;
+    CapacitorApp.addListener("backButton", () => {
+      // If inside a catalogue view, go back to catalogues list
+      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
+        setSelectedCatalogueInCataloguesTab(null);
+        return;
+      }
+
+      // If on catalogues tab (showing list), go back to products tab
+      if (tab === "catalogues") {
+        setTab("products");
+        return;
+      }
+
+      // If on products tab, let App.tsx handle it (close preview modal or exit app)
+      // Dispatch custom event so App.tsx can handle it properly
+      window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
+    }).then((listener) => {
+      removeListener = listener.remove;
+    });
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [tab, selectedCatalogueInCataloguesTab]);
+
   const handleTabChange = (key) => {
     setTab(key);
     setSelected([]);
