@@ -51,7 +51,10 @@ export async function handleShare({
     console.log(`📂 Loading images for ${productsToLoad.length} products...`);
     for (const product of productsToLoad) {
       // Skip if image is already loaded as base64
-      if (product.image) continue;
+      if (product.image) {
+        console.log(`✅ Product ${product.id} already has image loaded`);
+        continue;
+      }
 
       // Try to load from filesystem if imagePath is available
       if (product.imagePath) {
@@ -65,6 +68,7 @@ export async function handleShare({
           console.log(`✅ Image loaded for product ${product.id}`);
         } catch (err) {
           console.warn(`⚠️ Failed to load image for product ${product.id}: ${err.message}`);
+          // Don't fail - the render function will handle missing images
         }
       }
     }
