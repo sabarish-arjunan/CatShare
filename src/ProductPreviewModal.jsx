@@ -336,6 +336,7 @@ export default function ProductPreviewModal({
   onToggleStock,
   onSwipeLeft,
   onSwipeRight,
+  onShelf,
   filteredProducts = [],
 }) {
   const { showToast } = useToast();
