@@ -50,10 +50,15 @@ export function safeGetFromStorage<T>(key: string, fallback: T): T {
  */
 export function safeSetInStorage<T>(key: string, value: T): boolean {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    const json = JSON.stringify(value);
+    localStorage.setItem(key, json);
     return true;
-  } catch (error) {
-    console.error(`❌ Error writing to localStorage key "${key}":`, error);
+  } catch (error: any) {
+    if (error.name === "QuotaExceededError") {
+      console.warn(`⚠️ Storage quota exceeded for key "${key}". Data not saved. Clear some data to continue.`);
+    } else {
+      console.error(`❌ Error writing to localStorage key "${key}":`, error);
+    }
     return false;
   }
 }
