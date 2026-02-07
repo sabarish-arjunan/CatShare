@@ -131,7 +131,6 @@ export async function handleShare({
       const { current, total } = event.detail;
       console.log(`📊 Share.ts received renderProgress: ${current}/${total}`);
       // Use flushSync to ensure immediate UI updates
-      const { flushSync } = require("react-dom");
       flushSync(() => {
         setProcessingIndex(current);
         setProcessingTotal(total);
