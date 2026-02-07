@@ -79,7 +79,7 @@ export async function handleShare({
     }
   };
 
-  // 1. Identify products that need rendering using the native engine
+  // 1. Identify products that need rendering
   const missingProducts = [];
   for (const id of selected) {
     try {
@@ -96,19 +96,16 @@ export async function handleShare({
     }
   }
 
-  // 2. If any missing, trigger native rendering (same as Render All) and wait
+  // 2. If any missing, trigger rendering (same as Render All)
   if (missingProducts.length > 0) {
-    console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering native rendering...`);
+    console.log(`🎨 ${missingProducts.length} products missing rendered images. Triggering rendering...`);
 
-    // Load images from filesystem before rendering
-    await loadProductImages(missingProducts);
-
-    // Set processing states to show the smaller popup in CatalogueView
+    // Set processing states to show progress in CatalogueView
     setProcessing(true);
     setProcessingIndex(0);
     setProcessingTotal(missingProducts.length);
 
-    // Emit event that App.tsx listens to, but request to hide global overlay
+    // Emit event that App.tsx listens to, with request to hide global overlay
     window.dispatchEvent(new CustomEvent("requestRenderSelectedPNGs", {
       detail: {
         products: missingProducts,
@@ -116,7 +113,7 @@ export async function handleShare({
       }
     }));
 
-    // Listen for progress events from the native renderer
+    // Listen for progress events from the renderer
     const progressHandler = (event: any) => {
       const { current, total } = event.detail;
       setProcessingIndex(current);
@@ -124,7 +121,7 @@ export async function handleShare({
     };
     window.addEventListener("renderProgress", progressHandler);
 
-    // Wait for the renderComplete event from App.tsx
+    // Wait for the renderComplete event
     await new Promise<void>((resolve) => {
       const completionHandler = () => {
         window.removeEventListener("renderComplete", completionHandler);
@@ -134,7 +131,7 @@ export async function handleShare({
       window.addEventListener("renderComplete", completionHandler);
     });
 
-    console.log("✅ Native rendering complete, proceeding with sharing...");
+    console.log("✅ Rendering complete, proceeding with sharing...");
     // Reset processing for the actual share preparation step
     setProcessingIndex(0);
     setProcessingTotal(selected.length);
