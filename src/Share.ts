@@ -146,15 +146,11 @@ export async function handleShare({
     console.log("✅ Rendering complete, proceeding with sharing...");
   }
 
-  if (productsWithoutRendered.length > 0) {
-    console.log(`ℹ️ ${productsWithoutRendered.length} product(s) will be shared with original images (not rendered)`);
-  }
-
   // Reset processing for the actual share preparation step
   setProcessingIndex(0);
   setProcessingTotal(selected.length);
 
-  // Process all products to get their file URIs
+  // Process all products to get their rendered file URIs
   let completedCount = 0;
   const updateProgress = () => {
     completedCount++;
@@ -166,60 +162,23 @@ export async function handleShare({
       const cachedFileName = `product_${id}_${catalogueLabel}.png`;
       const cachedFilePath = `${targetFolder}/${cachedFileName}`;
 
-      try {
-        // First, try to get the rendered image
-        const fileResult = await Filesystem.getUri({
-          path: cachedFilePath,
-          directory: Directory.External,
-        });
+      // Get the rendered image file URI
+      const fileResult = await Filesystem.getUri({
+        path: cachedFilePath,
+        directory: Directory.External,
+      });
 
-        if (fileResult.uri) {
-          updateProgress();
-          return fileResult.uri;
-        }
-      } catch (err) {
-        console.warn(`⚠️ Could not get rendered URI for product ${id}, falling back to original image:`, err);
-
-        // Fallback 1: Try to get the rendered image as base64
-        try {
-          const imageDataUrl = await getRenderedImage(id, catalogueLabel);
-          if (imageDataUrl) {
-            updateProgress();
-            return imageDataUrl;
-          }
-        } catch (renderErr) {
-          console.warn(`⚠️ Could not get rendered image for product ${id}:`, renderErr);
-        }
-
-        // Fallback 2: Use original product image if available
-        const product = allProducts.find((p: any) => String(p.id) === String(id));
-        if (product && product.image) {
-          console.log(`✅ Using original product image for product ${id} (not rendered)`);
-          updateProgress();
-          return product.image; // Return base64 image directly
-        }
-
-        // Fallback 3: Try to load from imagePath
-        if (product && product.imagePath) {
-          try {
-            console.log(`📂 Loading original image from filesystem for product ${id}`);
-            const res = await Filesystem.readFile({
-              path: product.imagePath,
-              directory: Directory.Data,
-            });
-            const imageData = `data:image/png;base64,${res.data}`;
-            updateProgress();
-            return imageData;
-          } catch (pathErr) {
-            console.warn(`⚠️ Could not load image from path for product ${id}:`, pathErr);
-          }
-        }
+      if (fileResult.uri) {
+        updateProgress();
+        return fileResult.uri;
       }
 
+      // If URI not available, try to get as base64
+      const imageDataUrl = await getRenderedImage(id, catalogueLabel);
       updateProgress();
-      return null;
+      return imageDataUrl;
     } catch (err) {
-      console.error(`❌ Error processing product ${id}:`, err);
+      console.error(`❌ Error getting rendered image for product ${id}:`, err);
       updateProgress();
       return null;
     }
