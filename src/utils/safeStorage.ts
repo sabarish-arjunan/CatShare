@@ -15,9 +15,15 @@ export function safeParse<T>(key: string | null, fallback: T): T {
   }
 
   try {
-    const parsed = JSON.parse(key);
-    return parsed as T;
+    return JSON.parse(key) as T;
   } catch (error) {
+    // Resilience: If parsing fails but the fallback is a string,
+    // we can assume the stored value was intended as a plain string.
+    // This handles legacy data stored without JSON.stringify().
+    if (typeof fallback === 'string') {
+      return key as unknown as T;
+    }
+
     console.warn(`⚠️ Failed to parse JSON from localStorage:`, error);
     return fallback;
   }

@@ -42,6 +42,7 @@ class RenderingTask(
             val outputFormat = data.optString("format", "png")
             val outputWidth = data.optInt("width", 1080)
             val outputHeight = data.optInt("height", 1080)
+            val watermarkConfig = data.optJSONObject("watermark")
 
             val renderItems = mutableListOf<RenderItem>()
             for (i in 0 until items.length()) {
@@ -60,7 +61,7 @@ class RenderingTask(
                 if (cancelled) break
 
                 callback.onProgress(index + 1, renderItems.size, item.name)
-                renderItem(item, outputFormat, outputWidth, outputHeight)
+                renderItem(item, outputFormat, outputWidth, outputHeight, watermarkConfig)
                 Thread.sleep(100)
             }
 
@@ -78,7 +79,8 @@ class RenderingTask(
         item: RenderItem,
         format: String,
         width: Int,
-        height: Int
+        height: Int,
+        watermarkConfig: JSONObject?
     ) {
         val outputDir = File(context.filesDir, "rendered")
         if (!outputDir.exists()) {
@@ -120,7 +122,7 @@ class RenderingTask(
         val outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(outputBitmap)
 
-        renderToCanvas(canvas, sourceBitmap, item, width, height)
+        renderToCanvas(canvas, sourceBitmap, item, width, height, watermarkConfig)
 
         FileOutputStream(outputFile).use { out ->
             when (format.lowercase()) {
@@ -142,7 +144,8 @@ class RenderingTask(
         sourceBitmap: Bitmap?,
         item: RenderItem,
         width: Int,
-        height: Int
+        height: Int,
+        watermarkConfig: JSONObject?
     ) {
         val bgPaint = Paint().apply {
             color = 0xFFFFFFFF.toInt()
@@ -232,26 +235,84 @@ class RenderingTask(
             }
         }
 
-        renderWatermark(canvas, width, height)
+        renderWatermark(canvas, width, height, watermarkConfig)
     }
 
-    private fun renderWatermark(canvas: Canvas, width: Int, height: Int) {
+    private fun renderWatermark(canvas: Canvas, width: Int, height: Int, config: JSONObject?) {
         try {
+            if (config == null || !config.optBoolean("enabled", false)) return
+
+            val watermarkText = config.optString("text", "CatShare")
+            val position = config.optString("position", "bottom-center")
+
             val watermarkPaint = Paint().apply {
                 color = 0x44000000
                 textSize = 42f
                 isAntiAlias = true
-                textAlign = Paint.Align.CENTER
                 style = Paint.Style.FILL
             }
 
-            val watermarkText = "CatShare"
-            canvas.drawText(
-                watermarkText,
-                width / 2f,
-                (height * 0.98).toFloat(),
-                watermarkPaint
-            )
+            val padding = 40f
+            var x = width / 2f
+            var y = height - padding
+
+            // Normalize and handle position logic
+            val normalizedPosition = position.lowercase().replace("_", "-")
+
+            when (normalizedPosition) {
+                "top-left" -> {
+                    watermarkPaint.textAlign = Paint.Align.LEFT
+                    x = padding
+                    y = padding + watermarkPaint.textSize
+                }
+                "top-center" -> {
+                    watermarkPaint.textAlign = Paint.Align.CENTER
+                    x = width / 2f
+                    y = padding + watermarkPaint.textSize
+                }
+                "top-right" -> {
+                    watermarkPaint.textAlign = Paint.Align.RIGHT
+                    x = width - padding
+                    y = padding + watermarkPaint.textSize
+                }
+                "middle-left" -> {
+                    watermarkPaint.textAlign = Paint.Align.LEFT
+                    x = padding
+                    y = height / 2f
+                }
+                "middle-center" -> {
+                    watermarkPaint.textAlign = Paint.Align.CENTER
+                    x = width / 2f
+                    y = height / 2f
+                }
+                "middle-right" -> {
+                    watermarkPaint.textAlign = Paint.Align.RIGHT
+                    x = width - padding
+                    y = height / 2f
+                }
+                "bottom-left" -> {
+                    watermarkPaint.textAlign = Paint.Align.LEFT
+                    x = padding
+                    y = height - padding
+                }
+                "bottom-right" -> {
+                    watermarkPaint.textAlign = Paint.Align.RIGHT
+                    x = width - padding
+                    y = height - padding
+                }
+                "bottom-center" -> {
+                    watermarkPaint.textAlign = Paint.Align.CENTER
+                    x = width / 2f
+                    y = height - padding
+                }
+                else -> {
+                    watermarkPaint.textAlign = Paint.Align.CENTER
+                    x = width / 2f
+                    y = height - padding
+                }
+            }
+
+            canvas.drawText(watermarkText, x, y, watermarkPaint)
         } catch (e: Exception) {
             Log.w(TAG, "Could not render watermark: ${e.message}")
         }

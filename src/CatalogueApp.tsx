@@ -32,6 +32,30 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [tab, setTab] = useState("products");
   const [selectedCatalogueInCataloguesTab, setSelectedCatalogueInCataloguesTab] = useState<string | null>(null);
   const [showManageCatalogues, setShowManageCatalogues] = useState(false);
+  const [renamingCatalogueIds, setRenamingCatalogueIds] = useState<Set<string>>(new Set());
+
+  // Listen for catalogue rename events
+  useEffect(() => {
+    const handleRenameStart = (e: any) => {
+      const { id } = e.detail;
+      setRenamingCatalogueIds((prev) => new Set(prev).add(id));
+    };
+    const handleRenameEnd = (e: any) => {
+      const { id } = e.detail;
+      setRenamingCatalogueIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+
+    window.addEventListener("catalogue-rename-start", handleRenameStart);
+    window.addEventListener("catalogue-rename-end", handleRenameEnd);
+    return () => {
+      window.removeEventListener("catalogue-rename-start", handleRenameStart);
+      window.removeEventListener("catalogue-rename-end", handleRenameEnd);
+    };
+  }, []);
 
   // Initialize catalogues on component mount
   useEffect(() => {
@@ -228,19 +252,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // If inside a catalogue view, go back to catalogues list
-      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
-        setSelectedCatalogueInCataloguesTab(null);
-        return;
-      }
-
-      // If on catalogues tab (showing list), go back to products tab
-      if (tab === "catalogues") {
-        setTab("products");
-        return;
-      }
-
-      // If on products tab, check for open preview modals
+      // 1. Check for open preview modals or full-screen images first
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
       if (fullScreenImageOpen || previewModalOpen) {
@@ -248,7 +260,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // If on products tab and no preview open, let App.tsx handle exit
+      // 2. If inside a catalogue view, go back to catalogues list
+      if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
+        setSelectedCatalogueInCataloguesTab(null);
+        return;
+      }
+
+      // 3. If on catalogues tab (showing list), go back to products tab
+      if (tab === "catalogues") {
+        setTab("products");
+        return;
+      }
+
+      // 4. If on products tab and no preview open, let App.tsx handle exit
       // Dispatch custom event so App.tsx can handle it properly
       window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
     }).then((listener) => {
@@ -897,6 +921,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
               imageMap={imageMap}
               products={products}
               onManageCatalogues={() => setShowManageCatalogues(true)}
+              renamingCatalogueIds={renamingCatalogueIds}
             />
           </div>
         )}
@@ -1070,6 +1095,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           }}
           products={products}
           setProducts={setProducts}
+          renamingCatalogueIds={renamingCatalogueIds}
         />
       )}
     </div>

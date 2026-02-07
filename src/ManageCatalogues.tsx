@@ -8,13 +8,14 @@ import {
 } from "./config/catalogueConfig";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { deleteRenderedImagesFromFolder, renameRenderedImagesForCatalogue } from "./Save";
-import { FiX, FiPlus, FiEdit2, FiTrash2, FiImage, FiCheck } from "react-icons/fi";
+import { FiX, FiPlus, FiEdit2, FiTrash2, FiImage, FiCheck, FiLoader } from "react-icons/fi";
 
 interface ManageCataloguesProps {
   onClose: () => void;
   onCataloguesChanged: (catalogues: Catalogue[]) => void;
   products: any[];
   setProducts: (products: any[]) => void;
+  renamingCatalogueIds?: Set<string>;
 }
 
 export default function ManageCatalogues({
@@ -22,11 +23,13 @@ export default function ManageCatalogues({
   onCataloguesChanged,
   products,
   setProducts,
+  renamingCatalogueIds = new Set(),
 }: ManageCataloguesProps) {
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState<Catalogue | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<Catalogue | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [formLabel, setFormLabel] = useState("");
   const [formDescription, setFormDescription] = useState("");
@@ -154,9 +157,23 @@ export default function ManageCatalogues({
       const oldLabel = showEditForm.label;
       const newFolder = newLabel;
 
+      // Handle folder/label change - start rename in background if needed
       if (oldFolder !== newFolder || oldLabel !== newLabel) {
-        console.log(`📁 Catalogue changed from "${oldLabel}" to "${newLabel}"`);
-        await renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel);
+        console.log(`📁 Catalogue changed from "${oldLabel}" to "${newLabel}" - starting background rename`);
+
+        // Notify start of rename
+        window.dispatchEvent(new CustomEvent("catalogue-rename-start", { detail: { id: showEditForm.id } }));
+
+        // Fire and forget (don't await)
+        renameRenderedImagesForCatalogue(oldFolder, newFolder, oldLabel, newLabel)
+          .then(() => {
+            console.log(`✅ Background rename complete for: ${newLabel}`);
+            window.dispatchEvent(new CustomEvent("catalogue-rename-end", { detail: { id: showEditForm.id } }));
+          })
+          .catch((err) => {
+            console.error(`❌ Background rename failed for: ${newLabel}`, err);
+            window.dispatchEvent(new CustomEvent("catalogue-rename-end", { detail: { id: showEditForm.id } }));
+          });
       }
 
       const updates = {
@@ -490,6 +507,9 @@ export default function ManageCatalogues({
                             <h4 className="font-semibold text-gray-900 truncate text-sm">
                               {catalogue.label}
                             </h4>
+                            {renamingCatalogueIds.has(catalogue.id) && (
+                              <FiLoader className="animate-spin text-blue-500" size={12} />
+                            )}
                             {catalogue.isDefault && (
                               <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">
                                 Default

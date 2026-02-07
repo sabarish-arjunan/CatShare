@@ -390,7 +390,10 @@ function AppWithBackHandler() {
       } else if (location.pathname !== "/") {
         navigate(-1);
       } else {
-        CapacitorApp.exitApp();
+        // Do nothing here for the root path.
+        // The CatalogueApp has its own backButton listener and will dispatch
+        // "catalogue-app-back-not-handled" if it's on the main screen and wants to exit.
+        console.log("Back button pressed on root path - letting CatalogueApp handle it");
       }
     };
 

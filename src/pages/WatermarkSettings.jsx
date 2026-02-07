@@ -3,33 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { MdArrowBack, MdWarning } from "react-icons/md";
 import { MdCircle } from "react-icons/md";
 
+import { safeGetFromStorage, safeSetInStorage } from "../utils/safeStorage";
+
 export default function WatermarkSettings() {
   const navigate = useNavigate();
   const [showWatermark, setShowWatermark] = useState(() => {
-    const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : false;
+    return safeGetFromStorage("showWatermark", false);
   });
   const [watermarkText, setWatermarkText] = useState(() => {
-    const stored = localStorage.getItem("watermarkText");
-    return stored || "Created using CatShare";
+    return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
   const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    const stored = localStorage.getItem("watermarkPosition");
-    return stored || "bottom-center"; // Default position
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [initialShowWatermark] = useState(() => {
-    const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : false;
+    return safeGetFromStorage("showWatermark", false);
   });
   const [initialWatermarkText] = useState(() => {
-    const stored = localStorage.getItem("watermarkText");
-    return stored || "Created using CatShare";
+    return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
   const [initialWatermarkPosition] = useState(() => {
-    const stored = localStorage.getItem("watermarkPosition");
-    return stored || "bottom-center";
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
   const [renderBoxVisible, setRenderBoxVisible] = useState(false);
   const renderBoxRef = useRef(null);
@@ -88,7 +84,7 @@ export default function WatermarkSettings() {
 
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
-    localStorage.setItem("showWatermark", JSON.stringify(value));
+    safeSetInStorage("showWatermark", value);
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
@@ -99,7 +95,7 @@ export default function WatermarkSettings() {
       return;
     }
     setWatermarkText(trimmedText);
-    localStorage.setItem("watermarkText", trimmedText);
+    safeSetInStorage("watermarkText", trimmedText);
     window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: trimmedText } }));
   };
 
@@ -107,13 +103,13 @@ export default function WatermarkSettings() {
     const defaultText = "Created using CatShare";
     setWatermarkText(defaultText);
     setEditingWatermarkText(defaultText);
-    localStorage.setItem("watermarkText", defaultText);
+    safeSetInStorage("watermarkText", defaultText);
     window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: defaultText } }));
   };
 
   const handlePositionChange = (position) => {
     setWatermarkPosition(position);
-    localStorage.setItem("watermarkPosition", position);
+    safeSetInStorage("watermarkPosition", position);
     window.dispatchEvent(new CustomEvent("watermarkPositionChanged", { detail: { position } }));
   };
 

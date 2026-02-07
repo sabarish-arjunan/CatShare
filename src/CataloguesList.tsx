@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiSettings } from "react-icons/fi";
+import { FiSettings, FiLoader } from "react-icons/fi";
 import { type Catalogue } from "./config/catalogueConfig";
 import { isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -10,6 +10,7 @@ interface CataloguesListProps {
   imageMap: Record<string, string>;
   products: any[];
   onManageCatalogues: () => void;
+  renamingCatalogueIds?: Set<string>;
 }
 
 export default function CataloguesList({
@@ -18,6 +19,7 @@ export default function CataloguesList({
   imageMap,
   products,
   onManageCatalogues,
+  renamingCatalogueIds = new Set(),
 }: CataloguesListProps) {
   const [catalogueStats, setCatalogueStats] = useState<
     Record<string, { total: number; inStock: number }>
@@ -183,10 +185,15 @@ export default function CataloguesList({
                   </div>
 
                   {/* Catalogue info */}
-                  <div className="flex-1 text-left">
-                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                      {catalogue.label}
-                    </h3>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors truncate">
+                        {catalogue.label}
+                      </h3>
+                      {renamingCatalogueIds.has(catalogue.id) && (
+                        <FiLoader className="animate-spin text-blue-500 shrink-0" size={14} />
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {stats.total} products · {stats.inStock} in stock
                     </p>
