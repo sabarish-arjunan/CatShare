@@ -1148,9 +1148,10 @@ onMouseLeave={handleTouchEnd}
       </div>
       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
         <div
-          className="h-full bg-green-500 transition-all duration-500 relative"
+          className="h-full bg-green-500 transition-all duration-200 ease-out relative"
           style={{
-            width: `${(processingIndex / processingTotal) * 100 || 0}%`,
+            width: `${processingTotal > 0 ? (processingIndex / processingTotal) * 100 : 0}%`,
+            willChange: 'width',
           }}
         >
           {/* Shimmer animation to show activity */}
