@@ -193,42 +193,54 @@ export default function Settings({
             {/* Dark Mode Setting */}
             <div
               onClick={() => navigate("/settings/appearance")}
-              className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
+              className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition cursor-pointer text-left group"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-gray-800">Appearance</h3>
-                  <p className="text-xs text-gray-500 mt-1">Choose between dark and light mode</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{localDarkMode ? "🌙" : "☀️"}</span>
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Appearance</h3>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                    {localDarkMode ? "Dark Mode On" : "Light Mode Active"}
+                  </p>
                 </div>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDarkModeToggle(!localDarkMode);
                   }}
-                  className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors flex-shrink-0 cursor-pointer ${
-                    localDarkMode ? "bg-blue-600" : "bg-gray-300"
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-all flex-shrink-0 cursor-pointer shadow-sm group-hover:shadow-md ${
+                    localDarkMode
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600"
+                      : "bg-gradient-to-r from-gray-300 to-gray-400"
                   }`}
                 >
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                      localDarkMode ? "translate-x-6" : "translate-x-0.5"
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-all duration-300 flex items-center justify-center text-xs ${
+                      localDarkMode ? "translate-x-7" : "translate-x-0.5"
                     }`}
-                  />
+                  >
+                    {localDarkMode ? "🌙" : "☀️"}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Divider */}
-            <div className="border-t border-gray-200"></div>
+            <div className="border-t border-gray-200 dark:border-slate-700"></div>
 
             {/* Watermark Setting */}
             <div
               onClick={() => navigate("/settings/watermark")}
-              className="p-4 hover:bg-gray-50 transition cursor-pointer text-left"
+              className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition cursor-pointer text-left group"
             >
               <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-semibold text-gray-800">Watermark</h3>
-                <p className="text-xs text-gray-500">Add custom text to your product images</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🎨</span>
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Watermark</h3>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-slate-400">Add custom text to your product images</p>
               </div>
             </div>
           </div>
