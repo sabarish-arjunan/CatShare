@@ -222,6 +222,12 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   useEffect(() => {
     let removeListener: any;
     CapacitorApp.addListener("backButton", () => {
+      // If currently rendering, minimize app instead of navigating
+      if (isRendering) {
+        CapacitorApp.minimizeApp();
+        return;
+      }
+
       // If inside a catalogue view, go back to catalogues list
       if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
         setSelectedCatalogueInCataloguesTab(null);
@@ -242,8 +248,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // If on products tab and no preview open, let App.tsx handle it
-      // Dispatch custom event so App.tsx can handle exit logic properly
+      // If on products tab and no preview open, let App.tsx handle exit
+      // Dispatch custom event so App.tsx can handle it properly
       window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
     }).then((listener) => {
       removeListener = listener.remove;
@@ -252,7 +258,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => {
       if (removeListener) removeListener();
     };
-  }, [tab, selectedCatalogueInCataloguesTab]);
+  }, [tab, selectedCatalogueInCataloguesTab, isRendering]);
 
   const handleTabChange = (key) => {
     setTab(key);
