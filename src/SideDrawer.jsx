@@ -402,6 +402,8 @@ const exportProductsToCSV = (products) => {
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
           let imageRestored = false;
+
+          // Try to restore image from ZIP file first (preferred method)
           if (p.imageFilename && p.imagePath) {
             const imgFile = zip.file(`images/${p.imageFilename}`);
             if (imgFile) {
@@ -415,20 +417,24 @@ const exportProductsToCSV = (products) => {
                   recursive: true,
                 });
                 imageRestored = true;
-                console.log(`📸 Image restored for "${p.name}": ${p.imagePath}`);
+                console.log(`📸 Image restored from file for "${p.name}": ${p.imagePath}`);
               } catch (err) {
                 console.warn(`❌ Image write failed for "${p.name}":`, p.imagePath, err);
               }
             } else {
               console.warn(`⚠️ Image file not found in ZIP for "${p.name}": images/${p.imageFilename}`);
             }
-          } else {
-            console.log(`ℹ️ No image data for "${p.name}" (imageFilename: ${p.imageFilename}, imagePath: ${p.imagePath})`);
+          }
+
+          // Fallback: Keep base64 image if no file-based image was restored
+          if (!imageRestored && p.image && typeof p.image === 'string') {
+            console.log(`📸 Keeping base64 image for "${p.name}" (${(p.image.length / 1024).toFixed(1)} KB)`);
           }
 
           const clean = { ...p };
           delete clean.imageBase64;
           delete clean.imageFilename;
+          // KEEP p.image if it exists (base64 fallback)
 
           // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
           const migrated = migrateProductToNewFormat(clean);
