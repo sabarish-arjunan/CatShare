@@ -63,6 +63,9 @@ export default function CatalogueView({
   const [processing, setProcessing] = useState(false);
   const [processingIndex, setProcessingIndex] = useState(0);
   const [processingTotal, setProcessingTotal] = useState(0);
+  const [processingPhase, setProcessingPhase] = useState("rendering"); // "rendering" or "sharing"
+  const [totalToRender, setTotalToRender] = useState(0);
+  const [totalToShare, setTotalToShare] = useState(0);
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
