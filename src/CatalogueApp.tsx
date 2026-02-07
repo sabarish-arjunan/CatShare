@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { flushSync } from "react-dom";
-import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu } from "react-icons/fi";
+import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu, FiMessageSquare } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SideDrawer from "./SideDrawer";
 import CatalogueView from "./CatalogueView";
