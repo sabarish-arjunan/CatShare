@@ -75,22 +75,26 @@ export default function CatalogueView({
 
 
 useEffect(() => {
+  console.log("✅ CatalogueView: Setting up event listeners");
+
   // Listen for progress updates directly
   const handleRenderProgress = (event: any) => {
     const { current, total } = event.detail;
-    console.log(`🎨 CatalogueView: Progress ${current}/${total}`);
+    console.log(`📊 CatalogueView renderProgress received: ${current}/${total}`);
     setProcessingIndex(current);
     setProcessingTotal(total);
   };
 
   // Listen for render complete to close modal
   const handleRenderComplete = () => {
-    console.log("✅ CatalogueView: Render complete");
+    console.log("✅ CatalogueView renderComplete received");
     setProcessing(false);
   };
 
   window.addEventListener("renderProgress", handleRenderProgress);
   window.addEventListener("renderComplete", handleRenderComplete);
+
+  console.log("✅ CatalogueView: Event listeners attached");
 
   return () => {
     window.removeEventListener("renderProgress", handleRenderProgress);
