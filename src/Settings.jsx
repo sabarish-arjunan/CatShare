@@ -140,12 +140,17 @@ export default function Settings({
     }
   };
 
-  // Show notification when rendering completes
+  // Show notification only when rendering actually completes
   useEffect(() => {
-    if (!isRendering && renderProgress > 0) {
-      sendNotification("Rendering Complete", "Your images have been processed and saved! 🎉");
-    }
-  }, [isRendering, renderProgress]);
+    const handleRenderComplete = async () => {
+      await sendNotification("Rendering Complete", "Your images have been processed and saved! 🎉");
+    };
+
+    window.addEventListener("renderComplete", handleRenderComplete);
+    return () => {
+      window.removeEventListener("renderComplete", handleRenderComplete);
+    };
+  }, []);
 
   return (
     <div className="w-full h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 relative">
