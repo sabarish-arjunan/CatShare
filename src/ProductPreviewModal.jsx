@@ -787,11 +787,11 @@ export default function ProductPreviewModal({
                     {getAllStockStatus() ? "In" : "Out"}
                   </button>
                   <button
-                    onClick={() => onShelf?.(product)}
-                    className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs flex items-center justify-center"
+                    onClick={() => setShowShelfModal(true)}
+                    className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs"
                     title="Shelf Item"
                   >
-                    <MdInventory2 size={16} />
+                    Shelf
                   </button>
                 </div>
               </div>
