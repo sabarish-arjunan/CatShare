@@ -938,6 +938,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             }}
             onSwipeLeft={(next) => setPreviewProduct(next)}
             onSwipeRight={(prev) => setPreviewProduct(prev)}
+            onShelf={(product) => {
+              setShelfTarget(product);
+              setShowShelfConfirm(true);
+            }}
           />
         )}
       </main>
