@@ -75,17 +75,25 @@ export default function CatalogueView({
 
 
 useEffect(() => {
-  // Share.ts handles progress updates, we just listen for completion
-  const handleRenderComplete = () => {
-    console.log("✅ CatalogueView renderComplete received");
-    flushSync(() => {
-      setProcessing(false);
-    });
+  // Listen for progress updates directly
+  const handleRenderProgress = (event: any) => {
+    const { current, total } = event.detail;
+    console.log(`🎨 CatalogueView: Progress ${current}/${total}`);
+    setProcessingIndex(current);
+    setProcessingTotal(total);
   };
 
+  // Listen for render complete to close modal
+  const handleRenderComplete = () => {
+    console.log("✅ CatalogueView: Render complete");
+    setProcessing(false);
+  };
+
+  window.addEventListener("renderProgress", handleRenderProgress);
   window.addEventListener("renderComplete", handleRenderComplete);
 
   return () => {
+    window.removeEventListener("renderProgress", handleRenderProgress);
     window.removeEventListener("renderComplete", handleRenderComplete);
   };
 }, []);
