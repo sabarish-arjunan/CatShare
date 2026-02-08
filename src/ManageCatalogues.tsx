@@ -96,7 +96,7 @@ export default function ManageCatalogues({
           ...p,
           [newCatalogue.stockField]: true,
           [newCatalogue.priceField]: "",
-          [newCatalogue.priceUnitField]: "None",
+          [newCatalogue.priceUnitField]: "/ piece",
         }));
 
         try {
