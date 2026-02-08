@@ -995,6 +995,15 @@ setTimeout(async () => {
                     <option>/ set</option>
                   </select>
                 </div>
+
+                <label className="block text-sm font-medium mb-1">Product Badge</label>
+                <input
+                  name="badge"
+                  value={getCatalogueFormData().badge || ""}
+                  onChange={handleChange}
+                  placeholder="Enter product badge"
+                  className="border p-2 rounded text-sm w-full"
+                />
               </>
             )}
 
