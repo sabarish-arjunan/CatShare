@@ -408,9 +408,9 @@ export default function CreateProduct() {
       const updates: Partial<CatalogueData> = {
         field1: "",
         field2: "",
-        field2Unit: "pcs / set",
+        field2Unit: "None",
         field3: "",
-        field3Unit: "months",
+        field3Unit: "None",
         badge: "",
       };
       updateCatalogueData(updates);
