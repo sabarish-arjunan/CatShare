@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiX, FiShare2, FiCheckCircle, FiAlertCircle, FiEdit3, FiPackage, FiArchive } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
@@ -762,28 +762,47 @@ export default function ProductPreviewModal({
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
-                {/* First row: Edit, All In/Out, Close */}
-                <div className="flex justify-between gap-1">
-                  <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
-                    Edit
-                  </button>
-                  <button
+              <div
+                className="px-4 py-3 border-t backdrop-blur-md"
+                style={{
+                  flexShrink: 0,
+                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  borderColor: 'rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                <div className="flex gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    onClick={onEdit}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-500 text-white font-semibold text-xs shadow-lg shadow-blue-500/20 active:bg-blue-600 transition-colors"
+                  >
+                    <FiEdit3 size={14} />
+                    <span>Edit</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => onToggleMasterStock()}
-                    className={`px-2 py-1 rounded flex-1 text-xs ${
-                      getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-xs shadow-lg transition-all border ${
+                      getAllStockStatus()
+                        ? "bg-emerald-500 text-white border-transparent shadow-emerald-500/20"
+                        : "bg-white text-gray-400 border-gray-200 shadow-none"
                     }`}
                     title="Toggle all catalogues"
                   >
-                    {getAllStockStatus() ? "In" : "Out"}
-                  </button>
-                  <button
+                    {getAllStockStatus() ? <FiPackage size={14} /> : <FiX size={14} />}
+                    <span>{getAllStockStatus() ? "In Stock" : "Out of Stock"}</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => setShowShelfModal(true)}
-                    className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500 text-white font-semibold text-xs shadow-lg shadow-rose-500/20 active:bg-rose-600 transition-colors"
                     title="Shelf Item"
                   >
-                    Shelf
-                  </button>
+                    <FiArchive size={14} />
+                    <span>Shelf</span>
+                  </motion.button>
                 </div>
               </div>
             )}
