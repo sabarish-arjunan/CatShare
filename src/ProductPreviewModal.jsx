@@ -730,7 +730,7 @@ export default function ProductPreviewModal({
                   <p style={{ margin: "2px 0", display: "flex" }}>
                     <span style={{ width: "90px" }}>Package</span>
                     <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field2Value} {(() => { const unit = catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set"); return unit !== "None" ? unit : ""; })()}</span>
+                    <span style={{ marginLeft: "8px" }}>{field2Value} {(() => { const unit = catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
                   </p>
                 )}
                 {hasField3 && (
