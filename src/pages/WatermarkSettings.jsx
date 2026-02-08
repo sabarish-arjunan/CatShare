@@ -239,15 +239,15 @@ export default function WatermarkSettings() {
                       textShadow: "none",
                       pointerEvents: "none",
                       zIndex: 3,
-                      ...(watermarkPosition === "top-left" && { top: 4, left: 4, transform: "none" }),
-                      ...(watermarkPosition === "top-center" && { top: 4, left: "50%", transform: "translateX(-50%)" }),
-                      ...(watermarkPosition === "top-right" && { top: 4, right: 4, left: "auto", transform: "none" }),
-                      ...(watermarkPosition === "middle-left" && { top: "50%", left: 4, transform: "translateY(-50%)" }),
+                      ...(watermarkPosition === "top-left" && { top: 10, left: 10, transform: "none" }),
+                      ...(watermarkPosition === "top-center" && { top: 10, left: "50%", transform: "translateX(-50%)" }),
+                      ...(watermarkPosition === "top-right" && { top: 10, right: 10, left: "auto", transform: "none" }),
+                      ...(watermarkPosition === "middle-left" && { top: "50%", left: 10, transform: "translateY(-50%)" }),
                       ...(watermarkPosition === "middle-center" && { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }),
-                      ...(watermarkPosition === "middle-right" && { top: "50%", right: 4, left: "auto", transform: "translateY(-50%)" }),
-                      ...(watermarkPosition === "bottom-left" && { bottom: 4, left: 4, transform: "none" }),
-                      ...(watermarkPosition === "bottom-center" && { bottom: 4, left: "50%", transform: "translateX(-50%)" }),
-                      ...(watermarkPosition === "bottom-right" && { bottom: 4, right: 4, left: "auto", transform: "none" }),
+                      ...(watermarkPosition === "middle-right" && { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" }),
+                      ...(watermarkPosition === "bottom-left" && { bottom: 10, left: 10, transform: "none" }),
+                      ...(watermarkPosition === "bottom-center" && { bottom: 10, left: "50%", transform: "translateX(-50%)" }),
+                      ...(watermarkPosition === "bottom-right" && { bottom: 10, right: 10, left: "auto", transform: "none" }),
                     }}
                   >
                     {watermarkText}
