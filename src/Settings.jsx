@@ -232,33 +232,26 @@ export default function Settings({
           </div>
 
           {/* Pro Plan Card */}
-          <div className="mt-8">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div className="mt-4">
+            <div
               onClick={() => navigate("/settings/pro")}
-              className="w-full relative overflow-hidden bg-emerald-600 rounded-2xl p-5 shadow-[0_0_20px_rgba(16,185,129,0.5)] cursor-pointer text-left border border-emerald-500/50"
+              className="w-full bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 shadow-[0_0_15px_rgba(34,197,94,0.2)] hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition cursor-pointer text-left p-4"
             >
-              {/* Subtle Glow Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
-
-              <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="bg-emerald-500/30 p-1.5 rounded-lg backdrop-blur-sm border border-emerald-400/30">
-                      <span className="text-xl">🎉</span>
-                    </span>
-                    <h3 className="text-base font-bold text-white tracking-tight">Using Pro for FREE</h3>
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-base flex-shrink-0">🎉</span>
+                    <h3 className="text-sm font-semibold text-green-900 dark:text-green-100">Using Pro for FREE</h3>
                   </div>
-                  <p className="text-xs text-emerald-50 font-medium opacity-90">Beta access to all premium features</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">Beta access to all premium features</p>
                 </div>
                 <div className="flex-shrink-0">
-                  <span className="bg-white/20 text-white text-[10px] font-black px-2.5 py-1 rounded-full backdrop-blur-md border border-white/30 uppercase tracking-widest">
+                  <span className="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 text-[10px] font-bold px-2 py-0.5 rounded border border-green-300 dark:border-green-700">
                     PRO
                   </span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </main>
