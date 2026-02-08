@@ -946,10 +946,11 @@ setTimeout(async () => {
                   />
                   <select
                     name="field2Unit"
-                    value={getCatalogueFormData().field2Unit || "pcs / set"}
+                    value={getCatalogueFormData().field2Unit || "None"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
                   >
+                    <option>None</option>
                     <option>pcs / set</option>
                     <option>pcs / dozen</option>
                     <option>pcs / pack</option>
@@ -966,10 +967,11 @@ setTimeout(async () => {
                   />
                   <select
                     name="field3Unit"
-                    value={getCatalogueFormData().field3Unit || "months"}
+                    value={getCatalogueFormData().field3Unit || "None"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
                   >
+                    <option>None</option>
                     <option>months</option>
                     <option>years</option>
                     <option>Newborn</option>
@@ -986,10 +988,11 @@ setTimeout(async () => {
                   />
                   <select
                     name={getSelectedCataloguePriceUnitField()}
-                    value={getSelectedCataloguePriceUnit()}
+                    value={getSelectedCataloguePriceUnit() || "None"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
+                    <option>None</option>
                     <option>/ piece</option>
                     <option>/ dozen</option>
                     <option>/ set</option>
