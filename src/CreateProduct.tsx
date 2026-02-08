@@ -333,7 +333,6 @@ export default function CreateProduct() {
             : migratedProduct.category
             ? [migratedProduct.category]
             : [],
-          badge: migratedProduct.badge || "",
           catalogueData: migratedProduct.catalogueData,
         });
 
