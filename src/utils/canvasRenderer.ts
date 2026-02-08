@@ -467,7 +467,7 @@ export async function renderProductToCanvas(
   if (product.field2) {
     ctx.fillText('Package', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
-    const field2Text = `${product.field2} ${product.field2Unit || ''}`;
+    const field2Text = product.field2Unit && product.field2Unit !== 'None' ? `${product.field2} ${product.field2Unit}` : product.field2;
     ctx.fillText(field2Text, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
@@ -475,7 +475,7 @@ export async function renderProductToCanvas(
   if (product.field3) {
     ctx.fillText('Age Group', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
-    const field3Text = `${product.field3} ${product.field3Unit || ''}`;
+    const field3Text = product.field3Unit && product.field3Unit !== 'None' ? `${product.field3} ${product.field3Unit}` : product.field3;
     ctx.fillText(field3Text, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
@@ -498,7 +498,7 @@ export async function renderProductToCanvas(
 
     // Center price text vertically in the remaining space
     const priceTextY = currentY + remainingHeight / 2; // Exact center without offset
-    const priceText = `Price   :   ₹${product.price} ${product.priceUnit || ''}`;
+    const priceText = product.priceUnit && product.priceUnit !== 'None' ? `Price   :   ₹${product.price} ${product.priceUnit}` : `Price   :   ₹${product.price}`;
     ctx.fillText(priceText, canvasWidth / 2, priceTextY);
 
     currentY += remainingHeight;
