@@ -198,7 +198,6 @@ export default function CreateProduct() {
     name: "",
     subtitle: "",
     category: [],
-    badge: "",
     catalogueData: {},
   });
 
