@@ -447,7 +447,7 @@ export default function CreateProduct() {
       // Clear price fields when unchecked
       const updates: Partial<CatalogueData> = {
         [selectedCat.priceField]: "",
-        [selectedCat.priceUnitField]: "/ piece",
+        [selectedCat.priceUnitField]: "None",
       };
       updateCatalogueData(updates);
       return;
