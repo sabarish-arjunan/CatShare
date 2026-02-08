@@ -133,7 +133,7 @@ useEffect(() => {
 
   setEditedData(normalized.map(item => ensureFieldDefaults(item)));
   setDataLoaded(true);
-}, [productsToEdit, stockField, catalogueId, priceField, priceUnitField, initialCatalogueId]);
+}, [products, stockField, catalogueId, priceField, priceUnitField, initialCatalogueId]);
 
 
 
