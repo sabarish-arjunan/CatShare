@@ -73,7 +73,7 @@ useEffect(() => {
   const storedCategories = JSON.parse(localStorage.getItem("categories") || "[]");
   setCategories(storedCategories);
 
-  const normalized = productsToEdit.map((p) => {
+  const normalized = products.map((p) => {
     // Get catalogue-specific data
     const catData = catalogueId ? getCatalogueData(p, catalogueId) : {};
 
