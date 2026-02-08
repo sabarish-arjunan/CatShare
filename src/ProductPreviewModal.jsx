@@ -2,13 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { FiX, FiShare2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiX, FiShare2, FiCheckCircle, FiAlertCircle, FiEdit3, FiPackage, FiArchive } from "react-icons/fi";
 import { MdInventory2 } from "react-icons/md";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
+import { safeGetFromStorage } from "./utils/safeStorage";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -16,7 +17,8 @@ const getWatermarkPositionStyles = (position) => {
     position: "absolute",
     fontFamily: "Arial, sans-serif",
     fontWeight: 500,
-    pointerEvents: "none"
+    pointerEvents: "none",
+    zIndex: 10
   };
 
   const positionMap = {
@@ -31,7 +33,8 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  return { ...baseStyles, ...positionMap[position] };
+  const selectedPosition = positionMap[position] || positionMap["bottom-center"];
+  return { ...baseStyles, ...selectedPosition };
 };
 
 // Full Screen Image Viewer Component
@@ -389,47 +392,35 @@ export default function ProductPreviewModal({
 
   // Check if watermark should be shown
   const [showWatermark, setShowWatermark] = useState(() => {
-    const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
+    return safeGetFromStorage("showWatermark", false);
   });
 
   // Get custom watermark text
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "Created using CatShare";
+    return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
 
   // Get watermark position
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return localStorage.getItem("watermarkPosition") || "bottom-center";
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
 
   // Listen for watermark setting changes from Settings modal
   useEffect(() => {
     const handleStorageChange = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
-
-      const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "Created using CatShare");
-
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setShowWatermark(safeGetFromStorage("showWatermark", false));
+      setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handleWatermarkChange = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
-
-      const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "Created using CatShare");
-
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setShowWatermark(safeGetFromStorage("showWatermark", false));
+      setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handlePositionChange = (e) => {
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -771,28 +762,47 @@ export default function ProductPreviewModal({
 
             {/* Action Buttons */}
             {tab === "products" && (
-              <div className="px-3 py-2 bg-gray-100 border-t text-xs" style={{ flexShrink: 0 }}>
-                {/* First row: Edit, All In/Out, Close */}
-                <div className="flex justify-between gap-1">
-                  <button onClick={onEdit} className="px-2 py-1 rounded bg-blue-500 text-white flex-1 text-xs">
-                    Edit
-                  </button>
-                  <button
+              <div
+                className="px-4 py-3 border-t backdrop-blur-md"
+                style={{
+                  flexShrink: 0,
+                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  borderColor: 'rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                <div className="flex gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    onClick={onEdit}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-500 text-white font-semibold text-xs shadow-lg shadow-blue-500/20 active:bg-blue-600 transition-colors"
+                  >
+                    <FiEdit3 size={14} />
+                    <span>Edit</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => onToggleMasterStock()}
-                    className={`px-2 py-1 rounded flex-1 text-xs ${
-                      getAllStockStatus() ? "bg-green-600 text-white" : "bg-gray-300 text-gray-800"
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-xs shadow-lg transition-all border ${
+                      getAllStockStatus()
+                        ? "bg-emerald-500 text-white border-transparent shadow-emerald-500/20"
+                        : "bg-white text-gray-400 border-gray-200 shadow-none"
                     }`}
                     title="Toggle all catalogues"
                   >
-                    {getAllStockStatus() ? "In" : "Out"}
-                  </button>
-                  <button
+                    {getAllStockStatus() ? <FiPackage size={14} /> : <FiX size={14} />}
+                    <span>{getAllStockStatus() ? "In Stock" : "Out of Stock"}</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => setShowShelfModal(true)}
-                    className="px-2 py-1 rounded bg-red-600 text-white flex-1 text-xs"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500 text-white font-semibold text-xs shadow-lg shadow-rose-500/20 active:bg-rose-600 transition-colors"
                     title="Shelf Item"
                   >
-                    Shelf
-                  </button>
+                    <FiArchive size={14} />
+                    <span>Shelf</span>
+                  </motion.button>
                 </div>
               </div>
             )}

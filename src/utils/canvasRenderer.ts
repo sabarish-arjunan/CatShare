@@ -526,8 +526,13 @@ export async function renderProductToCanvas(
     ctx.textBaseline = 'bottom';
 
     // Normalize position value (handle hyphens, underscores, and camelCase)
-    let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString().toLowerCase();
-    // Convert underscores and camelCase to hyphens
+    let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString();
+
+    // Strip JSON quotes if present
+    if (normalizedPosition.startsWith('"') && normalizedPosition.endsWith('"')) {
+      normalizedPosition = normalizedPosition.substring(1, normalizedPosition.length - 1);
+    }
+
     normalizedPosition = normalizedPosition
       .replace(/_/g, '-')
       .replace(/([a-z])([A-Z])/g, '$1-$2')

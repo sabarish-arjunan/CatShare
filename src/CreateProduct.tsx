@@ -11,6 +11,7 @@ import { useToast } from "./context/ToastContext";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
 import { getProductFieldValue, getProductUnitValue } from "./config/fieldMigration";
+import { safeGetFromStorage } from "./utils/safeStorage";
 import {
   initializeCatalogueData,
   getCatalogueData,
@@ -27,7 +28,8 @@ const getWatermarkPositionStyles = (position) => {
     position: "absolute",
     fontFamily: "Arial, sans-serif",
     fontWeight: 500,
-    pointerEvents: "none"
+    pointerEvents: "none",
+    zIndex: 10
   };
 
   const positionMap = {
@@ -42,7 +44,8 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  return { ...baseStyles, ...positionMap[position] };
+  const selectedPosition = positionMap[position] || positionMap["bottom-center"];
+  return { ...baseStyles, ...selectedPosition };
 };
 
 function ColorPickerModal({ value, onChange, onClose }) {
@@ -205,49 +208,36 @@ export default function CreateProduct() {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
-    const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
+    return safeGetFromStorage("showWatermark", false);
   });
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "Created using CatShare";
+    return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
 
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return localStorage.getItem("watermarkPosition") || "bottom-center";
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
 
   // Listen for watermark setting changes
   useEffect(() => {
     const handleStorageChange = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
-
-      const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "Created using CatShare");
-
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setShowWatermarkLocal(safeGetFromStorage("showWatermark", false));
+      setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handleWatermarkChange = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
-
-      const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "Created using CatShare");
-
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setShowWatermarkLocal(safeGetFromStorage("showWatermark", false));
+      setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handlePositionChange = () => {
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handleWatermarkToggle = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermarkLocal(stored !== null ? JSON.parse(stored) : false);
+      setShowWatermarkLocal(safeGetFromStorage("showWatermark", false));
     };
 
     window.addEventListener("storage", handleStorageChange);
