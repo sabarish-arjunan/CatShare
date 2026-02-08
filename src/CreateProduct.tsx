@@ -426,9 +426,9 @@ export default function CreateProduct() {
     const updates: Partial<CatalogueData> = {
       field1: defaultCatalogueData.field1 || "",
       field2: defaultCatalogueData.field2 || "",
-      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field2Unit: defaultCatalogueData.field2Unit || "None",
       field3: defaultCatalogueData.field3 || "",
-      field3Unit: defaultCatalogueData.field3Unit || "months",
+      field3Unit: defaultCatalogueData.field3Unit || "None",
       badge: defaultCatalogueData.badge || "",
     };
 
