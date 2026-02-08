@@ -411,6 +411,7 @@ export default function CreateProduct() {
         field2Unit: "pcs / set",
         field3: "",
         field3Unit: "months",
+        badge: "",
       };
       updateCatalogueData(updates);
       return;
@@ -428,6 +429,7 @@ export default function CreateProduct() {
       field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
       field3: defaultCatalogueData.field3 || "",
       field3Unit: defaultCatalogueData.field3Unit || "months",
+      badge: defaultCatalogueData.badge || "",
     };
 
     updateCatalogueData(updates);
