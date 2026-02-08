@@ -896,7 +896,7 @@ setTimeout(async () => {
                         type="checkbox"
                         checked={fetchFieldsChecked}
                         onChange={(e) => handleFetchFieldsChange(e.target.checked)}
-                        title="Fill fields (Colour, Package, Age Group) from default catalogue"
+                        title="Fill fields (Colour, Package, Age Group) and badge from default catalogue"
                         className="w-4 h-4 rounded border-gray-300"
                       />
                       <span className="text-gray-700">Fill Fields</span>
