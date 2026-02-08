@@ -50,7 +50,7 @@ export function initializeCatalogueData(product?: ProductWithCatalogueData): Rec
   catalogues.forEach((cat) => {
     // Dynamically get price field values based on catalogue configuration
     const priceValue = product?.[cat.priceField] || "";
-    const priceUnitValue = product?.[cat.priceUnitField] || "None";
+    const priceUnitValue = product?.[cat.priceUnitField] || "/ piece";
     const stockValue = product?.[cat.stockField] !== false;
 
     catalogueData[cat.id] = {
@@ -117,14 +117,14 @@ export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
   // Add dynamic price fields based on actual catalogue configuration
   if (catalogue) {
     defaults[catalogue.priceField] = "";
-    defaults[catalogue.priceUnitField] = "None";
+    defaults[catalogue.priceUnitField] = "/ piece";
     defaults[catalogue.stockField] = true;
   } else {
     // Fallback for legacy support (in case catalogue is deleted)
     defaults.price1 = "";
-    defaults.price1Unit = "None";
+    defaults.price1Unit = "/ piece";
     defaults.price2 = "";
-    defaults.price2Unit = "None";
+    defaults.price2Unit = "/ piece";
   }
 
   return defaults;
