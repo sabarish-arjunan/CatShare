@@ -1278,7 +1278,7 @@ onMouseLeave={handleTouchEnd}
           priceField={priceField}
           priceUnitField={priceUnitField}
           stockField={stockField}
-          setShowInfo={setShowInfo}
+          setShowAddProductsModal={setShowAddProductsModal}
         />
       )}
     </div>
