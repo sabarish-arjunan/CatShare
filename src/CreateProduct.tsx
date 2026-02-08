@@ -860,14 +860,6 @@ setTimeout(async () => {
               placeholder="Subtitle"
               className="border p-2 rounded w-full mb-2"
             />
-            <label className="block text-sm font-medium mb-1">Product Badge</label>
-            <input
-              name="badge"
-              value={formData.badge}
-              onChange={handleChange}
-              placeholder="Enter product badge"
-              className="border p-2 rounded text-sm w-full"
-            />
           </div>
 
           {/* CATALOGUE SELECTOR */}
