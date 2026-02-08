@@ -410,11 +410,51 @@ useEffect(() => {
 
   if (step === "select") {
     // If we have initialCatalogueId but data not loaded yet, show loading
-    if (initialCatalogueId && editedData.length === 0) {
+    if (initialCatalogueId && !dataLoaded) {
       return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg">
           <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl">
             <div className="text-center text-gray-600">Loading...</div>
+          </div>
+        </div>
+      );
+    }
+
+    // If data is loaded but no products are visible
+    if (initialCatalogueId && dataLoaded && products.length === 0) {
+      return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4"
+        onClick={onClose}
+        >
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center"
+          onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold text-gray-800 mb-3">No Images to Show</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              All images in this catalogue are currently hidden. To bulk edit products, you have these options:
+            </p>
+            <ul className="text-sm text-gray-600 mb-6 text-left bg-gray-50 rounded-lg p-3 space-y-2">
+              <li>• Enable image visibility in the catalogue view</li>
+              <li>• Proceed with bulk edit despite hidden images</li>
+            </ul>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  // Continue with bulk edit anyway, show all fields
+                  setStep("select");
+                  setSelectedFields([]);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                Proceed with Bulk Edit
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-300 text-gray-800 text-sm rounded-lg hover:bg-gray-400 transition font-medium"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       );
