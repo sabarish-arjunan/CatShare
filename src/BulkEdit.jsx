@@ -125,13 +125,14 @@ useEffect(() => {
     normalized.resell = p.resell || "";
     normalized.resellUnit = p.resellUnit || "/ piece";
     normalized.retail = p.retail || "";
-    normalized.retailUnit = p.retailUnit || "/ piece";
+    normalized.retailUnit = p.retail || "/ piece";
     normalized.stock = p.stock || "";
 
     return normalized;
   });
 
   setEditedData(normalized.map(item => ensureFieldDefaults(item)));
+  setDataLoaded(true);
 }, [products, stockField, catalogueId, priceField, priceUnitField, initialCatalogueId]);
 
 
