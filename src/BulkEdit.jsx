@@ -55,7 +55,7 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
     setFilledFromMaster({});
   }, [catalogueId]);
 
-  const totalProducts = products.length;
+  const totalProducts = productsToEdit.length;
   const estimatedSeconds = totalProducts * 2; // or whatever estimate you use
   const FIELD_OPTIONS = getFieldOptions(catalogueId, priceField, priceUnitField);
 
