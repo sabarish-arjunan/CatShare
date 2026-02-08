@@ -129,7 +129,7 @@ useEffect(() => {
     normalized.resell = p.resell || "";
     normalized.resellUnit = p.resellUnit || "/ piece";
     normalized.retail = p.retail || "";
-    normalized.retailUnit = p.retail || "/ piece";
+    normalized.retailUnit = p.retailUnit || "/ piece";
     normalized.stock = p.stock || "";
 
     return normalized;
