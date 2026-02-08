@@ -974,7 +974,6 @@ setTimeout(async () => {
                     <option>None</option>
                     <option>months</option>
                     <option>years</option>
-                    <option>Newborn</option>
                   </select>
                 </div>
 
