@@ -436,9 +436,9 @@ useEffect(() => {
                 </svg>
               </div>
             </div>
-            <h2 className="text-lg font-bold text-gray-800 mb-2">No Images Have Been Set to Show</h2>
+            <h2 className="text-lg font-bold text-gray-800 mb-2">No Products in This Catalogue</h2>
             <p className="text-sm text-gray-600 mb-4">
-              All product images in this catalogue are currently hidden. Click below to enable image visibility.
+              No products are currently visible in this catalogue. Click below to add products from your master list.
             </p>
             <div className="flex flex-col gap-3">
               <button
