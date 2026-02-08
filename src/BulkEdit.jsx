@@ -649,7 +649,6 @@ useEffect(() => {
                 >
                   <option value="months">months</option>
                   <option value="years">years</option>
-                  <option value="Newborn">Newborn</option>
                 </select>
               </div>
             )}
