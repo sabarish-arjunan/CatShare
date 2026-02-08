@@ -657,7 +657,7 @@ export default function ProductPreviewModal({
                 </div>
               )}
 
-              {product.badge && (
+              {(catalogueData.badge || product.badge) && (
                 <div
                   style={{
                     position: "absolute",
@@ -679,7 +679,7 @@ export default function ProductPreviewModal({
                     justifyContent: "center",
                   }}
                 >
-                  {product.badge.toUpperCase()}
+                  {(catalogueData.badge || product.badge).toUpperCase()}
                 </div>
               )}
             </div>
