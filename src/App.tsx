@@ -351,13 +351,13 @@ function AppWithBackHandler() {
     const watermarkPosition = localStorage.getItem("watermarkPosition");
 
     if (showWatermark === null) {
-      localStorage.setItem("showWatermark", JSON.stringify(false)); // Default: disabled
+      safeSetInStorage("showWatermark", false); // Default: disabled
     }
     if (watermarkText === null) {
-      localStorage.setItem("watermarkText", "Created using CatShare");
+      safeSetInStorage("watermarkText", "Created using CatShare");
     }
     if (watermarkPosition === null) {
-      localStorage.setItem("watermarkPosition", "bottom-center");
+      safeSetInStorage("watermarkPosition", "bottom-center");
     }
   }, []);
 
