@@ -233,42 +233,6 @@ export default function Settings({
             </div>
           </div>
 
-          {/* Test Notification Button */}
-          <div className="mt-4">
-            <button
-              onClick={testNotification}
-              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition p-4 text-left"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-base flex-shrink-0">🔔</span>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Test Notification</h3>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Send a test notification to verify they're working</p>
-                </div>
-              </div>
-            </button>
-          </div>
-
-          {/* Optimize Storage Button */}
-          <div className="mt-4">
-            <button
-              onClick={handleOptimizeStorage}
-              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition p-4 text-left"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-base flex-shrink-0">🚀</span>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Optimize Storage</h3>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Move product images to filesystem to free up app space</p>
-                </div>
-              </div>
-            </button>
-          </div>
-
           {/* Clear Cache Button */}
           <div className="mt-4">
             <button
