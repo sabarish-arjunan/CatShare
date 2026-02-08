@@ -36,7 +36,11 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const [filledFromMaster, setFilledFromMaster] = useState({}); // Track which fields are filled from master
   const [confirmDialog, setConfirmDialog] = useState({ show: false, fieldKey: null }); // Confirmation dialog
   const [dataLoaded, setDataLoaded] = useState(false); // Track if data has been loaded
+  const [useAllProducts, setUseAllProducts] = useState(false); // Use all products when visible products are empty
   const { showToast } = useToast();
+
+  // Use allProducts as fallback when products (visibleProducts) is empty
+  const productsToEdit = useAllProducts || products.length === 0 ? allProducts : products;
 
   // Use initial values or selected values
   const catalogueId = selectedCatalogueId || initialCatalogueId;
