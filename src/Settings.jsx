@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { MdOutlineHome } from "react-icons/md";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
@@ -231,21 +232,34 @@ export default function Settings({
           </div>
 
           {/* Pro Plan Card */}
-          <div className="mt-4">
-            <div
+          <div className="mt-8">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/settings/pro")}
-              className="w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition cursor-pointer text-left p-4"
+              className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-5 shadow-xl shadow-blue-500/20 cursor-pointer text-left border border-white/20"
             >
-              <div className="flex items-center justify-between gap-2">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 -ml-4 -mb-4 w-16 h-16 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
+
+              <div className="flex items-center justify-between relative z-10">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-base flex-shrink-0">🎉</span>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Using Pro for FREE</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="bg-white/20 p-1.5 rounded-lg backdrop-blur-md">
+                      <span className="text-xl">✨</span>
+                    </span>
+                    <h3 className="text-base font-bold text-white tracking-tight">Using Pro for FREE</h3>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Beta access to all premium features</p>
+                  <p className="text-xs text-blue-50 font-medium opacity-90">Beta access to all premium features</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <span className="bg-white/20 text-white text-[10px] font-black px-2.5 py-1 rounded-full backdrop-blur-md border border-white/30 uppercase tracking-widest">
+                    PRO
+                  </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </main>
