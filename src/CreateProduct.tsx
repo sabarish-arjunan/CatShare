@@ -581,7 +581,7 @@ export default function CreateProduct() {
   }, [imagePreview]);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const commonFields = ['id', 'name', 'subtitle', 'category', 'badge'];
+    const commonFields = ['id', 'name', 'subtitle', 'category'];
 
     if (commonFields.includes(name)) {
       // Common fields for all catalogues
