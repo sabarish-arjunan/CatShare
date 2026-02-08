@@ -49,7 +49,7 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     type: 'text',
     legacyKeys: ['age', 'Age', 'Age group'],
     unitField: 'field3Unit',
-    unitOptions: ['months', 'years', 'Newborn'],
+    unitOptions: ['months', 'years'],
     defaultUnit: 'months',
   },
   {

@@ -657,7 +657,7 @@ export default function ProductPreviewModal({
                 </div>
               )}
 
-              {product.badge && (
+              {(catalogueData.badge || product.badge) && (
                 <div
                   style={{
                     position: "absolute",
@@ -679,7 +679,7 @@ export default function ProductPreviewModal({
                     justifyContent: "center",
                   }}
                 >
-                  {product.badge.toUpperCase()}
+                  {(catalogueData.badge || product.badge).toUpperCase()}
                 </div>
               )}
             </div>
@@ -730,14 +730,14 @@ export default function ProductPreviewModal({
                   <p style={{ margin: "2px 0", display: "flex" }}>
                     <span style={{ width: "90px" }}>Package</span>
                     <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field2Value} {catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "pcs / set")}</span>
+                    <span style={{ marginLeft: "8px" }}>{field2Value} {(() => { const unit = catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
                   </p>
                 )}
                 {hasField3 && (
                   <p style={{ margin: "2px 0", display: "flex" }}>
                     <span style={{ width: "90px" }}>Age Group</span>
                     <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field3Value} {catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months")}</span>
+                    <span style={{ marginLeft: "8px" }}>{field3Value} {(() => { const unit = catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
                   </p>
                 )}
               </div>
@@ -756,7 +756,7 @@ export default function ProductPreviewModal({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece")}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {(() => { const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
               </div>
             )}
 

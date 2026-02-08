@@ -198,7 +198,6 @@ export default function CreateProduct() {
     name: "",
     subtitle: "",
     category: [],
-    badge: "",
     catalogueData: {},
   });
 
@@ -333,7 +332,6 @@ export default function CreateProduct() {
             : migratedProduct.category
             ? [migratedProduct.category]
             : [],
-          badge: migratedProduct.badge || "",
           catalogueData: migratedProduct.catalogueData,
         });
 
@@ -410,9 +408,10 @@ export default function CreateProduct() {
       const updates: Partial<CatalogueData> = {
         field1: "",
         field2: "",
-        field2Unit: "pcs / set",
+        field2Unit: "None",
         field3: "",
-        field3Unit: "months",
+        field3Unit: "None",
+        badge: "",
       };
       updateCatalogueData(updates);
       return;
@@ -427,9 +426,10 @@ export default function CreateProduct() {
     const updates: Partial<CatalogueData> = {
       field1: defaultCatalogueData.field1 || "",
       field2: defaultCatalogueData.field2 || "",
-      field2Unit: defaultCatalogueData.field2Unit || "pcs / set",
+      field2Unit: defaultCatalogueData.field2Unit || "None",
       field3: defaultCatalogueData.field3 || "",
-      field3Unit: defaultCatalogueData.field3Unit || "months",
+      field3Unit: defaultCatalogueData.field3Unit || "None",
+      badge: defaultCatalogueData.badge || "",
     };
 
     updateCatalogueData(updates);
@@ -581,7 +581,7 @@ export default function CreateProduct() {
   }, [imagePreview]);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const commonFields = ['id', 'name', 'subtitle', 'category', 'badge'];
+    const commonFields = ['id', 'name', 'subtitle', 'category'];
 
     if (commonFields.includes(name)) {
       // Common fields for all catalogues
@@ -860,14 +860,6 @@ setTimeout(async () => {
               placeholder="Subtitle"
               className="border p-2 rounded w-full mb-2"
             />
-            <label className="block text-sm font-medium mb-1">Product Badge</label>
-            <input
-              name="badge"
-              value={formData.badge}
-              onChange={handleChange}
-              placeholder="Enter product badge"
-              className="border p-2 rounded text-sm w-full"
-            />
           </div>
 
           {/* CATALOGUE SELECTOR */}
@@ -904,7 +896,7 @@ setTimeout(async () => {
                         type="checkbox"
                         checked={fetchFieldsChecked}
                         onChange={(e) => handleFetchFieldsChange(e.target.checked)}
-                        title="Fill fields (Colour, Package, Age Group) from default catalogue"
+                        title="Fill fields (Colour, Package, Age Group) and badge from default catalogue"
                         className="w-4 h-4 rounded border-gray-300"
                       />
                       <span className="text-gray-700">Fill Fields</span>
@@ -954,10 +946,11 @@ setTimeout(async () => {
                   />
                   <select
                     name="field2Unit"
-                    value={getCatalogueFormData().field2Unit || "pcs / set"}
+                    value={getCatalogueFormData().field2Unit || "None"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
                   >
+                    <option>None</option>
                     <option>pcs / set</option>
                     <option>pcs / dozen</option>
                     <option>pcs / pack</option>
@@ -974,13 +967,13 @@ setTimeout(async () => {
                   />
                   <select
                     name="field3Unit"
-                    value={getCatalogueFormData().field3Unit || "months"}
+                    value={getCatalogueFormData().field3Unit || "None"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
                   >
+                    <option>None</option>
                     <option>months</option>
                     <option>years</option>
-                    <option>Newborn</option>
                   </select>
                 </div>
 
@@ -994,15 +987,25 @@ setTimeout(async () => {
                   />
                   <select
                     name={getSelectedCataloguePriceUnitField()}
-                    value={getSelectedCataloguePriceUnit()}
+                    value={getSelectedCataloguePriceUnit() || "None"}
                     onChange={handleChange}
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
+                    <option>None</option>
                     <option>/ piece</option>
                     <option>/ dozen</option>
                     <option>/ set</option>
                   </select>
                 </div>
+
+                <label className="block text-sm font-medium mb-1">Product Badge</label>
+                <input
+                  name="badge"
+                  value={getCatalogueFormData().badge || ""}
+                  onChange={handleChange}
+                  placeholder="Enter product badge"
+                  className="border p-2 rounded text-sm w-full"
+                />
               </>
             )}
 
@@ -1195,7 +1198,7 @@ setTimeout(async () => {
         </div>
       )}
 
-      {formData.badge && (
+      {getCatalogueFormData().badge && (
         <div
           style={{
             position: "absolute",
@@ -1216,7 +1219,7 @@ setTimeout(async () => {
             justifyContent: "center",
           }}
         >
-          {formData.badge.toUpperCase()}
+          {getCatalogueFormData().badge.toUpperCase()}
         </div>
       )}
     </div>
@@ -1235,8 +1238,8 @@ setTimeout(async () => {
     )}
     <div className="text-sm mt-2 space-y-1">
       <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field1}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit}</p>
-      <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit}</p>
+      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit !== "None" && getCatalogueFormData().field2Unit}</p>
+      <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit !== "None" && getCatalogueFormData().field3Unit}</p>
     </div>
   </div>
 
@@ -1250,7 +1253,7 @@ setTimeout(async () => {
       fontSize: 20,
     }}
   >
-    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit()}
+    Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
   </div>
 </div>
 

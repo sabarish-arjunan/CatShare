@@ -262,6 +262,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       // 2. If inside a catalogue view, go back to catalogues list
       if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
+        setSelected([]);
         setSelectedCatalogueInCataloguesTab(null);
         return;
       }
@@ -950,7 +951,10 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                     priceField={selectedCat.priceField}
                     priceUnitField={selectedCat.priceUnitField}
                     stockField={selectedCat.stockField}
-                    onBack={() => setSelectedCatalogueInCataloguesTab(null)}
+                    onBack={() => {
+                      setSelected([]);
+                      setSelectedCatalogueInCataloguesTab(null);
+                    }}
                   />
                 </div>
               );
