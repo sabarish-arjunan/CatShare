@@ -756,7 +756,7 @@ export default function ProductPreviewModal({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {(() => { const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "None"); return unit !== "None" ? unit : ""; })()}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {(() => { const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
               </div>
             )}
 
