@@ -9,6 +9,7 @@ import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
+import { safeGetFromStorage } from "./utils/safeStorage";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -16,7 +17,8 @@ const getWatermarkPositionStyles = (position) => {
     position: "absolute",
     fontFamily: "Arial, sans-serif",
     fontWeight: 500,
-    pointerEvents: "none"
+    pointerEvents: "none",
+    zIndex: 10
   };
 
   const positionMap = {
@@ -31,7 +33,8 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  return { ...baseStyles, ...positionMap[position] };
+  const selectedPosition = positionMap[position] || positionMap["bottom-center"];
+  return { ...baseStyles, ...selectedPosition };
 };
 
 // Full Screen Image Viewer Component
@@ -389,47 +392,35 @@ export default function ProductPreviewModal({
 
   // Check if watermark should be shown
   const [showWatermark, setShowWatermark] = useState(() => {
-    const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : false; // Default: false (hide watermark)
+    return safeGetFromStorage("showWatermark", false);
   });
 
   // Get custom watermark text
   const [watermarkText, setWatermarkText] = useState(() => {
-    return localStorage.getItem("watermarkText") || "Created using CatShare";
+    return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
 
   // Get watermark position
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return localStorage.getItem("watermarkPosition") || "bottom-center";
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
 
   // Listen for watermark setting changes from Settings modal
   useEffect(() => {
     const handleStorageChange = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
-
-      const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "Created using CatShare");
-
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setShowWatermark(safeGetFromStorage("showWatermark", false));
+      setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handleWatermarkChange = () => {
-      const stored = localStorage.getItem("showWatermark");
-      setShowWatermark(stored !== null ? JSON.parse(stored) : false);
-
-      const textStored = localStorage.getItem("watermarkText");
-      setWatermarkText(textStored || "Created using CatShare");
-
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setShowWatermark(safeGetFromStorage("showWatermark", false));
+      setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     const handlePositionChange = (e) => {
-      const positionStored = localStorage.getItem("watermarkPosition");
-      setWatermarkPosition(positionStored || "bottom-center");
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
     };
 
     window.addEventListener("storage", handleStorageChange);
