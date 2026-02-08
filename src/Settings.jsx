@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineHome } from "react-icons/md";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { cleanupProductStorage } from "./utils/dataMigration";
 import SideDrawer from "./SideDrawer";
 
 export default function Settings({
@@ -86,26 +85,6 @@ export default function Settings({
       console.log("✅ Notification sent:", title);
     } catch (error) {
       console.error("❌ Notification failed:", error);
-    }
-  };
-
-  // Test notification
-  const testNotification = async () => {
-    await sendNotification("Test Notification", "If you see this, notifications are working! ✅");
-  };
-
-  // Optimize storage by moving base64 images to Filesystem
-  const handleOptimizeStorage = async () => {
-    if (window.confirm("Optimize product storage?\n\nThis will move all product images to your device's filesystem and free up significant space in the app's internal storage.\n\nYour products and images will remain safe.")) {
-      try {
-        await cleanupProductStorage();
-        // Refresh products state to reflect removed base64 data
-        const updatedProducts = JSON.parse(localStorage.getItem("products") || "[]");
-        setProducts(updatedProducts);
-        alert("✅ Storage optimization complete! Your app should now run smoother and allow for more catalogues.");
-      } catch (err) {
-        alert(`❌ Optimization failed: ${err.message}`);
-      }
     }
   };
 
