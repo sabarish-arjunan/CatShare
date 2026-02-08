@@ -737,7 +737,7 @@ export default function ProductPreviewModal({
                   <p style={{ margin: "2px 0", display: "flex" }}>
                     <span style={{ width: "90px" }}>Age Group</span>
                     <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field3Value} {(() => { const unit = catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "months"); return unit !== "None" ? unit : ""; })()}</span>
+                    <span style={{ marginLeft: "8px" }}>{field3Value} {(() => { const unit = catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
                   </p>
                 )}
               </div>
