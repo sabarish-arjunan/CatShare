@@ -1195,7 +1195,7 @@ setTimeout(async () => {
         </div>
       )}
 
-      {formData.badge && (
+      {getCatalogueFormData().badge && (
         <div
           style={{
             position: "absolute",
@@ -1216,7 +1216,7 @@ setTimeout(async () => {
             justifyContent: "center",
           }}
         >
-          {formData.badge.toUpperCase()}
+          {getCatalogueFormData().badge.toUpperCase()}
         </div>
       )}
     </div>
