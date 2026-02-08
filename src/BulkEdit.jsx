@@ -441,8 +441,11 @@ useEffect(() => {
               </div>
             </div>
             <h2 className="text-lg font-bold text-gray-800 mb-2">No Images Have Been Set to Show</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              All product images in this catalogue are currently hidden. However, you can still bulk edit product information.
+            <p className="text-sm text-gray-600 mb-2">
+              All product images in this catalogue are currently hidden.
+            </p>
+            <p className="text-sm text-gray-700 font-medium mb-4">
+              {allProducts.length} product{allProducts.length !== 1 ? 's' : ''} available for editing
             </p>
             <p className="text-xs text-gray-500 mb-6 bg-gray-50 rounded-lg p-3">
               To show images, enable visibility in the catalogue view settings.
