@@ -94,58 +94,6 @@ const handleFirebaseMessage = async (payload: any) => {
 };
 
 /**
- * Trigger background rendering on Firebase
- * This will send your products to Firebase Cloud Function for rendering
- */
-export const triggerBackgroundRendering = async (products: any[], userId: string) => {
-  try {
-    const isNative = Capacitor.getPlatform() !== "web";
-    const deviceId = localStorage.getItem("deviceId") || `device-${Date.now()}`;
-
-    if (!localStorage.getItem("deviceId")) {
-      localStorage.setItem("deviceId", deviceId);
-    }
-
-    console.log("📤 Triggering Firebase rendering...", { productCount: products.length, userId, deviceId });
-
-    const request: RenderingRequest = {
-      products,
-      userId,
-      deviceId,
-    };
-
-    console.log("🔄 Calling Firebase Cloud Function 'triggerRendering'...");
-    const result = await triggerRenderingFunction(request);
-    console.log("✅ Firebase rendering triggered successfully:", result.data);
-
-    return result.data;
-  } catch (error: any) {
-    const errorCode = error?.code;
-    const errorMessage = error?.message || error;
-
-    console.error("❌ Error triggering Firebase rendering:", {
-      code: errorCode,
-      message: errorMessage,
-      details: error
-    });
-
-    // Common Firebase function errors
-    if (errorCode === "functions/unauthenticated") {
-      console.error("⚠️ Firebase Cloud Function not authenticated. Ensure Firebase auth is setup.");
-    } else if (errorCode === "functions/not-found") {
-      console.error("⚠️ Firebase Cloud Function 'triggerRendering' not found. Please deploy the function to your Firebase project.");
-    } else if (errorCode === "functions/internal") {
-      console.error("⚠️ Firebase Cloud Function error. Check Firebase Console for error details.");
-    } else if (errorCode === "functions/unavailable") {
-      console.error("⚠️ Firebase functions unavailable. Check your internet connection or Firebase status.");
-    }
-
-    // Re-throw to allow caller to handle
-    throw error;
-  }
-};
-
-/**
  * Get Firebase Cloud Messaging token
  */
 export const getFCMToken = async (): Promise<string | null> => {
