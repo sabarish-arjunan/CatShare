@@ -54,12 +54,5 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Background Rendering Service -->
-        <service
-            android:name=".RenderingService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-
     </application>
 </manifest>
