@@ -326,12 +326,31 @@ useEffect(() => {
       editedIds.has(p.id) ? cleanData.find(edited => edited.id === p.id) : p
     ) : cleanData;
 
+    // Validate data before saving
+    try {
+      JSON.stringify(mergedData);
+    } catch (jsonErr) {
+      throw new Error(`Data validation failed: ${jsonErr.message}`);
+    }
+
     localStorage.setItem("products", JSON.stringify(mergedData));
     setProducts(mergedData);
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
-    showToast("Something went wrong during save.", "error");
+
+    // Provide specific error messages
+    let errorMessage = "Something went wrong during save.";
+
+    if (err.name === "QuotaExceededError") {
+      errorMessage = "Storage quota exceeded. Try deleting some products or clearing old backups.";
+    } else if (err.message?.includes("Data validation failed")) {
+      errorMessage = "Data format error. Try refreshing and making smaller changes.";
+    } else if (err.message?.includes("setCatalogueData")) {
+      errorMessage = "Failed to process catalogue data. Please check the form values.";
+    }
+
+    showToast(errorMessage, "error");
   }
 };
 
