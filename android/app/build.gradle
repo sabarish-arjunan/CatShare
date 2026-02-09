@@ -18,8 +18,10 @@ android {
         applicationId "com.catshare.official"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
-        versionName "2.1.5"
+
+        versionCode 20
+        versionName "2.1.7"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         aaptOptions {
