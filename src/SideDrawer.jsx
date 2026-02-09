@@ -502,28 +502,47 @@ const exportProductsToCSV = (products) => {
         console.warn("⚠️ Could not save categories:", catErr.message);
       }
 
-      // SKIP deleted products entirely to save space - they can be restored later if needed
-      console.log("ℹ️ Skipping deleted products to save storage space");
+      // Restore deleted products (shelf items) from backup
       if (Array.isArray(parsed.deleted) && parsed.deleted.length > 0) {
-        // Just restore the images from deleted products' ZIP entries but don't save them to localStorage
-        console.log(`📂 Restoring ${parsed.deleted.length} deleted product images to filesystem...`);
-        for (const p of parsed.deleted) {
-          if (p.imageFilename && p.imagePath) {
-            const imgFile = zip.file(`images/${p.imageFilename}`);
-            if (imgFile) {
-              try {
-                const base64 = await imgFile.async("base64");
-                await Filesystem.writeFile({
-                  path: p.imagePath,
-                  data: base64,
-                  directory: Directory.Data,
-                  recursive: true,
-                });
-              } catch (err) {
-                console.warn("Image write failed for deleted product:", p.imagePath);
+        console.log(`📂 Restoring ${parsed.deleted.length} deleted products (shelf items)...`);
+
+        const restoredDeleted = await Promise.all(
+          parsed.deleted.map(async (p) => {
+            // Restore image from ZIP
+            if (p.imageFilename && p.imagePath) {
+              const imgFile = zip.file(`images/${p.imageFilename}`);
+              if (imgFile) {
+                try {
+                  const base64 = await imgFile.async("base64");
+                  await Filesystem.writeFile({
+                    path: p.imagePath,
+                    data: base64,
+                    directory: Directory.Data,
+                    recursive: true,
+                  });
+                  console.log(`✅ Image restored for deleted product "${p.name}"`);
+                } catch (err) {
+                  console.warn("Image write failed for deleted product:", p.imagePath);
+                }
               }
             }
-          }
+
+            // Clean up the product object
+            const clean = { ...p };
+            delete clean.imageBase64;
+            delete clean.imageFilename;
+            const migrated = migrateProductToNewFormat(clean);
+            return migrated;
+          })
+        );
+
+        // Save deleted products to localStorage
+        try {
+          localStorage.setItem("deletedProducts", JSON.stringify(restoredDeleted));
+          setDeletedProducts(restoredDeleted);
+          console.log(`✅ Restored ${restoredDeleted.length} shelf items successfully`);
+        } catch (err) {
+          console.warn("⚠️ Could not save deleted products (shelf items):", err.message);
         }
       }
 
