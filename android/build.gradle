@@ -21,37 +21,50 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 
 // ✅ Force Java 17 for all modules (overrides capacitor-android's Java 21)
 subprojects {
-    afterEvaluate {
-        // Override compileOptions
-        if (project.android) {
-            project.android.compileOptions {
+
+    // ✅ Apply Java 17 ONLY to Android modules
+    plugins.withId("com.android.application") {
+        android {
+            compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_17
                 targetCompatibility = JavaVersion.VERSION_17
             }
         }
-        
-        // Override java toolchain
-        if (project.plugins.hasPlugin('java')) {
-            project.java.toolchain {
+    }
+
+    plugins.withId("com.android.library") {
+        android {
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+        }
+    }
+
+    // ✅ Java toolchain (non-Android Java modules)
+    plugins.withId("java") {
+        java {
+            toolchain {
                 languageVersion = JavaLanguageVersion.of(17)
             }
         }
     }
-    
-    // Force JavaCompile tasks
+
+    // ✅ Force JavaCompile
     tasks.withType(JavaCompile).configureEach {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
         options.release = 17
     }
 
-    // ✅ Force all KotlinCompile tasks in subprojects/plugins to JVM 17
+    // ✅ Force Kotlin JVM target
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             jvmTarget = "17"
         }
     }
 }
+
 
 apply from: "variables.gradle"
 
