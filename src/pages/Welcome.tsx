@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import JSZip from 'jszip';
-import { MdFolderOpen } from 'react-icons/md';
 import { INDUSTRY_PRESETS } from '../config/industryPresets';
 import { DEFAULT_FIELDS, FieldConfig } from '../config/fieldConfig';
-import { safeSetInStorage, safeGetFromStorage } from '../utils/safeStorage';
+import { safeSetInStorage } from '../utils/safeStorage';
 
 type WelcomeStep = 'welcome' | 'industry' | 'fields' | 'complete';
 
