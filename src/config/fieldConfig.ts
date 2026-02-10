@@ -408,10 +408,9 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
     }
   }
 
-  // For old backups (without fieldsDefinition in the backup file), set industry to "Custom Fields (from Backup)"
-  // This indicates these are custom fields restored from an old backup
-  // We force this regardless of current industry to make it clear these are restored custom fields
-  const backupIndustry = isOldBackup ? 'Custom Fields (from Backup)' : (definition.industry || 'General Products (Custom)');
+  // For old backups (without fieldsDefinition in the backup file), set industry to "General Products (Custom)"
+  // This uses the existing Custom/General template for old backups
+  const backupIndustry = isOldBackup ? 'General Products (Custom)' : (definition.industry || 'General Products (Custom)');
 
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {
