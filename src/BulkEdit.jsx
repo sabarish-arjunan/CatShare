@@ -9,12 +9,17 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
     { key: "name", label: "Name" },
     { key: "subtitle", label: "Subtitle" },
-    { key: "field1", label: getFieldConfig('field1')?.label || "Colour" },
-    { key: "field2", label: getFieldConfig('field2')?.label || "Package" },
-    { key: "field3", label: getFieldConfig('field3')?.label || "Age Group" },
-    { key: "badge", label: "Badge" },
-    { key: "category", label: "Category" },
   ];
+
+  // Add all enabled product fields
+  getAllFields()
+    .filter(f => f.enabled && f.key.startsWith('field'))
+    .forEach(field => {
+      baseFields.push({ key: field.key, label: field.label });
+    });
+
+  baseFields.push({ key: "badge", label: "Badge" });
+  baseFields.push({ key: "category", label: "Category" });
 
   // Add price field based on catalogue
   if (priceField) {
@@ -89,17 +94,6 @@ useEffect(() => {
       category: p.category || [],
       // Store original badge for fallback
       masterBadge: p.badge || "",
-      // Show if exists in catalogue, otherwise empty
-      field1: catData.field1 || "",
-      color: catData.field1 || p.color || "",
-      field2: catData.field2 || "",
-      field2Unit: catData.field2Unit || "pcs / set",
-      package: catData.field2 || p.package || "",
-      packageUnit: catData.field2Unit || p.packageUnit || "pcs / set",
-      field3: catData.field3 || "",
-      field3Unit: catData.field3Unit || "months",
-      age: catData.field3 || p.age || "",
-      ageUnit: catData.field3Unit || p.ageUnit || "months",
       wholesaleStock:
         typeof p.wholesaleStock === "boolean"
           ? p.wholesaleStock ? "in" : "out"
@@ -109,6 +103,14 @@ useEffect(() => {
           ? p.resellStock ? "in" : "out"
           : p.resellStock || "",
     };
+
+    // Dynamically copy all fieldX data
+    for (let i = 1; i <= 10; i++) {
+      const fieldKey = `field${i}`;
+      const unitKey = `field${i}Unit`;
+      normalized[fieldKey] = catData[fieldKey] || p[fieldKey] || "";
+      normalized[unitKey] = catData[unitKey] || p[unitKey] || "None";
+    }
 
     // Handle catalogue-specific stock field
     if (stockField && stockField !== 'wholesaleStock' && stockField !== 'resellStock') {
@@ -159,16 +161,6 @@ useEffect(() => {
       subtitle: item.subtitle ?? "",
       badge: item.badge ?? "",
       category: item.category ?? [],
-      field1: item.field1 ?? "",
-      color: item.color ?? "",
-      field2: item.field2 ?? "",
-      field2Unit: item.field2Unit ?? "pcs / set",
-      package: item.package ?? "",
-      packageUnit: item.packageUnit ?? "pcs / set",
-      field3: item.field3 ?? "",
-      field3Unit: item.field3Unit ?? "months",
-      age: item.age ?? "",
-      ageUnit: item.ageUnit ?? "months",
       wholesale: item.wholesale ?? "",
       wholesaleUnit: item.wholesaleUnit ?? "/ piece",
       resell: item.resell ?? "",
@@ -189,6 +181,12 @@ useEffect(() => {
       image: item.image ?? "",
       imagePath: item.imagePath ?? "",
     };
+
+    // Add all fieldX slots to defaults
+    for (let i = 1; i <= 10; i++) {
+      defaults[`field${i}`] = item[`field${i}`] ?? "";
+      defaults[`field${i}Unit`] = item[`field${i}Unit`] ?? "None";
+    }
 
     // Also ensure dynamic price field is initialized
     if (priceField && !(priceField in defaults)) {
@@ -236,14 +234,9 @@ useEffect(() => {
         prev.map((item) => {
           const updates = {};
 
-          if (fieldKey === "field1") {
-            updates.field1 = "";
-          } else if (fieldKey === "field2") {
-            updates.field2 = "";
-            updates.field2Unit = "pcs / set";
-          } else if (fieldKey === "field3") {
-            updates.field3 = "";
-            updates.field3Unit = "months";
+          if (fieldKey.startsWith('field')) {
+            updates[fieldKey] = "";
+            updates[`${fieldKey}Unit`] = "None";
           } else if (fieldKey === "badge") {
             updates.badge = "";
           } else if (fieldKey === priceField) {
@@ -283,14 +276,9 @@ useEffect(() => {
         const masterData = getCatalogueData(item, masterCatalogueId);
         const updates = {};
 
-        if (fieldKey === "field1") {
-          updates.field1 = masterData.field1 || item.color || "";
-        } else if (fieldKey === "field2") {
-          updates.field2 = masterData.field2 || item.package || "";
-          updates.field2Unit = masterData.field2Unit || item.packageUnit || "pcs / set";
-        } else if (fieldKey === "field3") {
-          updates.field3 = masterData.field3 || item.age || "";
-          updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
+        if (fieldKey.startsWith('field')) {
+          updates[fieldKey] = masterData[fieldKey] || "";
+          updates[`${fieldKey}Unit`] = masterData[`${fieldKey}Unit`] || "None";
         } else if (fieldKey === "badge") {
           updates.badge = masterData.badge || item.masterBadge || "";
         } else if (fieldKey === priceField) {
@@ -361,17 +349,20 @@ useEffect(() => {
   }
 
   // Save catalogue-specific data
-  copy = setCatalogueData(copy, catalogueId, {
-    field1: p.field1,
-    field2: p.field2,
-    field3: p.field3,
+  const catUpdates = {
     badge: p.badge,
-    field2Unit: p.field2Unit,
-    field3Unit: p.field3Unit,
     [priceField]: priceField ? p[priceField] : undefined,
     [priceUnitField]: priceField ? p[priceUnitField] : undefined,
     [stockField]: stockField ? (typeof p[stockField] === "string" ? p[stockField] === "in" : p[stockField]) : undefined,
-  });
+  };
+
+  // Save all fieldX slots
+  for (let i = 1; i <= 10; i++) {
+    catUpdates[`field${i}`] = p[`field${i}`];
+    catUpdates[`field${i}Unit`] = p[`field${i}Unit`];
+  }
+
+  copy = setCatalogueData(copy, catalogueId, catUpdates);
 
   return copy;
 });
@@ -444,11 +435,6 @@ useEffect(() => {
                   const catData = getCatalogueData(p, cat.id);
                   const normalized = {
                     ...p,
-                    field1: catData.field1 || p.field1 || p.color || "",
-                    field2: catData.field2 || p.field2 || p.package || "",
-                    field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
-                    field3: catData.field3 || p.field3 || p.age || "",
-                    field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
                     badge: catData.badge || p.badge || "",
                     masterBadge: p.badge || "",
                     wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
@@ -461,6 +447,14 @@ useEffect(() => {
                     masterResell: p.resell || "",
                     masterResellUnit: p.resellUnit || "/ piece",
                   };
+
+                  // Copy all fieldX slots
+                  for (let i = 1; i <= 10; i++) {
+                    const fieldKey = `field${i}`;
+                    const unitKey = `field${i}Unit`;
+                    normalized[fieldKey] = catData[fieldKey] || p[fieldKey] || "";
+                    normalized[unitKey] = catData[unitKey] || p[unitKey] || "None";
+                  }
 
                   if (cat.stockField && cat.stockField !== 'wholesaleStock' && cat.stockField !== 'resellStock') {
                     normalized[cat.stockField] = typeof p[cat.stockField] === "boolean" ? p[cat.stockField] ? "in" : "out" : p[cat.stockField];
@@ -695,52 +689,34 @@ useEffect(() => {
               />
             )}
 
-            {selectedFields.includes("field1") && (
-              <input
-                value={item.field1 ?? ""}
-                onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
-                className="border rounded px-2 py-1"
-              />
-            )}
-
-            {selectedFields.includes("field2") && (
-  <div className="flex gap-2">
-    <input
-      value={item.field2 ?? ""}
-      onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
-      className="border rounded px-2 py-1 w-28"
-    />
-    <select
-      value={item.field2Unit ?? "pcs / set"}
-      onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
-      className="border rounded px-2 py-1 pr-8 w-16"
-    >
-      {(getFieldConfig('field2')?.unitOptions || ['pcs / set', 'pcs / dozen', 'pcs / pack']).map(opt => (
-        <option key={opt} value={opt}>{opt}</option>
-      ))}
-    </select>
-  </div>
-)}
-
-
-            {selectedFields.includes("field3") && (
-              <div className="flex gap-2">
-                <input
-                  value={item.field3 ?? ""}
-                  onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
-                  className="border rounded px-2 py-1 w-28"
-                />
-                <select
-                  value={item.field3Unit ?? "months"}
-                  onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
-                  className="border rounded px-2 py-1 pr-8 w-16"
-                >
-                  {(getFieldConfig('field3')?.unitOptions || ['months', 'years']).map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {/* Dynamic fields */}
+            {getAllFields()
+              .filter(f => f.enabled && f.key.startsWith('field'))
+              .map(field => {
+                if (!selectedFields.includes(field.key)) return null;
+                return (
+                  <div key={field.key} className="flex gap-2">
+                    <input
+                      value={item[field.key] ?? ""}
+                      onChange={(e) => handleFieldChange(item.id, field.key, e.target.value)}
+                      className="border rounded px-2 py-1 w-28"
+                      placeholder={field.label}
+                    />
+                    {(field.unitOptions && field.unitOptions.length > 0) && (
+                      <select
+                        value={item[`${field.key}Unit`] ?? "None"}
+                        onChange={(e) => handleFieldChange(item.id, `${field.key}Unit`, e.target.value)}
+                        className="border rounded px-2 py-1 pr-8 w-16"
+                      >
+                        <option value="None">None</option>
+                        {field.unitOptions.map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                );
+              })}
 
             {priceField && selectedFields.includes(priceField) && (
               <div className="flex gap-2">
