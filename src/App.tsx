@@ -555,6 +555,10 @@ function AppWithBackHandler() {
           element={<WatermarkSettings />}
         />
         <Route
+          path="/settings/watermark/fields"
+          element={<WatermarkFields />}
+        />
+        <Route
           path="/settings/pro"
           element={<ProInfo />}
         />
