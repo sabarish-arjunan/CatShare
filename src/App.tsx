@@ -24,7 +24,7 @@ import Retail from "./Retail";
 import Settings from "./Settings";
 import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
-import WatermarkFields from "./pages/WatermarkFields";
+import FieldsSettings from "./pages/FieldsSettings";
 import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
@@ -555,8 +555,8 @@ function AppWithBackHandler() {
           element={<WatermarkSettings />}
         />
         <Route
-          path="/settings/watermark/fields"
-          element={<WatermarkFields />}
+          path="/settings/fields"
+          element={<FieldsSettings />}
         />
         <Route
           path="/settings/pro"

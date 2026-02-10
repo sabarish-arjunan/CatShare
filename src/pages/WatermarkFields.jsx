@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline } from "react-icons/md";
+import { FiTrash2, FiSettings, FiBriefcase } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   getFieldsDefinition,
   setFieldsDefinition,
@@ -8,14 +11,20 @@ import {
 } from "../config/fieldConfig";
 import { getAllCatalogues } from "../config/catalogueConfig";
 import { INDUSTRY_PRESETS } from "../config/industryPresets";
+import { useToast } from "../context/ToastContext";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export default function WatermarkFields() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [definition, setDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
+  const [activeTab, setActiveTab] = useState("product-fields"); // "product-fields" or "price-fields"
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    setDefinition(getFieldsDefinition());
+    const def = getFieldsDefinition();
+    setDefinition(def);
 
     // Determine which price fields are actually in use by catalogues
     const catalogues = getAllCatalogues();
@@ -23,20 +32,44 @@ export default function WatermarkFields() {
     setActivePriceFields(usedPriceFields);
   }, []);
 
-  const handleSave = () => {
+  const onDragEnd = (result) => {
+    if (!result.destination || !definition) return;
+
+    const items = Array.from(definition.fields);
+
+    // Find the indices in the full fields array
+    const sourceField = filteredFields[result.source.index];
+    const destField = filteredFields[result.destination.index];
+
+    const sourceIndex = items.findIndex(f => f.key === sourceField.key);
+    const destIndex = items.findIndex(f => f.key === destField.key);
+
+    const [reorderedItem] = items.splice(sourceIndex, 1);
+    items.splice(destIndex, 0, reorderedItem);
+
+    setDefinition({ ...definition, fields: items });
+  };
+
+  const handleSave = async () => {
     if (definition) {
       setFieldsDefinition(definition);
-      // Trigger a storage event so other components can react if they listen to it
       window.dispatchEvent(new Event('storage'));
-      alert("Fields saved successfully! These changes will reflect across the app.");
+      try {
+        await Haptics.impact({ style: ImpactStyle.Medium });
+      } catch (e) {}
+      showToast("Field settings saved successfully", "success");
     }
   };
 
-  const handleReset = () => {
-    if (window.confirm("Reset all fields to default settings?")) {
+  const handleReset = async () => {
+    if (window.confirm("Reset all fields to default settings? This will overwrite your current configuration.")) {
       resetToDefaultFields();
       setDefinition(getFieldsDefinition());
       window.dispatchEvent(new Event('storage'));
+      try {
+        await Haptics.impact({ style: ImpactStyle.Heavy });
+      } catch (e) {}
+      showToast("Fields reset to defaults", "info");
     }
   };
 
@@ -57,15 +90,17 @@ export default function WatermarkFields() {
     setDefinition({ ...definition, fields: newFields });
   };
 
-  const updateIndustry = (industry) => {
+  const updateIndustry = async (industry) => {
     if (!definition) return;
 
-    // If switching to an industry preset, we should ideally map the fields
-    const preset = INDUSTRY_PRESETS.find(p => p.name === industry);
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (e) {}
 
+    const preset = INDUSTRY_PRESETS.find(p => p.name === industry);
     let newFields = [...definition.fields];
+    
     if (preset) {
-      // Map preset fields to field1-field10
       newFields = newFields.map(f => {
         if (f.key.startsWith('field')) {
           const index = parseInt(f.key.replace('field', '')) - 1;
@@ -74,14 +109,24 @@ export default function WatermarkFields() {
             return {
               ...f,
               label: presetField.label,
-              unitOptions: presetField.defaultUnits || f.unitOptions,
-              enabled: true // Enable by default when selecting industry? Or keep current enabled?
-              // User said "choose what to stay and what not", so maybe we enable all by default or keep current.
-              // Let's enable them if they were previously disabled but are part of the preset.
+              unitOptions: presetField.defaultUnits || f.unitOptions || [],
+              enabled: true
             };
           } else {
+            // Keep existing fields if they were enabled but aren't in the preset?
+            // Actually, the user said "choose what to stay and what not", 
+            // but industry preset should probably set a baseline.
             return { ...f, enabled: false };
           }
+        }
+        return f;
+      });
+    } else {
+      // General/Custom - keep everything as is or enable first 3
+      newFields = newFields.map(f => {
+        if (f.key.startsWith('field')) {
+          const index = parseInt(f.key.replace('field', ''));
+          return { ...f, enabled: index <= 3 || f.enabled };
         }
         return f;
       });
@@ -90,8 +135,13 @@ export default function WatermarkFields() {
     setDefinition({ ...definition, industry, fields: newFields });
   };
 
-  const toggleFieldEnabled = (key) => {
+  const toggleFieldEnabled = async (key) => {
     if (!definition) return;
+    
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (e) {}
+
     const newFields = definition.fields.map(f =>
       f.key === key ? { ...f, enabled: !f.enabled } : f
     );
@@ -100,176 +150,289 @@ export default function WatermarkFields() {
 
   if (!definition) return null;
 
-  return (
-    <div className="w-full h-screen flex flex-col bg-gray-50 dark:bg-gray-950 relative">
-      {/* Status bar placeholder */}
-      <div className="sticky top-0 h-[40px] bg-black z-50"></div>
+  const productFields = definition.fields.filter(f => f.key.startsWith('field'));
+  const priceFields = definition.fields.filter(f => f.key.startsWith('price') && activePriceFields.includes(f.key));
+  
+  const filteredFields = activeTab === "product-fields" ? productFields : priceFields;
 
-      {/* Header */}
-      <header className="sticky top-[40px] z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 h-14 flex items-center gap-3 px-4 relative">
-        <button
-          onClick={() => navigate("/settings")}
-          className="w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition"
-          aria-label="Back"
-        >
-          <MdArrowBack size={24} />
-        </button>
-        <h1 className="text-xl font-bold flex-1 text-center dark:text-white">Fields Configuration</h1>
-        <div className="flex gap-2">
+  return (
+    <div className="w-full h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
+      {/* iOS-style Status Bar Area */}
+      <div className="h-10 bg-white dark:bg-gray-900 shrink-0"></div>
+
+      {/* Modern Header */}
+      <header className="px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/settings")}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <MdArrowBack size={24} className="text-gray-600 dark:text-gray-400" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Product Fields</h1>
+            <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">Configuration</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-1">
           <button
             onClick={handleReset}
-            className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-500 transition"
+            className="w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-all"
             title="Reset to defaults"
           >
             <MdRefresh size={22} />
           </button>
           <button
             onClick={handleSave}
-            className="w-8 h-8 flex items-center justify-center text-blue-600 hover:text-blue-700 transition"
-            title="Save changes"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-sm shadow-md active:scale-95 transition-all flex items-center gap-2"
           >
-            <MdSave size={24} />
+            <MdSave size={18} />
+            Save
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-xl mx-auto space-y-6">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              Configure the names and units for product fields. These labels will be used in previews,
-              catalogues, and rendered images.
-            </p>
+      <main className="flex-1 overflow-y-auto pb-24" ref={scrollContainerRef}>
+        {/* Industry Selection Section */}
+        <section className="mt-4 px-4">
+          <div className="flex items-center gap-2 mb-3">
+            <FiBriefcase className="text-blue-500" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Industry Templates</h2>
           </div>
-
-          {/* Industry Selection */}
-          <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
-              Primary Industry
-            </label>
-            <select
-              value={definition.industry || "General Products (Custom)"}
-              onChange={(e) => updateIndustry(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-no-repeat bg-[right_0.5rem_center]"
+          
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide no-scrollbar">
+            <button
+              onClick={() => updateIndustry("General Products (Custom)")}
+              className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
+                definition.industry === "General Products (Custom)" || !definition.industry
+                  ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30"
+                  : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
+              }`}
             >
-              <option>General Products (Custom)</option>
-              {INDUSTRY_PRESETS.map(p => (
-                <option key={p.name}>{p.name}</option>
-              ))}
-            </select>
-            <p className="mt-2 text-[10px] text-gray-400">
-              Selecting your industry helps us optimize field defaults for your products.
-            </p>
-          </div>
-
-          <div className="space-y-4 pb-20">
-            {definition.fields
-              .filter(field => {
-                // If General, show all field slots (or at least 1-3)
-                // Actually, let's show all available field slots in General
-                if (field.key.startsWith('field')) {
-                  if (definition.industry === "General Products (Custom)" || !definition.industry) {
-                    // Show field1, field2, field3 by default in General, others if enabled
-                    const index = parseInt(field.key.replace('field', ''));
-                    return index <= 3 || field.enabled;
-                  }
-
-                  // For other industries, only show if it's within the preset range
-                  const preset = INDUSTRY_PRESETS.find(p => p.name === definition.industry);
-                  if (preset) {
-                    const index = parseInt(field.key.replace('field', ''));
-                    return index <= preset.fields.length;
-                  }
-                }
-
-                // Only show price fields if they are linked to an active catalogue
-                if (field.key.startsWith('price')) {
-                  return activePriceFields.includes(field.key);
-                }
-                return true; // Show other fields by default
-              })
-              .map((field) => (
-              <div
-                key={field.key}
-                className={`bg-white dark:bg-gray-900 p-4 rounded-xl border transition-all ${
-                  field.enabled
-                    ? "border-blue-200 dark:border-blue-900 shadow-sm"
-                    : "border-gray-200 dark:border-gray-800 opacity-60 shadow-none"
+              <div className="text-lg mb-1">📦</div>
+              <span className="font-bold text-sm">Custom</span>
+              <span className="text-[10px] opacity-70">Flexible fields</span>
+            </button>
+            
+            {INDUSTRY_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => updateIndustry(preset.name)}
+                className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
+                  definition.industry === preset.name
+                    ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={field.enabled}
-                      onChange={() => toggleFieldEnabled(field.key)}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                      {field.key.startsWith('field') ? `Product Field ${field.key.replace('field', '')}` : `Price Field`}
-                    </span>
-                  </div>
-                  {field.enabled && (
-                    <span className="text-[10px] bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold uppercase">
-                      Active
-                    </span>
-                  )}
+                <div className="text-lg mb-1">
+                  {preset.name.includes("Fashion") ? "👕" : 
+                   preset.name.includes("Lifestyle") ? "🧴" : 
+                   preset.name.includes("Home") ? "🏠" : 
+                   preset.name.includes("Electronics") ? "🎧" : "🛠️"}
                 </div>
-
-                {field.enabled ? (
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase">
-                        Display Label
-                      </label>
-                      <input
-                        type="text"
-                        value={field.label}
-                        onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                        placeholder="e.g. Colour, Size, Material"
-                        className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
-                      />
-                    </div>
-
-                    {(field.unitField || field.key.startsWith('field')) && (
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase">
-                          Unit Options (comma separated)
-                        </label>
-                        <input
-                          type="text"
-                          value={field.unitOptions?.join(", ") || ""}
-                          onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                          placeholder="e.g. kg, lbs, meters"
-                          className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
-                        />
-                        <p className="mt-1 text-[10px] text-gray-400">
-                          Leave empty if no units are needed for this field.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="py-1">
-                    <p className="text-xs text-gray-400 italic">This field is disabled and won't appear in products.</p>
-                  </div>
-                )}
-              </div>
+                <span className="font-bold text-sm truncate w-full text-left">{preset.name.split(" ")[0]}</span>
+                <span className="text-[10px] opacity-70">{preset.fields.length} Fields</span>
+              </button>
             ))}
           </div>
+        </section>
+
+        {/* Tabs for Fields */}
+        <div className="mt-6 px-4">
+          <div className="bg-gray-200 dark:bg-gray-800 p-1 rounded-xl flex gap-1">
+            <button
+              onClick={() => setActiveTab("product-fields")}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "product-fields" 
+                  ? "bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400" 
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              PRODUCT FIELDS
+            </button>
+            <button
+              onClick={() => setActiveTab("price-fields")}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "price-fields" 
+                  ? "bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400" 
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              PRICE FIELDS
+            </button>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="mx-4 mt-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex gap-3 items-start">
+          <MdInfoOutline className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" size={20} />
+          <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            {activeTab === "product-fields" 
+              ? "Enable up to 10 custom fields for your products. Drag to reorder (coming soon). Changes apply to all products immediately."
+              : "Price fields are linked to your catalogues. You can rename them to match your pricing strategy (e.g. 'Retail', 'Wholesale')."}
+          </p>
+        </div>
+
+        {/* Fields List */}
+        <div className="mt-6 px-4 pb-20">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="fields">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="space-y-3"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {filteredFields.map((field, index) => (
+                      <Draggable key={field.key} draggableId={field.key} index={index}>
+                        {(provided, snapshot) => (
+                          <motion.div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            layout
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={`bg-white dark:bg-gray-900 rounded-2xl border transition-all ${
+                              snapshot.isDragging ? "shadow-2xl ring-2 ring-blue-500 z-50 scale-[1.02]" : ""
+                            } ${
+                              field.enabled
+                                ? "border-blue-200 dark:border-blue-900 shadow-sm"
+                                : "border-gray-200 dark:border-gray-800 opacity-60 grayscale-[0.5]"
+                            }`}
+                          >
+                            <div className="p-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    {...provided.dragHandleProps}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing ${
+                                      field.enabled ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                                    }`}
+                                  >
+                                    <MdDragIndicator size={20} />
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                      {field.key.startsWith('field') ? `Product Slot ${field.key.replace('field', '')}` : `Catalogue Price`}
+                                    </span>
+                                    <h3 className="font-bold text-sm dark:text-white">
+                                      {field.label || "Untitled Field"}
+                                    </h3>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => toggleFieldEnabled(field.key)}
+                                    className={`w-12 h-6 rounded-full p-1 transition-all ${
+                                      field.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                                    }`}
+                                  >
+                                    <motion.div
+                                      animate={{ x: field.enabled ? 24 : 0 }}
+                                      className="w-4 h-4 bg-white rounded-full shadow-sm"
+                                    />
+                                  </button>
+                                </div>
+                              </div>
+
+                              {field.enabled ? (
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                      Display Label
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={field.label}
+                                      onChange={(e) => updateFieldLabel(field.key, e.target.value)}
+                                      placeholder="e.g. Colour, Size, Brand..."
+                                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
+                                    />
+                                  </div>
+
+                                  {field.key.startsWith('field') && (
+                                    <div>
+                                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                        Unit Options
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="text"
+                                          value={field.unitOptions?.join(", ") || ""}
+                                          onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                          placeholder="e.g. kg, lbs, meters (comma separated)"
+                                          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
+                                        />
+                                        {field.unitOptions && field.unitOptions.length > 0 && (
+                                          <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="py-1 flex items-center gap-2 text-gray-400 italic text-xs">
+                                  <span>This field is hidden from product forms</span>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </AnimatePresence>
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+
+          {activeTab === "product-fields" && productFields.every(f => !f.enabled) && (
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }}
+              className="py-12 flex flex-col items-center text-center px-6"
+            >
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                <MdAdd size={32} className="text-gray-400" />
+              </div>
+              <h3 className="font-bold text-gray-800 dark:text-white">No Active Fields</h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Enable some fields above or select an industry template to get started.
+              </p>
+            </motion.div>
+          )}
         </div>
       </main>
 
-      {/* Save FAB for mobile */}
-      <div className="fixed bottom-6 right-6 lg:hidden">
+      {/* Floating Save Button for Mobile */}
+      <motion.div 
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        className="fixed bottom-6 left-0 right-0 px-6 z-40 lg:hidden pointer-events-none"
+      >
         <button
           onClick={handleSave}
-          className="w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 active:scale-95 transition-all"
+          className="w-full h-14 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 hover:bg-blue-700 active:scale-95 transition-all pointer-events-auto"
         >
-          <MdSave size={28} />
+          <MdSave size={24} />
+          <span className="font-bold">Apply Changes</span>
         </button>
-      </div>
+      </motion.div>
+      
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }
