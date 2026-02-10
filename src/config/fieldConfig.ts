@@ -23,6 +23,7 @@ export interface FieldConfig {
 export interface FieldsDefinition {
   version: number; // Version of field definition
   fields: FieldConfig[];
+  industry?: string;
   lastUpdated: number;
 }
 
