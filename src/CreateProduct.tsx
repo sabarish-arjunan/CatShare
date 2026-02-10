@@ -1135,33 +1135,46 @@ export default function CreateProduct() {
                 })}
 
               <div className="flex gap-2 mt-2">
-                <input
-                  name={getSelectedCataloguePriceField()}
-                  value={getSelectedCataloguePrice()}
-                  onChange={handleChange}
-                  placeholder="Price"
-                  className="border p-1.5 w-full rounded text-xs"
-                />
-                <select
-                  name={getSelectedCataloguePriceUnitField()}
-                  value={getSelectedCataloguePriceUnit() || "None"}
-                  onChange={handleChange}
-                  className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white"
-                >
-                  <option>None</option>
-                  {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
-                    <option key={opt}>{opt}</option>
-                  ))}
-                </select>
+                <div className="relative flex-1">
+                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                    Price
+                  </label>
+                  <input
+                    name={getSelectedCataloguePriceField()}
+                    value={getSelectedCataloguePrice()}
+                    onChange={handleChange}
+                    className="border p-1.5 w-full rounded text-xs pt-2"
+                  />
+                </div>
+                <div className="relative">
+                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                    Unit
+                  </label>
+                  <select
+                    name={getSelectedCataloguePriceUnitField()}
+                    value={getSelectedCataloguePriceUnit() || "None"}
+                    onChange={handleChange}
+                    className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
+                  >
+                    <option>None</option>
+                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                      <option key={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <input
-                name="badge"
-                value={getCatalogueFormData().badge || ""}
-                onChange={handleChange}
-                placeholder="Badge (e.g. NEW)"
-                className="border p-1.5 rounded w-full text-xs mt-2"
-              />
+              <div className="relative mt-2">
+                <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                  Badge
+                </label>
+                <input
+                  name="badge"
+                  value={getCatalogueFormData().badge || ""}
+                  onChange={handleChange}
+                  className="border p-1.5 rounded w-full text-xs pt-2"
+                />
+              </div>
             </div>
           )}
 
