@@ -495,6 +495,7 @@ function AppWithBackHandler() {
       )}
 
       <Routes>
+        <Route path="/welcome" element={<Welcome />} />
         <Route
           path="/"
           element={
