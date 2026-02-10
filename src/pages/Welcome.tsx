@@ -74,43 +74,6 @@ export default function Welcome() {
     }));
   };
 
-  const handleRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const zip = await JSZip.loadAsync(event.target?.result);
-        const jsonFile = zip.file('catalogue-data.json');
-
-        if (!jsonFile) {
-          alert('Invalid backup file: missing catalogue-data.json');
-          return;
-        }
-
-        const jsonText = await jsonFile.async('text');
-        const parsed = JSON.parse(jsonText);
-
-        if (!parsed.products || !Array.isArray(parsed.products)) {
-          alert('Invalid backup format');
-          return;
-        }
-
-        // Save the backup to localStorage
-        safeSetInStorage('productsBackup', parsed.products);
-        setHasBackup(true);
-        setRestoreData(true);
-        alert('Backup file loaded successfully!');
-      } catch (error) {
-        console.error('Error loading backup file:', error);
-        alert('Failed to load backup file. Please ensure it\'s a valid CatShare backup.');
-      }
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
   const handleComplete = async () => {
     setIsLoading(true);
 
