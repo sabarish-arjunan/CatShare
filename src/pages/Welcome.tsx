@@ -247,15 +247,15 @@ export default function Welcome() {
                     onClick={() => handleIndustrySelect(industry.name)}
                     className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 group ${
                       selectedIndustry === industry.name
-                        ? 'border-purple-500 bg-gradient-to-br from-purple-500/20 to-blue-500/20'
-                        : 'border-slate-600 bg-slate-800/50 hover:border-purple-400 hover:bg-slate-800'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-slate-100'
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <div className="text-4xl">{industryIcons[industry.name] || '💼'}</div>
                       <div className="flex-1">
-                        <p className="font-bold text-lg text-slate-200">{industry.name}</p>
-                        <p className="text-sm text-slate-400 mt-1">{industry.fields.length} fields pre-configured</p>
+                        <p className="font-bold text-lg text-slate-800">{industry.name}</p>
+                        <p className="text-sm text-slate-500 mt-1">{industry.fields.length} fields pre-configured</p>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 transition-all ${
                         selectedIndustry === industry.name
