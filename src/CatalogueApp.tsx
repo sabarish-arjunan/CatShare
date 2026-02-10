@@ -478,6 +478,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       });
       propSetIsRendering?.(false);
       window.dispatchEvent(new CustomEvent("renderComplete"));
+    } finally {
+      // Re-enable screen sleeping after rendering is done
+      try {
+        if (isNative) {
+          await KeepAwake.allowSleep();
+          console.log("🔒 Screen wakelock released after full rendering");
+        }
+      } catch (e) {
+        console.warn("Could not release keep awake lock:", e);
+      }
     }
   };
 
