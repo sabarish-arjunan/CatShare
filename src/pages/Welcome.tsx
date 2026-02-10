@@ -514,13 +514,13 @@ export default function Welcome() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <h2 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-purple-300 to-purple-400 mb-4">
+                <h2 className="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">
                   All Set! 🎉
                 </h2>
-                <p className="text-slate-300 text-lg mb-2">
+                <p className="text-slate-600 text-lg mb-2">
                   Your {selectedIndustry} catalog is ready to go
                 </p>
-                <p className="text-slate-400 text-base">
+                <p className="text-slate-500 text-base">
                   Redirecting to your workspace...
                 </p>
               </motion.div>
