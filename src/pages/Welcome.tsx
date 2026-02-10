@@ -149,7 +149,7 @@ export default function Welcome() {
             transition={{ duration: 0.6 }}
             className="w-full max-w-lg relative z-10"
           >
-            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl shadow-2xl p-12 text-center border border-slate-700/50">
+            <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-slate-200">
               {/* Animated background gradient */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
               
