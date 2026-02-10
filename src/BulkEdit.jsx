@@ -83,7 +83,7 @@ useEffect(() => {
       // Keep product identity
       name: p.name || "",
       subtitle: p.subtitle || "",
-      badge: p.badge || "",
+      badge: catData.badge || "",
       category: p.category || [],
       // Show if exists in catalogue, otherwise empty
       field1: catData.field1 || "",
@@ -227,6 +227,8 @@ useEffect(() => {
           } else if (fieldKey === "field3") {
             updates.field3 = "";
             updates.field3Unit = "months";
+          } else if (fieldKey === "badge") {
+            updates.badge = "";
           } else if (fieldKey === priceField) {
             updates[priceField] = "";
             updates[priceUnitField] = "/ piece";
@@ -257,6 +259,8 @@ useEffect(() => {
         } else if (fieldKey === "field3") {
           updates.field3 = masterData.field3 || item.age || "";
           updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
+        } else if (fieldKey === "badge") {
+          updates.badge = masterData.badge || item.badge || "";
         } else if (fieldKey === priceField) {
           updates[priceField] = masterData[priceField] || "";
           updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
@@ -310,6 +314,7 @@ useEffect(() => {
     field1: p.field1,
     field2: p.field2,
     field3: p.field3,
+    badge: p.badge,
     field2Unit: p.field2Unit,
     field3Unit: p.field3Unit,
     [priceField]: priceField ? p[priceField] : undefined,
@@ -393,6 +398,7 @@ useEffect(() => {
                     field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
                     field3: catData.field3 || p.field3 || p.age || "",
                     field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+                    badge: catData.badge || "",
                     wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
                     resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
                   };
