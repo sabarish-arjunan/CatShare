@@ -71,18 +71,7 @@ export async function renderProductImageOnTheFly(
     let catalogueData = product;
     if (catalogueId) {
       const catData = getCatalogueData(product, catalogueId);
-      catalogueData = {
-        ...product,
-        field1: catData.field1 !== undefined && catData.field1 !== null ? catData.field1 : (product.color || ""),
-        field2: catData.field2 !== undefined && catData.field2 !== null ? catData.field2 : (product.package || ""),
-        field2Unit: catData.field2Unit !== undefined && catData.field2Unit !== null ? catData.field2Unit : (product.packageUnit || "pcs / set"),
-        field3: catData.field3 !== undefined && catData.field3 !== null ? catData.field3 : (product.age || ""),
-        field3Unit: catData.field3Unit !== undefined && catData.field3Unit !== null ? catData.field3Unit : (product.ageUnit || "months"),
-        price1: catData.price1 !== undefined && catData.price1 !== null ? catData.price1 : (product.wholesale || ""),
-        price1Unit: catData.price1Unit !== undefined && catData.price1Unit !== null ? catData.price1Unit : (product.wholesaleUnit || "/ piece"),
-        price2: catData.price2 !== undefined && catData.price2 !== null ? catData.price2 : (product.resell || ""),
-        price2Unit: catData.price2Unit !== undefined && catData.price2Unit !== null ? catData.price2Unit : (product.resellUnit || "/ piece"),
-      };
+      catalogueData = { ...product, ...catData };
     }
 
     const cropAspectRatio = product.cropAspectRatio || 1;
@@ -104,20 +93,25 @@ export async function renderProductImageOnTheFly(
     const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
     const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 
-    const productData = {
+    // Build productData with all enabled fields dynamically
+    const productData: any = {
       name: catalogueData.name,
       subtitle: catalogueData.subtitle,
       image: catalogueData.image || product.image,
-      field1: catalogueData.field1,
-      field2: catalogueData.field2,
-      field2Unit: catalogueData.field2Unit,
-      field3: catalogueData.field3,
-      field3Unit: catalogueData.field3Unit,
       price: price !== "" && price !== 0 ? price : undefined,
       priceUnit: price ? priceUnit : undefined,
       badge: catalogueData.badge,
       cropAspectRatio: cropAspectRatio,
     };
+
+    // Add all enabled fields dynamically
+    getAllFields()
+      .filter(f => f.enabled && f.key.startsWith('field'))
+      .forEach(field => {
+        productData[field.key] = catalogueData[field.key] || "";
+        const unitKey = `${field.key}Unit`;
+        productData[unitKey] = catalogueData[unitKey] || "None";
+      });
 
     console.log(`🎨 On-the-fly rendering product: ${product.name || product.id}`);
 
@@ -145,20 +139,6 @@ export async function renderProductImageOnTheFly(
     console.error(`❌ Error during rendering:`, err);
     // Try to render with empty image as fallback - still render the product card
     try {
-      const fallbackProductData = {
-        name: product.name || "Product",
-        subtitle: product.subtitle || "",
-        image: "", // Empty image will be skipped by canvas renderer
-        field1: product.field1 || "",
-        field2: product.field2 || "",
-        field2Unit: product.field2Unit || "",
-        field3: product.field3 || "",
-        field3Unit: product.field3Unit || "",
-        price: product.price || 0,
-        priceUnit: product.priceUnit || "",
-        badge: product.badge || "",
-        cropAspectRatio: product.cropAspectRatio || 1,
-      };
 
       const fallbackCanvas = await renderProductToCanvas(
         fallbackProductData,
