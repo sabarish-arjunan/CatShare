@@ -335,7 +335,7 @@ export default function Welcome() {
                     >
                       <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                         isChecked
-                          ? 'bg-gradient-to-br from-purple-500 to-pink-400 border-purple-400'
+                          ? 'bg-gradient-to-br from-purple-500 to-blue-400 border-blue-400'
                           : 'border-slate-500 group-hover:border-slate-400'
                       }`}>
                         {isChecked && <span className="text-white text-sm">✓</span>}
