@@ -52,6 +52,15 @@ export default function Welcome() {
   // Note: App.tsx handles redirecting first-time users to /welcome automatically.
   // This component allows both first-time and returning users to access the welcome flow.
 
+  useEffect(() => {
+    if (step === 'complete') {
+      const timer = setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [step, navigate]);
+
   const handleIndustrySelect = (industryName: string) => {
     setSelectedIndustry(industryName);
     const industryPreset = INDUSTRY_PRESETS.find(p => p.name === industryName);
