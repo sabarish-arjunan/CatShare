@@ -194,8 +194,18 @@ function AppWithBackHandler() {
         });
       }
       window.dispatchEvent(new CustomEvent("renderComplete"));
+    } finally {
+      // Re-enable screen sleeping after rendering is done
+      try {
+        if (isNative) {
+          await KeepAwake.allowSleep();
+          console.log("🔒 Screen wakelock released after rendering");
+        }
+      } catch (e) {
+        console.warn("Could not release keep awake lock:", e);
+      }
     }
-  }, []);
+  }, [isNative]);
 
   useEffect(() => {
     if (!isNative) return;
