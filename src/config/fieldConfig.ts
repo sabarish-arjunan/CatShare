@@ -54,7 +54,7 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
   },
   {
     key: 'price1',
-    label: 'Price 1',
+    label: 'Price',
     type: 'number',
     legacyKeys: ['wholesale', 'Wholesale', 'Whole price'],
     unitField: 'price1Unit',
