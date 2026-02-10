@@ -163,9 +163,11 @@ export default function Welcome() {
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
                   transition={{ duration: 3, repeat: Infinity }}
-                  className="w-24 h-24 bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/50 mb-6"
+                  className="flex items-center justify-center mx-auto mb-6"
                 >
-                  <CatShareLogo size={80} className="text-white" />
+                  <div className="w-28 h-28 bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/50 p-2">
+                    <CatShareLogo size={100} />
+                  </div>
                 </motion.div>
               </motion.div>
               
