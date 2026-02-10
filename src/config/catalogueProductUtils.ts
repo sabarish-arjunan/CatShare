@@ -12,12 +12,26 @@ export interface CatalogueData {
   field1?: string;
   field2?: string;
   field3?: string;
+  field4?: string;
+  field5?: string;
+  field6?: string;
+  field7?: string;
+  field8?: string;
+  field9?: string;
+  field10?: string;
   price1?: string;
   price1Unit?: string;
   price2?: string;
   price2Unit?: string;
   field2Unit?: string;
   field3Unit?: string;
+  field4Unit?: string;
+  field5Unit?: string;
+  field6Unit?: string;
+  field7Unit?: string;
+  field8Unit?: string;
+  field9Unit?: string;
+  field10Unit?: string;
   badge?: string;
   stock?: boolean;
   wholesaleStock?: boolean;
@@ -59,10 +73,24 @@ export function initializeCatalogueData(product?: ProductWithCatalogueData): Rec
       field1: product?.field1 || "",
       field2: product?.field2 || "",
       field3: product?.field3 || "",
+      field4: product?.field4 || "",
+      field5: product?.field5 || "",
+      field6: product?.field6 || "",
+      field7: product?.field7 || "",
+      field8: product?.field8 || "",
+      field9: product?.field9 || "",
+      field10: product?.field10 || "",
       [cat.priceField]: priceValue,
       [cat.priceUnitField]: priceUnitValue,
       field2Unit: product?.field2Unit || product?.packageUnit || "None",
       field3Unit: product?.field3Unit || product?.ageUnit || "None",
+      field4Unit: product?.field4Unit || "None",
+      field5Unit: product?.field5Unit || "None",
+      field6Unit: product?.field6Unit || "None",
+      field7Unit: product?.field7Unit || "None",
+      field8Unit: product?.field8Unit || "None",
+      field9Unit: product?.field9Unit || "None",
+      field10Unit: product?.field10Unit || "None",
       badge: product?.badge || "",
       stock: product?.stock !== false,
       wholesaleStock: product?.wholesaleStock !== false,
@@ -109,8 +137,22 @@ export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
     field1: "",
     field2: "",
     field3: "",
+    field4: "",
+    field5: "",
+    field6: "",
+    field7: "",
+    field8: "",
+    field9: "",
+    field10: "",
     field2Unit: "None",
     field3Unit: "None",
+    field4Unit: "None",
+    field5Unit: "None",
+    field6Unit: "None",
+    field7Unit: "None",
+    field8Unit: "None",
+    field9Unit: "None",
+    field10Unit: "None",
     badge: "",
     stock: true,
     wholesaleStock: true,
