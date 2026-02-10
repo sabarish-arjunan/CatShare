@@ -157,6 +157,8 @@ export default function FieldsSettings() {
   const priceFields = definition.fields.filter(f => f.key.startsWith('price') && activePriceFields.includes(f.key));
   
   const allFields = [...productFields, ...priceFields];
+  const activeProductFieldsCount = productFields.filter(f => f.enabled).length;
+  const activePriceFieldsCount = priceFields.filter(f => f.enabled).length;
 
   return (
     <div className="w-full h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
