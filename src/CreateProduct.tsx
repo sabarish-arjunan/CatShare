@@ -1,6 +1,7 @@
 // Final full CreateProduct.jsx with Save.jsx integration and new draggable layout
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -194,74 +195,35 @@ export default function CreateProduct() {
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
-  // Bottom sheet state
-  const [sheetHeight, setSheetHeight] = useState(120);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(0);
-  const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
-  const sheetRef = useRef<HTMLDivElement>(null);
+  // Bottom sheet state using Framer Motion for buttery smooth performance
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
+  const MIN_HEIGHT = 120;
+  const DRAG_RANGE = MAX_HEIGHT - MIN_HEIGHT;
 
-  // Drag handlers - support both mouse and touch events
-  const startYRef = useRef(0);
-  const startHeightRef = useRef(0);
+  const y = useMotionValue(DRAG_RANGE);
+  const [isDragging, setIsDragging] = useState(false);
+  const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
 
-  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    // Don't start drag from input/button elements
-    const target = e.target as HTMLElement;
-    if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName)) {
-      return;
+  // Derived values for hardware-accelerated animations
+  const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
+  const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
+  const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
+  const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
+
+  const handleDragEnd = (_: any, info: any) => {
+    setIsDragging(false);
+    const velocity = info.velocity.y;
+    const currentY = y.get();
+
+    // Snapping logic with velocity and threshold for a "buttery" feel
+    if (velocity < -300 || (velocity <= 0 && currentY < DRAG_RANGE * 0.7)) {
+      // Snap to top (expanded)
+      animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
+    } else {
+      // Snap to bottom (collapsed)
+      animate(y, DRAG_RANGE, { type: "spring", stiffness: 400, damping: 40 });
     }
-
-    setIsDragging(true);
-    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    startYRef.current = clientY;
-    startHeightRef.current = sheetHeight;
-  }, [sheetHeight]);
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleDragMove = (e: MouseEvent | TouchEvent) => {
-      const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
-
-      // Calculate the difference from start
-      const diff = startYRef.current - clientY;
-      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, startHeightRef.current + diff));
-      setSheetHeight(newHeight);
-    };
-
-    const handleDragEnd = () => {
-      setIsDragging(false);
-      // Snap to nearest position
-      const threshold = MAX_HEIGHT * 0.4;
-      const targetHeight = sheetHeight > threshold ? MAX_HEIGHT : 120;
-      setSheetHeight(targetHeight);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
-      }
-      handleDragMove(e);
-    };
-
-    document.addEventListener("mousemove", handleDragMove as EventListener, { capture: false });
-    document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: false } as AddEventListenerOptions);
-    document.addEventListener("mouseup", handleDragEnd, { capture: false });
-    document.addEventListener("touchend", handleDragEnd, { capture: false });
-
-    return () => {
-      document.removeEventListener("mousemove", handleDragMove as EventListener);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("touchend", handleDragEnd);
-    };
-  }, [isDragging, sheetHeight, MAX_HEIGHT]);
-
-  // Calculate image scale
-  const imageScale = Math.max(0.4, 1 - (sheetHeight - 120) / (MAX_HEIGHT - 120) * 0.6);
-  const imageOpacity = imageScale > 0.5 ? 1 : 0.6;
+  };
 
   const [formData, setFormData] = useState<ProductWithCatalogueData>({
     id: "",
@@ -876,12 +838,12 @@ export default function CreateProduct() {
       
       {/* Image Preview Section with Product Card */}
       <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative">
-        <div
-          className="relative flex items-center justify-center transition-opacity duration-300"
+        <motion.div
+          className="relative flex items-center justify-center"
           style={{ opacity: imageOpacity }}
         >
           {imagePreview && (
-            <div
+            <motion.div
               style={{
                 width: "95%",
                 maxWidth: "330px",
@@ -889,9 +851,8 @@ export default function CreateProduct() {
                 borderRadius: "12px",
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-                transform: `scale(${imageScale})`,
+                scale: imageScale,
                 transformOrigin: "center",
-                transition: isDragging ? "none" : "transform 0.3s ease-out",
               }}
             >
               {/* Product Image */}
@@ -1017,7 +978,7 @@ export default function CreateProduct() {
                   )}
                 </>
               )}
-            </div>
+            </motion.div>
           )}
 
           {!imagePreview && (
@@ -1031,47 +992,41 @@ export default function CreateProduct() {
               <p className="text-sm font-medium">Click to select an image</p>
             </button>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Draggable Bottom Sheet */}
-      <div
-        ref={sheetRef}
-        onMouseDown={handleDragStart}
-        onTouchStart={handleDragStart}
-        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all select-none"
+      <motion.div
+        onPanStart={() => setIsDragging(true)}
+        onPan={(_, info) => {
+          const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
+          y.set(newY);
+        }}
+        onPanEnd={handleDragEnd}
+        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col select-none"
         style={{
-          height: `${sheetHeight}px`,
+          height: sheetHeight,
           cursor: isDragging ? "grabbing" : "grab",
-          WebkitUserSelect: "none",
-          userSelect: "none",
           touchAction: "none",
-          WebkitTouchCallout: "none",
+          willChange: "height",
         }}
       >
         {/* Drag Handle - Extended to full width */}
-        <div
-          className="flex-shrink-0 px-4 py-2 flex items-center justify-between select-none w-full pointer-events-none"
-          style={{
-            transition: isDragging ? "none" : "all 0.3s ease",
-          }}
-        >
+        <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between select-none w-full pointer-events-none">
           {/* Drag Handle Icon */}
           <div className="mx-auto flex items-center justify-center hover:opacity-70 transition-opacity py-1">
-            <svg
-              className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
+            <motion.svg
+              className="w-5 h-5 text-gray-400 dark:text-gray-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
               strokeWidth={2.5}
               strokeLinecap="round"
               strokeLinejoin="round"
-              style={{
-                transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
-              }}
+              style={{ rotate: arrowRotate }}
             >
               <path d="M5 15l7-7 7 7" />
-            </svg>
+            </motion.svg>
           </div>
         </div>
 
@@ -1423,7 +1378,7 @@ export default function CreateProduct() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <input
         type="file"
