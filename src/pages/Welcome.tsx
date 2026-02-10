@@ -500,7 +500,11 @@ export default function Welcome() {
                   className="flex items-center justify-center mx-auto"
                 >
                   <div className="w-28 h-28 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-green-500/50 p-2">
-                    <CatShareLogo size={100} />
+                    <img
+                      src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
+                      alt="CatShare Logo"
+                      className="w-20 h-20 object-contain"
+                    />
                   </div>
                 </motion.div>
               </motion.div>
