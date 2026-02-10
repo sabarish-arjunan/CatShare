@@ -637,15 +637,19 @@ useEffect(() => {
           {selectedFields.map((field) => {
             const fieldLabel = FIELD_OPTIONS.find((f) => f.key === field)?.label;
             const isFilledFromMaster = !!filledFromMaster[field];
+            const hideFillBox = field === "name" || field === "subtitle";
+
             return (
               <div key={field} className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={isFilledFromMaster}
-                  onChange={() => toggleFillFromMaster(field)}
-                  title={isFilledFromMaster ? "Uncheck to clear all values" : "Check to fill from Master catalogue"}
-                  className="appearance-none w-4 h-4 border border-gray-400 rounded checked:bg-green-600 checked:border-green-600 cursor-pointer"
-                />
+                {!hideFillBox && (
+                  <input
+                    type="checkbox"
+                    checked={isFilledFromMaster}
+                    onChange={() => toggleFillFromMaster(field)}
+                    title={isFilledFromMaster ? "Uncheck to clear all values" : "Check to fill from Master catalogue"}
+                    className="appearance-none w-4 h-4 border border-gray-400 rounded checked:bg-green-600 checked:border-green-600 cursor-pointer"
+                  />
+                )}
                 <span>{fieldLabel}</span>
               </div>
             );
