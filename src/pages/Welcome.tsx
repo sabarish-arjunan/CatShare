@@ -468,7 +468,7 @@ export default function Welcome() {
                   All Set! 🎉
                 </h2>
                 <p className="text-slate-600 text-lg mb-2">
-                  Your {selectedIndustry} catalog is ready to go
+                  Your {selectedIndustry === 'Others' ? 'custom' : selectedIndustry} catalog is ready to go
                 </p>
                 <p className="text-slate-500 text-base">
                   Redirecting to your workspace...
