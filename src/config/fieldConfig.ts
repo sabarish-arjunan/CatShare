@@ -224,9 +224,12 @@ const ORIGINAL_FIELD_LABELS: { [legacyKey: string]: { fieldKey: string; original
  * and intelligently enable the corresponding current field definitions
  * Preserves ORIGINAL field labels from when the backup was created
  *
+ * @param products - The products from the backup to analyze
+ * @param isOldBackup - If true, forces industry to "Custom Fields (from Backup)"
+ *
  * Returns an updated FieldsDefinition with appropriate fields enabled
  */
-export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsDefinition {
+export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBackup: boolean = false): FieldsDefinition {
   if (!products || !Array.isArray(products) || products.length === 0) {
     console.warn('⚠️ No products to analyze for field detection');
     return getFieldsDefinition();
@@ -405,11 +408,10 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
     }
   }
 
-  // For old backups without a specific industry, set industry to "Custom Fields (from Backup)"
+  // For old backups (without fieldsDefinition in the backup file), set industry to "Custom Fields (from Backup)"
   // This indicates these are custom fields restored from an old backup
-  const backupIndustry = definition.industry === undefined || definition.industry === null
-    ? 'Custom Fields (from Backup)'
-    : definition.industry;
+  // We force this regardless of current industry to make it clear these are restored custom fields
+  const backupIndustry = isOldBackup ? 'Custom Fields (from Backup)' : (definition.industry || 'General Products (Custom)');
 
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {
@@ -429,11 +431,14 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
 /**
  * Analyze backup and apply field configuration intelligently
  * This should be called during backup restore
+ *
+ * @param products - The products from the backup
+ * @param isOldBackup - If true, indicates this is an old backup without fieldsDefinition
  */
-export function applyBackupFieldAnalysis(products: any[]): void {
+export function applyBackupFieldAnalysis(products: any[], isOldBackup: boolean = false): void {
   try {
     console.log('🔎 Analyzing backup fields...');
-    const updatedDefinition = analyzeBackupFieldsAndUpdateDefinition(products);
+    const updatedDefinition = analyzeBackupFieldsAndUpdateDefinition(products, isOldBackup);
     setFieldsDefinition(updatedDefinition);
     console.log('✅ Backup field analysis complete - field definitions updated');
   } catch (err) {

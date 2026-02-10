@@ -422,10 +422,11 @@ const exportProductsToCSV = (products) => {
         backupFieldDef = parsed.fieldsDefinition;
       } else {
         // Old backup without fieldsDefinition - analyze the product data to detect fields
-        console.log("🔎 Analyzing original backup fields BEFORE migration (old backup format)...");
-        applyBackupFieldAnalysis(parsed.products);
+        console.log("🔎 Analyzing original backup fields BEFORE migration (old backup format - v1)...");
+        applyBackupFieldAnalysis(parsed.products, true); // Pass true to indicate this is an old backup
         backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
         console.log("✅ Original backup fields analyzed and auto-detected");
+        console.log("📋 Setting template to 'Custom Fields (from Backup)' to indicate old backup");
       }
 
       const rebuilt = await Promise.all(
