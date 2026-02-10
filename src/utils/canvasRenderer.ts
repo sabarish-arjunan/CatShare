@@ -270,9 +270,12 @@ export async function renderProductToCanvas(
 
   detailsHeight += spacingBeforeFields; // spacing before fields
 
-  // Field heights (only count non-empty enabled fields)
+  // Field heights (only count non-empty enabled visible fields)
   allEnabledFields.forEach(field => {
-    if (product[field.key]) {
+    const visibilityKey = `${field.key}Visible`;
+    const isVisible = product[visibilityKey] !== false; // Default to visible
+
+    if (product[field.key] && isVisible) {
       detailsHeight += fieldLineHeightBase + 2;
     }
   });
