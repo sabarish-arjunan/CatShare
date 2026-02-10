@@ -44,12 +44,9 @@ const FloatingShapes = () => (
 
 export default function Welcome() {
   const navigate = useNavigate();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<WelcomeStep>('welcome');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('');
   const [selectedFields, setSelectedFields] = useState<SelectedFields>({});
-  const [hasBackup, setHasBackup] = useState(false);
-  const [restoreData, setRestoreData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Note: App.tsx handles redirecting first-time users to /welcome automatically.
