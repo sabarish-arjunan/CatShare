@@ -499,7 +499,7 @@ export default function Welcome() {
                   transition={{ duration: 2 }}
                   className="flex items-center justify-center mx-auto"
                 >
-                  <div className="w-28 h-28 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-green-500/50 p-2">
+                  <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 via-green-400 to-teal-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/50 p-2">
                     <img
                       src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
                       alt="CatShare Logo"
@@ -508,19 +508,19 @@ export default function Welcome() {
                   </div>
                 </motion.div>
               </motion.div>
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <h2 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-green-300 via-emerald-300 to-teal-300 mb-4">
+                <h2 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-green-300 to-teal-300 mb-4">
                   All Set! 🎉
                 </h2>
                 <p className="text-slate-300 text-lg mb-2">
                   Your {selectedIndustry} catalog is ready to go
                 </p>
-                <p className="text-slate-400">
+                <p className="text-slate-400 text-base">
                   Redirecting to your workspace...
                 </p>
               </motion.div>
