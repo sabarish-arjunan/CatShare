@@ -9,7 +9,7 @@ import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
-import { getFieldConfig } from "./config/fieldConfig";
+import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import { safeGetFromStorage } from "./utils/safeStorage";
 
 // Helper function to get CSS styles based on watermark position
