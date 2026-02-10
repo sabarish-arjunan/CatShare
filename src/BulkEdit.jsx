@@ -83,8 +83,10 @@ useEffect(() => {
       // Keep product identity
       name: p.name || "",
       subtitle: p.subtitle || "",
-      badge: catData.badge || "",
+      badge: catData.badge || p.badge || "",
       category: p.category || [],
+      // Store original badge for fallback
+      masterBadge: p.badge || "",
       // Show if exists in catalogue, otherwise empty
       field1: catData.field1 || "",
       color: catData.field1 || p.color || "",
@@ -260,7 +262,7 @@ useEffect(() => {
           updates.field3 = masterData.field3 || item.age || "";
           updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
         } else if (fieldKey === "badge") {
-          updates.badge = masterData.badge || item.badge || "";
+          updates.badge = masterData.badge || item.masterBadge || "";
         } else if (fieldKey === priceField) {
           updates[priceField] = masterData[priceField] || "";
           updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
@@ -398,7 +400,8 @@ useEffect(() => {
                     field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
                     field3: catData.field3 || p.field3 || p.age || "",
                     field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
-                    badge: catData.badge || "",
+                    badge: catData.badge || p.badge || "",
+                    masterBadge: p.badge || "",
                     wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
                     resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
                   };
