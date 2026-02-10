@@ -107,13 +107,11 @@ export default function Welcome() {
       safeSetInStorage('selectedIndustry', selectedIndustry);
       safeSetInStorage('hasCompletedOnboarding', true);
 
-      await new Promise(resolve => setTimeout(resolve, 500));
-
       setStep('complete');
 
       setTimeout(() => {
-        navigate('/');
-      }, 2000);
+        navigate('/', { replace: true });
+      }, 1500);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       alert('Error setting up. Please try again.');
