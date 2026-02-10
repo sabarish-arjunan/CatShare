@@ -3,7 +3,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
-import { getFieldConfig, getFieldsDefinition } from "./config/fieldConfig";
+import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
@@ -12,8 +12,7 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   ];
 
   // Add all enabled product fields
-  const definition = getFieldsDefinition();
-  definition.fields
+  getAllFields()
     .filter(f => f.enabled && f.key.startsWith('field'))
     .forEach(field => {
       baseFields.push({ key: field.key, label: field.label });
