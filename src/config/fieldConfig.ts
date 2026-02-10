@@ -151,6 +151,7 @@ export function resetToDefaultFields(): void {
   const definition: FieldsDefinition = {
     version: 1,
     fields: DEFAULT_FIELDS,
+    industry: 'General Products (Custom)',
     lastUpdated: Date.now(),
   };
   setFieldsDefinition(definition);
