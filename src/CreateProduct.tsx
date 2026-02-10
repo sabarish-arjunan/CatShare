@@ -1192,7 +1192,7 @@ export default function CreateProduct() {
               <span className="text-xs">BG: {overrideColor}</span>
             </button>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-col">
               <label className="flex items-center gap-1 text-xs">
                 Font:
                 {["white", "black"].map((color) => (
@@ -1208,6 +1208,37 @@ export default function CreateProduct() {
                       cursor: "pointer",
                     }}
                   />
+                ))}
+              </label>
+
+              <label className="flex items-center gap-1 text-xs">
+                Image BG:
+                {["white", "transparent"].map((color) => (
+                  <div
+                    key={color}
+                    onClick={() => setImageBgOverride(color)}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      backgroundColor: color === "transparent" ? "#f0f0f0" : color,
+                      border: imageBgOverride === color ? "2px solid blue" : "1px solid #ccc",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                      position: "relative",
+                    }}
+                  >
+                    {color === "transparent" && (
+                      <div style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "2px",
+                        backgroundColor: "#999",
+                        top: "50%",
+                        left: 0,
+                        transform: "translateY(-50%) rotate(-45deg)",
+                      }} />
+                    )}
+                  </div>
                 ))}
               </label>
             </div>
