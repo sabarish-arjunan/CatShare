@@ -7,6 +7,7 @@ import {
   resetToDefaultFields
 } from "../config/fieldConfig";
 import { getAllCatalogues } from "../config/catalogueConfig";
+import { INDUSTRY_PRESETS } from "../config/industryPresets";
 
 export default function WatermarkFields() {
   const navigate = useNavigate();
@@ -58,7 +59,43 @@ export default function WatermarkFields() {
 
   const updateIndustry = (industry) => {
     if (!definition) return;
-    setDefinition({ ...definition, industry });
+
+    // If switching to an industry preset, we should ideally map the fields
+    const preset = INDUSTRY_PRESETS.find(p => p.name === industry);
+
+    let newFields = [...definition.fields];
+    if (preset) {
+      // Map preset fields to field1-field10
+      newFields = newFields.map(f => {
+        if (f.key.startsWith('field')) {
+          const index = parseInt(f.key.replace('field', '')) - 1;
+          const presetField = preset.fields[index];
+          if (presetField) {
+            return {
+              ...f,
+              label: presetField.label,
+              unitOptions: presetField.defaultUnits || f.unitOptions,
+              enabled: true // Enable by default when selecting industry? Or keep current enabled?
+              // User said "choose what to stay and what not", so maybe we enable all by default or keep current.
+              // Let's enable them if they were previously disabled but are part of the preset.
+            };
+          } else {
+            return { ...f, enabled: false };
+          }
+        }
+        return f;
+      });
+    }
+
+    setDefinition({ ...definition, industry, fields: newFields });
+  };
+
+  const toggleFieldEnabled = (key) => {
+    if (!definition) return;
+    const newFields = definition.fields.map(f =>
+      f.key === key ? { ...f, enabled: !f.enabled } : f
+    );
+    setDefinition({ ...definition, fields: newFields });
   };
 
   if (!definition) return null;
@@ -116,12 +153,10 @@ export default function WatermarkFields() {
               onChange={(e) => updateIndustry(e.target.value)}
               className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-no-repeat bg-[right_0.5rem_center]"
             >
-              <option>Fashion & Apparel</option>
-              <option>Lifestyle & Personal Care</option>
-              <option>Home, Kitchen & Living</option>
-              <option>Electronics & Accessories</option>
-              <option>Hardware, Tools & Industrial</option>
               <option>General Products (Custom)</option>
+              {INDUSTRY_PRESETS.map(p => (
+                <option key={p.name}>{p.name}</option>
+              ))}
             </select>
             <p className="mt-2 text-[10px] text-gray-400">
               Selecting your industry helps us optimize field defaults for your products.
@@ -131,8 +166,23 @@ export default function WatermarkFields() {
           <div className="space-y-4 pb-20">
             {definition.fields
               .filter(field => {
-                // Always show custom fields (field1, field2, etc.)
-                if (field.key.startsWith('field')) return true;
+                // If General, show all field slots (or at least 1-3)
+                // Actually, let's show all available field slots in General
+                if (field.key.startsWith('field')) {
+                  if (definition.industry === "General Products (Custom)" || !definition.industry) {
+                    // Show field1, field2, field3 by default in General, others if enabled
+                    const index = parseInt(field.key.replace('field', ''));
+                    return index <= 3 || field.enabled;
+                  }
+
+                  // For other industries, only show if it's within the preset range
+                  const preset = INDUSTRY_PRESETS.find(p => p.name === definition.industry);
+                  if (preset) {
+                    const index = parseInt(field.key.replace('field', ''));
+                    return index <= preset.fields.length;
+                  }
+                }
+
                 // Only show price fields if they are linked to an active catalogue
                 if (field.key.startsWith('price')) {
                   return activePriceFields.includes(field.key);
@@ -142,46 +192,69 @@ export default function WatermarkFields() {
               .map((field) => (
               <div
                 key={field.key}
-                className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm"
+                className={`bg-white dark:bg-gray-900 p-4 rounded-xl border transition-all ${
+                  field.enabled
+                    ? "border-blue-200 dark:border-blue-900 shadow-sm"
+                    : "border-gray-200 dark:border-gray-800 opacity-60 shadow-none"
+                }`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Internal ID: {field.key}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={field.enabled}
+                      onChange={() => toggleFieldEnabled(field.key)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      {field.key.startsWith('field') ? `Product Field ${field.key.replace('field', '')}` : `Price Field`}
+                    </span>
+                  </div>
+                  {field.enabled && (
+                    <span className="text-[10px] bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold uppercase">
+                      Active
+                    </span>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase">
-                      Display Label
-                    </label>
-                    <input
-                      type="text"
-                      value={field.label}
-                      onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                      placeholder="e.g. Colour, Size, Material"
-                      className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
-                    />
-                  </div>
-
-                  {field.unitField && (
+                {field.enabled ? (
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase">
-                        Unit Options (comma separated)
+                        Display Label
                       </label>
                       <input
                         type="text"
-                        value={field.unitOptions?.join(", ") || ""}
-                        onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                        placeholder="e.g. kg, lbs, meters"
+                        value={field.label}
+                        onChange={(e) => updateFieldLabel(field.key, e.target.value)}
+                        placeholder="e.g. Colour, Size, Material"
                         className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
                       />
-                      <p className="mt-1 text-[10px] text-gray-400">
-                        Leave empty if no units are needed for this field.
-                      </p>
                     </div>
-                  )}
-                </div>
+
+                    {(field.unitField || field.key.startsWith('field')) && (
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase">
+                          Unit Options (comma separated)
+                        </label>
+                        <input
+                          type="text"
+                          value={field.unitOptions?.join(", ") || ""}
+                          onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                          placeholder="e.g. kg, lbs, meters"
+                          className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                        />
+                        <p className="mt-1 text-[10px] text-gray-400">
+                          Leave empty if no units are needed for this field.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="py-1">
+                    <p className="text-xs text-gray-400 italic">This field is disabled and won't appear in products.</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
