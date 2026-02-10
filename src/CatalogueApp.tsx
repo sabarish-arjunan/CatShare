@@ -29,6 +29,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const scrollRef = useRef(null);
+  const isNative = Capacitor.getPlatform() !== "web";
 
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [tab, setTab] = useState("products");
