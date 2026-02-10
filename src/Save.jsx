@@ -3,6 +3,7 @@ import { getCatalogueData } from "./config/catalogueProductUtils";
 import { safeGetFromStorage } from "./utils/safeStorage";
 import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
 import { getAllCatalogues } from "./config/catalogueConfig";
+import { getAllFields } from "./config/fieldConfig";
 
 /**
  * Delete all rendered images for a specific product
