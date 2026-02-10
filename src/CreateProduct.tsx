@@ -407,13 +407,13 @@ export default function CreateProduct() {
     if (!checked) {
       // Clear fields when unchecked
       const updates: Partial<CatalogueData> = {
-        field1: "",
-        field2: "",
-        field2Unit: "None",
-        field3: "",
-        field3Unit: "None",
         badge: "",
       };
+      // Clear all fieldX slots
+      for (let i = 1; i <= 10; i++) {
+        updates[`field${i}`] = "";
+        updates[`field${i}Unit`] = "None";
+      }
       updateCatalogueData(updates);
       return;
     }
@@ -425,13 +425,14 @@ export default function CreateProduct() {
     if (!selectedCat) return;
 
     const updates: Partial<CatalogueData> = {
-      field1: defaultCatalogueData.field1 || "",
-      field2: defaultCatalogueData.field2 || "",
-      field2Unit: defaultCatalogueData.field2Unit || "None",
-      field3: defaultCatalogueData.field3 || "",
-      field3Unit: defaultCatalogueData.field3Unit || "None",
       badge: defaultCatalogueData.badge || "",
     };
+
+    // Copy all fieldX slots
+    for (let i = 1; i <= 10; i++) {
+      updates[`field${i}`] = defaultCatalogueData[`field${i}`] || "";
+      updates[`field${i}Unit`] = defaultCatalogueData[`field${i}Unit`] || "None";
+    }
 
     updateCatalogueData(updates);
     showToast(`Fields fetched from default catalogue to ${selectedCat.label}`, "success");
@@ -651,11 +652,13 @@ export default function CreateProduct() {
     newItem.price2 = newItem.price2 || "";
     newItem.price1Unit = newItem.price1Unit || "/ piece";
     newItem.price2Unit = newItem.price2Unit || "/ piece";
-    newItem.field1 = defaultCatalogueData.field1 || "";
-    newItem.field2 = defaultCatalogueData.field2 || "";
-    newItem.field3 = defaultCatalogueData.field3 || "";
-    newItem.field2Unit = defaultCatalogueData.field2Unit || "pcs / set";
-    newItem.field3Unit = defaultCatalogueData.field3Unit || "months";
+
+    // Copy all fieldX slots to root level for legacy support/rendering
+    for (let i = 1; i <= 10; i++) {
+      newItem[`field${i}`] = defaultCatalogueData[`field${i}`] || "";
+      newItem[`field${i}Unit`] = defaultCatalogueData[`field${i}Unit`] || "None";
+    }
+
     // Keep old names for backward compatibility
     newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
     newItem.resellUnit = defaultCatalogueData.price2Unit || "/ piece";
@@ -685,7 +688,7 @@ setTimeout(async () => {
       const catData = getCatalogueData(newItem, cat.id);
 
       // Create render options for this catalogue
-      const renderOptions = {
+      const renderOptions: any = {
         catalogueId: cat.id,
         catalogueLabel: cat.label,
         folder: cat.folder || cat.label, // Use folder from catalogue config
@@ -693,12 +696,15 @@ setTimeout(async () => {
         priceUnitField: cat.priceUnitField,
         price1Unit: catData.price1Unit || "/ piece",
         price2Unit: catData.price2Unit || "/ piece",
-        packageUnit: catData.field2Unit || "pcs / set",
-        ageGroupUnit: catData.field3Unit || "months",
         // Legacy compat
         resellUnit: catData.price2Unit || "/ piece",
         wholesaleUnit: catData.price1Unit || "/ piece",
       };
+
+      // Add all field units to render options
+      for (let i = 1; i <= 10; i++) {
+        renderOptions[`field${i}Unit`] = catData[`field${i}Unit`] || "None";
+      }
 
       // Use legacy types for backward compat
       const legacyType = cat.id === "cat1" ? "wholesale" : cat.id === "cat2" ? "resell" : cat.id;
@@ -928,87 +934,78 @@ setTimeout(async () => {
             </div>
 
             {isCatalogueEnabled(selectedCatalogue) && (
-              <>
-                <input
-                  name="field1"
-                  value={getCatalogueFormData().field1 || ""}
-                  onChange={handleChange}
-                  placeholder={getFieldConfig('field1')?.label || "Colour"}
-                  className="border p-2 rounded w-full mb-2"
-                />
+              <div className="space-y-3">
+                {getAllFields()
+                  .filter(f => f.enabled && f.key.startsWith('field'))
+                  .map(field => (
+                    <div key={field.key}>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-tight">
+                        {field.label}
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          name={field.key}
+                          value={getCatalogueFormData()[field.key] || ""}
+                          onChange={handleChange}
+                          placeholder={field.label}
+                          className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                        {(field.unitOptions && field.unitOptions.length > 0) && (
+                          <select
+                            name={`${field.key}Unit`}
+                            value={getCatalogueFormData()[`${field.key}Unit`] || "None"}
+                            onChange={handleChange}
+                            className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8 focus:ring-2 focus:ring-blue-500 outline-none"
+                          >
+                            <option>None</option>
+                            {field.unitOptions.map(opt => (
+                              <option key={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    </div>
+                  ))}
 
-                <div className="flex gap-2 mb-2">
-                  <input
-                    name="field2"
-                    value={getCatalogueFormData().field2 || ""}
-                    onChange={handleChange}
-                    placeholder={getFieldConfig('field2')?.label || "Package"}
-                    className="border p-2 w-full rounded"
-                  />
-                  <select
-                    name="field2Unit"
-                    value={getCatalogueFormData().field2Unit || "None"}
-                    onChange={handleChange}
-                    className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
-                  >
-                    <option>None</option>
-                    {(getFieldConfig('field2')?.unitOptions || ['pcs / set', 'pcs / dozen', 'pcs / pack']).map(opt => (
-                      <option key={opt}>{opt}</option>
-                    ))}
-                  </select>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-tight">
+                    Price
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      name={getSelectedCataloguePriceField()}
+                      value={getSelectedCataloguePrice()}
+                      onChange={handleChange}
+                      placeholder="Price"
+                      className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                    <select
+                      name={getSelectedCataloguePriceUnitField()}
+                      value={getSelectedCataloguePriceUnit() || "None"}
+                      onChange={handleChange}
+                      className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8 focus:ring-2 focus:ring-blue-500 outline-none"
+                    >
+                      <option>None</option>
+                      {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece', '/ dozen', '/ set']).map(opt => (
+                        <option key={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                <div className="flex gap-2 mb-2">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-tight">
+                    Product Badge
+                  </label>
                   <input
-                    name="field3"
-                    value={getCatalogueFormData().field3 || ""}
+                    name="badge"
+                    value={getCatalogueFormData().badge || ""}
                     onChange={handleChange}
-                    placeholder={getFieldConfig('field3')?.label || "Age Group"}
-                    className="border p-2 w-full rounded"
+                    placeholder="Enter product badge (e.g. NEW, SALE)"
+                    className="border p-2 rounded w-full focus:ring-2 focus:ring-blue-500 outline-none"
                   />
-                  <select
-                    name="field3Unit"
-                    value={getCatalogueFormData().field3Unit || "None"}
-                    onChange={handleChange}
-                    className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
-                  >
-                    <option>None</option>
-                    {(getFieldConfig('field3')?.unitOptions || ['months', 'years']).map(opt => (
-                      <option key={opt}>{opt}</option>
-                    ))}
-                  </select>
                 </div>
-
-                <div className="flex gap-2 mb-2">
-                  <input
-                    name={getSelectedCataloguePriceField()}
-                    value={getSelectedCataloguePrice()}
-                    onChange={handleChange}
-                    placeholder="Price"
-                    className="border p-2 w-full rounded"
-                  />
-                  <select
-                    name={getSelectedCataloguePriceUnitField()}
-                    value={getSelectedCataloguePriceUnit() || "None"}
-                    onChange={handleChange}
-                    className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
-                  >
-                    <option>None</option>
-                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece', '/ dozen', '/ set']).map(opt => (
-                      <option key={opt}>{opt}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <label className="block text-sm font-medium mb-1">Product Badge</label>
-                <input
-                  name="badge"
-                  value={getCatalogueFormData().badge || ""}
-                  onChange={handleChange}
-                  placeholder="Enter product badge"
-                  className="border p-2 rounded text-sm w-full"
-                />
-              </>
+              </div>
             )}
 
             {!isCatalogueEnabled(selectedCatalogue) && (
@@ -1239,9 +1236,22 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>{getFieldConfig('field1')?.label || 'Colour'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field1}</p>
-      <p>{getFieldConfig('field2')?.label || 'Package'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit !== "None" && getCatalogueFormData().field2Unit}</p>
-      <p>{getFieldConfig('field3')?.label || 'Age Group'}&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit !== "None" && getCatalogueFormData().field3Unit}</p>
+      {getAllFields()
+        .filter(f => f.enabled && f.key.startsWith('field'))
+        .map(field => {
+          const val = getCatalogueFormData()[field.key];
+          if (!val) return null;
+          const unit = getCatalogueFormData()[`${field.key}Unit`];
+          const displayUnit = unit && unit !== "None" ? unit : "";
+
+          return (
+            <p key={field.key} className="flex gap-2">
+              <span className="min-w-[80px]">{field.label}</span>
+              <span>:</span>
+              <span>{val} {displayUnit}</span>
+            </p>
+          );
+        })}
     </div>
   </div>
 
