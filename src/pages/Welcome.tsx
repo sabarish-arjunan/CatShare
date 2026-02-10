@@ -51,11 +51,23 @@ export default function Welcome() {
   const [restoreData, setRestoreData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Only redirect if coming directly (not manually navigated via button click)
+  // Check if there's a referrer - if user came from menu button, allow access
   useEffect(() => {
-    const isFirstTime = !safeGetFromStorage('hasCompletedOnboarding', false);
-    if (!isFirstTime) {
-      navigate('/');
+    // If manually navigated from menu, document.referrer will show the app
+    // If direct access, we can check sessionStorage for manual navigation flag
+    const wasManuallyNavigated = sessionStorage.getItem('welcomeManualNav') === 'true';
+
+    // Allow access if manually navigated, otherwise check if first time
+    if (!wasManuallyNavigated) {
+      const isFirstTime = !safeGetFromStorage('hasCompletedOnboarding', false);
+      if (!isFirstTime) {
+        navigate('/');
+      }
     }
+
+    // Clean up the flag
+    sessionStorage.removeItem('welcomeManualNav');
   }, [navigate]);
 
   useEffect(() => {
