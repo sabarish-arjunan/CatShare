@@ -1308,49 +1308,52 @@ export default function CreateProduct() {
                       {cat.label}
                     </button>
                   ))}
-                  <button
-                    onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ml-auto flex items-center gap-1.5 ${
-                      isCatalogueEnabled(selectedCatalogue)
-                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40 hover:scale-105"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    <span className={`transition-transform ${isCatalogueEnabled(selectedCatalogue) ? '' : ''}`}>
-                      {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
-                    </span>
-                    {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
-                  </button>
                 </div>
               </div>
 
-              {/* Fill Fields and Price Options */}
-              {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
-                <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-wrap gap-x-6 gap-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={fetchFieldsChecked}
-                      onChange={(e) => handleFetchFieldsChange(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
-                    />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Fill Fields
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={fetchPriceChecked}
-                      onChange={(e) => handleFetchPriceChange(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
-                    />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Fill Price
-                    </span>
-                  </label>
-                </div>
-              )}
+              {/* Show Toggle and Fill Options */}
+              <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <button
+                  onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                    isCatalogueEnabled(selectedCatalogue)
+                      ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  }`}
+                >
+                  <span className="transition-transform">
+                    {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
+                  </span>
+                  {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                </button>
+
+                {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={fetchFieldsChecked}
+                        onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                      />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Fill Fields
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={fetchPriceChecked}
+                        onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                      />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Fill Price
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </div>
 
               {/* Catalogue Details */}
               {isCatalogueEnabled(selectedCatalogue) && (
