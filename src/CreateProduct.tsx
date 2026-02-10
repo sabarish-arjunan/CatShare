@@ -1014,10 +1014,10 @@ export default function CreateProduct() {
         {/* Drag Handle */}
         <div
           onMouseDown={handleDragStart}
-          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center"
+          onClick={() => setSheetHeight(sheetHeight > MAX_HEIGHT * 0.5 ? 120 : MAX_HEIGHT)}
+          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
-            cursor: "grab",
           }}
         >
           <svg
