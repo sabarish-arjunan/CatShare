@@ -130,6 +130,12 @@ useEffect(() => {
     normalized.retailUnit = p.retailUnit || "/ piece";
     normalized.stock = p.stock || "";
 
+    // Store master values for fallback/fill from master
+    normalized.masterWholesale = p.wholesale || "";
+    normalized.masterWholesaleUnit = p.wholesaleUnit || "/ piece";
+    normalized.masterResell = p.resell || "";
+    normalized.masterResellUnit = p.resellUnit || "/ piece";
+
     return normalized;
   });
 
@@ -234,6 +240,12 @@ useEffect(() => {
           } else if (fieldKey === priceField) {
             updates[priceField] = "";
             updates[priceUnitField] = "/ piece";
+          } else if (fieldKey === "wholesale") {
+            updates.wholesale = "";
+            updates.wholesaleUnit = "/ piece";
+          } else if (fieldKey === "resell") {
+            updates.resell = "";
+            updates.resellUnit = "/ piece";
           }
 
           return ensureFieldDefaults({ ...item, ...updates });
@@ -243,8 +255,9 @@ useEffect(() => {
   };
 
   const confirmFillFromMaster = (fieldKey) => {
-    const masterCatalogueId = catalogues[0]?.id;
-    if (!masterCatalogueId) return;
+    const masterCatalogue = catalogues[0];
+    if (!masterCatalogue) return;
+    const masterCatalogueId = masterCatalogue.id;
 
     setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: true }));
 
@@ -264,8 +277,15 @@ useEffect(() => {
         } else if (fieldKey === "badge") {
           updates.badge = masterData.badge || item.masterBadge || "";
         } else if (fieldKey === priceField) {
-          updates[priceField] = masterData[priceField] || "";
-          updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
+          // Fill current catalogue's price field with master catalogue's price field data
+          updates[priceField] = masterData[masterCatalogue.priceField] || "";
+          updates[priceUnitField] = masterData[masterCatalogue.priceUnitField] || "/ piece";
+        } else if (fieldKey === "wholesale") {
+          updates.wholesale = item.masterWholesale || "";
+          updates.wholesaleUnit = item.masterWholesaleUnit || "/ piece";
+        } else if (fieldKey === "resell") {
+          updates.resell = item.masterResell || "";
+          updates.resellUnit = item.masterResellUnit || "/ piece";
         }
 
         return ensureFieldDefaults({ ...item, ...updates });
