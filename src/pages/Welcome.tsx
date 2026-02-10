@@ -247,8 +247,8 @@ export default function Welcome() {
                     onClick={() => handleIndustrySelect(industry.name)}
                     className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 group ${
                       selectedIndustry === industry.name
-                        ? 'border-blue-500 bg-gradient-to-br from-blue-500/20 to-cyan-500/20'
-                        : 'border-slate-600 bg-slate-800/50 hover:border-blue-400 hover:bg-slate-800'
+                        ? 'border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/20'
+                        : 'border-slate-600 bg-slate-800/50 hover:border-purple-400 hover:bg-slate-800'
                     }`}
                   >
                     <div className="flex items-start gap-4">
