@@ -51,24 +51,8 @@ export default function Welcome() {
   const [restoreData, setRestoreData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Only redirect if coming directly (not manually navigated via button click)
-  // Check if there's a referrer - if user came from menu button, allow access
-  useEffect(() => {
-    // If manually navigated from menu, document.referrer will show the app
-    // If direct access, we can check sessionStorage for manual navigation flag
-    const wasManuallyNavigated = sessionStorage.getItem('welcomeManualNav') === 'true';
-
-    // Allow access if manually navigated, otherwise check if first time
-    if (!wasManuallyNavigated) {
-      const isFirstTime = !safeGetFromStorage('hasCompletedOnboarding', false);
-      if (!isFirstTime) {
-        navigate('/');
-      }
-    }
-
-    // Clean up the flag
-    sessionStorage.removeItem('welcomeManualNav');
-  }, [navigate]);
+  // Note: App.tsx handles redirecting first-time users to /welcome automatically.
+  // This component allows both first-time and returning users to access the welcome flow.
 
   useEffect(() => {
     const backup = safeGetFromStorage('productsBackup', null);
