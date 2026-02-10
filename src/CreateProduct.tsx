@@ -938,11 +938,7 @@ setTimeout(async () => {
                 {getAllFields()
                   .filter(f => f.enabled && f.key.startsWith('field'))
                   .map(field => (
-                    <div key={field.key}>
-                      <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-tight">
-                        {field.label}
-                      </label>
-                      <div className="flex gap-2">
+                    <div key={field.key} className="flex gap-2">
                         <input
                           name={field.key}
                           value={getCatalogueFormData()[field.key] || ""}
@@ -963,15 +959,10 @@ setTimeout(async () => {
                             ))}
                           </select>
                         )}
-                      </div>
                     </div>
                   ))}
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-tight">
-                    Price
-                  </label>
-                  <div className="flex gap-2">
+                <div className="flex gap-2">
                     <input
                       name={getSelectedCataloguePriceField()}
                       value={getSelectedCataloguePrice()}
@@ -990,13 +981,9 @@ setTimeout(async () => {
                         <option key={opt}>{opt}</option>
                       ))}
                     </select>
-                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-tight">
-                    Product Badge
-                  </label>
                   <input
                     name="badge"
                     value={getCatalogueFormData().badge || ""}
