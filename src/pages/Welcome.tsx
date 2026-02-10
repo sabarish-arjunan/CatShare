@@ -7,7 +7,7 @@ import { INDUSTRY_PRESETS } from '../config/industryPresets';
 import { DEFAULT_FIELDS, FieldConfig } from '../config/fieldConfig';
 import { safeSetInStorage, safeGetFromStorage } from '../utils/safeStorage';
 
-type WelcomeStep = 'welcome' | 'industry' | 'fields' | 'restore' | 'complete';
+type WelcomeStep = 'welcome' | 'industry' | 'fields' | 'complete';
 
 interface SelectedFields {
   [key: string]: boolean;
@@ -412,7 +412,7 @@ export default function Welcome() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setStep('restore')}
+                  onClick={() => setStep('complete')}
                   className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-all"
                 >
                   Next
@@ -422,123 +422,6 @@ export default function Welcome() {
           </motion.div>
         )}
 
-        {/* Restore Data Step */}
-        {step === 'restore' && (
-          <motion.div
-            key="restore"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-lg relative z-10"
-          >
-            <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-8"
-              >
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
-                  {hasBackup ? 'Restore Your Data?' : 'Ready to Begin!'}
-                </h2>
-                <p className="text-slate-600 text-base">
-                  {hasBackup
-                    ? 'We found your previous products. Would you like to import them?'
-                    : 'Start fresh with your new configuration'}
-                </p>
-              </motion.div>
-
-              {hasBackup && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-                  <p className="text-sm text-amber-700">
-                    ⚠️ <strong>Note:</strong> Restoring will import {safeGetFromStorage('productsBackup', []).length} products
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-3 mb-8">
-                {hasBackup && (
-                  <>
-                    <motion.label
-                      whileHover={{ scale: 1.02 }}
-                      className="flex items-center p-4 border-2 border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-blue-400 cursor-pointer transition-all"
-                    >
-                      <input
-                        type="radio"
-                        checked={restoreData}
-                        onChange={() => setRestoreData(true)}
-                        className="w-5 h-5 accent-blue-600"
-                      />
-                      <span className="ml-4 text-slate-800 font-medium">Restore my products</span>
-                    </motion.label>
-                    <motion.label
-                      whileHover={{ scale: 1.02 }}
-                      className="flex items-center p-4 border-2 border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-blue-400 cursor-pointer transition-all"
-                    >
-                      <input
-                        type="radio"
-                        checked={!restoreData}
-                        onChange={() => setRestoreData(false)}
-                        className="w-5 h-5 accent-blue-600"
-                      />
-                      <span className="ml-4 text-slate-800 font-medium">Start with a fresh catalog</span>
-                    </motion.label>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setHasBackup(false);
-                        safeSetInStorage('productsBackup', []);
-                      }}
-                      className="w-full text-center text-sm text-blue-600 font-semibold py-2 hover:text-blue-700 transition-all"
-                    >
-                      Change backup file
-                    </motion.button>
-                  </>
-                )}
-                {!hasBackup && (
-                  <div className="space-y-3">
-                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition-all">
-                      <MdFolderOpen className="text-5xl mb-3 text-slate-600" />
-                      <span className="text-sm font-semibold text-slate-700">Restore from Backup</span>
-                      <span className="text-xs text-slate-500 mt-1">Click to select a backup file</span>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".zip,application/zip"
-                        onChange={handleRestoreFile}
-                        className="hidden"
-                      />
-                    </label>
-                    <p className="text-center text-sm text-slate-500">
-                      Or start fresh with your new configuration
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setStep('fields')}
-                  className="flex-1 border-2 border-slate-300 text-slate-700 font-semibold py-3 rounded-xl hover:border-slate-400 hover:bg-slate-100 transition-all"
-                >
-                  Back
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleComplete}
-                  disabled={isLoading}
-                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
-                >
-                  {isLoading ? '⏳ Setting up...' : '✨ Complete Setup'}
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* Complete Step */}
         {step === 'complete' && (
