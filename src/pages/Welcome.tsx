@@ -64,15 +64,23 @@ export default function Welcome() {
 
   const handleIndustrySelect = (industryName: string) => {
     setSelectedIndustry(industryName);
-    const industryPreset = INDUSTRY_PRESETS.find(p => p.name === industryName);
     const newSelectedFields: SelectedFields = {};
-    
-    if (industryPreset) {
-      industryPreset.fields.forEach((field, index) => {
-        newSelectedFields[`field${index + 1}`] = index < 3;
+
+    if (industryName === 'Others') {
+      // For Others, initialize all DEFAULT_FIELDS as unselected
+      DEFAULT_FIELDS.forEach((field, index) => {
+        newSelectedFields[field.key] = false;
       });
+    } else {
+      // For preset industries, use preset field defaults
+      const industryPreset = INDUSTRY_PRESETS.find(p => p.name === industryName);
+      if (industryPreset) {
+        industryPreset.fields.forEach((field, index) => {
+          newSelectedFields[`field${index + 1}`] = index < 3;
+        });
+      }
     }
-    
+
     setSelectedFields(newSelectedFields);
     setStep('fields');
   };
