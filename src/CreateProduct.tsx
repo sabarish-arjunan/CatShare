@@ -355,6 +355,32 @@ export default function CreateProduct() {
     return color;
   };
 
+  // Helper function to check if there's any data to display in the preview
+  const hasDataToDisplay = () => {
+    const catData = getCatalogueFormData();
+
+    // Check for basic fields
+    if (formData.name || formData.subtitle) return true;
+
+    // Check for price
+    if (getSelectedCataloguePrice()) return true;
+
+    // Check for badge
+    if (catData.badge) return true;
+
+    // Check for any field values
+    const hasFieldValue = getAllFields()
+      .filter(f => f.enabled && f.key.startsWith('field'))
+      .some(field => {
+        const val = catData[field.key];
+        const visibilityKey = `${field.key}Visible`;
+        const isVisible = catData[visibilityKey] !== false;
+        return val && isVisible;
+      });
+
+    return hasFieldValue;
+  };
+
   useEffect(() => {
     if (editingId) {
       const products = JSON.parse(localStorage.getItem("products") || "[]");
