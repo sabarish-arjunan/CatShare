@@ -1252,9 +1252,13 @@ setTimeout(async () => {
       {getAllFields()
         .filter(f => f.enabled && f.key.startsWith('field'))
         .map(field => {
-          const val = getCatalogueFormData()[field.key];
-          if (!val) return null;
-          const unit = getCatalogueFormData()[`${field.key}Unit`];
+          const catData = getCatalogueFormData();
+          const val = catData[field.key];
+          const visibilityKey = `${field.key}Visible`;
+          const isVisible = catData[visibilityKey] !== false; // Default to visible
+
+          if (!val || !isVisible) return null;
+          const unit = catData[`${field.key}Unit`];
           const displayUnit = unit && unit !== "None" ? unit : "";
 
           return (
