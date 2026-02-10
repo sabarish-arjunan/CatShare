@@ -28,7 +28,7 @@ const FloatingShapes = () => (
         rotate: [0, 180, 360],
       }}
       transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-      className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full opacity-10 blur-3xl"
+      className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full opacity-10 blur-3xl"
     />
     <motion.div
       animate={{
@@ -37,7 +37,7 @@ const FloatingShapes = () => (
         rotate: [360, 180, 0],
       }}
       transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-      className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full opacity-10 blur-3xl"
+      className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-10 blur-3xl"
     />
   </div>
 );
