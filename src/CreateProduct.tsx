@@ -193,6 +193,11 @@ export default function CreateProduct() {
   const { showToast } = useToast();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  const [sheetHeight, setSheetHeight] = useState(120); // Min height in pixels (drag handle)
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600; // Max height for sheet
 
   const [formData, setFormData] = useState<ProductWithCatalogueData>({
     id: "",
