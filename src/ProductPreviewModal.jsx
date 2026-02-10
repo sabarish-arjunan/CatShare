@@ -545,6 +545,21 @@ export default function ProductPreviewModal({
   // Helper function to check if a field has a valid value
   const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
 
+  // State for tracking field definition changes
+  const [, setFieldDefinitionsUpdated] = useState(0);
+
+  // Listen for field definition changes (e.g., after backup restore)
+  useEffect(() => {
+    const handleFieldDefinitionsChanged = (event) => {
+      console.log("📝 Field definitions changed, refreshing field labels...");
+      // Force component to re-render by updating state
+      setFieldDefinitionsUpdated(prev => prev + 1);
+    };
+
+    window.addEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
+    return () => window.removeEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
+  }, []);
+
   // Get all enabled product fields dynamically
   const enabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
 

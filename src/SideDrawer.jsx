@@ -629,6 +629,13 @@ const exportProductsToCSV = (products) => {
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
 
+      // 🔄 Dispatch event to notify all components that field definitions have changed
+      // This forces ProductPreviewModal and other components to reload field definitions
+      window.dispatchEvent(new CustomEvent("fieldDefinitionsChanged", {
+        detail: { newDefinition: backupFieldDef }
+      }));
+      console.log("🔄 Dispatched fieldDefinitionsChanged event to refresh field labels");
+
       setShowRenderAfterRestore(true);
     } catch (err) {
       console.error("❌ Restore failed:", err);
