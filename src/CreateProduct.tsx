@@ -1084,40 +1084,40 @@ export default function CreateProduct() {
 
         {/* Scrollable Content */}
         <div
-          className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm"
+          className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 text-sm"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
           }}
         >
           {/* Product Name & Subtitle */}
-          <div className="mb-3 space-y-3">
+          <div className="mb-5 space-y-4 pb-4 border-b border-gray-200 dark:border-gray-800">
             <div className="relative">
-              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                 Model Name
               </label>
               <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="border p-2 rounded w-full text-sm pt-2"
+                className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-sm bg-white dark:bg-gray-800"
               />
             </div>
             <div className="relative">
-              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                 Subtitle
               </label>
               <input
                 name="subtitle"
                 value={formData.subtitle}
                 onChange={handleChange}
-                className="border p-2 rounded w-full text-sm pt-2"
+                className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-sm bg-white dark:bg-gray-800"
               />
             </div>
           </div>
 
           {/* Catalogue Selector */}
-          <div className="mb-3">
-            <label className="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Catalogues:</label>
+          <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+            <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Catalogues</label>
             <div className="flex gap-2 flex-wrap">
               {catalogues.map((cat) => (
                 <button
@@ -1137,34 +1137,34 @@ export default function CreateProduct() {
 
           {/* Catalogue Details */}
           {isCatalogueEnabled(selectedCatalogue) && (
-            <div className="space-y-2 mb-3 pb-3 border-b border-gray-200 dark:border-gray-800">
+            <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
               {getAllFields()
                 .filter(f => f.enabled && f.key.startsWith('field'))
                 .map(field => {
                   const catData = getCatalogueFormData();
                   return (
-                    <div key={field.key} className="flex gap-2 items-start">
+                    <div key={field.key} className="flex gap-3 items-end">
                       <div className="relative flex-1">
-                        <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                        <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                           {field.label}
                         </label>
                         <input
                           name={field.key}
                           value={catData[field.key] || ""}
                           onChange={handleChange}
-                          className="border p-1.5 w-full rounded text-xs pt-2"
+                          className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                         />
                       </div>
                       {(field.unitOptions && field.unitOptions.length > 0) && (
-                        <div className="relative">
-                          <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                        <div className="relative flex-shrink-0">
+                          <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                             Unit
                           </label>
                           <select
                             name={`${field.key}Unit`}
                             value={catData[`${field.key}Unit`] || "None"}
                             onChange={handleChange}
-                            className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
+                            className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
                           >
                             <option>None</option>
                             {field.unitOptions.map(opt => (
@@ -1177,27 +1177,27 @@ export default function CreateProduct() {
                   );
                 })}
 
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-3 items-end">
                 <div className="relative flex-1">
-                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                  <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                     Price
                   </label>
                   <input
                     name={getSelectedCataloguePriceField()}
                     value={getSelectedCataloguePrice()}
                     onChange={handleChange}
-                    className="border p-1.5 w-full rounded text-xs pt-2"
+                    className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                   />
                 </div>
-                <div className="relative">
-                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                <div className="relative flex-shrink-0">
+                  <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                     Unit
                   </label>
                   <select
                     name={getSelectedCataloguePriceUnitField()}
                     value={getSelectedCataloguePriceUnit() || "None"}
                     onChange={handleChange}
-                    className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
+                    className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
                   >
                     <option>None</option>
                     {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
@@ -1207,22 +1207,22 @@ export default function CreateProduct() {
                 </div>
               </div>
 
-              <div className="relative mt-2">
-                <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+              <div className="relative">
+                <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                   Badge
                 </label>
                 <input
                   name="badge"
                   value={getCatalogueFormData().badge || ""}
                   onChange={handleChange}
-                  className="border p-1.5 rounded w-full text-xs pt-2"
+                  className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-xs bg-white dark:bg-gray-800"
                 />
               </div>
             </div>
           )}
 
           {!isCatalogueEnabled(selectedCatalogue) && (
-            <div className="text-center text-gray-500 text-xs py-2 border-b border-gray-200 dark:border-gray-800 mb-3">
+            <div className="text-center text-gray-500 text-xs py-3 border-b border-gray-200 dark:border-gray-800 mb-5">
               Enable this catalogue first
             </div>
           )}
@@ -1230,7 +1230,7 @@ export default function CreateProduct() {
           {/* Enable/Disable Button */}
           <button
             onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-            className={`w-full px-3 py-1.5 rounded text-xs font-medium transition-colors mb-3 ${
+            className={`w-full px-3 py-2.5 rounded text-xs font-medium transition-colors mb-5 ${
               isCatalogueEnabled(selectedCatalogue)
                 ? "bg-green-600 hover:bg-green-700 text-white"
                 : "bg-gray-300 hover:bg-gray-400 text-gray-700"
@@ -1240,7 +1240,7 @@ export default function CreateProduct() {
           </button>
 
           {/* Colors Section */}
-          <div className="space-y-2 mb-3 pb-3 border-b border-gray-200 dark:border-gray-800">
+          <div className="space-y-3 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
             <button
               onClick={() => setShowColorPicker(true)}
               className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -1310,9 +1310,9 @@ export default function CreateProduct() {
           </div>
 
           {/* Categories */}
-          <div className="mb-3">
-            <label className="block text-xs font-semibold mb-1 text-gray-600 dark:text-gray-400">Categories:</label>
-            <div className="flex flex-wrap gap-1">
+          <div className="mb-5">
+            <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Categories</label>
+            <div className="flex flex-wrap gap-2">
               {categories.map((cat) => {
                 const isSelected = formData.category.includes(cat);
                 return (
@@ -1340,16 +1340,16 @@ export default function CreateProduct() {
           </div>
 
           {/* Save/Cancel Buttons */}
-          <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
             <button
               onClick={saveAndNavigate}
-              className="bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded w-full text-xs font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded w-full text-xs font-medium transition-colors"
             >
               {editingId ? "Update" : "Save"}
             </button>
             <button
               onClick={handleCancel}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-700 py-1.5 px-3 rounded w-full text-xs font-medium"
+              className="bg-gray-300 hover:bg-gray-400 text-gray-700 py-2.5 px-4 rounded w-full text-xs font-medium transition-colors"
             >
               Cancel
             </button>
