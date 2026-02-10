@@ -331,7 +331,7 @@ export default function Welcome() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       whileHover={{ x: 4 }}
-                      className="flex items-center p-4 border border-slate-600 rounded-xl bg-slate-800/50 hover:bg-slate-800 hover:border-slate-500 transition-all cursor-pointer group"
+                      className="flex items-center p-4 border border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group"
                     >
                       <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                         isChecked
