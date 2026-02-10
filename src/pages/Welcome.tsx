@@ -105,12 +105,6 @@ export default function Welcome() {
       });
 
       safeSetInStorage('selectedIndustry', selectedIndustry);
-
-      if (restoreData && hasBackup) {
-        const backup = safeGetFromStorage('productsBackup', []);
-        safeSetInStorage('products', backup);
-      }
-
       safeSetInStorage('hasCompletedOnboarding', true);
 
       await new Promise(resolve => setTimeout(resolve, 500));
