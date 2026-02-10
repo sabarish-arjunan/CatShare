@@ -232,6 +232,7 @@ const { showToast } = useToast();
 const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
   const cataloguesDefinition = getCataloguesDefinition();
+  const fieldsDefinition = safeGetFromStorage('fieldsDefinition', null);
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const zip = new JSZip();
 
@@ -291,6 +292,7 @@ const handleBackup = async () => {
     products: dataForJson,
     deleted: deletedForJson,
     cataloguesDefinition,
+    fieldsDefinition, // Include field definitions to preserve custom field labels
     categories,
     backupDate: new Date().toISOString(),
     appVersion: APP_VERSION
@@ -401,12 +403,22 @@ const exportProductsToCSV = (products) => {
         throw new Error("Invalid backup format: missing products array");
       }
 
-      // CRITICAL: Analyze ORIGINAL backup fields BEFORE any migration
-      // This detects the actual legacy field names in the backup (color, package, age, etc.)
-      console.log("🔎 Analyzing original backup fields BEFORE migration...");
-      applyBackupFieldAnalysis(parsed.products);
-      const backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
-      console.log("✅ Original backup fields analyzed and saved");
+      // CRITICAL: Determine which field definition to use
+      // Priority: 1) Backup's own fieldsDefinition (preserves original labels)
+      //          2) Auto-analyzed from product data (fallback for old backups)
+      let backupFieldDef = null;
+
+      if (parsed.fieldsDefinition) {
+        // Backup has its own field definition - use it to preserve original field labels
+        console.log("✅ Found fieldsDefinition in backup - using original field labels and configuration");
+        backupFieldDef = parsed.fieldsDefinition;
+      } else {
+        // Old backup without fieldsDefinition - analyze the product data to detect fields
+        console.log("🔎 Analyzing original backup fields BEFORE migration (old backup format)...");
+        applyBackupFieldAnalysis(parsed.products);
+        backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
+        console.log("✅ Original backup fields analyzed and auto-detected");
+      }
 
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
