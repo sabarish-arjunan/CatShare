@@ -907,14 +907,14 @@ export default function CreateProduct() {
                 style={{
                   backgroundColor: getLighterColor(overrideColor),
                   color: fontColor,
-                  padding: "10px",
+                  padding: "12px",
                 }}
               >
-                <h2 className="text-sm font-semibold text-center">{formData.name || "Product Name"}</h2>
+                <h2 className="text-base font-semibold text-center mb-1">{formData.name || "Product Name"}</h2>
                 {formData.subtitle && (
-                  <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
+                  <p className="text-center italic text-xs mb-2 opacity-90">({formData.subtitle})</p>
                 )}
-                <div className="text-xs mt-1.5 space-y-0.5">
+                <div className="text-xs space-y-1">
                   {getAllFields()
                     .filter(f => f.enabled && f.key.startsWith('field'))
                     .map(field => {
@@ -928,10 +928,10 @@ export default function CreateProduct() {
                       const displayUnit = unit && unit !== "None" ? unit : "";
 
                       return (
-                        <p key={field.key} className="flex gap-1">
-                          <span className="min-w-[60px] text-right">{field.label}:</span>
-                          <span>{val} {displayUnit}</span>
-                        </p>
+                        <div key={field.key} className="flex justify-between items-start gap-2">
+                          <span className="font-medium">{field.label}</span>
+                          <span className="text-right">{val} {displayUnit}</span>
+                        </div>
                       );
                     })}
                 </div>
