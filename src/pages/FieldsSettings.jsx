@@ -201,7 +201,7 @@ export default function FieldsSettings() {
       <main className="flex-1 overflow-y-auto pb-24 px-4" ref={scrollContainerRef}>
         {/* Current Configuration Summary Card */}
         <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <FiBriefcase size={24} />
@@ -214,20 +214,18 @@ export default function FieldsSettings() {
               </div>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-800 grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Product Fields</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{activeProductFieldsCount}</span>
-                <span className="text-[10px] text-gray-500">/ 10 Active</span>
-              </div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Price Fields</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-green-600 dark:text-green-400">{activePriceFieldsCount}</span>
-                <span className="text-[10px] text-gray-500">/ {activePriceFields.length} Active</span>
-              </div>
+          <div className="pt-4 border-t border-gray-50 dark:border-gray-800">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
+            <div className="flex flex-wrap gap-2">
+              {productFields.filter(f => f.enabled).map(field => (
+                <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                  <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
+                  {field.label || "Untitled"}
+                </span>
+              ))}
+              {productFields.filter(f => f.enabled).length === 0 && (
+                <span className="text-xs text-gray-500 italic">No active fields</span>
+              )}
             </div>
           </div>
         </div>
