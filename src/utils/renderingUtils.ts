@@ -2,6 +2,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { renderProductToCanvas, canvasToBase64 } from "./canvasRenderer";
 import { getCatalogueData } from "../config/catalogueProductUtils";
 import { safeGetFromStorage } from "./safeStorage";
+import { getAllFields } from "../config/fieldConfig";
 
 /**
  * Retrieve a rendered image from localStorage or filesystem
