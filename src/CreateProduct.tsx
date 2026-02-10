@@ -1326,7 +1326,7 @@ export default function CreateProduct() {
 
               {/* Fill Fields and Price Options */}
               {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
-                <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 space-y-2">
+                <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-wrap gap-x-6 gap-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -1335,7 +1335,7 @@ export default function CreateProduct() {
                       className="w-4 h-4 rounded border-gray-300 text-blue-600"
                     />
                     <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Fill Fields from Master
+                      Fill Fields
                     </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1346,7 +1346,7 @@ export default function CreateProduct() {
                       className="w-4 h-4 rounded border-gray-300 text-blue-600"
                     />
                     <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Fill Price from Master
+                      Fill Price
                     </span>
                   </label>
                 </div>
