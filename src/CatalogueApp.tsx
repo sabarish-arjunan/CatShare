@@ -363,6 +363,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
     const cats = getAllCatalogues();
 
+    // Prevent screen from sleeping during rendering
+    try {
+      if (isNative) {
+        await KeepAwake.keepAwake();
+        console.log("🔓 Screen wakelock acquired for full rendering");
+      }
+    } catch (e) {
+      console.warn("Could not acquire keep awake lock:", e);
+    }
+
     // If forcing re-render, delete all existing rendered images first
     if (forceRerender) {
       console.log("🗑️ Force re-render enabled - clearing all rendered images...");
