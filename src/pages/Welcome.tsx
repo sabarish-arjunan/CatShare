@@ -223,10 +223,10 @@ export default function Welcome() {
         {step === 'industry' && (
           <motion.div
             key="industry"
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.6 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="w-full max-w-3xl relative z-10"
           >
             <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
@@ -329,10 +329,10 @@ export default function Welcome() {
         {step === 'fields' && (
           <motion.div
             key="fields"
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.6 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="w-full max-w-2xl relative z-10"
           >
             <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
@@ -439,9 +439,9 @@ export default function Welcome() {
         {step === 'complete' && (
           <motion.div
             key="complete"
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, type: 'spring' }}
+            transition={{ duration: 0.25, type: 'spring', stiffness: 150, damping: 20 }}
             className="w-full max-w-lg relative z-10 text-center"
           >
             <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
