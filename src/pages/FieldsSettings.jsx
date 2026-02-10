@@ -18,6 +18,7 @@ export default function FieldsSettings() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [definition, setDefinition] = useState(null);
+  const [savedDefinition, setSavedDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
@@ -27,6 +28,7 @@ export default function FieldsSettings() {
   useEffect(() => {
     const def = getFieldsDefinition();
     setDefinition(def);
+    setSavedDefinition(def);
 
     // Determine which price fields are actually in use by catalogues
     const catalogues = getAllCatalogues();
