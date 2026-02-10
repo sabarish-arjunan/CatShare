@@ -26,6 +26,7 @@ import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
 import FieldsSettings from "./pages/FieldsSettings";
 import ProInfo from "./pages/ProInfo";
+import Welcome from "./pages/Welcome";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import Website from "./Website";
