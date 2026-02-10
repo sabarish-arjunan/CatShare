@@ -1021,16 +1021,15 @@ export default function CreateProduct() {
           }}
         >
           <svg
-            className="w-6 h-4 text-gray-400 dark:text-gray-600"
+            className="w-5 h-5 text-gray-400 dark:text-gray-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M7 15l5-5m0 0l5 5" />
-            <path d="M7 9l5-5m0 0l5 5" />
+            <path d="M5 15l7-7 7 7" />
           </svg>
         </div>
 
