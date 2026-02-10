@@ -6,13 +6,20 @@ import {
   setFieldsDefinition,
   resetToDefaultFields
 } from "../config/fieldConfig";
+import { getAllCatalogues } from "../config/catalogueConfig";
 
 export default function WatermarkFields() {
   const navigate = useNavigate();
   const [definition, setDefinition] = useState(null);
+  const [activePriceFields, setActivePriceFields] = useState([]);
 
   useEffect(() => {
     setDefinition(getFieldsDefinition());
+
+    // Determine which price fields are actually in use by catalogues
+    const catalogues = getAllCatalogues();
+    const usedPriceFields = catalogues.map(c => c.priceField);
+    setActivePriceFields(usedPriceFields);
   }, []);
 
   const handleSave = () => {
