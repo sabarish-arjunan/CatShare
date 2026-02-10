@@ -1014,12 +1014,25 @@ export default function CreateProduct() {
         {/* Drag Handle */}
         <div
           onMouseDown={handleDragStart}
-          className="flex-shrink-0 h-1 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto mt-3 mb-2 w-12"
+          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
             cursor: "grab",
           }}
-        />
+        >
+          <svg
+            className="w-6 h-4 text-gray-400 dark:text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M7 15l5-5m0 0l5 5" />
+            <path d="M7 9l5-5m0 0l5 5" />
+          </svg>
+        </div>
 
         {/* Header inside sheet */}
         <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
