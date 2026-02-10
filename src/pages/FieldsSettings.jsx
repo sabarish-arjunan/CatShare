@@ -65,8 +65,7 @@ export default function FieldsSettings() {
 
     // Filtered list based on active price fields
     const productFields = items.filter(f => f.key.startsWith('field'));
-    const priceFields = items.filter(f => f.key.startsWith('price') && activePriceFields.includes(f.key));
-    const currentList = [...productFields, ...priceFields];
+    const currentList = [...productFields];
 
     const sourceField = currentList[result.source.index];
     const destField = currentList[result.destination.index];
@@ -203,13 +202,8 @@ export default function FieldsSettings() {
   if (!definition) return null;
 
   const productFields = definition.fields.filter(f => f.key.startsWith('field'));
-  const priceFields = definition.fields.filter(f =>
-    f.key === 'price1' && activePriceFields.includes(f.key)
-  );
-
-  const allFields = [...productFields, ...priceFields];
+  const allFields = [...productFields];
   const activeProductFieldsCount = productFields.filter(f => f.enabled).length;
-  const activePriceFieldsCount = priceFields.filter(f => f.enabled).length;
 
   return (
     <div className="w-full h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
@@ -446,7 +440,7 @@ export default function FieldsSettings() {
                     >
                       <AnimatePresence mode="popLayout">
                         {allFields
-                          .filter(f => f.enabled || f.key.startsWith('price') || (definition.industry !== "General Products (Custom)" && definition.industry !== undefined))
+                          .filter(f => f.enabled || (definition.industry !== "General Products (Custom)" && definition.industry !== undefined))
                           .map((field, index) => (
                           <motion.div
                             key={field.key}
@@ -485,7 +479,7 @@ export default function FieldsSettings() {
                                         </div>
                                         <div>
                                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            {field.key.startsWith('field') ? `Slot ${field.key.replace('field', '')}` : `Price`}
+                                            {`Slot ${field.key.replace('field', '')}`}
                                           </span>
                                           <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
                                             {field.label || "Untitled Field"}
