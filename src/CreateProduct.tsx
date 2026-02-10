@@ -53,37 +53,99 @@ const getWatermarkPositionStyles = (position) => {
 function ColorPickerModal({ value, onChange, onClose }) {
   const [hue, setHue] = useState(0);
   const [saturation, setSaturation] = useState(100);
-  const [brightness, setBrightness] = useState(100);
-  const [hexInput, setHexInput] = useState(value);
+  const [brightness, setBrightness] = useState(50);
+  const [hexInput, setHexInput] = useState("");
+
+  // Helper: Convert any color string to RGB array
+  const parseToRgb = (str) => {
+    if (!str) return [255, 255, 255];
+
+    // Handle Hex
+    if (str.startsWith("#")) {
+      const r = parseInt(str.slice(1, 3), 16) || 0;
+      const g = parseInt(str.slice(3, 5), 16) || 0;
+      const b = parseInt(str.slice(5, 7), 16) || 0;
+      return [r, g, b];
+    }
+
+    // Handle RGB
+    const match = str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (match) {
+      return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+    }
+
+    return [255, 255, 255];
+  };
+
+  const rgbToHex = (r, g, b) => {
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`.toUpperCase();
+  };
+
+  const rgbToHsl = (r, g, b) => {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return [h * 360, s * 100, l * 100];
+  };
 
   const hslToRgb = (h, s, l) => {
-    s /= 100;
-    l /= 100;
-    const k = (n) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    const r = Math.round(255 * f(0));
-    const g = Math.round(255 * f(8));
-    const b = Math.round(255 * f(4));
-    return `rgb(${r}, ${g}, ${b})`;
+    h /= 360; s /= 100; l /= 100;
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
   };
 
-  const rgbToHex = (rgb) => {
-    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    if (!match) return value;
-    const r = parseInt(match[1]).toString(16).padStart(2, '0');
-    const g = parseInt(match[2]).toString(16).padStart(2, '0');
-    const b = parseInt(match[3]).toString(16).padStart(2, '0');
-    return `#${r}${g}${b}`.toUpperCase();
-  };
+  // Initialize state on mount
+  useEffect(() => {
+    const [r, g, b] = parseToRgb(value);
+    const [h, s, l] = rgbToHsl(r, g, b);
+    setHue(h);
+    setSaturation(s);
+    setBrightness(l);
+    setHexInput(rgbToHex(r, g, b));
+  }, [value]);
 
-  const currentColor = hslToRgb(hue, saturation, brightness);
+  const currentColorRgb = hslToRgb(hue, saturation, brightness);
+  const currentColorHex = rgbToHex(...currentColorRgb);
+  const currentColorStr = `rgb(${currentColorRgb[0]}, ${currentColorRgb[1]}, ${currentColorRgb[2]})`;
 
   const handleHexChange = (hex) => {
+    setHexInput(hex);
     if (hex.match(/^#[0-9A-Fa-f]{6}$/)) {
-      setHexInput(hex);
-      onChange(hex);
+      const [r, g, b] = parseToRgb(hex);
+      const [h, s, l] = rgbToHsl(r, g, b);
+      setHue(h);
+      setSaturation(s);
+      setBrightness(l);
     }
   };
 
@@ -100,7 +162,12 @@ function ColorPickerModal({ value, onChange, onClose }) {
             min="0"
             max="360"
             value={hue}
-            onChange={(e) => setHue(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const h = parseFloat(e.target.value);
+              setHue(h);
+              const [r, g, b] = hslToRgb(h, saturation, brightness);
+              setHexInput(rgbToHex(r, g, b));
+            }}
             className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right,
@@ -119,7 +186,12 @@ function ColorPickerModal({ value, onChange, onClose }) {
             min="0"
             max="100"
             value={saturation}
-            onChange={(e) => setSaturation(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const s = parseFloat(e.target.value);
+              setSaturation(s);
+              const [r, g, b] = hslToRgb(hue, s, brightness);
+              setHexInput(rgbToHex(r, g, b));
+            }}
             className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right,
@@ -137,7 +209,12 @@ function ColorPickerModal({ value, onChange, onClose }) {
             min="0"
             max="100"
             value={brightness}
-            onChange={(e) => setBrightness(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const l = parseFloat(e.target.value);
+              setBrightness(l);
+              const [r, g, b] = hslToRgb(hue, saturation, l);
+              setHexInput(rgbToHex(r, g, b));
+            }}
             className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right, #000, hsl(${hue}, ${saturation}%, 50%), #fff)`
@@ -148,7 +225,7 @@ function ColorPickerModal({ value, onChange, onClose }) {
         {/* Color Preview */}
         <div className="mb-3">
           <div
-            style={{ backgroundColor: currentColor }}
+            style={{ backgroundColor: currentColorStr }}
             className="w-full h-16 rounded-lg border-2 border-gray-300"
           />
         </div>
@@ -168,7 +245,7 @@ function ColorPickerModal({ value, onChange, onClose }) {
         {/* Buttons */}
         <div className="flex gap-2">
           <button
-            onClick={() => onChange(currentColor)}
+            onClick={() => onChange(currentColorStr)}
             className="flex-1 bg-blue-600 text-white py-2 rounded font-medium"
           >
             Apply
