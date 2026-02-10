@@ -929,57 +929,61 @@ export default function CreateProduct() {
               </div>
 
               {/* Product Details Section */}
-              <div
-                style={{
-                  backgroundColor: getLighterColor(overrideColor),
-                  color: fontColor,
-                  padding: "10px",
-                }}
-              >
-                {formData.name && (
-                  <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-                )}
-                {formData.subtitle && (
-                  <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
-                )}
-                <div className="text-sm mt-2 space-y-1">
-                  {getAllFields()
-                    .filter(f => f.enabled && f.key.startsWith('field'))
-                    .map(field => {
-                      const catData = getCatalogueFormData();
-                      const val = catData[field.key];
-                      const visibilityKey = `${field.key}Visible`;
-                      const isVisible = catData[visibilityKey] !== false;
+              {hasDataToDisplay() && (
+                <>
+                  <div
+                    style={{
+                      backgroundColor: getLighterColor(overrideColor),
+                      color: fontColor,
+                      padding: "10px",
+                    }}
+                  >
+                    {formData.name && (
+                      <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
+                    )}
+                    {formData.subtitle && (
+                      <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
+                    )}
+                    <div className="text-sm mt-2 space-y-1">
+                      {getAllFields()
+                        .filter(f => f.enabled && f.key.startsWith('field'))
+                        .map(field => {
+                          const catData = getCatalogueFormData();
+                          const val = catData[field.key];
+                          const visibilityKey = `${field.key}Visible`;
+                          const isVisible = catData[visibilityKey] !== false;
 
-                      if (!val || !isVisible) return null;
-                      const unit = catData[`${field.key}Unit`];
-                      const displayUnit = unit && unit !== "None" ? unit : "";
+                          if (!val || !isVisible) return null;
+                          const unit = catData[`${field.key}Unit`];
+                          const displayUnit = unit && unit !== "None" ? unit : "";
 
-                      return (
-                        <p key={field.key} className="flex gap-2">
-                          <span className="min-w-[80px]">{field.label}</span>
-                          <span>:</span>
-                          <span>{val} {displayUnit}</span>
-                        </p>
-                      );
-                    })}
-                </div>
-              </div>
+                          return (
+                            <p key={field.key} className="flex gap-2">
+                              <span className="min-w-[80px]">{field.label}</span>
+                              <span>:</span>
+                              <span>{val} {displayUnit}</span>
+                            </p>
+                          );
+                        })}
+                    </div>
+                  </div>
 
-              {/* Price Section */}
-              {getSelectedCataloguePrice() && (
-                <div
-                  style={{
-                    backgroundColor: overrideColor,
-                    color: fontColor,
-                    padding: "8px 6px",
-                    textAlign: "center",
-                    fontWeight: "600",
-                    fontSize: "16px",
-                  }}
-                >
-                  Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
-                </div>
+                  {/* Price Section */}
+                  {getSelectedCataloguePrice() && (
+                    <div
+                      style={{
+                        backgroundColor: overrideColor,
+                        color: fontColor,
+                        padding: "8px 6px",
+                        textAlign: "center",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                      }}
+                    >
+                      Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
