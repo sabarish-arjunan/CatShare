@@ -32,6 +32,24 @@ export default function WatermarkFields() {
     setActivePriceFields(usedPriceFields);
   }, []);
 
+  const onDragEnd = (result) => {
+    if (!result.destination || !definition) return;
+
+    const items = Array.from(definition.fields);
+
+    // Find the indices in the full fields array
+    const sourceField = filteredFields[result.source.index];
+    const destField = filteredFields[result.destination.index];
+
+    const sourceIndex = items.findIndex(f => f.key === sourceField.key);
+    const destIndex = items.findIndex(f => f.key === destField.key);
+
+    const [reorderedItem] = items.splice(sourceIndex, 1);
+    items.splice(destIndex, 0, reorderedItem);
+
+    setDefinition({ ...definition, fields: items });
+  };
+
   const handleSave = async () => {
     if (definition) {
       setFieldsDefinition(definition);
