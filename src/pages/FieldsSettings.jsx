@@ -203,8 +203,12 @@ export default function FieldsSettings() {
         <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
-                <FiBriefcase size={24} />
+              <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center">
+                {definition.industry === "General Products (Custom)" || !definition.industry ? "📦" :
+                 definition.industry.includes("Fashion") ? "👕" :
+                 definition.industry.includes("Lifestyle") ? "🧴" :
+                 definition.industry.includes("Home") ? "🏠" :
+                 definition.industry.includes("Electronics") ? "🎧" : "🛠️"}
               </div>
               <div>
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
