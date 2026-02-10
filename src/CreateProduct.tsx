@@ -202,6 +202,9 @@ export default function CreateProduct() {
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
 
   // Drag handlers - support both mouse and touch events
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
+
   const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     // Don't start drag from input/button elements
     const target = e.target as HTMLElement;
@@ -211,8 +214,9 @@ export default function CreateProduct() {
 
     setIsDragging(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    setDragStart(clientY);
-  }, []);
+    startYRef.current = clientY;
+    startHeightRef.current = sheetHeight;
+  }, [sheetHeight]);
 
   useEffect(() => {
     if (!isDragging) return;
@@ -220,33 +224,31 @@ export default function CreateProduct() {
     const handleDragMove = (e: MouseEvent | TouchEvent) => {
       const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
 
-      setSheetHeight(prevHeight => {
-        const diff = dragStart - clientY;
-        const newHeight = Math.max(120, Math.min(MAX_HEIGHT, prevHeight + diff));
-        setDragStart(clientY);
-        return newHeight;
-      });
+      // Calculate the difference from start
+      const diff = startYRef.current - clientY;
+      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, startHeightRef.current + diff));
+      setSheetHeight(newHeight);
     };
 
     const handleDragEnd = () => {
       setIsDragging(false);
-      setSheetHeight(prevHeight => {
-        const targetHeight = prevHeight > MAX_HEIGHT * 0.4 ? MAX_HEIGHT : 120;
-        return targetHeight;
-      });
+      // Snap to nearest position
+      const threshold = MAX_HEIGHT * 0.4;
+      const targetHeight = sheetHeight > threshold ? MAX_HEIGHT : 120;
+      setSheetHeight(targetHeight);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (isDragging && e.touches.length === 1) {
+      if (e.touches.length === 1) {
         e.preventDefault();
       }
       handleDragMove(e);
     };
 
-    document.addEventListener("mousemove", handleDragMove as EventListener, { capture: true } as AddEventListenerOptions);
-    document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: true } as AddEventListenerOptions);
-    document.addEventListener("mouseup", handleDragEnd, { capture: true } as AddEventListenerOptions);
-    document.addEventListener("touchend", handleDragEnd, { capture: true } as AddEventListenerOptions);
+    document.addEventListener("mousemove", handleDragMove as EventListener, { capture: false });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: false } as AddEventListenerOptions);
+    document.addEventListener("mouseup", handleDragEnd, { capture: false });
+    document.addEventListener("touchend", handleDragEnd, { capture: false });
 
     return () => {
       document.removeEventListener("mousemove", handleDragMove as EventListener);
@@ -254,7 +256,7 @@ export default function CreateProduct() {
       document.removeEventListener("mouseup", handleDragEnd);
       document.removeEventListener("touchend", handleDragEnd);
     };
-  }, [isDragging, dragStart, MAX_HEIGHT]);
+  }, [isDragging, sheetHeight, MAX_HEIGHT]);
 
   // Calculate image scale
   const imageScale = Math.max(0.4, 1 - (sheetHeight - 120) / (MAX_HEIGHT - 120) * 0.6);
