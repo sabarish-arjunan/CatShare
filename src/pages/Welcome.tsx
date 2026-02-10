@@ -221,7 +221,7 @@ export default function Welcome() {
             transition={{ duration: 0.6 }}
             className="w-full max-w-3xl relative z-10"
           >
-            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl shadow-2xl p-12 border border-slate-700/50">
+            <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
