@@ -353,54 +353,67 @@ export default function Welcome() {
                 </p>
               </motion.div>
               
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                <p className="text-sm text-blue-700">
-                  💡 <strong>Tip:</strong> You can customize these anytime in Settings
-                </p>
-              </div>
+              {selectedIndustry === 'Others' ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-blue-50 border border-blue-200 rounded-xl p-8 mb-8 text-center"
+                >
+                  <p className="text-lg text-blue-800 font-semibold mb-3">⚙️ Configure Your Fields</p>
+                  <p className="text-sm text-blue-700 leading-relaxed">
+                    You can add and customize your product fields directly in the app Settings once you complete this setup. This gives you full flexibility to create exactly the catalog you need.
+                  </p>
+                </motion.div>
+              ) : (
+                <>
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                    <p className="text-sm text-blue-700">
+                      💡 <strong>Tip:</strong> You can customize these anytime in Settings
+                    </p>
+                  </div>
 
-              <div className="space-y-3 mb-8 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
-                {(selectedIndustry === 'Others'
-                  ? DEFAULT_FIELDS
-                  : INDUSTRY_PRESETS.find(p => p.name === selectedIndustry)?.fields || []
-                ).map((field, idx) => {
-                  const fieldKey = selectedIndustry === 'Others' ? field.key : `field${idx + 1}`;
-                  const isChecked = selectedFields[fieldKey] || false;
-                  return (
-                    <motion.div
-                      key={fieldKey}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      whileHover={{ x: 4 }}
-                      className="flex items-center p-4 border border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group"
-                    >
-                      <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                        isChecked
-                          ? 'bg-blue-600 border-blue-600'
-                          : 'border-slate-300 group-hover:border-slate-400'
-                      }`}>
-                        {isChecked && <span className="text-white text-sm">✓</span>}
-                      </div>
-                      <label htmlFor={fieldKey} className="ml-4 flex-1 cursor-pointer">
-                        <p className="font-semibold text-slate-800">{field.label}</p>
-                        {field.unitOptions && (
-                          <p className="text-xs text-slate-500 mt-1">
-                            {field.unitOptions.slice(0, 2).join(', ')}
-                          </p>
-                        )}
-                      </label>
-                      <input
-                        type="checkbox"
-                        id={fieldKey}
-                        checked={isChecked}
-                        onChange={() => handleFieldToggle(fieldKey)}
-                        className="hidden"
-                      />
-                    </motion.div>
-                  );
-                })}
-              </div>
+                  <div className="space-y-3 mb-8 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                    {INDUSTRY_PRESETS.find(p => p.name === selectedIndustry)?.fields.map((field, idx) => {
+                      const fieldKey = `field${idx + 1}`;
+                      const isChecked = selectedFields[fieldKey] || false;
+                      return (
+                        <motion.div
+                          key={fieldKey}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          whileHover={{ x: 4 }}
+                          className="flex items-center p-4 border border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group"
+                        >
+                          <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                            isChecked
+                              ? 'bg-blue-600 border-blue-600'
+                              : 'border-slate-300 group-hover:border-slate-400'
+                          }`}>
+                            {isChecked && <span className="text-white text-sm">✓</span>}
+                          </div>
+                          <label htmlFor={fieldKey} className="ml-4 flex-1 cursor-pointer">
+                            <p className="font-semibold text-slate-800">{field.label}</p>
+                            {field.unitOptions && (
+                              <p className="text-xs text-slate-500 mt-1">
+                                {field.unitOptions.slice(0, 2).join(', ')}
+                              </p>
+                            )}
+                          </label>
+                          <input
+                            type="checkbox"
+                            id={fieldKey}
+                            checked={isChecked}
+                            onChange={() => handleFieldToggle(fieldKey)}
+                            className="hidden"
+                          />
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
 
               <div className="flex gap-3">
                 <motion.button
