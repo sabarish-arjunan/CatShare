@@ -494,9 +494,11 @@ export default function Welcome() {
                     rotate: [0, 360],
                   }}
                   transition={{ duration: 2 }}
-                  className="w-24 h-24 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center mx-auto shadow-2xl shadow-green-500/50"
+                  className="flex items-center justify-center mx-auto"
                 >
-                  <CatShareLogo size={80} className="text-white" />
+                  <div className="w-28 h-28 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-green-500/50 p-2">
+                    <CatShareLogo size={100} />
+                  </div>
                 </motion.div>
               </motion.div>
               
