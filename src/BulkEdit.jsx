@@ -98,10 +98,6 @@ useEffect(() => {
         typeof p.wholesaleStock === "boolean"
           ? p.wholesaleStock ? "in" : "out"
           : p.wholesaleStock || "",
-      resellStock:
-        typeof p.resellStock === "boolean"
-          ? p.resellStock ? "in" : "out"
-          : p.resellStock || "",
     };
 
     // Dynamically copy all fieldX data
@@ -128,10 +124,6 @@ useEffect(() => {
     // Initialize other price fields - show if they exist
     normalized.wholesale = p.wholesale || "";
     normalized.wholesaleUnit = p.wholesaleUnit || "/ piece";
-    normalized.resell = p.resell || "";
-    normalized.resellUnit = p.resellUnit || "/ piece";
-    normalized.retail = p.retail || "";
-    normalized.retailUnit = p.retailUnit || "/ piece";
     normalized.stock = p.stock || "";
 
     // Store master values for fallback/fill from master
@@ -140,8 +132,6 @@ useEffect(() => {
     normalized.masterCategory = p.category || [];
     normalized.masterWholesale = p.wholesale || "";
     normalized.masterWholesaleUnit = p.wholesaleUnit || "/ piece";
-    normalized.masterResell = p.resell || "";
-    normalized.masterResellUnit = p.resellUnit || "/ piece";
 
     return normalized;
   });
@@ -163,20 +153,12 @@ useEffect(() => {
       category: item.category ?? [],
       wholesale: item.wholesale ?? "",
       wholesaleUnit: item.wholesaleUnit ?? "/ piece",
-      resell: item.resell ?? "",
-      resellUnit: item.resellUnit ?? "/ piece",
-      retail: item.retail ?? "",
-      retailUnit: item.retailUnit ?? "/ piece",
       // Initialize all possible price fields to avoid undefined
       price: item.price ?? "",
       priceUnit: item.priceUnit ?? "/ piece",
       price1: item.price1 ?? "",
       price1Unit: item.price1Unit ?? "/ piece",
-      price2: item.price2 ?? "",
-      price2Unit: item.price2Unit ?? "/ piece",
       wholesaleStock: item.wholesaleStock ?? "",
-      resellStock: item.resellStock ?? "",
-      retailStock: item.retailStock ?? "",
       stock: item.stock ?? "",
       image: item.image ?? "",
       imagePath: item.imagePath ?? "",
@@ -245,9 +227,6 @@ useEffect(() => {
           } else if (fieldKey === "wholesale") {
             updates.wholesale = "";
             updates.wholesaleUnit = "/ piece";
-          } else if (fieldKey === "resell") {
-            updates.resell = "";
-            updates.resellUnit = "/ piece";
           } else if (fieldKey === "name") {
             updates.name = "";
           } else if (fieldKey === "subtitle") {
@@ -288,9 +267,6 @@ useEffect(() => {
         } else if (fieldKey === "wholesale") {
           updates.wholesale = item.masterWholesale || "";
           updates.wholesaleUnit = item.masterWholesaleUnit || "/ piece";
-        } else if (fieldKey === "resell") {
-          updates.resell = item.masterResell || "";
-          updates.resellUnit = item.masterResellUnit || "/ piece";
         } else if (fieldKey === "name") {
           updates.name = item.masterName || "";
         } else if (fieldKey === "subtitle") {
@@ -336,9 +312,6 @@ useEffect(() => {
   // Convert stock fields from string → boolean
   if (typeof copy.wholesaleStock === "string") {
     copy.wholesaleStock = copy.wholesaleStock === "in";
-  }
-  if (typeof copy.resellStock === "string") {
-    copy.resellStock = copy.resellStock === "in";
   }
 
   // Handle catalogue-specific stock field
@@ -444,8 +417,6 @@ useEffect(() => {
                     masterCategory: p.category || [],
                     masterWholesale: p.wholesale || "",
                     masterWholesaleUnit: p.wholesaleUnit || "/ piece",
-                    masterResell: p.resell || "",
-                    masterResellUnit: p.resellUnit || "/ piece",
                   };
 
                   // Copy all fieldX slots
@@ -748,25 +719,6 @@ useEffect(() => {
                 <select
                   value={item.wholesaleUnit ?? "/ piece"}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
-                  className="border rounded px-2 py-1 pr-8 w-16"
-                >
-                  <option value="/ piece">/ piece</option>
-                  <option value="/ dozen">/ dozen</option>
-                  <option value="/ set">/ set</option>
-                </select>
-              </div>
-            )}
-
-            {selectedFields.includes("resell") && (
-              <div className="flex gap-2">
-                <input
-                  value={item.resell ?? ""}
-                  onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
-                  className="border rounded px-2 py-1 w-28"
-                />
-                <select
-                  value={item.resellUnit ?? "/ piece"}
-                  onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
                   <option value="/ piece">/ piece</option>

@@ -116,7 +116,7 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     key: 'price2',
     label: 'Price 2',
     type: 'number',
-    enabled: true,
+    enabled: false,
     legacyKeys: ['resell', 'Resell', 'Resell price'],
     unitField: 'price2Unit',
     unitOptions: ['/ piece', '/ dozen', '/ set'],

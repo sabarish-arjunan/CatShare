@@ -329,7 +329,6 @@ export default function CreateProduct() {
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [price1Unit, setPrice1Unit] = useState("/ piece");
-  const [price2Unit, setPrice2Unit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
@@ -730,9 +729,7 @@ export default function CreateProduct() {
     }
 
     newItem.price1 = newItem.price1 || "";
-    newItem.price2 = newItem.price2 || "";
     newItem.price1Unit = newItem.price1Unit || "/ piece";
-    newItem.price2Unit = newItem.price2Unit || "/ piece";
 
     for (let i = 1; i <= 10; i++) {
       newItem[`field${i}`] = defaultCatalogueData[`field${i}`] || "";
@@ -740,11 +737,9 @@ export default function CreateProduct() {
     }
 
     newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
-    newItem.resellUnit = defaultCatalogueData.price2Unit || "/ piece";
     newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
     newItem.ageUnit = defaultCatalogueData.field3Unit || "months";
     newItem.wholesale = newItem.price1 || "";
-    newItem.resell = newItem.price2 || "";
     newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
 
     try {
@@ -771,8 +766,6 @@ export default function CreateProduct() {
               priceField: cat.priceField,
               priceUnitField: cat.priceUnitField,
               price1Unit: catData.price1Unit || "/ piece",
-              price2Unit: catData.price2Unit || "/ piece",
-              resellUnit: catData.price2Unit || "/ piece",
               wholesaleUnit: catData.price1Unit || "/ piece",
             };
 

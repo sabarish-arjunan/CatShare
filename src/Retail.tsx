@@ -257,10 +257,8 @@ export default function Retail({ products = [] }) {
         name: prod.name || "",
         subtitle: prod.subtitle || "",
         price1: prod.price1 || prod.wholesale || 0,
-        price2: prod.price2 || prod.resell || prod.retail || 0,
         // Keep old names for backward compatibility
         wholesale: prod.price1 || prod.wholesale || 0,
-        resell: prod.price2 || prod.resell || prod.retail || 0,
         image: prod.image || prod.imagePath || "",
         imagePath: prod.imagePath || prod.image || "",
         category: prod.category || [],
@@ -324,10 +322,9 @@ export default function Retail({ products = [] }) {
         sourceId: p.id,
         name: p.name || "",
         subtitle: p.subtitle || "",
-        price1: price1,
-        price2: retailPrice,
+        price1: retailPrice,
         // Keep old names for backward compatibility
-        wholesale: price1,
+        wholesale: retailPrice,
         retail: retailPrice,
         image: p.image || p.imagePath || "",
         imagePath: p.imagePath || (p.image && typeof p.image === 'string' && (p.image.startsWith('retail/') || p.image.startsWith('catalogue/')) ? p.image : undefined),
@@ -360,10 +357,8 @@ export default function Retail({ products = [] }) {
       name: "New Product",
       subtitle: "",
       price1: 0,
-      price2: 0,
       // Keep old names for backward compatibility
       wholesale: 0,
-      retail: 0,
       image: "",
       category: [],
       note: "",
@@ -776,8 +771,7 @@ export default function Retail({ products = [] }) {
                       <input className="border p-2 rounded w-full mb-2" placeholder="Model Name" value={editingProduct.name} onChange={(e) => setEditingProduct((s) => ({ ...s, name: e.target.value }))} />
                       <input className="border p-2 rounded w-full mb-2" placeholder="Subtitle" value={editingProduct.subtitle} onChange={(e) => setEditingProduct((s) => ({ ...s, subtitle: e.target.value }))} />
                       <div className="flex gap-2 mb-2">
-                        <input name="price1" value={editingProduct.price1 || editingProduct.wholesale || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price1: Number(e.target.value), wholesale: Number(e.target.value) }))} placeholder="Price 1" className="border p-2 w-full rounded" />
-                        <input name="price2" value={editingProduct.price2 || editingProduct.retail || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price2: Number(e.target.value), retail: Number(e.target.value) }))} placeholder="Price 2" className="border p-2 w-full rounded" />
+                        <input name="price1" value={editingProduct.price1 || editingProduct.wholesale || ''} onChange={(e) => setEditingProduct((s) => ({ ...s, price1: Number(e.target.value), wholesale: Number(e.target.value) }))} placeholder="Price" className="border p-2 w-full rounded" />
                       </div>
 
                       <div className="flex gap-2 mb-2">
@@ -822,10 +816,6 @@ export default function Retail({ products = [] }) {
 
                       {/* Preview */}
                       <div id="catalogue-preview" className="mt-6 border rounded shadow overflow-hidden" style={{ maxWidth: 330, width: '100%' }}>
-                        <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price1 || editingProduct.wholesale} / piece
-                        </div>
-
                         {imagePreview && (
                           <div style={{ position: 'relative', backgroundColor: imageBgOverride, textAlign: 'center', padding: 10, boxShadow: '0 12px 15px -6px rgba(0, 0, 0, 0.4)' }}>
                             <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain', margin: '0 auto' }} />
@@ -843,7 +833,7 @@ export default function Retail({ products = [] }) {
                         </div>
 
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price2 || editingProduct.retail} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price1 || editingProduct.wholesale} / piece
                         </div>
                       </div>
 
