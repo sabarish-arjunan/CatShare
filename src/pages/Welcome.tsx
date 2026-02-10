@@ -17,6 +17,7 @@ const industryIcons: { [key: string]: string } = {
   'Home, Kitchen & Living': '🏠',
   'Electronics & Accessories': '📱',
   'Hardware, Tools & Industrial': '🔧',
+  'Others': '✨',
 };
 
 const FloatingShapes = () => (
