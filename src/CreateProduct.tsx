@@ -297,7 +297,7 @@ export default function CreateProduct() {
 
   const [originalBase64, setOriginalBase64] = useState(null);
   const [overrideColor, setOverrideColor] = useState("#d1b3c4");
-  const [fontColor, setFontColor] = useState("white");
+  const [fontColor, setFontColor] = useState("black");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -353,6 +353,32 @@ export default function CreateProduct() {
       return `rgb(${lighten(r)}, ${lighten(g)}, ${lighten(b)})`;
     }
     return color;
+  };
+
+  // Helper function to check if there's any data to display in the preview
+  const hasDataToDisplay = () => {
+    const catData = getCatalogueFormData();
+
+    // Check for basic fields
+    if (formData.name || formData.subtitle) return true;
+
+    // Check for price
+    if (getSelectedCataloguePrice()) return true;
+
+    // Check for badge
+    if (catData.badge) return true;
+
+    // Check for any field values
+    const hasFieldValue = getAllFields()
+      .filter(f => f.enabled && f.key.startsWith('field'))
+      .some(field => {
+        const val = catData[field.key];
+        const visibilityKey = `${field.key}Visible`;
+        const isVisible = catData[visibilityKey] !== false;
+        return val && isVisible;
+      });
+
+    return hasFieldValue;
   };
 
   useEffect(() => {
@@ -903,57 +929,61 @@ export default function CreateProduct() {
               </div>
 
               {/* Product Details Section */}
-              <div
-                style={{
-                  backgroundColor: getLighterColor(overrideColor),
-                  color: fontColor,
-                  padding: "10px",
-                }}
-              >
-                {formData.name && (
-                  <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-                )}
-                {formData.subtitle && (
-                  <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
-                )}
-                <div className="text-sm mt-2 space-y-1">
-                  {getAllFields()
-                    .filter(f => f.enabled && f.key.startsWith('field'))
-                    .map(field => {
-                      const catData = getCatalogueFormData();
-                      const val = catData[field.key];
-                      const visibilityKey = `${field.key}Visible`;
-                      const isVisible = catData[visibilityKey] !== false;
+              {hasDataToDisplay() && (
+                <>
+                  <div
+                    style={{
+                      backgroundColor: getLighterColor(overrideColor),
+                      color: fontColor,
+                      padding: "10px",
+                    }}
+                  >
+                    {formData.name && (
+                      <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
+                    )}
+                    {formData.subtitle && (
+                      <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
+                    )}
+                    <div className="text-sm mt-2 space-y-1">
+                      {getAllFields()
+                        .filter(f => f.enabled && f.key.startsWith('field'))
+                        .map(field => {
+                          const catData = getCatalogueFormData();
+                          const val = catData[field.key];
+                          const visibilityKey = `${field.key}Visible`;
+                          const isVisible = catData[visibilityKey] !== false;
 
-                      if (!val || !isVisible) return null;
-                      const unit = catData[`${field.key}Unit`];
-                      const displayUnit = unit && unit !== "None" ? unit : "";
+                          if (!val || !isVisible) return null;
+                          const unit = catData[`${field.key}Unit`];
+                          const displayUnit = unit && unit !== "None" ? unit : "";
 
-                      return (
-                        <p key={field.key} className="flex gap-2">
-                          <span className="min-w-[80px]">{field.label}</span>
-                          <span>:</span>
-                          <span>{val} {displayUnit}</span>
-                        </p>
-                      );
-                    })}
-                </div>
-              </div>
+                          return (
+                            <p key={field.key} className="flex gap-2">
+                              <span className="min-w-[80px]">{field.label}</span>
+                              <span>:</span>
+                              <span>{val} {displayUnit}</span>
+                            </p>
+                          );
+                        })}
+                    </div>
+                  </div>
 
-              {/* Price Section */}
-              {getSelectedCataloguePrice() && (
-                <div
-                  style={{
-                    backgroundColor: overrideColor,
-                    color: fontColor,
-                    padding: "8px 6px",
-                    textAlign: "center",
-                    fontWeight: "600",
-                    fontSize: "16px",
-                  }}
-                >
-                  Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
-                </div>
+                  {/* Price Section */}
+                  {getSelectedCataloguePrice() && (
+                    <div
+                      style={{
+                        backgroundColor: overrideColor,
+                        color: fontColor,
+                        padding: "8px 6px",
+                        textAlign: "center",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                      }}
+                    >
+                      Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -984,62 +1014,68 @@ export default function CreateProduct() {
         {/* Drag Handle */}
         <div
           onMouseDown={handleDragStart}
-          className="flex-shrink-0 h-1 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto mt-3 mb-2 w-12"
+          onClick={() => setSheetHeight(sheetHeight > MAX_HEIGHT * 0.5 ? 120 : MAX_HEIGHT)}
+          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
-            cursor: "grab",
           }}
-        />
+        >
+          <svg
+            className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
+            }}
+          >
+            <path d="M5 15l7-7 7 7" />
+          </svg>
+        </div>
 
         {/* Header inside sheet */}
         <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
           <h1 className="text-base font-bold">{editingId ? "Edit Product" : "Create Product"}</h1>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSheetHeight(sheetHeight > MAX_HEIGHT * 0.5 ? 120 : MAX_HEIGHT)}
-              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-              title={sheetHeight > 120 ? "Collapse" : "Expand"}
-            >
-              {sheetHeight > 120 ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-              )}
-            </button>
-            <button
-              onClick={handleSelectImage}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-md text-xs flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              Change
-            </button>
-          </div>
+          <button
+            onClick={handleSelectImage}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-md text-xs flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Change
+          </button>
         </header>
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
           {/* Product Name & Subtitle */}
-          <div className="mb-3">
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Model Name"
-              className="border p-2 rounded w-full mb-2 text-sm"
-            />
-            <input
-              name="subtitle"
-              value={formData.subtitle}
-              onChange={handleChange}
-              placeholder="Subtitle"
-              className="border p-2 rounded w-full text-sm"
-            />
+          <div className="mb-3 space-y-3">
+            <div className="relative">
+              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                Model Name
+              </label>
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="border p-2 rounded w-full text-sm pt-2"
+              />
+            </div>
+            <div className="relative">
+              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                Subtitle
+              </label>
+              <input
+                name="subtitle"
+                value={formData.subtitle}
+                onChange={handleChange}
+                className="border p-2 rounded w-full text-sm pt-2"
+              />
+            </div>
           </div>
 
           {/* Catalogue Selector */}
@@ -1070,59 +1106,81 @@ export default function CreateProduct() {
                 .map(field => {
                   const catData = getCatalogueFormData();
                   return (
-                    <div key={field.key} className="flex gap-2 items-center">
-                      <input
-                        name={field.key}
-                        value={catData[field.key] || ""}
-                        onChange={handleChange}
-                        placeholder={field.label}
-                        className="border p-1.5 w-full rounded text-xs"
-                      />
-                      {(field.unitOptions && field.unitOptions.length > 0) && (
-                        <select
-                          name={`${field.key}Unit`}
-                          value={catData[`${field.key}Unit`] || "None"}
+                    <div key={field.key} className="flex gap-2 items-start">
+                      <div className="relative flex-1">
+                        <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                          {field.label}
+                        </label>
+                        <input
+                          name={field.key}
+                          value={catData[field.key] || ""}
                           onChange={handleChange}
-                          className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white"
-                        >
-                          <option>None</option>
-                          {field.unitOptions.map(opt => (
-                            <option key={opt}>{opt}</option>
-                          ))}
-                        </select>
+                          className="border p-1.5 w-full rounded text-xs pt-2"
+                        />
+                      </div>
+                      {(field.unitOptions && field.unitOptions.length > 0) && (
+                        <div className="relative">
+                          <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                            Unit
+                          </label>
+                          <select
+                            name={`${field.key}Unit`}
+                            value={catData[`${field.key}Unit`] || "None"}
+                            onChange={handleChange}
+                            className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
+                          >
+                            <option>None</option>
+                            {field.unitOptions.map(opt => (
+                              <option key={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        </div>
                       )}
                     </div>
                   );
                 })}
 
               <div className="flex gap-2 mt-2">
-                <input
-                  name={getSelectedCataloguePriceField()}
-                  value={getSelectedCataloguePrice()}
-                  onChange={handleChange}
-                  placeholder="Price"
-                  className="border p-1.5 w-full rounded text-xs"
-                />
-                <select
-                  name={getSelectedCataloguePriceUnitField()}
-                  value={getSelectedCataloguePriceUnit() || "None"}
-                  onChange={handleChange}
-                  className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white"
-                >
-                  <option>None</option>
-                  {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
-                    <option key={opt}>{opt}</option>
-                  ))}
-                </select>
+                <div className="relative flex-1">
+                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                    Price
+                  </label>
+                  <input
+                    name={getSelectedCataloguePriceField()}
+                    value={getSelectedCataloguePrice()}
+                    onChange={handleChange}
+                    className="border p-1.5 w-full rounded text-xs pt-2"
+                  />
+                </div>
+                <div className="relative">
+                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                    Unit
+                  </label>
+                  <select
+                    name={getSelectedCataloguePriceUnitField()}
+                    value={getSelectedCataloguePriceUnit() || "None"}
+                    onChange={handleChange}
+                    className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
+                  >
+                    <option>None</option>
+                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                      <option key={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <input
-                name="badge"
-                value={getCatalogueFormData().badge || ""}
-                onChange={handleChange}
-                placeholder="Badge (e.g. NEW)"
-                className="border p-1.5 rounded w-full text-xs mt-2"
-              />
+              <div className="relative mt-2">
+                <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                  Badge
+                </label>
+                <input
+                  name="badge"
+                  value={getCatalogueFormData().badge || ""}
+                  onChange={handleChange}
+                  className="border p-1.5 rounded w-full text-xs pt-2"
+                />
+              </div>
             </div>
           )}
 
@@ -1162,7 +1220,7 @@ export default function CreateProduct() {
               <span className="text-xs">BG: {overrideColor}</span>
             </button>
 
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <label className="flex items-center gap-1 text-xs">
                 Font:
                 {["white", "black"].map((color) => (
@@ -1178,6 +1236,37 @@ export default function CreateProduct() {
                       cursor: "pointer",
                     }}
                   />
+                ))}
+              </label>
+
+              <label className="flex items-center gap-1 text-xs">
+                Image BG:
+                {["white", "transparent"].map((color) => (
+                  <div
+                    key={color}
+                    onClick={() => setImageBgOverride(color)}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      backgroundColor: color === "transparent" ? "#f0f0f0" : color,
+                      border: imageBgOverride === color ? "2px solid blue" : "1px solid #ccc",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                      position: "relative",
+                    }}
+                  >
+                    {color === "transparent" && (
+                      <div style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "2px",
+                        backgroundColor: "#999",
+                        top: "50%",
+                        left: 0,
+                        transform: "translateY(-50%) rotate(-45deg)",
+                      }} />
+                    )}
+                  </div>
                 ))}
               </label>
             </div>

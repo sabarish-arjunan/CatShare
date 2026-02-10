@@ -616,6 +616,18 @@ const exportProductsToCSV = (products) => {
           </h2>
 
           <button
+  onClick={() => {
+    navigate("/welcome");
+    onClose();
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 mb-2 rounded-lg bg-gradient-to-r from-blue-400 to-blue-500 text-white hover:from-blue-500 hover:to-blue-600 transition shadow-md font-medium"
+  title="Reset onboarding setup"
+>
+  <span className="text-white text-[18px]">🎯</span>
+  <span className="text-sm font-medium">Welcome Setup</span>
+</button>
+
+          <button
   onClick={() => setShowBackupPopup(true)}
   className="w-full flex items-center gap-3 px-5 py-3 mb-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >

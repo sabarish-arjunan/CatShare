@@ -26,6 +26,7 @@ import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
 import FieldsSettings from "./pages/FieldsSettings";
 import ProInfo from "./pages/ProInfo";
+import Welcome from "./pages/Welcome";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import Website from "./Website";
@@ -322,6 +323,19 @@ function AppWithBackHandler() {
     runAsyncMigrations();
   }, []);
 
+  // Check if user needs to complete onboarding
+  useEffect(() => {
+    const hasCompletedOnboarding = safeGetFromStorage('hasCompletedOnboarding', false);
+
+    // Only redirect to welcome if not already on welcome or admin pages
+    if (!hasCompletedOnboarding &&
+        !location.pathname.includes('/welcome') &&
+        !location.pathname.includes('/privacy') &&
+        !location.pathname.includes('/terms') &&
+        !location.pathname.includes('/website')) {
+      navigate('/welcome');
+    }
+  }, [navigate, location.pathname]);
 
   // Initialize watermark settings with defaults on first load
   useEffect(() => {
@@ -494,6 +508,7 @@ function AppWithBackHandler() {
       )}
 
       <Routes>
+        <Route path="/welcome" element={<Welcome />} />
         <Route
           path="/"
           element={
