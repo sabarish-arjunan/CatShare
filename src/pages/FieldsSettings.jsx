@@ -123,6 +123,28 @@ export default function FieldsSettings() {
     setDefinition({ ...definition, fields: newFields });
   };
 
+  const handleAddField = async () => {
+    if (!definition) return;
+
+    // Find first disabled product field
+    const nextField = definition.fields.find(f => f.key.startsWith('field') && !f.enabled);
+    if (nextField) {
+      const newFields = definition.fields.map(f =>
+        f.key === nextField.key ? { ...f, enabled: true, label: "" } : f
+      );
+      setDefinition({ ...definition, fields: newFields });
+      setExpandedKey(nextField.key);
+
+      try {
+        await Haptics.impact({ style: ImpactStyle.Light });
+      } catch (e) {}
+
+      showToast(`Added new field slot`, "success");
+    } else {
+      showToast("Maximum number of fields reached", "warning");
+    }
+  };
+
   const updateIndustry = async (industry) => {
     if (!definition) return;
 
@@ -265,18 +287,40 @@ export default function FieldsSettings() {
                   className="overflow-hidden border-t border-gray-50 dark:border-gray-800"
                 >
                   <div className="pt-4">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
-                    <div className="flex flex-wrap gap-2">
-                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).map(field => (
-                        <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                          <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
-                          {field.label || "Untitled"}
-                        </span>
-                      ))}
-                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length === 0 && (
-                        <span className="text-xs text-gray-500 italic">No active fields</span>
-                      )}
-                    </div>
+                    {(savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry) ? (
+                      <div className="flex flex-col gap-3">
+                        <p className="text-xs text-gray-500 italic leading-relaxed">
+                          Custom template enabled. You can manually add and configure fields to match your specific business needs.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setActiveTab("fields");
+                            if (definition.fields.filter(f => f.key.startsWith('field') && f.enabled).length === 0) {
+                              handleAddField();
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all"
+                        >
+                          <MdAdd size={20} />
+                          Add / Configure Fields
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
+                        <div className="flex flex-wrap gap-2">
+                          {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).map(field => (
+                            <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                              <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
+                              {field.label || "Untitled"}
+                            </span>
+                          ))}
+                          {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length === 0 && (
+                            <span className="text-xs text-gray-500 italic">No active fields</span>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -400,7 +444,9 @@ export default function FieldsSettings() {
                       className="space-y-3"
                     >
                       <AnimatePresence mode="popLayout">
-                        {allFields.map((field, index) => (
+                        {allFields
+                          .filter(f => f.enabled || f.key.startsWith('price') || (definition.industry !== "General Products (Custom)" && definition.industry !== undefined))
+                          .map((field, index) => (
                           <motion.div
                             key={field.key}
                             initial={{ opacity: 0, y: 10 }}
@@ -482,18 +528,32 @@ export default function FieldsSettings() {
                                         <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30 space-y-4">
                                           {field.enabled ? (
                                             <div className="space-y-4">
-                                              <div>
-                                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                                  Display Label
-                                                </label>
-                                                <input
-                                                  type="text"
-                                                  value={field.label}
-                                                  onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                                                  placeholder="e.g. Colour, Size, Brand..."
-                                                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
-                                                />
+                                              <div className="flex items-center justify-between">
+                                                <div>
+                                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                                    Display Label
+                                                  </label>
+                                                </div>
+                                                {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      toggleFieldEnabled(field.key);
+                                                    }}
+                                                    className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
+                                                  >
+                                                    <FiTrash2 size={12} />
+                                                    Remove Field
+                                                  </button>
+                                                )}
                                               </div>
+                                              <input
+                                                type="text"
+                                                value={field.label}
+                                                onChange={(e) => updateFieldLabel(field.key, e.target.value)}
+                                                placeholder="e.g. Colour, Size, Brand..."
+                                                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
+                                              />
 
                                               {field.key.startsWith('field') && (
                                                 <div>
@@ -530,6 +590,16 @@ export default function FieldsSettings() {
                           </motion.div>
                         ))}
                       </AnimatePresence>
+
+                      {(definition.industry === "General Products (Custom)" || !definition.industry) && (
+                        <button
+                          onClick={handleAddField}
+                          className="w-full py-4 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex items-center justify-center gap-2 text-gray-400 hover:text-blue-500 hover:border-blue-200 dark:hover:border-blue-900 transition-all active:scale-[0.98]"
+                        >
+                          <MdAdd size={24} />
+                          <span className="font-bold text-sm">Add New Field</span>
+                        </button>
+                      )}
                       {provided.placeholder}
                     </div>
                   )}

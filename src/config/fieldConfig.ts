@@ -10,6 +10,8 @@
  * migrated to the new field structure without data loss.
  */
 
+import { INDUSTRY_PRESETS } from './industryPresets';
+
 export interface FieldConfig {
   key: string; // Internal key: field1, field2, field3, etc.
   label: string; // Display label: "Colour", "Package", "Age Group"
@@ -408,9 +410,30 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
     }
   }
 
-  // For old backups (without fieldsDefinition in the backup file), set industry to "General Products (Custom)"
-  // This uses the existing Custom/General template for old backups
-  const backupIndustry = isOldBackup ? 'General Products (Custom)' : (definition.industry || 'General Products (Custom)');
+  // For old backups (without fieldsDefinition in the backup file), set industry to "Fashion & Apparel"
+  // because old version was related to that only.
+  const backupIndustry = isOldBackup ? 'Fashion & Apparel' : (definition.industry || 'General Products (Custom)');
+
+  // If it's an old backup, we match it to the Fashion & Apparel preset
+  if (isOldBackup) {
+    const fashionPreset = INDUSTRY_PRESETS.find((p: any) => p.name === 'Fashion & Apparel');
+
+    if (fashionPreset) {
+      console.log('👕 Old backup detected - aligning with Fashion & Apparel template');
+      fashionPreset.fields.forEach((presetField: any, index: number) => {
+        const fieldKey = `field${index + 1}`;
+        const fieldIdx = updatedFields.findIndex(f => f.key === fieldKey);
+        if (fieldIdx !== -1) {
+          updatedFields[fieldIdx] = {
+            ...updatedFields[fieldIdx],
+            label: presetField.label,
+            unitOptions: presetField.unitOptions || updatedFields[fieldIdx].unitOptions || [],
+            enabled: true,
+          };
+        }
+      });
+    }
+  }
 
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {
