@@ -275,102 +275,122 @@ export default function WatermarkFields() {
         </div>
 
         {/* Fields List */}
-        <div className="mt-6 space-y-3 px-4 pb-20">
-          <AnimatePresence mode="popLayout">
-            {filteredFields.map((field, index) => (
-              <motion.div
-                key={field.key}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className={`bg-white dark:bg-gray-900 rounded-2xl border transition-all ${
-                  field.enabled
-                    ? "border-blue-200 dark:border-blue-900 shadow-sm"
-                    : "border-gray-200 dark:border-gray-800 opacity-60 grayscale-[0.5]"
-                }`}
-              >
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        field.enabled ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                      }`}>
-                        <span className="text-xs font-black">{field.key.replace('field', '').replace('price', 'P')}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                          {field.key.startsWith('field') ? `Product Slot ${field.key.replace('field', '')}` : `Catalogue Price`}
-                        </span>
-                        <h3 className="font-bold text-sm dark:text-white">
-                          {field.label || "Untitled Field"}
-                        </h3>
-                      </div>
-                    </div>
+        <div className="mt-6 px-4 pb-20">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="fields">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="space-y-3"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {filteredFields.map((field, index) => (
+                      <Draggable key={field.key} draggableId={field.key} index={index}>
+                        {(provided, snapshot) => (
+                          <motion.div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            layout
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={`bg-white dark:bg-gray-900 rounded-2xl border transition-all ${
+                              snapshot.isDragging ? "shadow-2xl ring-2 ring-blue-500 z-50 scale-[1.02]" : ""
+                            } ${
+                              field.enabled
+                                ? "border-blue-200 dark:border-blue-900 shadow-sm"
+                                : "border-gray-200 dark:border-gray-800 opacity-60 grayscale-[0.5]"
+                            }`}
+                          >
+                            <div className="p-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    {...provided.dragHandleProps}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing ${
+                                      field.enabled ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                                    }`}
+                                  >
+                                    <MdDragIndicator size={20} />
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                      {field.key.startsWith('field') ? `Product Slot ${field.key.replace('field', '')}` : `Catalogue Price`}
+                                    </span>
+                                    <h3 className="font-bold text-sm dark:text-white">
+                                      {field.label || "Untitled Field"}
+                                    </h3>
+                                  </div>
+                                </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => toggleFieldEnabled(field.key)}
-                        className={`w-12 h-6 rounded-full p-1 transition-all ${
-                          field.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
-                        }`}
-                      >
-                        <motion.div
-                          animate={{ x: field.enabled ? 24 : 0 }}
-                          className="w-4 h-4 bg-white rounded-full shadow-sm"
-                        />
-                      </button>
-                    </div>
-                  </div>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => toggleFieldEnabled(field.key)}
+                                    className={`w-12 h-6 rounded-full p-1 transition-all ${
+                                      field.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                                    }`}
+                                  >
+                                    <motion.div
+                                      animate={{ x: field.enabled ? 24 : 0 }}
+                                      className="w-4 h-4 bg-white rounded-full shadow-sm"
+                                    />
+                                  </button>
+                                </div>
+                              </div>
 
-                  {field.enabled ? (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                          Display Label
-                        </label>
-                        <input
-                          type="text"
-                          value={field.label}
-                          onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                          placeholder="e.g. Colour, Size, Brand..."
-                          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
-                        />
-                      </div>
+                              {field.enabled ? (
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                      Display Label
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={field.label}
+                                      onChange={(e) => updateFieldLabel(field.key, e.target.value)}
+                                      placeholder="e.g. Colour, Size, Brand..."
+                                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
+                                    />
+                                  </div>
 
-                      {field.key.startsWith('field') && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                            Unit Options
-                          </label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              value={field.unitOptions?.join(", ") || ""}
-                              onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                              placeholder="e.g. kg, lbs, meters (comma separated)"
-                              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
-                            />
-                            {field.unitOptions && field.unitOptions.length > 0 && (
-                              <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                            )}
-                          </div>
-                          <p className="mt-1.5 text-[10px] text-gray-400 ml-1">
-                            Separate units with commas. Leave empty for text-only fields.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="py-1 flex items-center gap-2 text-gray-400 italic text-xs">
-                      <span>This field is hidden from product forms</span>
-                    </div>
-                  )}
+                                  {field.key.startsWith('field') && (
+                                    <div>
+                                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                        Unit Options
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="text"
+                                          value={field.unitOptions?.join(", ") || ""}
+                                          onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                          placeholder="e.g. kg, lbs, meters (comma separated)"
+                                          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
+                                        />
+                                        {field.unitOptions && field.unitOptions.length > 0 && (
+                                          <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="py-1 flex items-center gap-2 text-gray-400 italic text-xs">
+                                  <span>This field is hidden from product forms</span>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </AnimatePresence>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          
+              )}
+            </Droppable>
+          </DragDropContext>
+
           {activeTab === "product-fields" && productFields.every(f => !f.enabled) && (
             <motion.div 
               initial={{ opacity: 0 }} 
