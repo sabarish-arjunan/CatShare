@@ -151,10 +151,10 @@ export default function Welcome() {
         {step === 'welcome' && (
           <motion.div
             key="welcome"
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.6 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="w-full max-w-lg relative z-10"
           >
             <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-slate-200">
