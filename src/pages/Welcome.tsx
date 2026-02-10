@@ -281,7 +281,7 @@ export default function Welcome() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('fields')}
                   disabled={!selectedIndustry}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-400 text-slate-900 font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all"
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all"
                 >
                   Next
                 </motion.button>
