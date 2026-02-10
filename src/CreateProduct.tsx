@@ -203,6 +203,12 @@ export default function CreateProduct() {
 
   // Drag handlers - support both mouse and touch events
   const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    // Don't start drag from input/button elements
+    const target = e.target as HTMLElement;
+    if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName)) {
+      return;
+    }
+
     setIsDragging(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
     setDragStart(clientY);
@@ -231,16 +237,16 @@ export default function CreateProduct() {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
+      if (isDragging && e.touches.length === 1) {
         e.preventDefault();
       }
       handleDragMove(e);
     };
 
-    document.addEventListener("mousemove", handleDragMove as EventListener);
-    document.addEventListener("touchmove", handleTouchMove, { passive: false } as AddEventListenerOptions);
-    document.addEventListener("mouseup", handleDragEnd);
-    document.addEventListener("touchend", handleDragEnd);
+    document.addEventListener("mousemove", handleDragMove as EventListener, { capture: true } as AddEventListenerOptions);
+    document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: true } as AddEventListenerOptions);
+    document.addEventListener("mouseup", handleDragEnd, { capture: true } as AddEventListenerOptions);
+    document.addEventListener("touchend", handleDragEnd, { capture: true } as AddEventListenerOptions);
 
     return () => {
       document.removeEventListener("mousemove", handleDragMove as EventListener);
@@ -1022,25 +1028,23 @@ export default function CreateProduct() {
       {/* Draggable Bottom Sheet */}
       <div
         ref={sheetRef}
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
         className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all select-none"
         style={{
           height: `${sheetHeight}px`,
           cursor: isDragging ? "grabbing" : "grab",
           WebkitUserSelect: "none",
           userSelect: "none",
+          touchAction: "none",
+          WebkitTouchCallout: "none",
         }}
       >
         {/* Drag Handle - Extended to full width */}
         <div
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
-          className="flex-shrink-0 px-4 py-2 flex items-center justify-between cursor-grab active:cursor-grabbing select-none w-full"
+          className="flex-shrink-0 px-4 py-2 flex items-center justify-between select-none w-full pointer-events-none"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
-            WebkitUserSelect: "none",
-            userSelect: "none",
-            touchAction: "none",
-            WebkitTouchCallout: "none",
           }}
         >
           {/* Drag Handle Icon */}
@@ -1063,7 +1067,7 @@ export default function CreateProduct() {
         </div>
 
         {/* Header inside sheet */}
-        <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between select-none pointer-events-auto">
+        <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between select-none">
           <h1 className="text-base font-bold">{editingId ? "Edit Product" : "Create Product"}</h1>
           <button
             onClick={handleSelectImage}
@@ -1081,7 +1085,6 @@ export default function CreateProduct() {
           className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
-            pointerEvents: isDragging ? "none" : "auto"
           }}
         >
           {/* Product Name & Subtitle */}
