@@ -56,6 +56,11 @@ export default function WatermarkFields() {
     setDefinition({ ...definition, fields: newFields });
   };
 
+  const updateIndustry = (industry) => {
+    if (!definition) return;
+    setDefinition({ ...definition, industry });
+  };
+
   if (!definition) return null;
 
   return (
