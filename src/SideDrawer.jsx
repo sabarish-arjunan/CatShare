@@ -287,12 +287,20 @@ const handleBackup = async () => {
   }
 
   // Include catalogues definition and all settings in backup
+  // Ensure fieldsDefinition includes the template name
+  const backupFieldsDefinition = fieldsDefinition || {
+    version: 1,
+    fields: [],
+    industry: 'General Products (Custom)',
+    lastUpdated: Date.now(),
+  };
+
   zip.file("catalogue-data.json", JSON.stringify({
     version: 2, // Increment version for future compatibility
     products: dataForJson,
     deleted: deletedForJson,
     cataloguesDefinition,
-    fieldsDefinition, // Include field definitions to preserve custom field labels
+    fieldsDefinition: backupFieldsDefinition, // Include field definitions with template name to preserve custom field labels
     categories,
     backupDate: new Date().toISOString(),
     appVersion: APP_VERSION
@@ -631,10 +639,16 @@ const exportProductsToCSV = (products) => {
 
       // 🔄 Dispatch event to notify all components that field definitions have changed
       // This forces ProductPreviewModal and other components to reload field definitions
+      const templateName = backupFieldDef?.industry || 'General Products (Custom)';
       window.dispatchEvent(new CustomEvent("fieldDefinitionsChanged", {
-        detail: { newDefinition: backupFieldDef }
+        detail: {
+          newDefinition: backupFieldDef,
+          template: templateName,
+          isBackupRestore: true
+        }
       }));
-      console.log("🔄 Dispatched fieldDefinitionsChanged event to refresh field labels");
+      console.log(`🔄 Dispatched fieldDefinitionsChanged event - Template: ${templateName}`);
+      console.log(`📋 Field definitions restored with template: ${templateName}`);
 
       setShowRenderAfterRestore(true);
     } catch (err) {

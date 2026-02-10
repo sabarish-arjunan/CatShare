@@ -405,15 +405,22 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
     }
   }
 
+  // For old backups without a specific industry, set industry to "Custom Fields (from Backup)"
+  // This indicates these are custom fields restored from an old backup
+  const backupIndustry = definition.industry === undefined || definition.industry === null
+    ? 'Custom Fields (from Backup)'
+    : definition.industry;
+
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {
     version: 1,
     fields: updatedFields,
-    industry: definition.industry || 'Restored from Backup',
+    industry: backupIndustry,
     lastUpdated: Date.now(),
   };
 
   console.log('📋 Updated field definition with detected fields');
+  console.log('   Industry/Template:', backupIndustry);
   console.log('   Enabled fields:', updatedDefinition.fields.filter(f => f.enabled).map(f => `${f.key}(${f.label})`).join(', '));
 
   return updatedDefinition;

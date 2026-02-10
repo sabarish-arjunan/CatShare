@@ -36,6 +36,28 @@ export default function FieldsSettings() {
     setActivePriceFields(usedPriceFields);
   }, []);
 
+  // Listen for backup restore events
+  useEffect(() => {
+    const handleBackupRestore = (event) => {
+      const { newDefinition, template, isBackupRestore } = event.detail || {};
+
+      if (isBackupRestore && newDefinition) {
+        // Update local state with restored definition
+        setDefinition(newDefinition);
+        setSavedDefinition(newDefinition);
+
+        // Switch to templates tab to show the restored template
+        setActiveTab("templates");
+
+        console.log(`✅ Auto-switched to restored template: ${template || 'Unknown'}`);
+        showToast(`Template restored: ${template || 'Custom'}`, "success");
+      }
+    };
+
+    window.addEventListener("fieldDefinitionsChanged", handleBackupRestore);
+    return () => window.removeEventListener("fieldDefinitionsChanged", handleBackupRestore);
+  }, [showToast]);
+
   const onDragEnd = (result) => {
     if (!result.destination || !definition) return;
 
