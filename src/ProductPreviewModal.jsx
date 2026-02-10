@@ -712,27 +712,24 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
-                {hasField1 && (
-                  <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>{getFieldConfig('field1')?.label || 'Colour'}</span>
-                    <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field1Value}</span>
-                  </p>
-                )}
-                {hasField2 && (
-                  <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>{getFieldConfig('field2')?.label || 'Package'}</span>
-                    <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field2Value} {(() => { const unit = catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
-                  </p>
-                )}
-                {hasField3 && (
-                  <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>{getFieldConfig('field3')?.label || 'Age Group'}</span>
-                    <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field3Value} {(() => { const unit = catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
-                  </p>
-                )}
+                {enabledFields.map(field => {
+                  const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
+                  const hasValue = hasFieldValue(fieldValue);
+
+                  if (!hasValue) return null;
+
+                  const unitKey = `${field.key}Unit`;
+                  const unitValue = catalogueData[unitKey] !== undefined && catalogueData[unitKey] !== null ? catalogueData[unitKey] : (product[unitKey] || "None");
+                  const unitDisplay = unitValue !== "None" ? unitValue : "";
+
+                  return (
+                    <p key={field.key} style={{ margin: "2px 0", display: "flex" }}>
+                      <span style={{ width: "90px" }}>{field.label}</span>
+                      <span>:</span>
+                      <span style={{ marginLeft: "8px" }}>{fieldValue} {unitDisplay}</span>
+                    </p>
+                  );
+                })}
               </div>
             </div>
 
