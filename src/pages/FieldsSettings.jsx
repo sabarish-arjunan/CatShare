@@ -176,8 +176,7 @@ export default function FieldsSettings() {
     } else {
       newFields = newFields.map(f => {
         if (f.key.startsWith('field')) {
-          const index = parseInt(f.key.replace('field', ''));
-          return { ...f, enabled: index <= 3 || f.enabled };
+          return { ...f, enabled: false };
         }
         return f;
       });
