@@ -398,10 +398,10 @@ export default function Welcome() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8"
               >
-                <h2 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 mb-3">
+                <h2 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300 mb-3">
                   {hasBackup ? 'Restore Your Data?' : 'Ready to Begin!'}
                 </h2>
-                <p className="text-slate-300 text-lg">
+                <p className="text-slate-300 text-base">
                   {hasBackup
                     ? 'We found your previous products. Would you like to import them?'
                     : 'Start fresh with your new configuration'}
