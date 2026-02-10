@@ -1032,11 +1032,11 @@ export default function CreateProduct() {
             >
               {sheetHeight > 120 ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l5-5m0 0l5 5M12 11v10" />
                 </svg>
               ) : (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l-5 5m0 0l-5-5M12 13V3" />
                 </svg>
               )}
             </button>
