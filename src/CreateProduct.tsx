@@ -1249,7 +1249,7 @@ export default function CreateProduct() {
               {/* Catalogue Selector */}
               <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
                 <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Catalogues</label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap items-center">
                   {catalogues.map((cat) => (
                     <button
                       key={cat.id}
@@ -1263,6 +1263,16 @@ export default function CreateProduct() {
                       {cat.label}
                     </button>
                   ))}
+                  <button
+                    onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ml-auto ${
+                      isCatalogueEnabled(selectedCatalogue)
+                        ? "bg-green-600 hover:bg-green-700 text-white"
+                        : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                    }`}
+                  >
+                    {isCatalogueEnabled(selectedCatalogue) ? "✓ Show" : "○ Hide"}
+                  </button>
                 </div>
               </div>
 
@@ -1357,18 +1367,6 @@ export default function CreateProduct() {
                   Enable this catalogue first
                 </div>
               )}
-
-              {/* Enable/Disable Button */}
-              <button
-                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                className={`w-full px-3 py-2.5 rounded text-xs font-medium transition-colors mb-5 ${
-                  isCatalogueEnabled(selectedCatalogue)
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-                }`}
-              >
-                {isCatalogueEnabled(selectedCatalogue) ? "✓ Show" : "○ Hide"}
-              </button>
             </>
           )}
 
