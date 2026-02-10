@@ -373,7 +373,7 @@ export default function Welcome() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('restore')}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-400 text-slate-900 font-bold py-3 rounded-xl hover:shadow-lg transition-all"
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-400 text-slate-900 font-semibold py-3 rounded-xl hover:shadow-lg transition-all"
                 >
                   Next
                 </motion.button>
