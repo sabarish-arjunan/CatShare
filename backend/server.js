@@ -45,6 +45,3 @@ app.post("/remove-bg", upload.single("image_file"), async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Proxy running at http://localhost:${PORT}`);
 });
-
-console.error(err);
-res.status(500).json({ error: "PhotoRoom API failed" });
