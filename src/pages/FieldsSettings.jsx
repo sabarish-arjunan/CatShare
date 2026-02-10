@@ -388,8 +388,8 @@ export default function FieldsSettings() {
                       </Draggable>
                     </motion.div>
                   ))}
-                    {provided.placeholder}
                   </AnimatePresence>
+                  {provided.placeholder}
                 </div>
               )}
             </Droppable>
