@@ -690,7 +690,7 @@ useEffect(() => {
             )}
 
             {/* Dynamic fields */}
-            {getFieldsDefinition().fields
+            {getAllFields()
               .filter(f => f.enabled && f.key.startsWith('field'))
               .map(field => {
                 if (!selectedFields.includes(field.key)) return null;
