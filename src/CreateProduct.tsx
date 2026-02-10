@@ -910,7 +910,9 @@ export default function CreateProduct() {
                   padding: "10px",
                 }}
               >
-                <h2 className="text-lg font-semibold text-center">{formData.name || "Product Name"}</h2>
+                {formData.name && (
+                  <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
+                )}
                 {formData.subtitle && (
                   <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
                 )}
