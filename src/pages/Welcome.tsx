@@ -122,14 +122,13 @@ export default function Welcome() {
         });
       }
 
-      safeSetInStorage('fieldConfiguration', {
+      safeSetInStorage('fieldsDefinition', {
         version: 1,
         fields: configuredFields,
         industry: selectedIndustry,
         lastUpdated: Date.now(),
       });
 
-      safeSetInStorage('selectedIndustry', selectedIndustry);
       safeSetInStorage('hasCompletedOnboarding', true);
 
       setStep('complete');
