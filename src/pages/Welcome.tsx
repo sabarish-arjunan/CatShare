@@ -44,6 +44,7 @@ const FloatingShapes = () => (
 
 export default function Welcome() {
   const navigate = useNavigate();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<WelcomeStep>('welcome');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('');
   const [selectedFields, setSelectedFields] = useState<SelectedFields>({});
