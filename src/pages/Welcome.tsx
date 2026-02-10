@@ -247,7 +247,7 @@ export default function Welcome() {
                     onClick={() => handleIndustrySelect(industry.name)}
                     className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 group ${
                       selectedIndustry === industry.name
-                        ? 'border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/20'
+                        ? 'border-purple-500 bg-gradient-to-br from-purple-500/20 to-blue-500/20'
                         : 'border-slate-600 bg-slate-800/50 hover:border-purple-400 hover:bg-slate-800'
                     }`}
                   >
