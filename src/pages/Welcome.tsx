@@ -314,8 +314,8 @@ export default function Welcome() {
                 </p>
               </motion.div>
               
-              <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
-                <p className="text-sm text-blue-300">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                <p className="text-sm text-blue-700">
                   💡 <strong>Tip:</strong> You can customize these anytime in Settings
                 </p>
               </div>
