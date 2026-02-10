@@ -198,10 +198,10 @@ export default function Welcome() {
                 className="space-y-3 relative z-10"
               >
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(168, 85, 247, 0.4)' }}
+                  whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(59, 130, 246, 0.2)' }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('industry')}
-                  className="w-full bg-gradient-to-r from-purple-500 via-blue-400 to-blue-500 text-white font-semibold py-4 px-8 rounded-xl hover:shadow-2xl transition-all duration-300 text-lg"
+                  className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-xl hover:bg-blue-700 transition-all duration-300 text-lg"
                 >
                   Get Started
                 </motion.button>
