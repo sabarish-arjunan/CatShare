@@ -204,8 +204,10 @@ export default function FieldsSettings() {
   if (!definition) return null;
 
   const productFields = definition.fields.filter(f => f.key.startsWith('field'));
-  const priceFields = definition.fields.filter(f => f.key.startsWith('price') && activePriceFields.includes(f.key));
-  
+  const priceFields = definition.fields.filter(f =>
+    f.key === 'price1' && activePriceFields.includes(f.key)
+  );
+
   const allFields = [...productFields, ...priceFields];
   const activeProductFieldsCount = productFields.filter(f => f.enabled).length;
   const activePriceFieldsCount = priceFields.filter(f => f.enabled).length;

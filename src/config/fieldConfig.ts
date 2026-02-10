@@ -112,16 +112,6 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     unitOptions: ['/ piece', '/ dozen', '/ set'],
     defaultUnit: '/ piece',
   },
-  {
-    key: 'price2',
-    label: 'Price 2',
-    type: 'number',
-    enabled: false,
-    legacyKeys: ['resell', 'Resell', 'Resell price'],
-    unitField: 'price2Unit',
-    unitOptions: ['/ piece', '/ dozen', '/ set'],
-    defaultUnit: '/ piece',
-  },
 ];
 
 /**
@@ -132,7 +122,12 @@ export function getFieldsDefinition(): FieldsDefinition {
   try {
     const stored = localStorage.getItem('fieldsDefinition');
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Prune price2 if it exists (legacy)
+      if (parsed.fields) {
+        parsed.fields = parsed.fields.filter((f: any) => f.key !== 'price2');
+      }
+      return parsed;
     }
   } catch (err) {
     console.warn('Failed to parse fieldsDefinition:', err);
@@ -218,7 +213,6 @@ const ORIGINAL_FIELD_LABELS: { [legacyKey: string]: { fieldKey: string; original
   'package': { fieldKey: 'field2', originalLabel: 'Package' },
   'age': { fieldKey: 'field3', originalLabel: 'Age Group' },
   'wholesale': { fieldKey: 'price1', originalLabel: 'Price' },
-  'resell': { fieldKey: 'price2', originalLabel: 'Price 2' },
 };
 
 /**

@@ -261,12 +261,12 @@ export async function saveRenderedImage(product, type, units = {}) {
   }
 
   // Support both legacy and dynamic catalogue parameters
-  const priceField = units.priceField || (type === "resell" ? "price2" : type === "wholesale" ? "price1" : type);
-  const priceUnitField = units.priceUnitField || (type === "resell" ? "price2Unit" : type === "wholesale" ? "price1Unit" : `${type}Unit`);
+  const priceField = units.priceField || (type === "wholesale" ? "price1" : type);
+  const priceUnitField = units.priceUnitField || (type === "wholesale" ? "price1Unit" : `${type}Unit`);
 
   // Get price from catalogueData using dynamic field
   const price = catalogueData[priceField] !== undefined ? catalogueData[priceField] : catalogueData[priceField.replace(/\d/g, '')] || 0;
-  const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (type === "resell" ? (units.price2Unit || units.resellUnit) : (units.price1Unit || units.wholesaleUnit));
+  const priceUnit = units[priceUnitField] || catalogueData[priceUnitField] || (units.price1Unit || units.wholesaleUnit);
 
   try {
     // Prepare product data for Canvas rendering
