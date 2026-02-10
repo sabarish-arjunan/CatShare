@@ -217,7 +217,7 @@ export default function Settings({
 
             {/* Fields Setting */}
             <div
-              onClick={() => navigate("/settings/watermark/fields")}
+              onClick={() => navigate("/settings/fields")}
               className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer text-left"
             >
               <div className="flex flex-col gap-1">
