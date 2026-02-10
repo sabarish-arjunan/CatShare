@@ -108,7 +108,9 @@ export default function Welcome() {
       safeSetInStorage('hasCompletedOnboarding', true);
 
       setStep('complete');
+      setIsLoading(false);
 
+      // Redirect after showing the completion screen
       setTimeout(() => {
         navigate('/', { replace: true });
       }, 1500);
