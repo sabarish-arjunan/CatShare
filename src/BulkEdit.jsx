@@ -131,6 +131,9 @@ useEffect(() => {
     normalized.stock = p.stock || "";
 
     // Store master values for fallback/fill from master
+    normalized.masterName = p.name || "";
+    normalized.masterSubtitle = p.subtitle || "";
+    normalized.masterCategory = p.category || [];
     normalized.masterWholesale = p.wholesale || "";
     normalized.masterWholesaleUnit = p.wholesaleUnit || "/ piece";
     normalized.masterResell = p.resell || "";
@@ -246,6 +249,14 @@ useEffect(() => {
           } else if (fieldKey === "resell") {
             updates.resell = "";
             updates.resellUnit = "/ piece";
+          } else if (fieldKey === "name") {
+            updates.name = "";
+          } else if (fieldKey === "subtitle") {
+            updates.subtitle = "";
+          } else if (fieldKey === "category") {
+            updates.category = [];
+          } else if (fieldKey === "stock") {
+            updates[stockField] = "out";
           }
 
           return ensureFieldDefaults({ ...item, ...updates });
@@ -286,6 +297,17 @@ useEffect(() => {
         } else if (fieldKey === "resell") {
           updates.resell = item.masterResell || "";
           updates.resellUnit = item.masterResellUnit || "/ piece";
+        } else if (fieldKey === "name") {
+          updates.name = item.masterName || "";
+        } else if (fieldKey === "subtitle") {
+          updates.subtitle = item.masterSubtitle || "";
+        } else if (fieldKey === "category") {
+          updates.category = item.masterCategory || [];
+        } else if (fieldKey === "stock") {
+          const masterStockVal = masterData[masterCatalogue.stockField];
+          updates[stockField] = typeof masterStockVal === "boolean"
+            ? (masterStockVal ? "in" : "out")
+            : (masterStockVal || "in");
         }
 
         return ensureFieldDefaults({ ...item, ...updates });
