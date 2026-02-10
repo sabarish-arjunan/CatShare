@@ -135,7 +135,7 @@ export default function Welcome() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-950 via-purple-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
       <FloatingShapes />
       
       <AnimatePresence mode="wait">
