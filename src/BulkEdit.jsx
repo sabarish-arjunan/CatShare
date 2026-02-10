@@ -3,14 +3,15 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
+import { getFieldConfig } from "./config/fieldConfig";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
     { key: "name", label: "Name" },
     { key: "subtitle", label: "Subtitle" },
-    { key: "field1", label: "Colour" },
-    { key: "field2", label: "Package" },
-    { key: "field3", label: "Age Group" },
+    { key: "field1", label: getFieldConfig('field1')?.label || "Colour" },
+    { key: "field2", label: getFieldConfig('field2')?.label || "Package" },
+    { key: "field3", label: getFieldConfig('field3')?.label || "Age Group" },
     { key: "badge", label: "Badge" },
     { key: "category", label: "Category" },
   ];
@@ -714,9 +715,9 @@ useEffect(() => {
       onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
-      <option value="pcs / set">pcs / set</option>
-      <option value="pcs / dozen">pcs / dozen</option>
-      <option value="pcs / pack">pcs / pack</option>
+      {(getFieldConfig('field2')?.unitOptions || ['pcs / set', 'pcs / dozen', 'pcs / pack']).map(opt => (
+        <option key={opt} value={opt}>{opt}</option>
+      ))}
     </select>
   </div>
 )}
@@ -734,8 +735,9 @@ useEffect(() => {
                   onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
-                  <option value="months">months</option>
-                  <option value="years">years</option>
+                  {(getFieldConfig('field3')?.unitOptions || ['months', 'years']).map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
                 </select>
               </div>
             )}
