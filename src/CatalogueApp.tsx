@@ -13,6 +13,8 @@ import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import { KeepAwake } from "@capacitor-community/keep-awake";
 import { MdInventory2 } from "react-icons/md";
 import { saveRenderedImage, deleteRenderedImageForProduct } from "./Save";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
@@ -27,6 +29,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const scrollRef = useRef(null);
+  const isNative = Capacitor.getPlatform() !== "web";
 
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [tab, setTab] = useState("products");
@@ -360,6 +363,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
     const cats = getAllCatalogues();
 
+    // Prevent screen from sleeping during rendering
+    try {
+      if (isNative) {
+        await KeepAwake.keepAwake();
+        console.log("🔓 Screen wakelock acquired for full rendering");
+      }
+    } catch (e) {
+      console.warn("Could not acquire keep awake lock:", e);
+    }
+
     // If forcing re-render, delete all existing rendered images first
     if (forceRerender) {
       console.log("🗑️ Force re-render enabled - clearing all rendered images...");
@@ -465,6 +478,16 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       });
       propSetIsRendering?.(false);
       window.dispatchEvent(new CustomEvent("renderComplete"));
+    } finally {
+      // Re-enable screen sleeping after rendering is done
+      try {
+        if (isNative) {
+          await KeepAwake.allowSleep();
+          console.log("🔒 Screen wakelock released after full rendering");
+        }
+      } catch (e) {
+        console.warn("Could not release keep awake lock:", e);
+      }
     }
   };
 

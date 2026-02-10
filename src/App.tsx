@@ -24,6 +24,7 @@ import Retail from "./Retail";
 import Settings from "./Settings";
 import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
+import WatermarkFields from "./pages/WatermarkFields";
 import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
@@ -63,6 +64,16 @@ function AppWithBackHandler() {
   const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
+
+    // Prevent screen from sleeping during rendering
+    try {
+      if (isNative) {
+        await KeepAwake.keepAwake();
+        console.log("🔓 Screen wakelock acquired for rendering");
+      }
+    } catch (e) {
+      console.warn("Could not acquire keep awake lock:", e);
+    }
 
     // Force synchronous state updates so overlay renders with correct total
     if (showOverlay) {
@@ -184,8 +195,18 @@ function AppWithBackHandler() {
         });
       }
       window.dispatchEvent(new CustomEvent("renderComplete"));
+    } finally {
+      // Re-enable screen sleeping after rendering is done
+      try {
+        if (isNative) {
+          await KeepAwake.allowSleep();
+          console.log("🔒 Screen wakelock released after rendering");
+        }
+      } catch (e) {
+        console.warn("Could not release keep awake lock:", e);
+      }
     }
-  }, []);
+  }, [isNative]);
 
   useEffect(() => {
     if (!isNative) return;
@@ -532,6 +553,10 @@ function AppWithBackHandler() {
         <Route
           path="/settings/watermark"
           element={<WatermarkSettings />}
+        />
+        <Route
+          path="/settings/watermark/fields"
+          element={<WatermarkFields />}
         />
         <Route
           path="/settings/pro"

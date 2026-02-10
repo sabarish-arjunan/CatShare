@@ -35,6 +35,7 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const [catalogues, setCatalogues] = useState([]);
   const [filledFromMaster, setFilledFromMaster] = useState({}); // Track which fields are filled from master
   const [confirmDialog, setConfirmDialog] = useState({ show: false, fieldKey: null }); // Confirmation dialog
+  const [hasConfirmedFill, setHasConfirmedFill] = useState(false); // Track if user confirmed fill dialog once
   const [dataLoaded, setDataLoaded] = useState(false); // Track if data has been loaded
   const { showToast } = useToast();
 
@@ -83,8 +84,10 @@ useEffect(() => {
       // Keep product identity
       name: p.name || "",
       subtitle: p.subtitle || "",
-      badge: p.badge || "",
+      badge: catData.badge || p.badge || "",
       category: p.category || [],
+      // Store original badge for fallback
+      masterBadge: p.badge || "",
       // Show if exists in catalogue, otherwise empty
       field1: catData.field1 || "",
       color: catData.field1 || p.color || "",
@@ -127,6 +130,15 @@ useEffect(() => {
     normalized.retail = p.retail || "";
     normalized.retailUnit = p.retailUnit || "/ piece";
     normalized.stock = p.stock || "";
+
+    // Store master values for fallback/fill from master
+    normalized.masterName = p.name || "";
+    normalized.masterSubtitle = p.subtitle || "";
+    normalized.masterCategory = p.category || [];
+    normalized.masterWholesale = p.wholesale || "";
+    normalized.masterWholesaleUnit = p.wholesaleUnit || "/ piece";
+    normalized.masterResell = p.resell || "";
+    normalized.masterResellUnit = p.resellUnit || "/ piece";
 
     return normalized;
   });
@@ -209,8 +221,12 @@ useEffect(() => {
     const newState = !filledFromMaster[fieldKey];
 
     if (newState) {
-      // Show confirmation before filling from master
-      setConfirmDialog({ show: true, fieldKey });
+      // Show confirmation before filling from master, but only once per session
+      if (hasConfirmedFill) {
+        confirmFillFromMaster(fieldKey);
+      } else {
+        setConfirmDialog({ show: true, fieldKey });
+      }
     } else {
       // Directly empty the field without confirmation
       setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: false }));
@@ -227,9 +243,25 @@ useEffect(() => {
           } else if (fieldKey === "field3") {
             updates.field3 = "";
             updates.field3Unit = "months";
+          } else if (fieldKey === "badge") {
+            updates.badge = "";
           } else if (fieldKey === priceField) {
             updates[priceField] = "";
             updates[priceUnitField] = "/ piece";
+          } else if (fieldKey === "wholesale") {
+            updates.wholesale = "";
+            updates.wholesaleUnit = "/ piece";
+          } else if (fieldKey === "resell") {
+            updates.resell = "";
+            updates.resellUnit = "/ piece";
+          } else if (fieldKey === "name") {
+            updates.name = "";
+          } else if (fieldKey === "subtitle") {
+            updates.subtitle = "";
+          } else if (fieldKey === "category") {
+            updates.category = [];
+          } else if (fieldKey === "stock") {
+            updates[stockField] = "out";
           }
 
           return ensureFieldDefaults({ ...item, ...updates });
@@ -239,8 +271,9 @@ useEffect(() => {
   };
 
   const confirmFillFromMaster = (fieldKey) => {
-    const masterCatalogueId = catalogues[0]?.id;
-    if (!masterCatalogueId) return;
+    const masterCatalogue = catalogues[0];
+    if (!masterCatalogue) return;
+    const masterCatalogueId = masterCatalogue.id;
 
     setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: true }));
 
@@ -257,15 +290,36 @@ useEffect(() => {
         } else if (fieldKey === "field3") {
           updates.field3 = masterData.field3 || item.age || "";
           updates.field3Unit = masterData.field3Unit || item.ageUnit || "months";
+        } else if (fieldKey === "badge") {
+          updates.badge = masterData.badge || item.masterBadge || "";
         } else if (fieldKey === priceField) {
-          updates[priceField] = masterData[priceField] || "";
-          updates[priceUnitField] = masterData[priceUnitField] || "/ piece";
+          // Fill current catalogue's price field with master catalogue's price field data
+          updates[priceField] = masterData[masterCatalogue.priceField] || "";
+          updates[priceUnitField] = masterData[masterCatalogue.priceUnitField] || "/ piece";
+        } else if (fieldKey === "wholesale") {
+          updates.wholesale = item.masterWholesale || "";
+          updates.wholesaleUnit = item.masterWholesaleUnit || "/ piece";
+        } else if (fieldKey === "resell") {
+          updates.resell = item.masterResell || "";
+          updates.resellUnit = item.masterResellUnit || "/ piece";
+        } else if (fieldKey === "name") {
+          updates.name = item.masterName || "";
+        } else if (fieldKey === "subtitle") {
+          updates.subtitle = item.masterSubtitle || "";
+        } else if (fieldKey === "category") {
+          updates.category = item.masterCategory || [];
+        } else if (fieldKey === "stock") {
+          const masterStockVal = masterData[masterCatalogue.stockField];
+          updates[stockField] = typeof masterStockVal === "boolean"
+            ? (masterStockVal ? "in" : "out")
+            : (masterStockVal || "in");
         }
 
         return ensureFieldDefaults({ ...item, ...updates });
       })
     );
 
+    setHasConfirmedFill(true);
     setConfirmDialog({ show: false, fieldKey: null });
   };
 
@@ -310,6 +364,7 @@ useEffect(() => {
     field1: p.field1,
     field2: p.field2,
     field3: p.field3,
+    badge: p.badge,
     field2Unit: p.field2Unit,
     field3Unit: p.field3Unit,
     [priceField]: priceField ? p[priceField] : undefined,
@@ -393,8 +448,17 @@ useEffect(() => {
                     field2Unit: catData.field2Unit || p.field2Unit || p.packageUnit || "pcs / set",
                     field3: catData.field3 || p.field3 || p.age || "",
                     field3Unit: catData.field3Unit || p.field3Unit || p.ageUnit || "months",
+                    badge: catData.badge || p.badge || "",
+                    masterBadge: p.badge || "",
                     wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
                     resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
+                    masterName: p.name || "",
+                    masterSubtitle: p.subtitle || "",
+                    masterCategory: p.category || [],
+                    masterWholesale: p.wholesale || "",
+                    masterWholesaleUnit: p.wholesaleUnit || "/ piece",
+                    masterResell: p.resell || "",
+                    masterResellUnit: p.resellUnit || "/ piece",
                   };
 
                   if (cat.stockField && cat.stockField !== 'wholesaleStock' && cat.stockField !== 'resellStock') {
@@ -572,16 +636,20 @@ useEffect(() => {
           <div>Image</div>
           {selectedFields.map((field) => {
             const fieldLabel = FIELD_OPTIONS.find((f) => f.key === field)?.label;
-            const isFilledFromMaster = filledFromMaster[field];
+            const isFilledFromMaster = !!filledFromMaster[field];
+            const hideFillBox = field === "name" || field === "subtitle";
+
             return (
               <div key={field} className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={isFilledFromMaster}
-                  onChange={() => toggleFillFromMaster(field)}
-                  title={isFilledFromMaster ? "Uncheck to clear all values" : "Check to fill from Master catalogue"}
-                  className="appearance-none w-4 h-4 border border-gray-400 rounded checked:bg-green-600 checked:border-green-600 cursor-pointer"
-                />
+                {!hideFillBox && (
+                  <input
+                    type="checkbox"
+                    checked={isFilledFromMaster}
+                    onChange={() => toggleFillFromMaster(field)}
+                    title={isFilledFromMaster ? "Uncheck to clear all values" : "Check to fill from Master catalogue"}
+                    className="appearance-none w-4 h-4 border border-gray-400 rounded checked:bg-green-600 checked:border-green-600 cursor-pointer"
+                  />
+                )}
                 <span>{fieldLabel}</span>
               </div>
             );
@@ -612,7 +680,7 @@ useEffect(() => {
 
             {selectedFields.includes("name") && (
               <input
-                value={item.name}
+                value={item.name ?? ""}
                 onChange={(e) => handleFieldChange(item.id, "name", e.target.value)}
                 className="border rounded px-2 py-1"
               />
@@ -620,7 +688,7 @@ useEffect(() => {
 
             {selectedFields.includes("subtitle") && (
               <input
-                value={item.subtitle}
+                value={item.subtitle ?? ""}
                 onChange={(e) => handleFieldChange(item.id, "subtitle", e.target.value)}
                 className="border rounded px-2 py-1"
               />
@@ -628,7 +696,7 @@ useEffect(() => {
 
             {selectedFields.includes("field1") && (
               <input
-                value={item.field1}
+                value={item.field1 ?? ""}
                 onChange={(e) => { handleFieldChange(item.id, "field1", e.target.value); handleFieldChange(item.id, "color", e.target.value); }}
                 className="border rounded px-2 py-1"
               />
@@ -637,12 +705,12 @@ useEffect(() => {
             {selectedFields.includes("field2") && (
   <div className="flex gap-2">
     <input
-      value={item.field2}
+      value={item.field2 ?? ""}
       onChange={(e) => { handleFieldChange(item.id, "field2", e.target.value); handleFieldChange(item.id, "package", e.target.value); }}
       className="border rounded px-2 py-1 w-28"
     />
     <select
-      value={item.field2Unit}
+      value={item.field2Unit ?? "pcs / set"}
       onChange={(e) => { handleFieldChange(item.id, "field2Unit", e.target.value); handleFieldChange(item.id, "packageUnit", e.target.value); }}
       className="border rounded px-2 py-1 pr-8 w-16"
     >
@@ -657,12 +725,12 @@ useEffect(() => {
             {selectedFields.includes("field3") && (
               <div className="flex gap-2">
                 <input
-                  value={item.field3}
+                  value={item.field3 ?? ""}
                   onChange={(e) => { handleFieldChange(item.id, "field3", e.target.value); handleFieldChange(item.id, "age", e.target.value); }}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.field3Unit}
+                  value={item.field3Unit ?? "months"}
                   onChange={(e) => { handleFieldChange(item.id, "field3Unit", e.target.value); handleFieldChange(item.id, "ageUnit", e.target.value); }}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -695,12 +763,12 @@ useEffect(() => {
             {selectedFields.includes("wholesale") && (
               <div className="flex gap-2">
                 <input
-                  value={item.wholesale}
+                  value={item.wholesale ?? ""}
                   onChange={(e) => handleFieldChange(item.id, "wholesale", e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.wholesaleUnit}
+                  value={item.wholesaleUnit ?? "/ piece"}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -714,12 +782,12 @@ useEffect(() => {
             {selectedFields.includes("resell") && (
               <div className="flex gap-2">
                 <input
-                  value={item.resell}
+                  value={item.resell ?? ""}
                   onChange={(e) => handleFieldChange(item.id, "resell", e.target.value)}
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.resellUnit}
+                  value={item.resellUnit ?? "/ piece"}
                   onChange={(e) => handleFieldChange(item.id, "resellUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
@@ -732,7 +800,7 @@ useEffect(() => {
 
             {selectedFields.includes("badge") && (
               <input
-                value={item.badge}
+                value={item.badge ?? ""}
                 onChange={(e) => handleFieldChange(item.id, "badge", e.target.value)}
                 placeholder="Enter badge"
                 className="border rounded px-2 py-1 w-full"

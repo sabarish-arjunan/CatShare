@@ -18,6 +18,7 @@ export interface CatalogueData {
   price2Unit?: string;
   field2Unit?: string;
   field3Unit?: string;
+  badge?: string;
   stock?: boolean;
   wholesaleStock?: boolean;
   resellStock?: boolean;
@@ -62,6 +63,7 @@ export function initializeCatalogueData(product?: ProductWithCatalogueData): Rec
       [cat.priceUnitField]: priceUnitValue,
       field2Unit: product?.field2Unit || product?.packageUnit || "None",
       field3Unit: product?.field3Unit || product?.ageUnit || "None",
+      badge: product?.badge || "",
       stock: product?.stock !== false,
       wholesaleStock: product?.wholesaleStock !== false,
       resellStock: product?.resellStock !== false,
@@ -109,6 +111,7 @@ export function getDefaultCatalogueData(catalogueId: string): CatalogueData {
     field3: "",
     field2Unit: "None",
     field3Unit: "None",
+    badge: "",
     stock: true,
     wholesaleStock: true,
     resellStock: true,
