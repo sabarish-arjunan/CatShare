@@ -221,8 +221,8 @@ export default function Settings({
               className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer text-left"
             >
               <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Fields</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Configure watermark fields</p>
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Product Fields</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Configure custom fields and units for your products</p>
               </div>
             </div>
           </div>
