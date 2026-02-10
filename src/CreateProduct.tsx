@@ -1055,21 +1055,29 @@ export default function CreateProduct() {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
           {/* Product Name & Subtitle */}
-          <div className="mb-3">
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Model Name"
-              className="border p-2 rounded w-full mb-2 text-sm"
-            />
-            <input
-              name="subtitle"
-              value={formData.subtitle}
-              onChange={handleChange}
-              placeholder="Subtitle"
-              className="border p-2 rounded w-full text-sm"
-            />
+          <div className="mb-3 space-y-3">
+            <div className="relative">
+              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                Model Name
+              </label>
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="border p-2 rounded w-full text-sm pt-2"
+              />
+            </div>
+            <div className="relative">
+              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                Subtitle
+              </label>
+              <input
+                name="subtitle"
+                value={formData.subtitle}
+                onChange={handleChange}
+                className="border p-2 rounded w-full text-sm pt-2"
+              />
+            </div>
           </div>
 
           {/* Catalogue Selector */}
