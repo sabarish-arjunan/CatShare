@@ -96,24 +96,35 @@ export default function Welcome() {
     setIsLoading(true);
 
     try {
-      const industryPreset = INDUSTRY_PRESETS.find(p => p.name === selectedIndustry);
+      let configuredFields;
 
-      if (!industryPreset) {
-        throw new Error('Industry not found');
-      }
-
-      const configuredFields = DEFAULT_FIELDS.map((field, index) => {
-        const fieldNum = index + 1;
-        const isSelected = selectedFields[`field${fieldNum}`];
-        const presetField = industryPreset.fields[index];
-
-        return {
+      if (selectedIndustry === 'Others') {
+        // For custom template, use DEFAULT_FIELDS and apply selected state
+        configuredFields = DEFAULT_FIELDS.map((field) => ({
           ...field,
-          enabled: isSelected,
-          label: presetField?.label || field.label,
-          ...(presetField?.defaultUnits && { unitOptions: presetField.defaultUnits })
-        };
-      });
+          enabled: selectedFields[field.key] || false,
+        }));
+      } else {
+        // For preset industries
+        const industryPreset = INDUSTRY_PRESETS.find(p => p.name === selectedIndustry);
+
+        if (!industryPreset) {
+          throw new Error('Industry not found');
+        }
+
+        configuredFields = DEFAULT_FIELDS.map((field, index) => {
+          const fieldNum = index + 1;
+          const isSelected = selectedFields[`field${fieldNum}`];
+          const presetField = industryPreset.fields[index];
+
+          return {
+            ...field,
+            enabled: isSelected,
+            label: presetField?.label || field.label,
+            ...(presetField?.unitOptions && { unitOptions: presetField.unitOptions })
+          };
+        });
+      }
 
       safeSetInStorage('fieldConfiguration', {
         version: 1,
