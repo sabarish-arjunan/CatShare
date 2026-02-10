@@ -199,6 +199,43 @@ export default function CreateProduct() {
   const sheetRef = useRef<HTMLDivElement>(null);
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600; // Max height for sheet
 
+  // Drag handlers
+  const handleDragStart = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart(e.clientY);
+  };
+
+  useEffect(() => {
+    const handleDragMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+
+      const diff = dragStart - e.clientY; // Negative when dragging down
+      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, sheetHeight + diff));
+      setSheetHeight(newHeight);
+      setDragStart(e.clientY);
+    };
+
+    const handleDragEnd = () => {
+      setIsDragging(false);
+      // Snap to positions: collapsed (120px) or expanded (75% of screen)
+      const targetHeight = sheetHeight > MAX_HEIGHT * 0.4 ? MAX_HEIGHT : 120;
+      setSheetHeight(targetHeight);
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleDragMove);
+      document.addEventListener("mouseup", handleDragEnd);
+      return () => {
+        document.removeEventListener("mousemove", handleDragMove);
+        document.removeEventListener("mouseup", handleDragEnd);
+      };
+    }
+  }, [isDragging, dragStart, sheetHeight, MAX_HEIGHT]);
+
+  // Calculate image scale based on sheet height
+  const imageScale = Math.max(0.4, 1 - (sheetHeight - 120) / (MAX_HEIGHT - 120) * 0.6);
+  const imageOpacity = imageScale > 0.5 ? 1 : 0.6;
+
   const [formData, setFormData] = useState<ProductWithCatalogueData>({
     id: "",
     name: "",
