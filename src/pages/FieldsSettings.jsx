@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -20,6 +20,7 @@ export default function FieldsSettings() {
   const [definition, setDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
+  const [expandedKey, setExpandedKey] = useState(null);
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -299,7 +300,7 @@ export default function FieldsSettings() {
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex gap-3 items-start">
                 <MdInfoOutline className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" size={20} />
                 <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-                  Configure field labels and units. Use drag handles to reorder. Active fields will appear on your product forms and shared images.
+                  Configure field labels and units. Tap a field to expand and edit details. Use drag handles to reorder.
                 </p>
               </div>
 
@@ -333,12 +334,16 @@ export default function FieldsSettings() {
                                       : "border-gray-200 dark:border-gray-800 opacity-60 grayscale-[0.5]"
                                   }`}
                                 >
-                                  <div className="p-4">
-                                    <div className="flex items-center justify-between mb-4">
+                                  <div
+                                    className="p-4 cursor-pointer"
+                                    onClick={() => setExpandedKey(expandedKey === field.key ? null : field.key)}
+                                  >
+                                    <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-3">
                                         <div
                                           {...provided.dragHandleProps}
-                                          className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing ${
+                                          onClick={(e) => e.stopPropagation()}
+                                          className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-colors ${
                                             field.enabled ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
                                           }`}
                                         >
@@ -346,70 +351,92 @@ export default function FieldsSettings() {
                                         </div>
                                         <div>
                                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            {field.key.startsWith('field') ? `Product Slot ${field.key.replace('field', '')}` : `Catalogue Price`}
+                                            {field.key.startsWith('field') ? `Slot ${field.key.replace('field', '')}` : `Price`}
                                           </span>
-                                          <h3 className="font-bold text-sm dark:text-white">
+                                          <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
                                             {field.label || "Untitled Field"}
                                           </h3>
                                         </div>
                                       </div>
 
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-3">
                                         <button
-                                          onClick={() => toggleFieldEnabled(field.key)}
-                                          className={`w-12 h-6 rounded-full p-1 transition-all ${
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleFieldEnabled(field.key);
+                                          }}
+                                          className={`w-10 h-5 rounded-full p-1 transition-all ${
                                             field.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
                                           }`}
                                         >
                                           <motion.div
-                                            animate={{ x: field.enabled ? 24 : 0 }}
-                                            className="w-4 h-4 bg-white rounded-full shadow-sm"
+                                            animate={{ x: field.enabled ? 20 : 0 }}
+                                            className="w-3 h-3 bg-white rounded-full shadow-sm"
                                           />
                                         </button>
+                                        <motion.div
+                                          animate={{ rotate: expandedKey === field.key ? 180 : 0 }}
+                                          className="text-gray-400"
+                                        >
+                                          <MdExpandMore size={20} />
+                                        </motion.div>
                                       </div>
                                     </div>
+                                  </div>
 
-                                    {field.enabled ? (
-                                      <div className="space-y-4">
-                                        <div>
-                                          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                            Display Label
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={field.label}
-                                            onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                                            placeholder="e.g. Colour, Size, Brand..."
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
-                                          />
-                                        </div>
+                                  <AnimatePresence>
+                                    {expandedKey === field.key && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden border-t border-gray-100 dark:border-gray-800"
+                                      >
+                                        <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30 space-y-4">
+                                          {field.enabled ? (
+                                            <div className="space-y-4">
+                                              <div>
+                                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                                  Display Label
+                                                </label>
+                                                <input
+                                                  type="text"
+                                                  value={field.label}
+                                                  onChange={(e) => updateFieldLabel(field.key, e.target.value)}
+                                                  placeholder="e.g. Colour, Size, Brand..."
+                                                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
+                                                />
+                                              </div>
 
-                                        {field.key.startsWith('field') && (
-                                          <div>
-                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                              Unit Options
-                                            </label>
-                                            <div className="relative">
-                                              <input
-                                                type="text"
-                                                value={field.unitOptions?.join(", ") || ""}
-                                                onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                                placeholder="e.g. kg, lbs, meters (comma separated)"
-                                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
-                                              />
-                                              {field.unitOptions && field.unitOptions.length > 0 && (
-                                                <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                              {field.key.startsWith('field') && (
+                                                <div>
+                                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                                                    Unit Options
+                                                  </label>
+                                                  <div className="relative">
+                                                    <input
+                                                      type="text"
+                                                      value={field.unitOptions?.join(", ") || ""}
+                                                      onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                                      placeholder="e.g. kg, lbs, meters (comma separated)"
+                                                      className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
+                                                    />
+                                                    {field.unitOptions && field.unitOptions.length > 0 && (
+                                                      <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                                    )}
+                                                  </div>
+                                                </div>
                                               )}
                                             </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    ) : (
-                                      <div className="py-1 flex items-center gap-2 text-gray-400 italic text-xs">
-                                        <span>This field is hidden from product forms</span>
-                                      </div>
+                                          ) : (
+                                            <div className="py-2 flex items-center gap-2 text-gray-400 italic text-xs justify-center">
+                                              <span>Field is disabled. Enable to edit labels.</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </motion.div>
                                     )}
-                                  </div>
+                                  </AnimatePresence>
                                 </motion.div>
                               )}
                             </Draggable>
