@@ -414,10 +414,11 @@ export default function Welcome() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setStep('complete')}
-                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-all"
+                  onClick={handleComplete}
+                  disabled={isLoading}
+                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
                 >
-                  Next
+                  {isLoading ? '⏳ Setting up...' : '✨ Complete Setup'}
                 </motion.button>
               </div>
             </div>
