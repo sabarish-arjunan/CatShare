@@ -203,6 +203,8 @@ export interface ProductData {
   cropAspectRatio?: number;
 }
 
+import { getFieldConfig } from '../config/fieldConfig';
+
 /**
  * Draw detailed product card to canvas
  * Mimics the Save.jsx rendering: image + title + fields + price + watermark
@@ -445,8 +447,13 @@ export async function renderProductToCanvas(
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
 
+  // Get dynamic labels
+  const field1Label = getFieldConfig('field1')?.label || 'Colour';
+  const field2Label = getFieldConfig('field2')?.label || 'Package';
+  const field3Label = getFieldConfig('field3')?.label || 'Age Group';
+
   // Measure the longest label to align colons
-  const labels = ['Colour', 'Package', 'Age Group'];
+  const labels = [field1Label, field2Label, field3Label];
   let maxLabelWidth = 0;
   labels.forEach(label => {
     const metrics = ctx.measureText(label);
@@ -458,14 +465,14 @@ export async function renderProductToCanvas(
   const valueX = colonX + 16 * scale; // Space after colon
 
   if (product.field1) {
-    ctx.fillText('Colour', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field1Label, fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(product.field1, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
   }
 
   if (product.field2) {
-    ctx.fillText('Package', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field2Label, fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field2Text = product.field2Unit && product.field2Unit !== 'None' ? `${product.field2} ${product.field2Unit}` : product.field2;
     ctx.fillText(field2Text, valueX, currentY + renderFieldFontSize * 0.8);
@@ -473,7 +480,7 @@ export async function renderProductToCanvas(
   }
 
   if (product.field3) {
-    ctx.fillText('Age Group', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(field3Label, fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
     const field3Text = product.field3Unit && product.field3Unit !== 'None' ? `${product.field3} ${product.field3Unit}` : product.field3;
     ctx.fillText(field3Text, valueX, currentY + renderFieldFontSize * 0.8);
