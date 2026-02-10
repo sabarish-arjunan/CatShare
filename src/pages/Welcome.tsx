@@ -485,8 +485,22 @@ export default function Welcome() {
                   </>
                 )}
                 {!hasBackup && (
-                  <div className="p-6 bg-gradient-to-r from-slate-800/50 to-slate-900/50 rounded-xl border border-slate-700">
-                    <p className="text-slate-400">No previous data found. You're all set to create your first catalog!</p>
+                  <div className="space-y-3">
+                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition-all">
+                      <div className="text-4xl mb-3">📂</div>
+                      <span className="text-sm font-semibold text-slate-700">Restore from Backup</span>
+                      <span className="text-xs text-slate-500 mt-1">Click to select a backup file</span>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".zip,application/zip"
+                        onChange={handleRestoreFile}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-center text-sm text-slate-500">
+                      Or start fresh with your new configuration
+                    </p>
                   </div>
                 )}
               </div>
