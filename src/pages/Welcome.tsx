@@ -484,7 +484,7 @@ export default function Welcome() {
             transition={{ duration: 0.6, type: 'spring' }}
             className="w-full max-w-lg relative z-10 text-center"
           >
-            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl shadow-2xl p-12 border border-slate-700/50">
+            <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
