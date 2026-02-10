@@ -13,6 +13,8 @@ import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import { KeepAwake } from "@capacitor-community/keep-awake";
 import { MdInventory2 } from "react-icons/md";
 import { saveRenderedImage, deleteRenderedImageForProduct } from "./Save";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
