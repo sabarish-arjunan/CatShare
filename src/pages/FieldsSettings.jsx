@@ -21,6 +21,7 @@ export default function FieldsSettings() {
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
+  const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
