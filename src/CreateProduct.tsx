@@ -21,6 +21,7 @@ import {
   type CatalogueData,
   type ProductWithCatalogueData
 } from "./config/catalogueProductUtils";
+import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -932,7 +933,7 @@ setTimeout(async () => {
                   name="field1"
                   value={getCatalogueFormData().field1 || ""}
                   onChange={handleChange}
-                  placeholder="Colour"
+                  placeholder={getFieldConfig('field1')?.label || "Colour"}
                   className="border p-2 rounded w-full mb-2"
                 />
 
@@ -941,7 +942,7 @@ setTimeout(async () => {
                     name="field2"
                     value={getCatalogueFormData().field2 || ""}
                     onChange={handleChange}
-                    placeholder="Package"
+                    placeholder={getFieldConfig('field2')?.label || "Package"}
                     className="border p-2 w-full rounded"
                   />
                   <select
@@ -951,9 +952,9 @@ setTimeout(async () => {
                     className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8"
                   >
                     <option>None</option>
-                    <option>pcs / set</option>
-                    <option>pcs / dozen</option>
-                    <option>pcs / pack</option>
+                    {(getFieldConfig('field2')?.unitOptions || ['pcs / set', 'pcs / dozen', 'pcs / pack']).map(opt => (
+                      <option key={opt}>{opt}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -962,7 +963,7 @@ setTimeout(async () => {
                     name="field3"
                     value={getCatalogueFormData().field3 || ""}
                     onChange={handleChange}
-                    placeholder="Age Group"
+                    placeholder={getFieldConfig('field3')?.label || "Age Group"}
                     className="border p-2 w-full rounded"
                   />
                   <select
@@ -972,8 +973,9 @@ setTimeout(async () => {
                     className="border p-2 rounded min-w-[100px] appearance-none bg-white pr-8"
                   >
                     <option>None</option>
-                    <option>months</option>
-                    <option>years</option>
+                    {(getFieldConfig('field3')?.unitOptions || ['months', 'years']).map(opt => (
+                      <option key={opt}>{opt}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -992,9 +994,9 @@ setTimeout(async () => {
                     className="border p-2 rounded min-w-[110px] appearance-none bg-white pr-8"
                   >
                     <option>None</option>
-                    <option>/ piece</option>
-                    <option>/ dozen</option>
-                    <option>/ set</option>
+                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece', '/ dozen', '/ set']).map(opt => (
+                      <option key={opt}>{opt}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -1237,9 +1239,9 @@ setTimeout(async () => {
       <p className="text-center italic text-sm">({formData.subtitle})</p>
     )}
     <div className="text-sm mt-2 space-y-1">
-      <p>Colour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field1}</p>
-      <p>Package&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit !== "None" && getCatalogueFormData().field2Unit}</p>
-      <p>Age Group&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit !== "None" && getCatalogueFormData().field3Unit}</p>
+      <p>{getFieldConfig('field1')?.label || 'Colour'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field1}</p>
+      <p>{getFieldConfig('field2')?.label || 'Package'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {getCatalogueFormData().field2} {getCatalogueFormData().field2Unit !== "None" && getCatalogueFormData().field2Unit}</p>
+      <p>{getFieldConfig('field3')?.label || 'Age Group'}&nbsp;&nbsp;: {getCatalogueFormData().field3} {getCatalogueFormData().field3Unit !== "None" && getCatalogueFormData().field3Unit}</p>
     </div>
   </div>
 
