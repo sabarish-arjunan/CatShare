@@ -1254,10 +1254,10 @@ export default function CreateProduct() {
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCatalogue(cat.id)}
-                      className={`px-2 py-1 rounded text-xs font-medium transition ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                         selectedCatalogue === cat.id
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40 scale-105"
+                          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-sm hover:bg-blue-50 dark:hover:bg-gray-700/50"
                       }`}
                     >
                       {cat.label}
@@ -1265,13 +1265,16 @@ export default function CreateProduct() {
                   ))}
                   <button
                     onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ml-auto ${
+                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ml-auto flex items-center gap-1.5 ${
                       isCatalogueEnabled(selectedCatalogue)
-                        ? "bg-green-600 hover:bg-green-700 text-white"
-                        : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40 hover:scale-105"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
                     }`}
                   >
-                    {isCatalogueEnabled(selectedCatalogue) ? "✓ Show" : "○ Hide"}
+                    <span className={`transition-transform ${isCatalogueEnabled(selectedCatalogue) ? '' : ''}`}>
+                      {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
+                    </span>
+                    {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
                   </button>
                 </div>
               </div>
