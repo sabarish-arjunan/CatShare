@@ -297,7 +297,7 @@ export default function CreateProduct() {
 
   const [originalBase64, setOriginalBase64] = useState(null);
   const [overrideColor, setOverrideColor] = useState("#d1b3c4");
-  const [fontColor, setFontColor] = useState("white");
+  const [fontColor, setFontColor] = useState("black");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
