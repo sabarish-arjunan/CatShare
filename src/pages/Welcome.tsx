@@ -349,8 +349,11 @@ export default function Welcome() {
               </div>
 
               <div className="space-y-3 mb-8 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
-                {INDUSTRY_PRESETS.find(p => p.name === selectedIndustry)?.fields.map((field, idx) => {
-                  const fieldKey = `field${idx + 1}`;
+                {(selectedIndustry === 'Others'
+                  ? DEFAULT_FIELDS
+                  : INDUSTRY_PRESETS.find(p => p.name === selectedIndustry)?.fields || []
+                ).map((field, idx) => {
+                  const fieldKey = selectedIndustry === 'Others' ? field.key : `field${idx + 1}`;
                   const isChecked = selectedFields[fieldKey] || false;
                   return (
                     <motion.div
@@ -370,9 +373,9 @@ export default function Welcome() {
                       </div>
                       <label htmlFor={fieldKey} className="ml-4 flex-1 cursor-pointer">
                         <p className="font-semibold text-slate-800">{field.label}</p>
-                        {field.defaultUnits && (
+                        {field.unitOptions && (
                           <p className="text-xs text-slate-500 mt-1">
-                            {field.defaultUnits.slice(0, 2).join(', ')}
+                            {field.unitOptions.slice(0, 2).join(', ')}
                           </p>
                         )}
                       </label>
