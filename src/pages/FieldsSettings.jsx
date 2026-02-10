@@ -36,6 +36,28 @@ export default function FieldsSettings() {
     setActivePriceFields(usedPriceFields);
   }, []);
 
+  // Listen for backup restore events
+  useEffect(() => {
+    const handleBackupRestore = (event) => {
+      const { newDefinition, template, isBackupRestore } = event.detail || {};
+
+      if (isBackupRestore && newDefinition) {
+        // Update local state with restored definition
+        setDefinition(newDefinition);
+        setSavedDefinition(newDefinition);
+
+        // Switch to templates tab to show the restored template
+        setActiveTab("templates");
+
+        console.log(`✅ Auto-switched to restored template: ${template || 'Unknown'}`);
+        showToast(`Template restored: ${template || 'Custom'}`, "success");
+      }
+    };
+
+    window.addEventListener("fieldDefinitionsChanged", handleBackupRestore);
+    return () => window.removeEventListener("fieldDefinitionsChanged", handleBackupRestore);
+  }, [showToast]);
+
   const onDragEnd = (result) => {
     if (!result.destination || !definition) return;
 
@@ -204,7 +226,7 @@ export default function FieldsSettings() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto pb-24 px-4" ref={scrollContainerRef}>
+      <main className="flex-1 overflow-y-auto px-4" ref={scrollContainerRef}>
         {/* Current Configuration Summary Card - Shows SAVED configuration */}
         {savedDefinition && (
           <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
@@ -518,20 +540,6 @@ export default function FieldsSettings() {
         </AnimatePresence>
       </main>
 
-      {/* Floating Save Button for Mobile */}
-      <motion.div 
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className="fixed bottom-6 left-0 right-0 px-6 z-40 lg:hidden pointer-events-none"
-      >
-        <button
-          onClick={handleSave}
-          className="w-full h-14 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 hover:bg-blue-700 active:scale-95 transition-all pointer-events-auto"
-        >
-          <MdSave size={24} />
-          <span className="font-bold">Apply Changes</span>
-        </button>
-      </motion.div>
       
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {

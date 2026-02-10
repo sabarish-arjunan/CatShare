@@ -333,11 +333,24 @@ export default function CreateProduct() {
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
+  const [, setFieldDefinitionsUpdated] = useState(0);
 
   // Initialize catalogues on mount
   useEffect(() => {
     const cats = getAllCatalogues();
     setCatalogues(cats);
+  }, []);
+
+  // Listen for field definition changes (e.g., after backup restore)
+  useEffect(() => {
+    const handleFieldDefinitionsChanged = (event) => {
+      console.log("📝 Field definitions changed in CreateProduct, refreshing field labels...");
+      // Force component to re-render by updating state
+      setFieldDefinitionsUpdated(prev => prev + 1);
+    };
+
+    window.addEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
+    return () => window.removeEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
   }, []);
 
   // Reset checkboxes when catalogue changes

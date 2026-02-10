@@ -17,6 +17,8 @@ import { useToast } from "./context/ToastContext";
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
+import { applyBackupFieldAnalysis } from "./config/fieldConfig";
+import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 
 
 export default function SideDrawer({
@@ -230,6 +232,7 @@ const { showToast } = useToast();
 const handleBackup = async () => {
   const deleted = JSON.parse(localStorage.getItem("deletedProducts") || "[]");
   const cataloguesDefinition = getCataloguesDefinition();
+  const fieldsDefinition = safeGetFromStorage('fieldsDefinition', null);
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const zip = new JSZip();
 
@@ -284,11 +287,20 @@ const handleBackup = async () => {
   }
 
   // Include catalogues definition and all settings in backup
+  // Ensure fieldsDefinition includes the template name
+  const backupFieldsDefinition = fieldsDefinition || {
+    version: 1,
+    fields: [],
+    industry: 'General Products (Custom)',
+    lastUpdated: Date.now(),
+  };
+
   zip.file("catalogue-data.json", JSON.stringify({
     version: 2, // Increment version for future compatibility
     products: dataForJson,
     deleted: deletedForJson,
     cataloguesDefinition,
+    fieldsDefinition: backupFieldsDefinition, // Include field definitions with template name to preserve custom field labels
     categories,
     backupDate: new Date().toISOString(),
     appVersion: APP_VERSION
@@ -399,6 +411,24 @@ const exportProductsToCSV = (products) => {
         throw new Error("Invalid backup format: missing products array");
       }
 
+      // CRITICAL: Determine which field definition to use
+      // Priority: 1) Backup's own fieldsDefinition (preserves original labels)
+      //          2) Auto-analyzed from product data (fallback for old backups)
+      let backupFieldDef = null;
+
+      if (parsed.fieldsDefinition) {
+        // Backup has its own field definition - use it to preserve original field labels
+        console.log("✅ Found fieldsDefinition in backup - using original field labels and configuration");
+        backupFieldDef = parsed.fieldsDefinition;
+      } else {
+        // Old backup without fieldsDefinition - analyze the product data to detect fields
+        console.log("🔎 Analyzing original backup fields BEFORE migration (old backup format - v1)...");
+        applyBackupFieldAnalysis(parsed.products, true); // Pass true to indicate this is an old backup
+        backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
+        console.log("✅ Original backup fields analyzed and auto-detected");
+        console.log("📋 Setting template to 'Custom Fields (from Backup)' to indicate old backup");
+      }
+
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
           let imageRestored = false;
@@ -444,9 +474,39 @@ const exportProductsToCSV = (products) => {
       );
 
       // CRITICAL: Clear everything first to maximize space for new data
+      // BUT preserve critical settings that shouldn't be lost during restore
       console.log("🗑️ Clearing old data to free up maximum space...");
+
+      // Preserve critical settings before clearing
+      const preservedSettings = {
+        hasCompletedOnboarding: safeGetFromStorage('hasCompletedOnboarding', false),
+        darkMode: safeGetFromStorage('darkMode', false),
+        showWatermark: safeGetFromStorage('showWatermark', false),
+        watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
+        watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
+        fieldsDefinition: backupFieldDef, // Use the newly analyzed field definition
+        userId: localStorage.getItem('userId'),
+      };
+
+      console.log("💾 Preserved critical settings:", Object.keys(preservedSettings));
+
       setDeletedProducts([]);
       localStorage.clear(); // Nuclear option - clear EVERYTHING
+
+      // Restore preserved settings
+      console.log("♻️ Restoring preserved settings...");
+      Object.entries(preservedSettings).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          if (key === 'userId') {
+            // userId is plain string
+            localStorage.setItem(key, value);
+          } else {
+            // Use safe setter for other values
+            safeSetInStorage(key, value);
+          }
+        }
+      });
+      console.log("✅ Preserved settings restored with auto-detected fields");
 
       // Aggressively clean products - remove ALL image data except imagePath reference
       const cleanedProducts = rebuilt.map(p => {
@@ -577,6 +637,19 @@ const exportProductsToCSV = (products) => {
       ensureProductsHaveStockFields();
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+
+      // 🔄 Dispatch event to notify all components that field definitions have changed
+      // This forces ProductPreviewModal and other components to reload field definitions
+      const templateName = backupFieldDef?.industry || 'General Products (Custom)';
+      window.dispatchEvent(new CustomEvent("fieldDefinitionsChanged", {
+        detail: {
+          newDefinition: backupFieldDef,
+          template: templateName,
+          isBackupRestore: true
+        }
+      }));
+      console.log(`🔄 Dispatched fieldDefinitionsChanged event - Template: ${templateName}`);
+      console.log(`📋 Field definitions restored with template: ${templateName}`);
 
       setShowRenderAfterRestore(true);
     } catch (err) {
