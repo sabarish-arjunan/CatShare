@@ -941,18 +941,20 @@ export default function CreateProduct() {
               </div>
 
               {/* Price Section */}
-              <div
-                style={{
-                  backgroundColor: overrideColor,
-                  color: fontColor,
-                  padding: "8px 6px",
-                  textAlign: "center",
-                  fontWeight: "600",
-                  fontSize: "16px",
-                }}
-              >
-                Price: ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
-              </div>
+              {getSelectedCataloguePrice() && (
+                <div
+                  style={{
+                    backgroundColor: overrideColor,
+                    color: fontColor,
+                    padding: "8px 6px",
+                    textAlign: "center",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                  }}
+                >
+                  Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+                </div>
+              )}
             </div>
           )}
 
