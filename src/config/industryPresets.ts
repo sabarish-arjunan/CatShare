@@ -1,6 +1,6 @@
 export interface FieldPreset {
   label: string;
-  defaultUnits?: string[];
+  unitOptions?: string[];
 }
 
 export interface IndustryPreset {
@@ -13,13 +13,13 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
     name: "Fashion & Apparel",
     fields: [
       { label: "Colour" },
-      { label: "Size", defaultUnits: ["S, M, L, XL", "28, 30, 32, 34", "Free Size"] },
+      { label: "Size", unitOptions: ["S, M, L, XL", "28, 30, 32, 34", "Free Size"] },
       { label: "Fabric" },
       { label: "Fit" },
       { label: "Sleeve / Style" },
-      { label: "Age Group", defaultUnits: ["months", "years"] },
+      { label: "Age Group", unitOptions: ["months", "years"] },
       { label: "Pattern / Design" },
-      { label: "Package / Set", defaultUnits: ["pcs / set", "pcs / dozen", "pcs / pack"] },
+      { label: "Package / Set", unitOptions: ["pcs / set", "pcs / dozen", "pcs / pack"] },
       { label: "Others" },
     ],
   },
@@ -27,7 +27,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
     name: "Lifestyle & Personal Care",
     fields: [
       { label: "Brand" },
-      { label: "Volume / Weight", defaultUnits: ["ml", "g", "kg", "oz"] },
+      { label: "Volume / Weight", unitOptions: ["ml", "g", "kg", "oz"] },
       { label: "Type" },
       { label: "Fragrance" },
       { label: "Skin Type" },
@@ -40,8 +40,8 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
     name: "Home, Kitchen & Living",
     fields: [
       { label: "Material" },
-      { label: "Dimensions", defaultUnits: ["inches", "cm", "mm"] },
-      { label: "Weight", defaultUnits: ["g", "kg", "lbs"] },
+      { label: "Dimensions", unitOptions: ["inches", "cm", "mm"] },
+      { label: "Weight", unitOptions: ["g", "kg", "lbs"] },
       { label: "Color" },
       { label: "Brand" },
       { label: "Style" },
@@ -56,7 +56,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Brand" },
       { label: "Color" },
       { label: "Specifications" },
-      { label: "Warranty", defaultUnits: ["months", "years"] },
+      { label: "Warranty", unitOptions: ["months", "years"] },
       { label: "Compatibility" },
       { label: "Features" },
       { label: "Others" },
@@ -69,7 +69,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Grade" },
       { label: "Size" },
       { label: "Brand" },
-      { label: "Weight", defaultUnits: ["kg", "lbs", "ton"] },
+      { label: "Weight", unitOptions: ["kg", "lbs", "ton"] },
       { label: "Quantity" },
       { label: "Type" },
       { label: "Others" },
