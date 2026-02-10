@@ -286,23 +286,26 @@ export default function FieldsSettings() {
                 >
                   <AnimatePresence mode="popLayout">
                     {filteredFields.map((field, index) => (
-                      <Draggable key={field.key} draggableId={field.key} index={index}>
-                        {(provided, snapshot) => (
-                          <motion.div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            layout
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className={`bg-white dark:bg-gray-900 rounded-2xl border transition-all ${
-                              snapshot.isDragging ? "shadow-2xl ring-2 ring-blue-500 z-50 scale-[1.02]" : ""
-                            } ${
-                              field.enabled
-                                ? "border-blue-200 dark:border-blue-900 shadow-sm"
-                                : "border-gray-200 dark:border-gray-800 opacity-60 grayscale-[0.5]"
-                            }`}
-                          >
+                      <motion.div
+                        key={field.key}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                      >
+                        <Draggable draggableId={field.key} index={index}>
+                          {(provided, snapshot) => (
+                            <motion.div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              layout={!snapshot.isDragging}
+                              className={`bg-white dark:bg-gray-900 rounded-2xl border transition-all ${
+                                snapshot.isDragging ? "shadow-2xl ring-2 ring-blue-500 z-50 scale-[1.02]" : ""
+                              } ${
+                                field.enabled
+                                  ? "border-blue-200 dark:border-blue-900 shadow-sm"
+                                  : "border-gray-200 dark:border-gray-800 opacity-60 grayscale-[0.5]"
+                              }`}
+                            >
                             <div className="p-4">
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
@@ -383,7 +386,8 @@ export default function FieldsSettings() {
                           </motion.div>
                         )}
                       </Draggable>
-                    ))}
+                    </motion.div>
+                  ))}
                     {provided.placeholder}
                   </AnimatePresence>
                 </div>
