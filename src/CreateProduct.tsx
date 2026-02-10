@@ -1192,7 +1192,7 @@ export default function CreateProduct() {
               <span className="text-xs">BG: {overrideColor}</span>
             </button>
 
-            <div className="flex gap-2 flex-col">
+            <div className="flex gap-4">
               <label className="flex items-center gap-1 text-xs">
                 Font:
                 {["white", "black"].map((color) => (
