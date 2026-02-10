@@ -272,7 +272,7 @@ export default function Welcome() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('welcome')}
-                  className="flex-1 border-2 border-slate-600 text-slate-300 font-bold py-3 rounded-xl hover:border-slate-500 hover:bg-slate-700/50 transition-all"
+                  className="flex-1 border-2 border-slate-300 text-slate-700 font-semibold py-3 rounded-xl hover:border-slate-400 hover:bg-slate-100 transition-all"
                 >
                   Back
                 </motion.button>
@@ -281,7 +281,7 @@ export default function Welcome() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('fields')}
                   disabled={!selectedIndustry}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all"
+                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
                 >
                   Next
                 </motion.button>
