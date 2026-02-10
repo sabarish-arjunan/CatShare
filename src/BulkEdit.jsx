@@ -578,7 +578,7 @@ useEffect(() => {
           <div>Image</div>
           {selectedFields.map((field) => {
             const fieldLabel = FIELD_OPTIONS.find((f) => f.key === field)?.label;
-            const isFilledFromMaster = filledFromMaster[field];
+            const isFilledFromMaster = !!filledFromMaster[field];
             return (
               <div key={field} className="flex items-center gap-1">
                 <input
