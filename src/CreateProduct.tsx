@@ -1100,26 +1100,35 @@ export default function CreateProduct() {
                 .map(field => {
                   const catData = getCatalogueFormData();
                   return (
-                    <div key={field.key} className="flex gap-2 items-center">
-                      <input
-                        name={field.key}
-                        value={catData[field.key] || ""}
-                        onChange={handleChange}
-                        placeholder={field.label}
-                        className="border p-1.5 w-full rounded text-xs"
-                      />
-                      {(field.unitOptions && field.unitOptions.length > 0) && (
-                        <select
-                          name={`${field.key}Unit`}
-                          value={catData[`${field.key}Unit`] || "None"}
+                    <div key={field.key} className="flex gap-2 items-start">
+                      <div className="relative flex-1">
+                        <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                          {field.label}
+                        </label>
+                        <input
+                          name={field.key}
+                          value={catData[field.key] || ""}
                           onChange={handleChange}
-                          className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white"
-                        >
-                          <option>None</option>
-                          {field.unitOptions.map(opt => (
-                            <option key={opt}>{opt}</option>
-                          ))}
-                        </select>
+                          className="border p-1.5 w-full rounded text-xs pt-2"
+                        />
+                      </div>
+                      {(field.unitOptions && field.unitOptions.length > 0) && (
+                        <div className="relative">
+                          <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+                            Unit
+                          </label>
+                          <select
+                            name={`${field.key}Unit`}
+                            value={catData[`${field.key}Unit`] || "None"}
+                            onChange={handleChange}
+                            className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
+                          >
+                            <option>None</option>
+                            {field.unitOptions.map(opt => (
+                              <option key={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        </div>
                       )}
                     </div>
                   );
