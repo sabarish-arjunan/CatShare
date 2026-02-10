@@ -401,6 +401,13 @@ const exportProductsToCSV = (products) => {
         throw new Error("Invalid backup format: missing products array");
       }
 
+      // CRITICAL: Analyze ORIGINAL backup fields BEFORE any migration
+      // This detects the actual legacy field names in the backup (color, package, age, etc.)
+      console.log("🔎 Analyzing original backup fields BEFORE migration...");
+      applyBackupFieldAnalysis(parsed.products);
+      const backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
+      console.log("✅ Original backup fields analyzed and saved");
+
       const rebuilt = await Promise.all(
         parsed.products.map(async (p) => {
           let imageRestored = false;
@@ -444,11 +451,6 @@ const exportProductsToCSV = (products) => {
           return migrated;
         })
       );
-
-      // CRITICAL: Analyze backup fields BEFORE clearing to detect what fields it contains
-      console.log("🔎 Analyzing backup to detect field configuration...");
-      applyBackupFieldAnalysis(rebuilt);
-      const backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
 
       // CRITICAL: Clear everything first to maximize space for new data
       // BUT preserve critical settings that shouldn't be lost during restore

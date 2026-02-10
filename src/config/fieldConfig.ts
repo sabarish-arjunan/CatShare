@@ -221,15 +221,26 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
   // Scan all products to detect which legacy field names are present
   const detectedLegacyFields = new Set<string>();
   const detectedFieldValues = new Map<string, any[]>();
+  const unknownFields = new Set<string>();
+
+  // Known metadata fields to skip
+  const metadataFields = ['id', 'name', 'category', 'image', 'imagePath', 'imageFilename', 'imageBase64', 'imageData', 'renderedImages', 'description', 'sku', 'barcode'];
 
   for (const product of products) {
     if (!product || typeof product !== 'object') continue;
 
     for (const [key, value] of Object.entries(product)) {
-      // Skip known metadata fields
-      if (['id', 'name', 'category', 'image', 'imagePath', 'imageFilename', 'imageBase64', 'imageData', 'renderedImages'].includes(key)) {
+      // Skip metadata fields
+      if (metadataFields.includes(key)) {
         continue;
       }
+
+      // Skip unit fields (they're paired with their main field)
+      if (/Unit$/.test(key)) {
+        continue;
+      }
+
+      let fieldFound = false;
 
       // Check if this key matches any legacy field definition
       for (const fieldConfig of DEFAULT_FIELDS) {
@@ -241,12 +252,13 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
           if (value !== null && value !== undefined && value !== '') {
             detectedFieldValues.get(fieldConfig.key)!.push(value);
           }
+          fieldFound = true;
           break;
         }
       }
 
       // Also check for new field format (field1, field2, price1, price2, etc.)
-      if (/^(field|price)\d+$/.test(key)) {
+      if (!fieldFound && /^(field|price)\d+$/.test(key)) {
         detectedLegacyFields.add(key);
         if (!detectedFieldValues.has(key)) {
           detectedFieldValues.set(key, []);
@@ -254,11 +266,68 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
         if (value !== null && value !== undefined && value !== '') {
           detectedFieldValues.get(key)!.push(value);
         }
+        fieldFound = true;
+      }
+
+      // If we didn't find a match, try fuzzy matching for common variants
+      if (!fieldFound) {
+        const keyLower = key.toLowerCase();
+
+        // Try to match common field abbreviations and variants
+        if (keyLower.includes('color') || keyLower.includes('colour') || keyLower === 'col') {
+          detectedLegacyFields.add('field1');
+          if (!detectedFieldValues.has('field1')) detectedFieldValues.set('field1', []);
+          if (value !== null && value !== undefined && value !== '') {
+            detectedFieldValues.get('field1')!.push(value);
+          }
+          fieldFound = true;
+          console.log(`   → Fuzzy matched "${key}" to field1 (Colour)`);
+        } else if (keyLower.includes('package') || keyLower === 'pkg' || keyLower.includes('pack')) {
+          detectedLegacyFields.add('field2');
+          if (!detectedFieldValues.has('field2')) detectedFieldValues.set('field2', []);
+          if (value !== null && value !== undefined && value !== '') {
+            detectedFieldValues.get('field2')!.push(value);
+          }
+          fieldFound = true;
+          console.log(`   → Fuzzy matched "${key}" to field2 (Package)`);
+        } else if (keyLower.includes('age') || keyLower.includes('group') || keyLower === 'agegroup') {
+          detectedLegacyFields.add('field3');
+          if (!detectedFieldValues.has('field3')) detectedFieldValues.set('field3', []);
+          if (value !== null && value !== undefined && value !== '') {
+            detectedFieldValues.get('field3')!.push(value);
+          }
+          fieldFound = true;
+          console.log(`   → Fuzzy matched "${key}" to field3 (Age Group)`);
+        } else if (keyLower.includes('wholesale') || keyLower.includes('wholeprice') || keyLower === 'wprice') {
+          detectedLegacyFields.add('price1');
+          if (!detectedFieldValues.has('price1')) detectedFieldValues.set('price1', []);
+          if (value !== null && value !== undefined && value !== '') {
+            detectedFieldValues.get('price1')!.push(value);
+          }
+          fieldFound = true;
+          console.log(`   → Fuzzy matched "${key}" to price1 (Wholesale Price)`);
+        } else if (keyLower.includes('resell') || keyLower.includes('resale') || keyLower === 'rprice') {
+          detectedLegacyFields.add('price2');
+          if (!detectedFieldValues.has('price2')) detectedFieldValues.set('price2', []);
+          if (value !== null && value !== undefined && value !== '') {
+            detectedFieldValues.get('price2')!.push(value);
+          }
+          fieldFound = true;
+          console.log(`   → Fuzzy matched "${key}" to price2 (Resell Price)`);
+        }
+      }
+
+      // If still no match and has value, track as unknown field
+      if (!fieldFound && value !== null && value !== undefined && value !== '') {
+        unknownFields.add(key);
       }
     }
   }
 
   console.log('🔍 Detected legacy fields in backup:', Array.from(detectedLegacyFields));
+  if (unknownFields.size > 0) {
+    console.warn('⚠️ Unknown fields in backup (may be from older version):', Array.from(unknownFields));
+  }
 
   // Get current field definition
   let definition = getFieldsDefinition();
@@ -282,6 +351,25 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
 
     return fieldConfig;
   });
+
+  // Handle unknown fields: enable additional fields if backup has more data than current definition knows about
+  if (unknownFields.size > 0) {
+    console.log('📊 Backup contains additional fields not in current definition - enabling extra fields');
+
+    // Enable some disabled fields to accommodate unknown fields
+    const unknownFieldCount = unknownFields.size;
+    let enabledCount = 0;
+
+    for (let i = 0; i < updatedFields.length && enabledCount < unknownFieldCount; i++) {
+      const field = updatedFields[i];
+      // Enable additional text fields if they're not already enabled and not core fields
+      if (!field.enabled && field.key.startsWith('field') && !['field1', 'field2', 'field3'].includes(field.key)) {
+        updatedFields[i] = { ...field, enabled: true };
+        enabledCount++;
+        console.log(`✅ Enabling extra field: ${field.key} (${field.label}) - to accommodate backup data`);
+      }
+    }
+  }
 
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {
