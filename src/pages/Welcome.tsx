@@ -409,8 +409,8 @@ export default function Welcome() {
               </motion.div>
 
               {hasBackup && (
-                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
-                  <p className="text-sm text-amber-300">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                  <p className="text-sm text-amber-700">
                     ⚠️ <strong>Note:</strong> Restoring will import {safeGetFromStorage('productsBackup', []).length} products
                   </p>
                 </div>
