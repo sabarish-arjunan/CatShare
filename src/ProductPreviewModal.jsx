@@ -716,7 +716,11 @@ export default function ProductPreviewModal({
                   const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                   const hasValue = hasFieldValue(fieldValue);
 
-                  if (!hasValue) return null;
+                  // Check if field is visible
+                  const visibilityKey = `${field.key}Visible`;
+                  const isVisible = catalogueData[visibilityKey] !== false && product[visibilityKey] !== false; // Default to visible
+
+                  if (!hasValue || !isVisible) return null;
 
                   const unitKey = `${field.key}Unit`;
                   const unitValue = catalogueData[unitKey] !== undefined && catalogueData[unitKey] !== null ? catalogueData[unitKey] : (product[unitKey] || "None");
