@@ -164,7 +164,7 @@ export default function Welcome() {
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+                transition={{ delay: 0.15, type: 'spring', stiffness: 150, damping: 20 }}
                 className="mb-8 relative z-10"
               >
                 <motion.div
