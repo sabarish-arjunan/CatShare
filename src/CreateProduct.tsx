@@ -937,11 +937,16 @@ setTimeout(async () => {
               <div className="space-y-3">
                 {getAllFields()
                   .filter(f => f.enabled && f.key.startsWith('field'))
-                  .map(field => (
-                    <div key={field.key} className="flex gap-2">
+                  .map(field => {
+                    const catData = getCatalogueFormData();
+                    const visibilityKey = `${field.key}Visible`;
+                    const isVisible = catData[visibilityKey] !== false; // Default to visible
+
+                    return (
+                      <div key={field.key} className="flex gap-2 items-center">
                         <input
                           name={field.key}
-                          value={getCatalogueFormData()[field.key] || ""}
+                          value={catData[field.key] || ""}
                           onChange={handleChange}
                           placeholder={field.label}
                           className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-500 outline-none"
@@ -949,7 +954,7 @@ setTimeout(async () => {
                         {(field.unitOptions && field.unitOptions.length > 0) && (
                           <select
                             name={`${field.key}Unit`}
-                            value={getCatalogueFormData()[`${field.key}Unit`] || "None"}
+                            value={catData[`${field.key}Unit`] || "None"}
                             onChange={handleChange}
                             className="border p-2 rounded min-w-[120px] appearance-none bg-white pr-8 focus:ring-2 focus:ring-blue-500 outline-none"
                           >
@@ -959,8 +964,29 @@ setTimeout(async () => {
                             ))}
                           </select>
                         )}
-                    </div>
-                  ))}
+                        <button
+                          type="button"
+                          onClick={() => updateCatalogueData({ [visibilityKey]: !isVisible })}
+                          className={`flex-shrink-0 w-10 h-10 rounded flex items-center justify-center transition-colors ${
+                            isVisible
+                              ? "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                              : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                          }`}
+                          title={isVisible ? "Hide from product card" : "Show in product card"}
+                        >
+                          {isVisible ? (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.81-2.94 3.69-4.75-2.22-4.23-6.5-7-11.25-7-2.53 0-4.95.75-6.95 2.05l2.1 2.1c.57-.23 1.18-.35 1.83-.35zm10.82-4.82L3.7 19.8c-.48.48-1.45.48-1.93 0-.48-.48-.48-1.45 0-1.93L20.89 1.25c.48-.48 1.45-.48 1.93 0 .48.48.48 1.45 0 1.93zM7.12 10.87L9 12.75c.01-.33.05-.65.13-.96-1.52.03-2.76 1.27-2.76 2.82 0 1.54 1.23 2.79 2.76 2.82l-1.88 1.88c-1.63-.39-3.01-1.35-3.88-2.57.87-1.22 2.26-2.18 3.88-2.57z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
 
                 <div className="flex gap-2">
                     <input
