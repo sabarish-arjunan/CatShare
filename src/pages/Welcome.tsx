@@ -180,7 +180,7 @@ export default function Welcome() {
                 transition={{ delay: 0.4 }}
                 className="relative z-10"
               >
-                <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-blue-200 to-blue-300 mb-4">
+                <h1 className="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">
                   Welcome to CatShare
                 </h1>
                 <p className="text-lg text-slate-300 mb-3 font-medium">
