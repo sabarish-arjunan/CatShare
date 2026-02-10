@@ -13,14 +13,14 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
     name: "Fashion & Apparel",
     fields: [
       { label: "Colour" },
+      { label: "Package", unitOptions: ["pcs / set", "pcs / dozen", "pcs / pack"] },
+      { label: "Age Group", unitOptions: ["months", "years"] },
       { label: "Size", unitOptions: ["S, M, L, XL", "28, 30, 32, 34", "Free Size"] },
       { label: "Fabric" },
       { label: "Fit" },
       { label: "Sleeve / Style" },
-      { label: "Age Group", unitOptions: ["months", "years"] },
       { label: "Pattern / Design" },
-      { label: "Package / Set", unitOptions: ["pcs / set", "pcs / dozen", "pcs / pack"] },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -33,7 +33,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Skin Type" },
       { label: "Ingredients" },
       { label: "Pack Size" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -46,7 +46,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Brand" },
       { label: "Style" },
       { label: "Room" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -59,7 +59,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Warranty", unitOptions: ["months", "years"] },
       { label: "Compatibility" },
       { label: "Features" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -72,7 +72,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Weight", unitOptions: ["kg", "lbs", "ton"] },
       { label: "Quantity" },
       { label: "Type" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
 ];

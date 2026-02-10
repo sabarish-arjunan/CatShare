@@ -176,15 +176,15 @@ useEffect(() => {
       } catch (err) {
         console.warn("Haptics not supported:", err);
       }
-
-      // Re-push fake screen again so future back gestures work
-      window.history.pushState({ select: true }, "");
+    } else {
+      // If not in select mode, and we popped, it means we want to exit catalogue
+      onBack();
     }
   };
 
   window.addEventListener("popstate", handlePopState);
   return () => window.removeEventListener("popstate", handlePopState);
-}, [selectMode]);
+}, [selectMode, setSelected, onBack]);
 
 useEffect(() => {
   // Push a fake entry to trap back
@@ -448,12 +448,9 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
   {!showSearch && onBack && (
     <motion.button
       onClick={() => {
-        if (selectMode) {
-          setSelectMode(false);
-          setSelected([]);
-        } else {
-          onBack();
-        }
+        // Trigger history back, which will be handled by the popstate listener
+        // to either deselect products or exit the catalogue view
+        window.history.back();
       }}
       className="relative w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors"
       title={selectMode ? "Exit Selection" : "Back"}
@@ -503,8 +500,7 @@ setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       <h1
     className="text-xl sm:text-lg md:text-xl font-bold cursor-pointer transition-opacity duration-200 truncate whitespace-nowrap"
     onClick={() => {
-      setSelectMode(false);
-      setSelected([]);
+      // Already not in selectMode, no need to back
     }}
     style={{ maxWidth: "50vw" }}
   >

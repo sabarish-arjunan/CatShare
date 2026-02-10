@@ -1,6 +1,7 @@
 // Final full CreateProduct.jsx with Save.jsx integration and new draggable layout
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -49,40 +50,109 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
+// Helper: Convert any color string to RGB array
+const parseToRgb = (str) => {
+  if (!str) return [255, 255, 255];
+
+  // Handle Hex
+  if (str.startsWith("#")) {
+    const r = parseInt(str.slice(1, 3), 16) || 0;
+    const g = parseInt(str.slice(3, 5), 16) || 0;
+    const b = parseInt(str.slice(5, 7), 16) || 0;
+    return [r, g, b];
+  }
+
+  // Handle RGB
+  const match = str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (match) {
+    return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+  }
+
+  return [255, 255, 255];
+};
+
+const rgbToHex = (r, g, b) => {
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`.toUpperCase();
+};
+
+const formatToHex = (str) => {
+  if (!str) return "#FFFFFF";
+  if (str.startsWith("#")) return str.toUpperCase();
+  const [r, g, b] = parseToRgb(str);
+  return rgbToHex(r, g, b);
+};
+
 function ColorPickerModal({ value, onChange, onClose }) {
   const [hue, setHue] = useState(0);
   const [saturation, setSaturation] = useState(100);
-  const [brightness, setBrightness] = useState(100);
-  const [hexInput, setHexInput] = useState(value);
+  const [brightness, setBrightness] = useState(50);
+  const [hexInput, setHexInput] = useState("");
+
+  const rgbToHsl = (r, g, b) => {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return [h * 360, s * 100, l * 100];
+  };
 
   const hslToRgb = (h, s, l) => {
-    s /= 100;
-    l /= 100;
-    const k = (n) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    const r = Math.round(255 * f(0));
-    const g = Math.round(255 * f(8));
-    const b = Math.round(255 * f(4));
-    return `rgb(${r}, ${g}, ${b})`;
+    h /= 360; s /= 100; l /= 100;
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
   };
 
-  const rgbToHex = (rgb) => {
-    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    if (!match) return value;
-    const r = parseInt(match[1]).toString(16).padStart(2, '0');
-    const g = parseInt(match[2]).toString(16).padStart(2, '0');
-    const b = parseInt(match[3]).toString(16).padStart(2, '0');
-    return `#${r}${g}${b}`.toUpperCase();
-  };
+  // Initialize state on mount
+  useEffect(() => {
+    const [r, g, b] = parseToRgb(value);
+    const [h, s, l] = rgbToHsl(r, g, b);
+    setHue(h);
+    setSaturation(s);
+    setBrightness(l);
+    setHexInput(rgbToHex(r, g, b));
+  }, [value]);
 
-  const currentColor = hslToRgb(hue, saturation, brightness);
+  const currentColorRgb = hslToRgb(hue, saturation, brightness);
+  const currentColorHex = rgbToHex(...currentColorRgb);
+  const currentColorStr = `rgb(${currentColorRgb[0]}, ${currentColorRgb[1]}, ${currentColorRgb[2]})`;
 
   const handleHexChange = (hex) => {
+    setHexInput(hex);
     if (hex.match(/^#[0-9A-Fa-f]{6}$/)) {
-      setHexInput(hex);
-      onChange(hex);
+      const [r, g, b] = parseToRgb(hex);
+      const [h, s, l] = rgbToHsl(r, g, b);
+      setHue(h);
+      setSaturation(s);
+      setBrightness(l);
     }
   };
 
@@ -99,7 +169,12 @@ function ColorPickerModal({ value, onChange, onClose }) {
             min="0"
             max="360"
             value={hue}
-            onChange={(e) => setHue(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const h = parseFloat(e.target.value);
+              setHue(h);
+              const [r, g, b] = hslToRgb(h, saturation, brightness);
+              setHexInput(rgbToHex(r, g, b));
+            }}
             className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right,
@@ -118,7 +193,12 @@ function ColorPickerModal({ value, onChange, onClose }) {
             min="0"
             max="100"
             value={saturation}
-            onChange={(e) => setSaturation(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const s = parseFloat(e.target.value);
+              setSaturation(s);
+              const [r, g, b] = hslToRgb(hue, s, brightness);
+              setHexInput(rgbToHex(r, g, b));
+            }}
             className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right,
@@ -136,7 +216,12 @@ function ColorPickerModal({ value, onChange, onClose }) {
             min="0"
             max="100"
             value={brightness}
-            onChange={(e) => setBrightness(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const l = parseFloat(e.target.value);
+              setBrightness(l);
+              const [r, g, b] = hslToRgb(hue, saturation, l);
+              setHexInput(rgbToHex(r, g, b));
+            }}
             className="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
             style={{
               background: `linear-gradient(to right, #000, hsl(${hue}, ${saturation}%, 50%), #fff)`
@@ -147,7 +232,7 @@ function ColorPickerModal({ value, onChange, onClose }) {
         {/* Color Preview */}
         <div className="mb-3">
           <div
-            style={{ backgroundColor: currentColor }}
+            style={{ backgroundColor: currentColorStr }}
             className="w-full h-16 rounded-lg border-2 border-gray-300"
           />
         </div>
@@ -167,7 +252,7 @@ function ColorPickerModal({ value, onChange, onClose }) {
         {/* Buttons */}
         <div className="flex gap-2">
           <button
-            onClick={() => onChange(currentColor)}
+            onClick={() => onChange(currentColorStr)}
             className="flex-1 bg-blue-600 text-white py-2 rounded font-medium"
           >
             Apply
@@ -194,74 +279,35 @@ export default function CreateProduct() {
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
-  // Bottom sheet state
-  const [sheetHeight, setSheetHeight] = useState(120);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(0);
-  const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
-  const sheetRef = useRef<HTMLDivElement>(null);
+  // Bottom sheet state using Framer Motion for buttery smooth performance
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
+  const MIN_HEIGHT = 120;
+  const DRAG_RANGE = MAX_HEIGHT - MIN_HEIGHT;
 
-  // Drag handlers - support both mouse and touch events
-  const startYRef = useRef(0);
-  const startHeightRef = useRef(0);
+  const y = useMotionValue(DRAG_RANGE);
+  const [isDragging, setIsDragging] = useState(false);
+  const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
 
-  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    // Don't start drag from input/button elements
-    const target = e.target as HTMLElement;
-    if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName)) {
-      return;
+  // Derived values for hardware-accelerated animations
+  const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
+  const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
+  const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
+  const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
+
+  const handleDragEnd = (_: any, info: any) => {
+    setIsDragging(false);
+    const velocity = info.velocity.y;
+    const currentY = y.get();
+
+    // Snapping logic with velocity and threshold for a "buttery" feel
+    if (velocity < -300 || (velocity <= 0 && currentY < DRAG_RANGE * 0.7)) {
+      // Snap to top (expanded)
+      animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
+    } else {
+      // Snap to bottom (collapsed)
+      animate(y, DRAG_RANGE, { type: "spring", stiffness: 400, damping: 40 });
     }
-
-    setIsDragging(true);
-    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    startYRef.current = clientY;
-    startHeightRef.current = sheetHeight;
-  }, [sheetHeight]);
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleDragMove = (e: MouseEvent | TouchEvent) => {
-      const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
-
-      // Calculate the difference from start
-      const diff = startYRef.current - clientY;
-      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, startHeightRef.current + diff));
-      setSheetHeight(newHeight);
-    };
-
-    const handleDragEnd = () => {
-      setIsDragging(false);
-      // Snap to nearest position
-      const threshold = MAX_HEIGHT * 0.4;
-      const targetHeight = sheetHeight > threshold ? MAX_HEIGHT : 120;
-      setSheetHeight(targetHeight);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
-      }
-      handleDragMove(e);
-    };
-
-    document.addEventListener("mousemove", handleDragMove as EventListener, { capture: false });
-    document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: false } as AddEventListenerOptions);
-    document.addEventListener("mouseup", handleDragEnd, { capture: false });
-    document.addEventListener("touchend", handleDragEnd, { capture: false });
-
-    return () => {
-      document.removeEventListener("mousemove", handleDragMove as EventListener);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("touchend", handleDragEnd);
-    };
-  }, [isDragging, sheetHeight, MAX_HEIGHT]);
-
-  // Calculate image scale
-  const imageScale = Math.max(0.4, 1 - (sheetHeight - 120) / (MAX_HEIGHT - 120) * 0.6);
-  const imageOpacity = imageScale > 0.5 ? 1 : 0.6;
+  };
 
   const [formData, setFormData] = useState<ProductWithCatalogueData>({
     id: "",
@@ -329,7 +375,6 @@ export default function CreateProduct() {
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const [price1Unit, setPrice1Unit] = useState("/ piece");
-  const [price2Unit, setPrice2Unit] = useState("/ piece");
   const [packageUnit, setPackageUnit] = useState("pcs / set");
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
@@ -730,9 +775,7 @@ export default function CreateProduct() {
     }
 
     newItem.price1 = newItem.price1 || "";
-    newItem.price2 = newItem.price2 || "";
     newItem.price1Unit = newItem.price1Unit || "/ piece";
-    newItem.price2Unit = newItem.price2Unit || "/ piece";
 
     for (let i = 1; i <= 10; i++) {
       newItem[`field${i}`] = defaultCatalogueData[`field${i}`] || "";
@@ -740,11 +783,9 @@ export default function CreateProduct() {
     }
 
     newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
-    newItem.resellUnit = defaultCatalogueData.price2Unit || "/ piece";
     newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
     newItem.ageUnit = defaultCatalogueData.field3Unit || "months";
     newItem.wholesale = newItem.price1 || "";
-    newItem.resell = newItem.price2 || "";
     newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
 
     try {
@@ -771,8 +812,6 @@ export default function CreateProduct() {
               priceField: cat.priceField,
               priceUnitField: cat.priceUnitField,
               price1Unit: catData.price1Unit || "/ piece",
-              price2Unit: catData.price2Unit || "/ piece",
-              resellUnit: catData.price2Unit || "/ piece",
               wholesaleUnit: catData.price1Unit || "/ piece",
             };
 
@@ -883,12 +922,12 @@ export default function CreateProduct() {
       
       {/* Image Preview Section with Product Card */}
       <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative">
-        <div
-          className="relative flex items-center justify-center transition-opacity duration-300"
+        <motion.div
+          className="relative flex items-center justify-center"
           style={{ opacity: imageOpacity }}
         >
           {imagePreview && (
-            <div
+            <motion.div
               style={{
                 width: "95%",
                 maxWidth: "330px",
@@ -896,9 +935,8 @@ export default function CreateProduct() {
                 borderRadius: "12px",
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-                transform: `scale(${imageScale})`,
+                scale: imageScale,
                 transformOrigin: "center",
-                transition: isDragging ? "none" : "transform 0.3s ease-out",
               }}
             >
               {/* Product Image */}
@@ -1024,7 +1062,7 @@ export default function CreateProduct() {
                   )}
                 </>
               )}
-            </div>
+            </motion.div>
           )}
 
           {!imagePreview && (
@@ -1038,47 +1076,41 @@ export default function CreateProduct() {
               <p className="text-sm font-medium">Click to select an image</p>
             </button>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Draggable Bottom Sheet */}
-      <div
-        ref={sheetRef}
-        onMouseDown={handleDragStart}
-        onTouchStart={handleDragStart}
-        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all select-none"
+      <motion.div
+        onPanStart={() => setIsDragging(true)}
+        onPan={(_, info) => {
+          const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
+          y.set(newY);
+        }}
+        onPanEnd={handleDragEnd}
+        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col select-none"
         style={{
-          height: `${sheetHeight}px`,
+          height: sheetHeight,
           cursor: isDragging ? "grabbing" : "grab",
-          WebkitUserSelect: "none",
-          userSelect: "none",
           touchAction: "none",
-          WebkitTouchCallout: "none",
+          willChange: "height",
         }}
       >
         {/* Drag Handle - Extended to full width */}
-        <div
-          className="flex-shrink-0 px-4 py-2 flex items-center justify-between select-none w-full pointer-events-none"
-          style={{
-            transition: isDragging ? "none" : "all 0.3s ease",
-          }}
-        >
+        <div className="flex-shrink-0 px-4 py-2 flex items-center justify-between select-none w-full pointer-events-none">
           {/* Drag Handle Icon */}
           <div className="mx-auto flex items-center justify-center hover:opacity-70 transition-opacity py-1">
-            <svg
-              className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
+            <motion.svg
+              className="w-5 h-5 text-gray-400 dark:text-gray-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
               strokeWidth={2.5}
               strokeLinecap="round"
               strokeLinejoin="round"
-              style={{
-                transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
-              }}
+              style={{ rotate: arrowRotate }}
             >
               <path d="M5 15l7-7 7 7" />
-            </svg>
+            </motion.svg>
           </div>
         </div>
 
@@ -1170,7 +1202,7 @@ export default function CreateProduct() {
                       borderRadius: "4px",
                     }}
                   />
-                  <span className="text-xs">BG: {overrideColor}</span>
+                  <span className="text-xs">BG: {formatToHex(overrideColor)}</span>
                 </button>
 
                 <div className="flex gap-4">
@@ -1276,49 +1308,52 @@ export default function CreateProduct() {
                       {cat.label}
                     </button>
                   ))}
-                  <button
-                    onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ml-auto flex items-center gap-1.5 ${
-                      isCatalogueEnabled(selectedCatalogue)
-                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40 hover:scale-105"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    <span className={`transition-transform ${isCatalogueEnabled(selectedCatalogue) ? '' : ''}`}>
-                      {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
-                    </span>
-                    {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
-                  </button>
                 </div>
               </div>
 
-              {/* Fill Fields and Price Options */}
-              {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
-                <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={fetchFieldsChecked}
-                      onChange={(e) => handleFetchFieldsChange(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
-                    />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Fill Fields from Master
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={fetchPriceChecked}
-                      onChange={(e) => handleFetchPriceChange(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
-                    />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Fill Price from Master
-                    </span>
-                  </label>
-                </div>
-              )}
+              {/* Show Toggle and Fill Options */}
+              <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <button
+                  onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                    isCatalogueEnabled(selectedCatalogue)
+                      ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  }`}
+                >
+                  <span className="transition-transform">
+                    {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
+                  </span>
+                  {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                </button>
+
+                {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={fetchFieldsChecked}
+                        onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                      />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Fill Fields
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={fetchPriceChecked}
+                        onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                      />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Fill Price
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </div>
 
               {/* Catalogue Details */}
               {isCatalogueEnabled(selectedCatalogue) && (
@@ -1430,7 +1465,7 @@ export default function CreateProduct() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <input
         type="file"

@@ -10,6 +10,8 @@
  * migrated to the new field structure without data loss.
  */
 
+import { INDUSTRY_PRESETS } from './industryPresets';
+
 export interface FieldConfig {
   key: string; // Internal key: field1, field2, field3, etc.
   label: string; // Display label: "Colour", "Package", "Age Group"
@@ -35,14 +37,14 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     key: 'field1',
     label: 'Colour',
     type: 'text',
-    enabled: true,
+    enabled: false,
     legacyKeys: ['color', 'colour', 'Colour'],
   },
   {
     key: 'field2',
     label: 'Package',
     type: 'text',
-    enabled: true,
+    enabled: false,
     legacyKeys: ['package', 'Package'],
     unitField: 'field2Unit',
     unitOptions: ['pcs / set', 'pcs / dozen', 'pcs / pack'],
@@ -52,7 +54,7 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     key: 'field3',
     label: 'Age Group',
     type: 'text',
-    enabled: true,
+    enabled: false,
     legacyKeys: ['age', 'Age', 'Age group'],
     unitField: 'field3Unit',
     unitOptions: ['months', 'years'],
@@ -110,16 +112,6 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     unitOptions: ['/ piece', '/ dozen', '/ set'],
     defaultUnit: '/ piece',
   },
-  {
-    key: 'price2',
-    label: 'Price 2',
-    type: 'number',
-    enabled: true,
-    legacyKeys: ['resell', 'Resell', 'Resell price'],
-    unitField: 'price2Unit',
-    unitOptions: ['/ piece', '/ dozen', '/ set'],
-    defaultUnit: '/ piece',
-  },
 ];
 
 /**
@@ -130,7 +122,12 @@ export function getFieldsDefinition(): FieldsDefinition {
   try {
     const stored = localStorage.getItem('fieldsDefinition');
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Prune price2 if it exists (legacy)
+      if (parsed.fields) {
+        parsed.fields = parsed.fields.filter((f: any) => f.key !== 'price2');
+      }
+      return parsed;
     }
   } catch (err) {
     console.warn('Failed to parse fieldsDefinition:', err);
@@ -216,7 +213,6 @@ const ORIGINAL_FIELD_LABELS: { [legacyKey: string]: { fieldKey: string; original
   'package': { fieldKey: 'field2', originalLabel: 'Package' },
   'age': { fieldKey: 'field3', originalLabel: 'Age Group' },
   'wholesale': { fieldKey: 'price1', originalLabel: 'Price' },
-  'resell': { fieldKey: 'price2', originalLabel: 'Price 2' },
 };
 
 /**
@@ -408,9 +404,30 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
     }
   }
 
-  // For old backups (without fieldsDefinition in the backup file), set industry to "General Products (Custom)"
-  // This uses the existing Custom/General template for old backups
-  const backupIndustry = isOldBackup ? 'General Products (Custom)' : (definition.industry || 'General Products (Custom)');
+  // For old backups (without fieldsDefinition in the backup file), set industry to "Fashion & Apparel"
+  // because old version was related to that only.
+  const backupIndustry = isOldBackup ? 'Fashion & Apparel' : (definition.industry || 'General Products (Custom)');
+
+  // If it's an old backup, we match it to the Fashion & Apparel preset
+  if (isOldBackup) {
+    const fashionPreset = INDUSTRY_PRESETS.find((p: any) => p.name === 'Fashion & Apparel');
+
+    if (fashionPreset) {
+      console.log('👕 Old backup detected - aligning with Fashion & Apparel template');
+      fashionPreset.fields.forEach((presetField: any, index: number) => {
+        const fieldKey = `field${index + 1}`;
+        const fieldIdx = updatedFields.findIndex(f => f.key === fieldKey);
+        if (fieldIdx !== -1) {
+          updatedFields[fieldIdx] = {
+            ...updatedFields[fieldIdx],
+            label: presetField.label,
+            unitOptions: presetField.unitOptions || updatedFields[fieldIdx].unitOptions || [],
+            enabled: true,
+          };
+        }
+      });
+    }
+  }
 
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {

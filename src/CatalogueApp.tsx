@@ -263,10 +263,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // 2. If inside a catalogue view, go back to catalogues list
+      // 2. If inside a catalogue view, let history management handle it (deselect or exit)
       if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
-        setSelected([]);
-        setSelectedCatalogueInCataloguesTab(null);
+        window.history.back();
         return;
       }
 
