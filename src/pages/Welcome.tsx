@@ -118,11 +118,6 @@ export default function Welcome() {
 
       setStep('complete');
       setIsLoading(false);
-
-      // Redirect after showing the completion screen
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 1500);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       alert('Error setting up. Please try again.');
