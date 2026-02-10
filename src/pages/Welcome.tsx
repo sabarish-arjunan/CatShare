@@ -164,7 +164,7 @@ export default function Welcome() {
                 transition={{ duration: 3, repeat: Infinity }}
                 className="flex items-center justify-center mx-auto mb-6"
               >
-                  <div className="w-28 h-28 bg-gradient-to-br from-purple-500 via-pink-400 to-rose-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/50 p-2">
+                  <div className="w-28 h-28 bg-gradient-to-br from-purple-500 via-blue-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/50 p-2">
                     <img
                       src="https://cdn.builder.io/api/v1/image/assets%2F4b59de728c4149beae05f37141fcdb10%2Ff76700758c784ae1b7f01d6405d61f53?format=webp&width=800"
                       alt="CatShare Logo"
