@@ -168,8 +168,8 @@ export default function Welcome() {
                 className="mb-8 relative z-10"
               >
                 <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                 className="flex items-center justify-center mx-auto mb-6"
               >
                   <div className="w-28 h-28 bg-white rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/50 p-2">
