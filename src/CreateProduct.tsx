@@ -201,20 +201,22 @@ export default function CreateProduct() {
   const sheetRef = useRef<HTMLDivElement>(null);
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
 
-  // Drag handlers
-  const handleDragStart = (e: React.MouseEvent) => {
+  // Drag handlers - support both mouse and touch events
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
-    setDragStart(e.clientY);
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+    setDragStart(clientY);
   };
 
   useEffect(() => {
-    const handleDragMove = (e: MouseEvent) => {
+    const handleDragMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging) return;
-      
-      const diff = dragStart - e.clientY;
+
+      const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+      const diff = dragStart - clientY;
       const newHeight = Math.max(120, Math.min(MAX_HEIGHT, sheetHeight + diff));
       setSheetHeight(newHeight);
-      setDragStart(e.clientY);
+      setDragStart(clientY);
     };
 
     const handleDragEnd = () => {
@@ -224,11 +226,15 @@ export default function CreateProduct() {
     };
 
     if (isDragging) {
-      document.addEventListener("mousemove", handleDragMove);
+      document.addEventListener("mousemove", handleDragMove as EventListener);
+      document.addEventListener("touchmove", handleDragMove as EventListener, { passive: false });
       document.addEventListener("mouseup", handleDragEnd);
+      document.addEventListener("touchend", handleDragEnd);
       return () => {
-        document.removeEventListener("mousemove", handleDragMove);
+        document.removeEventListener("mousemove", handleDragMove as EventListener);
+        document.removeEventListener("touchmove", handleDragMove as EventListener);
         document.removeEventListener("mouseup", handleDragEnd);
+        document.removeEventListener("touchend", handleDragEnd);
       };
     }
   }, [isDragging, dragStart, sheetHeight, MAX_HEIGHT]);
@@ -1014,8 +1020,9 @@ export default function CreateProduct() {
         {/* Drag Handle */}
         <div
           onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
           onClick={() => setSheetHeight(sheetHeight > MAX_HEIGHT * 0.5 ? 120 : MAX_HEIGHT)}
-          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity"
+          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity touch-none"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
           }}
