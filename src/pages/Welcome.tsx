@@ -126,7 +126,7 @@ export default function Welcome() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 flex items-center justify-center p-4 pt-[56px] relative overflow-hidden">
       <div className="fixed inset-x-0 top-0 h-[40px] bg-black z-50" />
       <FloatingShapes />
       
