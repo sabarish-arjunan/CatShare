@@ -483,6 +483,17 @@ export default function Welcome() {
                       />
                       <span className="ml-4 text-slate-800 font-medium">Start with a fresh catalog</span>
                     </motion.label>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setHasBackup(false);
+                        safeSetInStorage('productsBackup', []);
+                      }}
+                      className="w-full text-center text-sm text-blue-600 font-semibold py-2 hover:text-blue-700 transition-all"
+                    >
+                      Change backup file
+                    </motion.button>
                   </>
                 )}
                 {!hasBackup && (
