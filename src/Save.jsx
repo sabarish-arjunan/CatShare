@@ -257,23 +257,7 @@ export async function saveRenderedImage(product, type, units = {}) {
   let catalogueData = product;
   if (units.catalogueId) {
     const catData = getCatalogueData(product, units.catalogueId);
-    catalogueData = {
-      ...product,
-      // Use only catalogue-specific data, fall back only to legacy field names (not other catalogues)
-      // Check explicitly for undefined/null, not just falsy (to preserve empty strings as intentional)
-      field1: catData.field1 !== undefined && catData.field1 !== null ? catData.field1 : (product.color || ""),
-      field2: catData.field2 !== undefined && catData.field2 !== null ? catData.field2 : (product.package || ""),
-      field2Unit: catData.field2Unit !== undefined && catData.field2Unit !== null ? catData.field2Unit : (product.packageUnit || "None"),
-      field3: catData.field3 !== undefined && catData.field3 !== null ? catData.field3 : (product.age || ""),
-      field3Unit: catData.field3Unit !== undefined && catData.field3Unit !== null ? catData.field3Unit : (product.ageUnit || "None"),
-      // Include all catalogue price fields - fall back to legacy names only
-      price1: catData.price1 !== undefined && catData.price1 !== null ? catData.price1 : (product.wholesale || ""),
-      price1Unit: catData.price1Unit !== undefined && catData.price1Unit !== null ? catData.price1Unit : (product.wholesaleUnit || "/ piece"),
-      price2: catData.price2 !== undefined && catData.price2 !== null ? catData.price2 : (product.resell || ""),
-      price2Unit: catData.price2Unit !== undefined && catData.price2Unit !== null ? catData.price2Unit : (product.resellUnit || "/ piece"),
-      // Include badge from catalogue data
-      badge: catData.badge !== undefined && catData.badge !== null ? catData.badge : (product.badge || ""),
-    };
+    catalogueData = { ...product, ...catData };
   }
 
   // Support both legacy and dynamic catalogue parameters
