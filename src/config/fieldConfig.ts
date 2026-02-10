@@ -205,3 +205,110 @@ export function resetToDefaultFields(): void {
   };
   setFieldsDefinition(definition);
 }
+
+/**
+ * Analyze backup products to detect which legacy fields are present
+ * and intelligently enable the corresponding current field definitions
+ *
+ * Returns an updated FieldsDefinition with appropriate fields enabled
+ */
+export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsDefinition {
+  if (!products || !Array.isArray(products) || products.length === 0) {
+    console.warn('⚠️ No products to analyze for field detection');
+    return getFieldsDefinition();
+  }
+
+  // Scan all products to detect which legacy field names are present
+  const detectedLegacyFields = new Set<string>();
+  const detectedFieldValues = new Map<string, any[]>();
+
+  for (const product of products) {
+    if (!product || typeof product !== 'object') continue;
+
+    for (const [key, value] of Object.entries(product)) {
+      // Skip known metadata fields
+      if (['id', 'name', 'category', 'image', 'imagePath', 'imageFilename', 'imageBase64', 'imageData', 'renderedImages'].includes(key)) {
+        continue;
+      }
+
+      // Check if this key matches any legacy field definition
+      for (const fieldConfig of DEFAULT_FIELDS) {
+        if (fieldConfig.legacyKeys?.some(lk => lk.toLowerCase() === key.toLowerCase())) {
+          detectedLegacyFields.add(fieldConfig.key);
+          if (!detectedFieldValues.has(fieldConfig.key)) {
+            detectedFieldValues.set(fieldConfig.key, []);
+          }
+          if (value !== null && value !== undefined && value !== '') {
+            detectedFieldValues.get(fieldConfig.key)!.push(value);
+          }
+          break;
+        }
+      }
+
+      // Also check for new field format (field1, field2, price1, price2, etc.)
+      if (/^(field|price)\d+$/.test(key)) {
+        detectedLegacyFields.add(key);
+        if (!detectedFieldValues.has(key)) {
+          detectedFieldValues.set(key, []);
+        }
+        if (value !== null && value !== undefined && value !== '') {
+          detectedFieldValues.get(key)!.push(value);
+        }
+      }
+    }
+  }
+
+  console.log('🔍 Detected legacy fields in backup:', Array.from(detectedLegacyFields));
+
+  // Get current field definition
+  let definition = getFieldsDefinition();
+
+  // Update field definitions: enable fields that are detected in the backup
+  const updatedFields = definition.fields.map(fieldConfig => {
+    // Check if this field was detected in the backup
+    const isDetected = detectedLegacyFields.has(fieldConfig.key);
+    const hasValues = detectedFieldValues.has(fieldConfig.key) && detectedFieldValues.get(fieldConfig.key)!.length > 0;
+
+    if (isDetected && hasValues) {
+      console.log(`✅ Enabling field: ${fieldConfig.key} (${fieldConfig.label}) - detected ${detectedFieldValues.get(fieldConfig.key)!.length} products with values`);
+      return {
+        ...fieldConfig,
+        enabled: true, // Enable the field since we found data for it
+      };
+    } else if (fieldConfig.enabled) {
+      // Keep existing enabled state
+      return fieldConfig;
+    }
+
+    return fieldConfig;
+  });
+
+  // Create updated definition
+  const updatedDefinition: FieldsDefinition = {
+    version: 1,
+    fields: updatedFields,
+    industry: definition.industry || 'Restored from Backup',
+    lastUpdated: Date.now(),
+  };
+
+  console.log('📋 Updated field definition with detected fields');
+  console.log('   Enabled fields:', updatedDefinition.fields.filter(f => f.enabled).map(f => `${f.key}(${f.label})`).join(', '));
+
+  return updatedDefinition;
+}
+
+/**
+ * Analyze backup and apply field configuration intelligently
+ * This should be called during backup restore
+ */
+export function applyBackupFieldAnalysis(products: any[]): void {
+  try {
+    console.log('🔎 Analyzing backup fields...');
+    const updatedDefinition = analyzeBackupFieldsAndUpdateDefinition(products);
+    setFieldsDefinition(updatedDefinition);
+    console.log('✅ Backup field analysis complete - field definitions updated');
+  } catch (err) {
+    console.error('❌ Error analyzing backup fields:', err);
+    // Don't throw - continue with current field definition
+  }
+}

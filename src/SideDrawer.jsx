@@ -17,6 +17,7 @@ import { useToast } from "./context/ToastContext";
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
+import { applyBackupFieldAnalysis } from "./config/fieldConfig";
 import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 
 
@@ -444,6 +445,11 @@ const exportProductsToCSV = (products) => {
         })
       );
 
+      // CRITICAL: Analyze backup fields BEFORE clearing to detect what fields it contains
+      console.log("🔎 Analyzing backup to detect field configuration...");
+      applyBackupFieldAnalysis(rebuilt);
+      const backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
+
       // CRITICAL: Clear everything first to maximize space for new data
       // BUT preserve critical settings that shouldn't be lost during restore
       console.log("🗑️ Clearing old data to free up maximum space...");
@@ -455,7 +461,7 @@ const exportProductsToCSV = (products) => {
         showWatermark: safeGetFromStorage('showWatermark', false),
         watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
         watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
-        fieldsDefinition: safeGetFromStorage('fieldsDefinition', null),
+        fieldsDefinition: backupFieldDef, // Use the newly analyzed field definition
         userId: localStorage.getItem('userId'),
       };
 
@@ -477,7 +483,7 @@ const exportProductsToCSV = (products) => {
           }
         }
       });
-      console.log("✅ Preserved settings restored");
+      console.log("✅ Preserved settings restored with auto-detected fields");
 
       // Aggressively clean products - remove ALL image data except imagePath reference
       const cleanedProducts = rebuilt.map(p => {
