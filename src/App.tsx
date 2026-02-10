@@ -24,6 +24,7 @@ import Retail from "./Retail";
 import Settings from "./Settings";
 import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
+import WatermarkFields from "./pages/WatermarkFields";
 import ProInfo from "./pages/ProInfo";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
