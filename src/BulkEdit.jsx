@@ -35,6 +35,7 @@ export default function BulkEdit({ products, allProducts, imageMap, setProducts,
   const [catalogues, setCatalogues] = useState([]);
   const [filledFromMaster, setFilledFromMaster] = useState({}); // Track which fields are filled from master
   const [confirmDialog, setConfirmDialog] = useState({ show: false, fieldKey: null }); // Confirmation dialog
+  const [hasConfirmedFill, setHasConfirmedFill] = useState(false); // Track if user confirmed fill dialog once
   const [dataLoaded, setDataLoaded] = useState(false); // Track if data has been loaded
   const { showToast } = useToast();
 
@@ -220,8 +221,12 @@ useEffect(() => {
     const newState = !filledFromMaster[fieldKey];
 
     if (newState) {
-      // Show confirmation before filling from master
-      setConfirmDialog({ show: true, fieldKey });
+      // Show confirmation before filling from master, but only once per session
+      if (hasConfirmedFill) {
+        confirmFillFromMaster(fieldKey);
+      } else {
+        setConfirmDialog({ show: true, fieldKey });
+      }
     } else {
       // Directly empty the field without confirmation
       setFilledFromMaster((prev) => ({ ...prev, [fieldKey]: false }));
@@ -314,6 +319,7 @@ useEffect(() => {
       })
     );
 
+    setHasConfirmedFill(true);
     setConfirmDialog({ show: false, fieldKey: null });
   };
 
