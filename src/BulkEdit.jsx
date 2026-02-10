@@ -424,6 +424,10 @@ useEffect(() => {
                     masterBadge: p.badge || "",
                     wholesaleStock: typeof p.wholesaleStock === "boolean" ? p.wholesaleStock ? "in" : "out" : p.wholesaleStock,
                     resellStock: typeof p.resellStock === "boolean" ? p.resellStock ? "in" : "out" : p.resellStock,
+                    masterWholesale: p.wholesale || "",
+                    masterWholesaleUnit: p.wholesaleUnit || "/ piece",
+                    masterResell: p.resell || "",
+                    masterResellUnit: p.resellUnit || "/ piece",
                   };
 
                   if (cat.stockField && cat.stockField !== 'wholesaleStock' && cat.stockField !== 'resellStock') {
