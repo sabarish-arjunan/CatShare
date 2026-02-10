@@ -102,7 +102,17 @@ export default function WatermarkFields() {
           </div>
 
           <div className="space-y-4 pb-20">
-            {definition.fields.map((field) => (
+            {definition.fields
+              .filter(field => {
+                // Always show custom fields (field1, field2, etc.)
+                if (field.key.startsWith('field')) return true;
+                // Only show price fields if they are linked to an active catalogue
+                if (field.key.startsWith('price')) {
+                  return activePriceFields.includes(field.key);
+                }
+                return true; // Show other fields by default
+              })
+              .map((field) => (
               <div
                 key={field.key}
                 className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm"
