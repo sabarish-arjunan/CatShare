@@ -20,7 +20,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Fit" },
       { label: "Sleeve / Style" },
       { label: "Pattern / Design" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -33,7 +33,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Skin Type" },
       { label: "Ingredients" },
       { label: "Pack Size" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -46,7 +46,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Brand" },
       { label: "Style" },
       { label: "Room" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -59,7 +59,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Warranty", unitOptions: ["months", "years"] },
       { label: "Compatibility" },
       { label: "Features" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
   {
@@ -72,7 +72,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Weight", unitOptions: ["kg", "lbs", "ton"] },
       { label: "Quantity" },
       { label: "Type" },
-      { label: "Others" },
+      { label: "Notes" },
     ],
   },
 ];
