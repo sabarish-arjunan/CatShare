@@ -295,16 +295,20 @@ export async function saveRenderedImage(product, type, units = {}) {
       name: catalogueData.name,
       subtitle: catalogueData.subtitle,
       image: catalogueData.image || product.image,
-      field1: catalogueData.field1,
-      field2: catalogueData.field2,
-      field2Unit: catalogueData.field2Unit,
-      field3: catalogueData.field3,
-      field3Unit: catalogueData.field3Unit,
       price: price !== "" && price !== 0 ? price : undefined,
       priceUnit: price ? priceUnit : undefined,
       badge: catalogueData.badge,
       cropAspectRatio: cropAspectRatio,
     };
+
+    // Add all enabled fields dynamically
+    getAllFields()
+      .filter(f => f.enabled && f.key.startsWith('field'))
+      .forEach(field => {
+        productData[field.key] = catalogueData[field.key] || "";
+        const unitKey = `${field.key}Unit`;
+        productData[unitKey] = catalogueData[unitKey] || "None";
+      });
 
     // Get watermark settings with proper fallbacks
     let isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
