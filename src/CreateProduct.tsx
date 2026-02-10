@@ -50,36 +50,43 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
+// Helper: Convert any color string to RGB array
+const parseToRgb = (str) => {
+  if (!str) return [255, 255, 255];
+
+  // Handle Hex
+  if (str.startsWith("#")) {
+    const r = parseInt(str.slice(1, 3), 16) || 0;
+    const g = parseInt(str.slice(3, 5), 16) || 0;
+    const b = parseInt(str.slice(5, 7), 16) || 0;
+    return [r, g, b];
+  }
+
+  // Handle RGB
+  const match = str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (match) {
+    return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+  }
+
+  return [255, 255, 255];
+};
+
+const rgbToHex = (r, g, b) => {
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`.toUpperCase();
+};
+
+const formatToHex = (str) => {
+  if (!str) return "#FFFFFF";
+  if (str.startsWith("#")) return str.toUpperCase();
+  const [r, g, b] = parseToRgb(str);
+  return rgbToHex(r, g, b);
+};
+
 function ColorPickerModal({ value, onChange, onClose }) {
   const [hue, setHue] = useState(0);
   const [saturation, setSaturation] = useState(100);
   const [brightness, setBrightness] = useState(50);
   const [hexInput, setHexInput] = useState("");
-
-  // Helper: Convert any color string to RGB array
-  const parseToRgb = (str) => {
-    if (!str) return [255, 255, 255];
-
-    // Handle Hex
-    if (str.startsWith("#")) {
-      const r = parseInt(str.slice(1, 3), 16) || 0;
-      const g = parseInt(str.slice(3, 5), 16) || 0;
-      const b = parseInt(str.slice(5, 7), 16) || 0;
-      return [r, g, b];
-    }
-
-    // Handle RGB
-    const match = str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    if (match) {
-      return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
-    }
-
-    return [255, 255, 255];
-  };
-
-  const rgbToHex = (r, g, b) => {
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`.toUpperCase();
-  };
 
   const rgbToHsl = (r, g, b) => {
     r /= 255; g /= 255; b /= 255;
@@ -1195,7 +1202,7 @@ export default function CreateProduct() {
                       borderRadius: "4px",
                     }}
                   />
-                  <span className="text-xs">BG: {overrideColor}</span>
+                  <span className="text-xs">BG: {formatToHex(overrideColor)}</span>
                 </button>
 
                 <div className="flex gap-4">
