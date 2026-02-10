@@ -183,10 +183,10 @@ export default function Welcome() {
                 <h1 className="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">
                   Welcome to CatShare
                 </h1>
-                <p className="text-lg text-slate-300 mb-3 font-medium">
+                <p className="text-lg text-slate-600 mb-3 font-medium">
                   Your Ultimate Product Catalog Solution
                 </p>
-                <p className="text-slate-400 mb-10 text-base">
+                <p className="text-slate-500 mb-10 text-base">
                   Create stunning product catalogs, organize inventory, and share effortlessly
                 </p>
               </motion.div>
