@@ -139,6 +139,25 @@ export async function renderProductImageOnTheFly(
     console.error(`❌ Error during rendering:`, err);
     // Try to render with empty image as fallback - still render the product card
     try {
+      // Build fallback productData with all enabled fields
+      const fallbackProductData: any = {
+        name: product.name || "Product",
+        subtitle: product.subtitle || "",
+        image: "", // Empty image will be skipped by canvas renderer
+        price: product.price || 0,
+        priceUnit: product.priceUnit || "",
+        badge: product.badge || "",
+        cropAspectRatio: product.cropAspectRatio || 1,
+      };
+
+      // Add all enabled fields dynamically for fallback too
+      getAllFields()
+        .filter(f => f.enabled && f.key.startsWith('field'))
+        .forEach(field => {
+          fallbackProductData[field.key] = product[field.key] || "";
+          const unitKey = `${field.key}Unit`;
+          fallbackProductData[unitKey] = product[unitKey] || "None";
+        });
 
       const fallbackCanvas = await renderProductToCanvas(
         fallbackProductData,
