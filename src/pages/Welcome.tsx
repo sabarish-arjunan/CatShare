@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { INDUSTRY_PRESETS } from '../config/industryPresets';
 import { DEFAULT_FIELDS, FieldConfig } from '../config/fieldConfig';
 import { safeSetInStorage, safeGetFromStorage } from '../utils/safeStorage';
+import CatShareLogo from '../components/CatShareLogo';
 
 type WelcomeStep = 'welcome' | 'industry' | 'fields' | 'restore' | 'complete';
 
