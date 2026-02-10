@@ -335,15 +335,15 @@ export default function Welcome() {
                     >
                       <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                         isChecked
-                          ? 'bg-gradient-to-br from-purple-500 to-blue-400 border-blue-400'
-                          : 'border-slate-500 group-hover:border-slate-400'
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'border-slate-300 group-hover:border-slate-400'
                       }`}>
                         {isChecked && <span className="text-white text-sm">✓</span>}
                       </div>
                       <label htmlFor={fieldKey} className="ml-4 flex-1 cursor-pointer">
-                        <p className="font-semibold text-slate-200">{field.label}</p>
+                        <p className="font-semibold text-slate-800">{field.label}</p>
                         {field.defaultUnits && (
-                          <p className="text-xs text-slate-400 mt-1">
+                          <p className="text-xs text-slate-500 mt-1">
                             {field.defaultUnits.slice(0, 2).join(', ')}
                           </p>
                         )}
