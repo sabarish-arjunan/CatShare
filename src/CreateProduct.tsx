@@ -848,7 +848,7 @@ export default function CreateProduct() {
           className="relative flex items-center justify-center transition-opacity duration-300"
           style={{ opacity: imageOpacity }}
         >
-          {imagePreview && hasDataToDisplay() && (
+          {imagePreview && (
             <div
               style={{
                 width: "95%",
