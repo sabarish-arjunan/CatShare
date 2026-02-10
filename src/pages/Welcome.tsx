@@ -122,14 +122,13 @@ export default function Welcome() {
         });
       }
 
-      safeSetInStorage('fieldConfiguration', {
+      safeSetInStorage('fieldsDefinition', {
         version: 1,
         fields: configuredFields,
         industry: selectedIndustry,
         lastUpdated: Date.now(),
       });
 
-      safeSetInStorage('selectedIndustry', selectedIndustry);
       safeSetInStorage('hasCompletedOnboarding', true);
 
       setStep('complete');
@@ -157,7 +156,7 @@ export default function Welcome() {
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="w-full max-w-lg relative z-10"
           >
-            <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-slate-200">
+            <div className="bg-white rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 text-center border border-slate-200">
               {/* Animated background gradient */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
               
@@ -188,13 +187,13 @@ export default function Welcome() {
                 transition={{ delay: 0.4 }}
                 className="relative z-10"
               >
-                <h1 className="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
                   Welcome to CatShare
                 </h1>
-                <p className="text-lg text-slate-600 mb-3 font-medium">
+                <p className="text-base sm:text-lg text-slate-600 mb-3 font-medium">
                   Your Ultimate Product Catalog Solution
                 </p>
-                <p className="text-slate-500 mb-10 text-base">
+                <p className="text-slate-500 mb-10 text-sm sm:text-base">
                   Create stunning product catalogs, organize inventory, and share effortlessly
                 </p>
               </motion.div>
@@ -209,7 +208,7 @@ export default function Welcome() {
                   whileHover={{ scale: 1.05, boxShadow: '0 15px 35px rgba(37, 99, 235, 0.35)' }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('industry')}
-                  className="w-full bg-blue-600 text-white font-semibold py-4 px-8 rounded-xl hover:bg-blue-700 transition-all duration-300 text-lg"
+                  className="w-full bg-blue-600 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl hover:bg-blue-700 transition-all duration-300 text-base sm:text-lg"
                 >
                   Get Started
                 </motion.button>
@@ -227,23 +226,23 @@ export default function Welcome() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="w-full max-w-3xl relative z-10"
+            className="w-full max-w-3xl relative z-10 px-4"
           >
-            <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
+            <div className="bg-white rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 border border-slate-200">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8"
               >
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-3">
                   Choose Your Industry
                 </h2>
-                <p className="text-slate-600 text-base">
+                <p className="text-slate-600 text-sm sm:text-base">
                   We'll customize fields based on your business type
                 </p>
               </motion.div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-8">
                 {INDUSTRY_PRESETS.map((industry, idx) => (
                   <motion.div
                     key={industry.name}
@@ -253,17 +252,17 @@ export default function Welcome() {
                     whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleIndustrySelect(industry.name)}
-                    className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 group ${
+                    className={`relative p-4 sm:p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 group ${
                       selectedIndustry === industry.name
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-slate-100'
                     }`}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="text-4xl">{industryIcons[industry.name] || '💼'}</div>
-                      <div className="flex-1">
-                        <p className="font-bold text-lg text-slate-800">{industry.name}</p>
-                        <p className="text-sm text-slate-500 mt-1">{industry.fields.length} fields pre-configured</p>
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="text-3xl sm:text-4xl flex-shrink-0">{industryIcons[industry.name] || '💼'}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-base sm:text-lg text-slate-800">{industry.name}</p>
+                        <p className="text-xs sm:text-sm text-slate-500 mt-1">{industry.fields.length} fields pre-configured</p>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 transition-all ${
                         selectedIndustry === industry.name
@@ -287,11 +286,11 @@ export default function Welcome() {
                       : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-slate-100'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">{industryIcons['Others']}</div>
-                    <div className="flex-1">
-                      <p className="font-bold text-lg text-slate-800">Others</p>
-                      <p className="text-sm text-slate-500 mt-1">Custom template - choose your own fields</p>
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="text-3xl sm:text-4xl flex-shrink-0">{industryIcons['Others']}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-base sm:text-lg text-slate-800">Others</p>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">Custom template - choose your own fields</p>
                     </div>
                     <div className={`w-6 h-6 rounded-full border-2 transition-all ${
                       selectedIndustry === 'Others'
@@ -302,12 +301,12 @@ export default function Welcome() {
                 </motion.div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('welcome')}
-                  className="flex-1 border-2 border-slate-300 text-slate-700 font-semibold py-3 rounded-xl hover:border-slate-400 hover:bg-slate-100 transition-all"
+                  className="flex-1 border-2 border-slate-300 text-slate-700 font-semibold py-2 sm:py-3 rounded-xl text-sm sm:text-base hover:border-slate-400 hover:bg-slate-100 transition-all"
                 >
                   Back
                 </motion.button>
@@ -316,7 +315,7 @@ export default function Welcome() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('fields')}
                   disabled={!selectedIndustry}
-                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
+                  className="flex-1 bg-blue-600 text-white font-semibold py-2 sm:py-3 rounded-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
                 >
                   Next
                 </motion.button>
@@ -333,18 +332,18 @@ export default function Welcome() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="w-full max-w-2xl relative z-10"
+            className="w-full max-w-2xl relative z-10 px-4"
           >
-            <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
+            <div className="bg-white rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 border border-slate-200">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8"
               >
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-3">
                   Configure Fields
                 </h2>
-                <p className="text-slate-600 text-base">
+                <p className="text-slate-600 text-sm sm:text-base">
                   Select which fields best describe your products
                 </p>
               </motion.div>
@@ -363,13 +362,13 @@ export default function Welcome() {
                 </motion.div>
               ) : (
                 <>
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                    <p className="text-sm text-blue-700">
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-6">
+                    <p className="text-xs sm:text-sm text-blue-700">
                       💡 <strong>Tip:</strong> You can customize these anytime in Settings
                     </p>
                   </div>
 
-                  <div className="space-y-3 mb-8 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="space-y-2 sm:space-y-3 mb-8 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                     {INDUSTRY_PRESETS.find(p => p.name === selectedIndustry)?.fields.map((field, idx) => {
                       const fieldKey = `field${idx + 1}`;
                       const isChecked = selectedFields[fieldKey] || false;
@@ -380,17 +379,17 @@ export default function Welcome() {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.05 }}
                           whileHover={{ x: 4 }}
-                          className="flex items-center p-4 border border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group"
+                          className="flex items-center p-3 sm:p-4 border border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group"
                         >
-                          <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                          <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                             isChecked
                               ? 'bg-blue-600 border-blue-600'
                               : 'border-slate-300 group-hover:border-slate-400'
                           }`}>
                             {isChecked && <span className="text-white text-sm">✓</span>}
                           </div>
-                          <label htmlFor={fieldKey} className="ml-4 flex-1 cursor-pointer">
-                            <p className="font-semibold text-slate-800">{field.label}</p>
+                          <label htmlFor={fieldKey} className="ml-3 sm:ml-4 flex-1 cursor-pointer">
+                            <p className="font-semibold text-sm sm:text-base text-slate-800">{field.label}</p>
                             {field.unitOptions && (
                               <p className="text-xs text-slate-500 mt-1">
                                 {field.unitOptions.slice(0, 2).join(', ')}
@@ -411,12 +410,12 @@ export default function Welcome() {
                 </>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep('industry')}
-                  className="flex-1 border-2 border-slate-300 text-slate-700 font-semibold py-3 rounded-xl hover:border-slate-400 hover:bg-slate-100 transition-all"
+                  className="flex-1 border-2 border-slate-300 text-slate-700 font-semibold py-2 sm:py-3 rounded-xl text-sm sm:text-base hover:border-slate-400 hover:bg-slate-100 transition-all"
                 >
                   Back
                 </motion.button>
@@ -425,7 +424,7 @@ export default function Welcome() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleComplete}
                   disabled={isLoading}
-                  className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
+                  className="flex-1 bg-blue-600 text-white font-semibold py-2 sm:py-3 rounded-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
                 >
                   {isLoading ? '⏳ Setting up...' : '✨ Complete Setup'}
                 </motion.button>
@@ -442,9 +441,9 @@ export default function Welcome() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25, type: 'spring', stiffness: 150, damping: 20 }}
-            className="w-full max-w-lg relative z-10 text-center"
+            className="w-full max-w-lg relative z-10 text-center px-4"
           >
-            <div className="bg-white rounded-3xl shadow-lg p-12 border border-slate-200">
+            <div className="bg-white rounded-3xl shadow-lg p-6 sm:p-8 md:p-12 border border-slate-200">
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -474,13 +473,13 @@ export default function Welcome() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <h2 className="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
                   All Set! 🎉
                 </h2>
-                <p className="text-slate-600 text-lg mb-2">
+                <p className="text-slate-600 text-sm sm:text-lg mb-2">
                   Your {selectedIndustry === 'Others' ? 'custom' : selectedIndustry} catalog is ready to go
                 </p>
-                <p className="text-slate-500 text-base">
+                <p className="text-slate-500 text-sm sm:text-base">
                   Redirecting to your workspace...
                 </p>
               </motion.div>

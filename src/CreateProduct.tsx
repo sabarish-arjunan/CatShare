@@ -198,40 +198,66 @@ export default function CreateProduct() {
   const [sheetHeight, setSheetHeight] = useState(120);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
+  const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
   const sheetRef = useRef<HTMLDivElement>(null);
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
 
-  // Drag handlers
-  const handleDragStart = (e: React.MouseEvent) => {
+  // Drag handlers - support both mouse and touch events
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
+
+  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    // Don't start drag from input/button elements
+    const target = e.target as HTMLElement;
+    if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName)) {
+      return;
+    }
+
     setIsDragging(true);
-    setDragStart(e.clientY);
-  };
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+    startYRef.current = clientY;
+    startHeightRef.current = sheetHeight;
+  }, [sheetHeight]);
 
   useEffect(() => {
-    const handleDragMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      
-      const diff = dragStart - e.clientY;
-      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, sheetHeight + diff));
+    if (!isDragging) return;
+
+    const handleDragMove = (e: MouseEvent | TouchEvent) => {
+      const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+
+      // Calculate the difference from start
+      const diff = startYRef.current - clientY;
+      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, startHeightRef.current + diff));
       setSheetHeight(newHeight);
-      setDragStart(e.clientY);
     };
 
     const handleDragEnd = () => {
       setIsDragging(false);
-      const targetHeight = sheetHeight > MAX_HEIGHT * 0.4 ? MAX_HEIGHT : 120;
+      // Snap to nearest position
+      const threshold = MAX_HEIGHT * 0.4;
+      const targetHeight = sheetHeight > threshold ? MAX_HEIGHT : 120;
       setSheetHeight(targetHeight);
     };
 
-    if (isDragging) {
-      document.addEventListener("mousemove", handleDragMove);
-      document.addEventListener("mouseup", handleDragEnd);
-      return () => {
-        document.removeEventListener("mousemove", handleDragMove);
-        document.removeEventListener("mouseup", handleDragEnd);
-      };
-    }
-  }, [isDragging, dragStart, sheetHeight, MAX_HEIGHT]);
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+      handleDragMove(e);
+    };
+
+    document.addEventListener("mousemove", handleDragMove as EventListener, { capture: false });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: false } as AddEventListenerOptions);
+    document.addEventListener("mouseup", handleDragEnd, { capture: false });
+    document.addEventListener("touchend", handleDragEnd, { capture: false });
+
+    return () => {
+      document.removeEventListener("mousemove", handleDragMove as EventListener);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("mouseup", handleDragEnd);
+      document.removeEventListener("touchend", handleDragEnd);
+    };
+  }, [isDragging, sheetHeight, MAX_HEIGHT]);
 
   // Calculate image scale
   const imageScale = Math.max(0.4, 1 - (sheetHeight - 120) / (MAX_HEIGHT - 120) * 0.6);
@@ -1005,39 +1031,46 @@ export default function CreateProduct() {
       {/* Draggable Bottom Sheet */}
       <div
         ref={sheetRef}
-        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all"
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
+        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all select-none"
         style={{
           height: `${sheetHeight}px`,
           cursor: isDragging ? "grabbing" : "grab",
+          WebkitUserSelect: "none",
+          userSelect: "none",
+          touchAction: "none",
+          WebkitTouchCallout: "none",
         }}
       >
-        {/* Drag Handle */}
+        {/* Drag Handle - Extended to full width */}
         <div
-          onMouseDown={handleDragStart}
-          onClick={() => setSheetHeight(sheetHeight > MAX_HEIGHT * 0.5 ? 120 : MAX_HEIGHT)}
-          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity"
+          className="flex-shrink-0 px-4 py-2 flex items-center justify-between select-none w-full pointer-events-none"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
           }}
         >
-          <svg
-            className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
-            }}
-          >
-            <path d="M5 15l7-7 7 7" />
-          </svg>
+          {/* Drag Handle Icon */}
+          <div className="mx-auto flex items-center justify-center hover:opacity-70 transition-opacity py-1">
+            <svg
+              className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
+              }}
+            >
+              <path d="M5 15l7-7 7 7" />
+            </svg>
+          </div>
         </div>
 
         {/* Header inside sheet */}
-        <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between select-none">
           <h1 className="text-base font-bold">{editingId ? "Edit Product" : "Create Product"}</h1>
           <button
             onClick={handleSelectImage}
@@ -1050,269 +1083,335 @@ export default function CreateProduct() {
           </button>
         </header>
 
+        {/* Form Tabs */}
+        <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex gap-2">
+          <button
+            onClick={() => setFormSection('basic')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              formSection === 'basic'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            Basic Info
+          </button>
+          <button
+            onClick={() => setFormSection('catalogue')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              formSection === 'catalogue'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            Catalogue
+          </button>
+        </div>
+
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
-          {/* Product Name & Subtitle */}
-          <div className="mb-3 space-y-3">
+        <div
+          className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 text-sm"
+          style={{
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
+          }}
+        >
+          {formSection === 'basic' && (
+            <>
+              {/* Product Name & Subtitle */}
+              <div className="mb-5 space-y-4 pb-4 border-b border-gray-200 dark:border-gray-800">
             <div className="relative">
-              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                 Model Name
               </label>
               <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="border p-2 rounded w-full text-sm pt-2"
+                className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-sm bg-white dark:bg-gray-800"
               />
             </div>
             <div className="relative">
-              <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
+              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                 Subtitle
               </label>
               <input
                 name="subtitle"
                 value={formData.subtitle}
                 onChange={handleChange}
-                className="border p-2 rounded w-full text-sm pt-2"
+                className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-sm bg-white dark:bg-gray-800"
               />
+              </div>
             </div>
-          </div>
 
-          {/* Catalogue Selector */}
-          <div className="mb-3">
-            <label className="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Catalogues:</label>
-            <div className="flex gap-2 flex-wrap">
-              {catalogues.map((cat) => (
+              {/* Colors Section */}
+              <div className="space-y-3 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
                 <button
-                  key={cat.id}
-                  onClick={() => setSelectedCatalogue(cat.id)}
-                  className={`px-2 py-1 rounded text-xs font-medium transition ${
-                    selectedCatalogue === cat.id
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                  onClick={() => setShowColorPicker(true)}
+                  className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  {cat.label}
+                  <div
+                    style={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: overrideColor,
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  <span className="text-xs">BG: {overrideColor}</span>
                 </button>
-              ))}
-            </div>
-          </div>
 
-          {/* Catalogue Details */}
-          {isCatalogueEnabled(selectedCatalogue) && (
-            <div className="space-y-2 mb-3 pb-3 border-b border-gray-200 dark:border-gray-800">
-              {getAllFields()
-                .filter(f => f.enabled && f.key.startsWith('field'))
-                .map(field => {
-                  const catData = getCatalogueFormData();
-                  return (
-                    <div key={field.key} className="flex gap-2 items-start">
-                      <div className="relative flex-1">
-                        <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
-                          {field.label}
-                        </label>
-                        <input
-                          name={field.key}
-                          value={catData[field.key] || ""}
-                          onChange={handleChange}
-                          className="border p-1.5 w-full rounded text-xs pt-2"
-                        />
-                      </div>
-                      {(field.unitOptions && field.unitOptions.length > 0) && (
-                        <div className="relative">
-                          <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
-                            Unit
-                          </label>
-                          <select
-                            name={`${field.key}Unit`}
-                            value={catData[`${field.key}Unit`] || "None"}
-                            onChange={handleChange}
-                            className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
-                          >
-                            <option>None</option>
-                            {field.unitOptions.map(opt => (
-                              <option key={opt}>{opt}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-              <div className="flex gap-2 mt-2">
-                <div className="relative flex-1">
-                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
-                    Price
-                  </label>
-                  <input
-                    name={getSelectedCataloguePriceField()}
-                    value={getSelectedCataloguePrice()}
-                    onChange={handleChange}
-                    className="border p-1.5 w-full rounded text-xs pt-2"
-                  />
-                </div>
-                <div className="relative">
-                  <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
-                    Unit
-                  </label>
-                  <select
-                    name={getSelectedCataloguePriceUnitField()}
-                    value={getSelectedCataloguePriceUnit() || "None"}
-                    onChange={handleChange}
-                    className="border p-1.5 rounded min-w-[80px] text-xs appearance-none bg-white pt-2"
-                  >
-                    <option>None</option>
-                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
-                      <option key={opt}>{opt}</option>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-1 text-xs">
+                    Font:
+                    {["white", "black"].map((color) => (
+                      <div
+                        key={color}
+                        onClick={() => setFontColor(color)}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          backgroundColor: color,
+                          border: fontColor === color ? "2px solid blue" : "1px solid #ccc",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                        }}
+                      />
                     ))}
-                  </select>
+                  </label>
+
+                  <label className="flex items-center gap-1 text-xs">
+                    Image BG:
+                    {["white", "transparent"].map((color) => (
+                      <div
+                        key={color}
+                        onClick={() => setImageBgOverride(color)}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          backgroundColor: color === "transparent" ? "#f0f0f0" : color,
+                          border: imageBgOverride === color ? "2px solid blue" : "1px solid #ccc",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          position: "relative",
+                        }}
+                      >
+                        {color === "transparent" && (
+                          <div style={{
+                            position: "absolute",
+                            width: "100%",
+                            height: "2px",
+                            backgroundColor: "#999",
+                            top: "50%",
+                            left: 0,
+                            transform: "translateY(-50%) rotate(-45deg)",
+                          }} />
+                        )}
+                      </div>
+                    ))}
+                  </label>
                 </div>
               </div>
 
-              <div className="relative mt-2">
-                <label className="absolute -top-2 left-2 bg-white px-1 text-xs font-medium text-gray-700">
-                  Badge
-                </label>
-                <input
-                  name="badge"
-                  value={getCatalogueFormData().badge || ""}
-                  onChange={handleChange}
-                  className="border p-1.5 rounded w-full text-xs pt-2"
-                />
+              {/* Categories */}
+              <div className="mb-5">
+                <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Categories</label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => {
+                    const isSelected = formData.category.includes(cat);
+                    return (
+                      <div
+                        key={cat}
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            category: isSelected
+                              ? prev.category.filter((c) => c !== cat)
+                              : [...prev.category, cat],
+                          }));
+                        }}
+                        className={`px-2 py-1 rounded-full text-xs cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {cat}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
-          {!isCatalogueEnabled(selectedCatalogue) && (
-            <div className="text-center text-gray-500 text-xs py-2 border-b border-gray-200 dark:border-gray-800 mb-3">
-              Enable this catalogue first
-            </div>
-          )}
-
-          {/* Enable/Disable Button */}
-          <button
-            onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-            className={`w-full px-3 py-1.5 rounded text-xs font-medium transition-colors mb-3 ${
-              isCatalogueEnabled(selectedCatalogue)
-                ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-            }`}
-          >
-            {isCatalogueEnabled(selectedCatalogue) ? "✓ Show" : "○ Hide"}
-          </button>
-
-          {/* Colors Section */}
-          <div className="space-y-2 mb-3 pb-3 border-b border-gray-200 dark:border-gray-800">
-            <button
-              onClick={() => setShowColorPicker(true)}
-              className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <div
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: overrideColor,
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-              <span className="text-xs">BG: {overrideColor}</span>
-            </button>
-
-            <div className="flex gap-4">
-              <label className="flex items-center gap-1 text-xs">
-                Font:
-                {["white", "black"].map((color) => (
-                  <div
-                    key={color}
-                    onClick={() => setFontColor(color)}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      backgroundColor: color,
-                      border: fontColor === color ? "2px solid blue" : "1px solid #ccc",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                    }}
-                  />
-                ))}
-              </label>
-
-              <label className="flex items-center gap-1 text-xs">
-                Image BG:
-                {["white", "transparent"].map((color) => (
-                  <div
-                    key={color}
-                    onClick={() => setImageBgOverride(color)}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      backgroundColor: color === "transparent" ? "#f0f0f0" : color,
-                      border: imageBgOverride === color ? "2px solid blue" : "1px solid #ccc",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                      position: "relative",
-                    }}
-                  >
-                    {color === "transparent" && (
-                      <div style={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "2px",
-                        backgroundColor: "#999",
-                        top: "50%",
-                        left: 0,
-                        transform: "translateY(-50%) rotate(-45deg)",
-                      }} />
-                    )}
-                  </div>
-                ))}
-              </label>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="mb-3">
-            <label className="block text-xs font-semibold mb-1 text-gray-600 dark:text-gray-400">Categories:</label>
-            <div className="flex flex-wrap gap-1">
-              {categories.map((cat) => {
-                const isSelected = formData.category.includes(cat);
-                return (
-                  <div
-                    key={cat}
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        category: isSelected
-                          ? prev.category.filter((c) => c !== cat)
-                          : [...prev.category, cat],
-                      }));
-                    }}
-                    className={`px-2 py-1 rounded-full text-xs cursor-pointer ${
-                      isSelected
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-700"
+          {formSection === 'catalogue' && (
+            <>
+              {/* Catalogue Selector */}
+              <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Catalogues</label>
+                <div className="flex gap-2 flex-wrap items-center">
+                  {catalogues.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCatalogue(cat.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        selectedCatalogue === cat.id
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40 scale-105"
+                          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-sm hover:bg-blue-50 dark:hover:bg-gray-700/50"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ml-auto flex items-center gap-1.5 ${
+                      isCatalogueEnabled(selectedCatalogue)
+                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40 hover:scale-105"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
                     }`}
                   >
-                    {cat}
+                    <span className={`transition-transform ${isCatalogueEnabled(selectedCatalogue) ? '' : ''}`}>
+                      {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
+                    </span>
+                    {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Fill Fields and Price Options */}
+              {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
+                <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={fetchFieldsChecked}
+                      onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                    />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Fill Fields from Master
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={fetchPriceChecked}
+                      onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                    />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Fill Price from Master
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {/* Catalogue Details */}
+              {isCatalogueEnabled(selectedCatalogue) && (
+                <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                  {getAllFields()
+                    .filter(f => f.enabled && f.key.startsWith('field'))
+                    .map(field => {
+                      const catData = getCatalogueFormData();
+                      return (
+                        <div key={field.key} className="flex gap-3 items-end">
+                          <div className="relative flex-1">
+                            <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                              {field.label}
+                            </label>
+                            <input
+                              name={field.key}
+                              value={catData[field.key] || ""}
+                              onChange={handleChange}
+                              className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
+                            />
+                          </div>
+                          {(field.unitOptions && field.unitOptions.length > 0) && (
+                            <div className="relative flex-shrink-0">
+                              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                                Unit
+                              </label>
+                              <select
+                                name={`${field.key}Unit`}
+                                value={catData[`${field.key}Unit`] || "None"}
+                                onChange={handleChange}
+                                className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
+                              >
+                                <option>None</option>
+                                {field.unitOptions.map(opt => (
+                                  <option key={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                  <div className="flex gap-3 items-end">
+                    <div className="relative flex-1">
+                      <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                        Price
+                      </label>
+                      <input
+                        name={getSelectedCataloguePriceField()}
+                        value={getSelectedCataloguePrice()}
+                        onChange={handleChange}
+                        className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
+                      />
+                    </div>
+                    <div className="relative flex-shrink-0">
+                      <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                        Unit
+                      </label>
+                      <select
+                        name={getSelectedCataloguePriceUnitField()}
+                        value={getSelectedCataloguePriceUnit() || "None"}
+                        onChange={handleChange}
+                        className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
+                      >
+                        <option>None</option>
+                        {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                          <option key={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+
+                  <div className="relative">
+                    <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                      Badge
+                    </label>
+                    <input
+                      name="badge"
+                      value={getCatalogueFormData().badge || ""}
+                      onChange={handleChange}
+                      className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-xs bg-white dark:bg-gray-800"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isCatalogueEnabled(selectedCatalogue) && (
+                <div className="text-center text-gray-500 text-xs py-3 border-b border-gray-200 dark:border-gray-800 mb-5">
+                  Enable this catalogue first
+                </div>
+              )}
+            </>
+          )}
 
           {/* Save/Cancel Buttons */}
-          <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
             <button
               onClick={saveAndNavigate}
-              className="bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded w-full text-xs font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded w-full text-xs font-medium transition-colors"
             >
               {editingId ? "Update" : "Save"}
             </button>
             <button
               onClick={handleCancel}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-700 py-1.5 px-3 rounded w-full text-xs font-medium"
+              className="bg-gray-300 hover:bg-gray-400 text-gray-700 py-2.5 px-4 rounded w-full text-xs font-medium transition-colors"
             >
               Cancel
             </button>
