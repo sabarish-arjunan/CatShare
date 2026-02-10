@@ -1276,6 +1276,34 @@ export default function CreateProduct() {
                 </div>
               </div>
 
+              {/* Fill Fields and Price Options */}
+              {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
+                <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={fetchFieldsChecked}
+                      onChange={(e) => handleFetchFieldsChange(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                    />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Fill Fields from Master
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={fetchPriceChecked}
+                      onChange={(e) => handleFetchPriceChange(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                    />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Fill Price from Master
+                    </span>
+                  </label>
+                </div>
+              )}
+
               {/* Catalogue Details */}
               {isCatalogueEnabled(selectedCatalogue) && (
                 <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
