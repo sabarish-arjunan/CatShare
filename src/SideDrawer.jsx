@@ -17,6 +17,7 @@ import { useToast } from "./context/ToastContext";
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
+import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 
 
 export default function SideDrawer({
@@ -444,9 +445,39 @@ const exportProductsToCSV = (products) => {
       );
 
       // CRITICAL: Clear everything first to maximize space for new data
+      // BUT preserve critical settings that shouldn't be lost during restore
       console.log("🗑️ Clearing old data to free up maximum space...");
+
+      // Preserve critical settings before clearing
+      const preservedSettings = {
+        hasCompletedOnboarding: safeGetFromStorage('hasCompletedOnboarding', false),
+        darkMode: safeGetFromStorage('darkMode', false),
+        showWatermark: safeGetFromStorage('showWatermark', false),
+        watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
+        watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
+        fieldsDefinition: safeGetFromStorage('fieldsDefinition', null),
+        userId: localStorage.getItem('userId'),
+      };
+
+      console.log("💾 Preserved critical settings:", Object.keys(preservedSettings));
+
       setDeletedProducts([]);
       localStorage.clear(); // Nuclear option - clear EVERYTHING
+
+      // Restore preserved settings
+      console.log("♻️ Restoring preserved settings...");
+      Object.entries(preservedSettings).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          if (key === 'userId') {
+            // userId is plain string
+            localStorage.setItem(key, value);
+          } else {
+            // Use safe setter for other values
+            safeSetInStorage(key, value);
+          }
+        }
+      });
+      console.log("✅ Preserved settings restored");
 
       // Aggressively clean products - remove ALL image data except imagePath reference
       const cleanedProducts = rebuilt.map(p => {
