@@ -816,80 +816,140 @@ export default function CreateProduct() {
       {/* Status Bar */}
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
       
-      {/* Image Preview Section */}
-      <div className="flex-1 flex items-center justify-center overflow-hidden pt-[40px] pb-2 relative">
-        <div 
-          className="relative w-full h-full flex items-center justify-center transition-opacity duration-300"
+      {/* Image Preview Section with Product Card */}
+      <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative">
+        <div
+          className="relative flex items-center justify-center transition-opacity duration-300"
           style={{ opacity: imageOpacity }}
         >
           {imagePreview && (
             <div
               style={{
-                position: "relative",
-                backgroundColor: imageBgOverride,
-                textAlign: "center",
-                padding: 0,
-                boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                aspectRatio: appliedAspectRatio,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
                 width: "95%",
+                maxWidth: "330px",
+                backgroundColor: "white",
+                borderRadius: "12px",
+                overflow: "hidden",
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
                 transform: `scale(${imageScale})`,
                 transformOrigin: "center",
                 transition: isDragging ? "none" : "transform 0.3s ease-out",
               }}
             >
-              <img
-                src={imagePreview}
-                alt="Preview"
+              {/* Product Image */}
+              <div
                 style={{
+                  position: "relative",
+                  backgroundColor: imageBgOverride,
+                  textAlign: "center",
+                  padding: 0,
+                  aspectRatio: appliedAspectRatio,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  margin: "0 auto",
                 }}
-              />
-
-              {showWatermark && (
-                <div
+              >
+                <img
+                  src={imagePreview}
+                  alt="Preview"
                   style={{
-                    ...getWatermarkPositionStyles(watermarkPosition),
-                    fontSize: "10px",
-                    color: imageBgOverride?.toLowerCase() === "white" || imageBgOverride?.toLowerCase() === "#ffffff"
-                      ? "rgba(0, 0, 0, 0.25)"
-                      : "rgba(255, 255, 255, 0.4)",
-                    letterSpacing: "0.3px"
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    margin: "0 auto",
                   }}
-                >
-                  {watermarkText}
-                </div>
-              )}
+                />
 
-              {getCatalogueFormData().badge && (
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 12,
-                    right: 12,
-                    backgroundColor: badgeBg,
-                    color: badgeText,
-                    fontSize: 13,
-                    fontWeight: 400,
-                    padding: "6px 10px",
-                    borderRadius: "999px",
-                    opacity: 0.95,
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                    border: `1px solid ${badgeBorder}`,
-                    letterSpacing: "0.5px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {getCatalogueFormData().badge.toUpperCase()}
+                {showWatermark && (
+                  <div
+                    style={{
+                      ...getWatermarkPositionStyles(watermarkPosition),
+                      fontSize: "10px",
+                      color: imageBgOverride?.toLowerCase() === "white" || imageBgOverride?.toLowerCase() === "#ffffff"
+                        ? "rgba(0, 0, 0, 0.25)"
+                        : "rgba(255, 255, 255, 0.4)",
+                      letterSpacing: "0.3px"
+                    }}
+                  >
+                    {watermarkText}
+                  </div>
+                )}
+
+                {getCatalogueFormData().badge && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 12,
+                      right: 12,
+                      backgroundColor: badgeBg,
+                      color: badgeText,
+                      fontSize: 13,
+                      fontWeight: 400,
+                      padding: "6px 10px",
+                      borderRadius: "999px",
+                      opacity: 0.95,
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                      border: `1px solid ${badgeBorder}`,
+                      letterSpacing: "0.5px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {getCatalogueFormData().badge.toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              {/* Product Details Section */}
+              <div
+                style={{
+                  backgroundColor: getLighterColor(overrideColor),
+                  color: fontColor,
+                  padding: "10px",
+                }}
+              >
+                <h2 className="text-sm font-semibold text-center">{formData.name || "Product Name"}</h2>
+                {formData.subtitle && (
+                  <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
+                )}
+                <div className="text-xs mt-1.5 space-y-0.5">
+                  {getAllFields()
+                    .filter(f => f.enabled && f.key.startsWith('field'))
+                    .map(field => {
+                      const catData = getCatalogueFormData();
+                      const val = catData[field.key];
+                      const visibilityKey = `${field.key}Visible`;
+                      const isVisible = catData[visibilityKey] !== false;
+
+                      if (!val || !isVisible) return null;
+                      const unit = catData[`${field.key}Unit`];
+                      const displayUnit = unit && unit !== "None" ? unit : "";
+
+                      return (
+                        <p key={field.key} className="flex gap-1">
+                          <span className="min-w-[60px] text-right">{field.label}:</span>
+                          <span>{val} {displayUnit}</span>
+                        </p>
+                      );
+                    })}
                 </div>
-              )}
+              </div>
+
+              {/* Price Section */}
+              <div
+                style={{
+                  backgroundColor: overrideColor,
+                  color: fontColor,
+                  padding: "8px 6px",
+                  textAlign: "center",
+                  fontWeight: "600",
+                  fontSize: "16px",
+                }}
+              >
+                Price: ₹{getSelectedCataloguePrice() || "0"} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+              </div>
             </div>
           )}
 
