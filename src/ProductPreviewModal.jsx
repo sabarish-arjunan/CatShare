@@ -9,6 +9,7 @@ import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
+import { getFieldConfig } from "./config/fieldConfig";
 import { safeGetFromStorage } from "./utils/safeStorage";
 
 // Helper function to get CSS styles based on watermark position
@@ -721,21 +722,21 @@ export default function ProductPreviewModal({
               <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
                 {hasField1 && (
                   <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>Colour</span>
+                    <span style={{ width: "90px" }}>{getFieldConfig('field1')?.label || 'Colour'}</span>
                     <span>:</span>
                     <span style={{ marginLeft: "8px" }}>{field1Value}</span>
                   </p>
                 )}
                 {hasField2 && (
                   <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>Package</span>
+                    <span style={{ width: "90px" }}>{getFieldConfig('field2')?.label || 'Package'}</span>
                     <span>:</span>
                     <span style={{ marginLeft: "8px" }}>{field2Value} {(() => { const unit = catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
                   </p>
                 )}
                 {hasField3 && (
                   <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>Age Group</span>
+                    <span style={{ width: "90px" }}>{getFieldConfig('field3')?.label || 'Age Group'}</span>
                     <span>:</span>
                     <span style={{ marginLeft: "8px" }}>{field3Value} {(() => { const unit = catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
                   </p>
