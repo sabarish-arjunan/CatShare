@@ -21,23 +21,19 @@ const industryIcons: { [key: string]: string } = {
 };
 
 const FloatingShapes = () => (
-  <div className="absolute inset-0 overflow-hidden">
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <motion.div
       animate={{
-        x: [0, 100, 0],
-        y: [0, 50, 0],
-        rotate: [0, 180, 360],
+        y: [0, 30, 0],
       }}
-      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+      transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-blue-200 to-slate-200 rounded-full opacity-5 blur-3xl"
     />
     <motion.div
       animate={{
-        x: [0, -100, 0],
-        y: [0, -50, 0],
-        rotate: [360, 180, 0],
+        y: [0, -30, 0],
       }}
-      transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+      transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
       className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-slate-200 to-blue-200 rounded-full opacity-5 blur-3xl"
     />
   </div>
