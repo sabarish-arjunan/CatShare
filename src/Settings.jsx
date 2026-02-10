@@ -211,6 +211,20 @@ export default function Settings({
                 <p className="text-xs text-gray-500 dark:text-gray-400">Add custom text to your product images</p>
               </div>
             </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 dark:border-gray-800"></div>
+
+            {/* Fields Setting */}
+            <div
+              onClick={() => navigate("/settings/watermark/fields")}
+              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer text-left"
+            >
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Fields</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Configure watermark fields</p>
+              </div>
+            </div>
           </div>
 
           {/* Clear Cache Button */}
