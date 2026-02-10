@@ -259,7 +259,7 @@ export default function Welcome() {
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 transition-all ${
                         selectedIndustry === industry.name
-                          ? 'border-purple-400 bg-purple-500'
+                          ? 'border-blue-400 bg-blue-500'
                           : 'border-slate-500 group-hover:border-purple-400'
                       }`} />
                     </div>
