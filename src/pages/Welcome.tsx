@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
+import { MdFolderOpen } from 'react-icons/md';
 import { INDUSTRY_PRESETS } from '../config/industryPresets';
 import { DEFAULT_FIELDS, FieldConfig } from '../config/fieldConfig';
 import { safeSetInStorage, safeGetFromStorage } from '../utils/safeStorage';
@@ -487,7 +488,7 @@ export default function Welcome() {
                 {!hasBackup && (
                   <div className="space-y-3">
                     <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition-all">
-                      <div className="text-4xl mb-3">📂</div>
+                      <MdFolderOpen className="text-5xl mb-3 text-slate-600" />
                       <span className="text-sm font-semibold text-slate-700">Restore from Backup</span>
                       <span className="text-xs text-slate-500 mt-1">Click to select a backup file</span>
                       <input
