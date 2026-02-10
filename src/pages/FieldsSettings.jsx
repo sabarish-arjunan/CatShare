@@ -169,7 +169,7 @@ export default function FieldsSettings() {
   return (
     <div className="w-full h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
       {/* iOS-style Status Bar Area */}
-      <div className="h-10 bg-white dark:bg-gray-900 shrink-0"></div>
+      <div className="h-10 bg-black shrink-0"></div>
 
       {/* Modern Header */}
       <header className="px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 shadow-sm">
