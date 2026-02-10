@@ -73,7 +73,9 @@ export default function FieldsSettings() {
   const handleReset = async () => {
     if (window.confirm("Reset all fields to default settings? This will overwrite your current configuration.")) {
       resetToDefaultFields();
-      setDefinition(getFieldsDefinition());
+      const resetDef = getFieldsDefinition();
+      setDefinition(resetDef);
+      setSavedDefinition(resetDef);
       window.dispatchEvent(new Event('storage'));
       try {
         await Haptics.impact({ style: ImpactStyle.Heavy });
