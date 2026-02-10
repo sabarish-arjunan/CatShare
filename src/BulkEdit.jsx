@@ -3,7 +3,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
-import { getFieldConfig } from "./config/fieldConfig";
+import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [

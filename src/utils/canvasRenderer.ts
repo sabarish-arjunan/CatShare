@@ -270,9 +270,12 @@ export async function renderProductToCanvas(
 
   detailsHeight += spacingBeforeFields; // spacing before fields
 
-  // Field heights (only count non-empty enabled fields)
+  // Field heights (only count non-empty enabled visible fields)
   allEnabledFields.forEach(field => {
-    if (product[field.key]) {
+    const visibilityKey = `${field.key}Visible`;
+    const isVisible = product[visibilityKey] !== false; // Default to visible
+
+    if (product[field.key] && isVisible) {
       detailsHeight += fieldLineHeightBase + 2;
     }
   });
@@ -479,6 +482,12 @@ export async function renderProductToCanvas(
   const valueX = colonX + 16 * scale; // Space after colon
 
   activeFields.forEach(field => {
+    // Check if field should be visible
+    const visibilityKey = `${field.key}Visible`;
+    const isVisible = product[visibilityKey] !== false; // Default to visible
+
+    if (!isVisible) return;
+
     ctx.fillText(field.label, fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
 

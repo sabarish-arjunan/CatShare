@@ -18,14 +18,17 @@ export default function FieldsSettings() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [definition, setDefinition] = useState(null);
+  const [savedDefinition, setSavedDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
+  const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     const def = getFieldsDefinition();
     setDefinition(def);
+    setSavedDefinition(def);
 
     // Determine which price fields are actually in use by catalogues
     const catalogues = getAllCatalogues();
@@ -58,6 +61,7 @@ export default function FieldsSettings() {
   const handleSave = async () => {
     if (definition) {
       setFieldsDefinition(definition);
+      setSavedDefinition(definition);
       window.dispatchEvent(new Event('storage'));
       try {
         await Haptics.impact({ style: ImpactStyle.Medium });
@@ -69,7 +73,9 @@ export default function FieldsSettings() {
   const handleReset = async () => {
     if (window.confirm("Reset all fields to default settings? This will overwrite your current configuration.")) {
       resetToDefaultFields();
-      setDefinition(getFieldsDefinition());
+      const resetDef = getFieldsDefinition();
+      setDefinition(resetDef);
+      setSavedDefinition(resetDef);
       window.dispatchEvent(new Event('storage'));
       try {
         await Haptics.impact({ style: ImpactStyle.Heavy });
@@ -198,65 +204,89 @@ export default function FieldsSettings() {
         </div>
       </header>
 
-      {/* Modern Tabs */}
-      <div className="px-4 mt-4 shrink-0">
-        <div className="bg-gray-200 dark:bg-gray-800 p-1 rounded-2xl flex gap-1">
-          <button
-            onClick={() => setActiveTab("templates")}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-              activeTab === "templates" 
-                ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400" 
-                : "text-gray-500 dark:text-gray-400"
-            }`}
-          >
-            <FiBriefcase size={14} />
-            TEMPLATES
-          </button>
-          <button
-            onClick={() => setActiveTab("fields")}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-              activeTab === "fields" 
-                ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400" 
-                : "text-gray-500 dark:text-gray-400"
-            }`}
-          >
-            <FiSettings size={14} />
-            CONFIGURATION
-          </button>
-        </div>
-      </div>
-
       <main className="flex-1 overflow-y-auto pb-24 px-4" ref={scrollContainerRef}>
-        {/* Current Configuration Summary Card */}
-        <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
-                <FiBriefcase size={24} />
+        {/* Current Configuration Summary Card - Shows SAVED configuration */}
+        {savedDefinition && (
+          <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
+            <button
+              onClick={() => setExpandedTemplateCard(!expandedTemplateCard)}
+              className="w-full flex items-center justify-between mb-4 hover:opacity-75 transition-opacity"
+            >
+              <div className="flex items-center gap-4">
+                <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center">
+                  {savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry ? "📦" :
+                   savedDefinition.industry.includes("Fashion") ? "👕" :
+                   savedDefinition.industry.includes("Lifestyle") ? "🧴" :
+                   savedDefinition.industry.includes("Home") ? "🏠" :
+                   savedDefinition.industry.includes("Electronics") ? "🎧" : "🛠️"}
+                </div>
+                <div className="text-left">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
+                  <h2 className="text-base font-bold dark:text-white">
+                    {savedDefinition.industry || "General Products (Custom)"}
+                  </h2>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
-                <h2 className="text-base font-bold dark:text-white">
-                  {definition.industry || "General Products (Custom)"}
-                </h2>
-              </div>
-            </div>
+              <motion.div
+                animate={{ rotate: expandedTemplateCard ? 180 : 0 }}
+                className="text-gray-400 shrink-0"
+              >
+                <MdExpandMore size={20} />
+              </motion.div>
+            </button>
+            <AnimatePresence>
+              {expandedTemplateCard && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden border-t border-gray-50 dark:border-gray-800"
+                >
+                  <div className="pt-4">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
+                    <div className="flex flex-wrap gap-2">
+                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).map(field => (
+                        <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                          <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
+                          {field.label || "Untitled"}
+                        </span>
+                      ))}
+                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length === 0 && (
+                        <span className="text-xs text-gray-500 italic">No active fields</span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-800 grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Product Fields</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{activeProductFieldsCount}</span>
-                <span className="text-[10px] text-gray-500">/ 10 Active</span>
-              </div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Price Fields</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-green-600 dark:text-green-400">{activePriceFieldsCount}</span>
-                <span className="text-[10px] text-gray-500">/ {activePriceFields.length} Active</span>
-              </div>
-            </div>
+        )}
+
+        {/* Modern Tabs */}
+        <div className="px-4 mt-4 shrink-0 -mx-4">
+          <div className="bg-gray-200 dark:bg-gray-800 p-1 rounded-2xl flex gap-1">
+            <button
+              onClick={() => setActiveTab("templates")}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                activeTab === "templates"
+                  ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              <FiBriefcase size={14} />
+              TEMPLATES
+            </button>
+            <button
+              onClick={() => setActiveTab("fields")}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                activeTab === "fields"
+                  ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              <FiSettings size={14} />
+              CONFIGURATION
+            </button>
           </div>
         </div>
 

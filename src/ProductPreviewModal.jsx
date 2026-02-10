@@ -9,7 +9,7 @@ import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
-import { getFieldConfig } from "./config/fieldConfig";
+import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import { safeGetFromStorage } from "./utils/safeStorage";
 
 // Helper function to get CSS styles based on watermark position
@@ -545,16 +545,8 @@ export default function ProductPreviewModal({
   // Helper function to check if a field has a valid value
   const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
 
-  // Check each field - use only catalogue-specific data, not fallback to other catalogues
-  // Only fall back to legacy field names if field is undefined/null (not if it's an empty string)
-  const field1Value = catalogueData.field1 !== undefined && catalogueData.field1 !== null ? catalogueData.field1 : (product.color || "");
-  const hasField1 = hasFieldValue(field1Value);
-
-  const field2Value = catalogueData.field2 !== undefined && catalogueData.field2 !== null ? catalogueData.field2 : (product.package || "");
-  const hasField2 = hasFieldValue(field2Value);
-
-  const field3Value = catalogueData.field3 !== undefined && catalogueData.field3 !== null ? catalogueData.field3 : (product.age || "");
-  const hasField3 = hasFieldValue(field3Value);
+  // Get all enabled product fields dynamically
+  const enabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
 
   return (
     <>
@@ -720,27 +712,28 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
-                {hasField1 && (
-                  <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>{getFieldConfig('field1')?.label || 'Colour'}</span>
-                    <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field1Value}</span>
-                  </p>
-                )}
-                {hasField2 && (
-                  <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>{getFieldConfig('field2')?.label || 'Package'}</span>
-                    <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field2Value} {(() => { const unit = catalogueData.field2Unit !== undefined && catalogueData.field2Unit !== null ? catalogueData.field2Unit : (product.packageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
-                  </p>
-                )}
-                {hasField3 && (
-                  <p style={{ margin: "2px 0", display: "flex" }}>
-                    <span style={{ width: "90px" }}>{getFieldConfig('field3')?.label || 'Age Group'}</span>
-                    <span>:</span>
-                    <span style={{ marginLeft: "8px" }}>{field3Value} {(() => { const unit = catalogueData.field3Unit !== undefined && catalogueData.field3Unit !== null ? catalogueData.field3Unit : (product.ageUnit || "None"); return unit !== "None" ? unit : ""; })()}</span>
-                  </p>
-                )}
+                {enabledFields.map(field => {
+                  const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
+                  const hasValue = hasFieldValue(fieldValue);
+
+                  // Check if field is visible
+                  const visibilityKey = `${field.key}Visible`;
+                  const isVisible = catalogueData[visibilityKey] !== false && product[visibilityKey] !== false; // Default to visible
+
+                  if (!hasValue || !isVisible) return null;
+
+                  const unitKey = `${field.key}Unit`;
+                  const unitValue = catalogueData[unitKey] !== undefined && catalogueData[unitKey] !== null ? catalogueData[unitKey] : (product[unitKey] || "None");
+                  const unitDisplay = unitValue !== "None" ? unitValue : "";
+
+                  return (
+                    <p key={field.key} style={{ margin: "2px 0", display: "flex" }}>
+                      <span style={{ width: "90px" }}>{field.label}</span>
+                      <span>:</span>
+                      <span style={{ marginLeft: "8px" }}>{fieldValue} {unitDisplay}</span>
+                    </p>
+                  );
+                })}
               </div>
             </div>
 

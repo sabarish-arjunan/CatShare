@@ -15,6 +15,7 @@ export interface FieldConfig {
   label: string; // Display label: "Colour", "Package", "Age Group"
   type: 'text' | 'number' | 'select';
   enabled?: boolean; // Whether the field is active for the current industry
+  visible?: boolean; // Whether to show this field in product card (default: true if enabled)
   legacyKeys?: string[]; // Old field names for backward compatibility (e.g., ['color', 'colour'])
   unitField?: string; // Associated unit field (e.g., 'field2Unit' for packaging)
   unitOptions?: string[]; // Available units for this field
