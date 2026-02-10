@@ -11,6 +11,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import ProductPreviewModal from "./ProductPreviewModal";
 import { useToast } from "./context/ToastContext";
+import { getFieldConfig } from "./config/fieldConfig";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
@@ -835,9 +836,9 @@ export default function Retail({ products = [] }) {
                           <h2 className="text-lg font-semibold text-center">{editingProduct.name}</h2>
                           {editingProduct.subtitle && <p className="text-center italic text-sm">({editingProduct.subtitle})</p>}
                           <div className="text-sm mt-2 space-y-1">
-                            <p>Colour&nbsp;&nbsp;: {editingProduct.field1 || editingProduct.color || ''}</p>
-                            <p>Package&nbsp;: {editingProduct.field2 || editingProduct.package || ''}</p>
-                            <p>Age Group&nbsp;: {editingProduct.field3 || editingProduct.age || ''}</p>
+                            <p>{getFieldConfig('field1')?.label || 'Colour'}&nbsp;&nbsp;: {editingProduct.field1 || editingProduct.color || ''}</p>
+                            <p>{getFieldConfig('field2')?.label || 'Package'}&nbsp;: {editingProduct.field2 || editingProduct.package || ''}</p>
+                            <p>{getFieldConfig('field3')?.label || 'Age Group'}&nbsp;: {editingProduct.field3 || editingProduct.age || ''}</p>
                           </div>
                         </div>
 

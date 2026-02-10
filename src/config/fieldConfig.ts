@@ -14,6 +14,7 @@ export interface FieldConfig {
   key: string; // Internal key: field1, field2, field3, etc.
   label: string; // Display label: "Colour", "Package", "Age Group"
   type: 'text' | 'number' | 'select';
+  enabled?: boolean; // Whether the field is active for the current industry
   legacyKeys?: string[]; // Old field names for backward compatibility (e.g., ['color', 'colour'])
   unitField?: string; // Associated unit field (e.g., 'field2Unit' for packaging)
   unitOptions?: string[]; // Available units for this field
@@ -23,6 +24,7 @@ export interface FieldConfig {
 export interface FieldsDefinition {
   version: number; // Version of field definition
   fields: FieldConfig[];
+  industry?: string;
   lastUpdated: number;
 }
 
@@ -32,12 +34,14 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     key: 'field1',
     label: 'Colour',
     type: 'text',
+    enabled: true,
     legacyKeys: ['color', 'colour', 'Colour'],
   },
   {
     key: 'field2',
     label: 'Package',
     type: 'text',
+    enabled: true,
     legacyKeys: ['package', 'Package'],
     unitField: 'field2Unit',
     unitOptions: ['pcs / set', 'pcs / dozen', 'pcs / pack'],
@@ -47,15 +51,59 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     key: 'field3',
     label: 'Age Group',
     type: 'text',
+    enabled: true,
     legacyKeys: ['age', 'Age', 'Age group'],
     unitField: 'field3Unit',
     unitOptions: ['months', 'years'],
     defaultUnit: 'months',
   },
   {
+    key: 'field4',
+    label: 'Field 4',
+    type: 'text',
+    enabled: false,
+  },
+  {
+    key: 'field5',
+    label: 'Field 5',
+    type: 'text',
+    enabled: false,
+  },
+  {
+    key: 'field6',
+    label: 'Field 6',
+    type: 'text',
+    enabled: false,
+  },
+  {
+    key: 'field7',
+    label: 'Field 7',
+    type: 'text',
+    enabled: false,
+  },
+  {
+    key: 'field8',
+    label: 'Field 8',
+    type: 'text',
+    enabled: false,
+  },
+  {
+    key: 'field9',
+    label: 'Field 9',
+    type: 'text',
+    enabled: false,
+  },
+  {
+    key: 'field10',
+    label: 'Field 10',
+    type: 'text',
+    enabled: false,
+  },
+  {
     key: 'price1',
-    label: 'Price 1',
+    label: 'Price',
     type: 'number',
+    enabled: true,
     legacyKeys: ['wholesale', 'Wholesale', 'Whole price'],
     unitField: 'price1Unit',
     unitOptions: ['/ piece', '/ dozen', '/ set'],
@@ -65,6 +113,7 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     key: 'price2',
     label: 'Price 2',
     type: 'number',
+    enabled: true,
     legacyKeys: ['resell', 'Resell', 'Resell price'],
     unitField: 'price2Unit',
     unitOptions: ['/ piece', '/ dozen', '/ set'],
@@ -150,6 +199,7 @@ export function resetToDefaultFields(): void {
   const definition: FieldsDefinition = {
     version: 1,
     fields: DEFAULT_FIELDS,
+    industry: 'General Products (Custom)',
     lastUpdated: Date.now(),
   };
   setFieldsDefinition(definition);

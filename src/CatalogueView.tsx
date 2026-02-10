@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import AddProductsModal from "./components/AddProductsModal";
 import BulkEdit from "./BulkEdit";
 
@@ -41,18 +42,23 @@ export default function CatalogueView({
     // Only use the specific price field for this catalogue
     const isLegacyCatalogue = catalogueId === 'cat1' || catalogueId === 'cat2';
 
-    return {
+    const result: any = {
       ...product,
-      field1: catData.field1 || product.field1 || product.color || "",
-      field2: catData.field2 || product.field2 || product.package || "",
-      field2Unit: catData.field2Unit || product.field2Unit || product.packageUnit || "pcs / set",
-      field3: catData.field3 || product.field3 || product.age || "",
-      field3Unit: catData.field3Unit || product.field3Unit || product.ageUnit || "months",
       // Use dynamic price field based on catalogue configuration
       // For legacy catalogues (cat1/cat2), fall back to wholesale/resell for backward compatibility
       price: catData[priceField] || product[priceField] || (isLegacyCatalogue ? product.wholesale || product.resell : "") || "",
       priceUnit: catData[priceUnitField] || product[priceUnitField] || (isLegacyCatalogue ? product.wholesaleUnit || product.resellUnit : "/ piece") || "/ piece",
     };
+
+    // Copy all fields
+    for (let i = 1; i <= 10; i++) {
+      const fieldKey = `field${i}`;
+      const unitKey = `field${i}Unit`;
+      result[fieldKey] = catData[fieldKey] || product[fieldKey] || "";
+      result[unitKey] = catData[unitKey] || product[unitKey] || "None";
+    }
+
+    return result;
   };
 
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
@@ -1121,19 +1127,23 @@ onMouseLeave={handleTouchEnd}
                   </div>
 
                   <div style={{ textAlign: "left", lineHeight: 1.4 }}>
-                    <p style={{ margin: "2px 0" }}>
-                      &nbsp; Colour
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{getProductCatalogueData(p).field1}
-                    </p>
-                    <p style={{ margin: "2px 0" }}>
-                      &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                      &nbsp;&nbsp;{getProductCatalogueData(p).field2} {getProductCatalogueData(p).field2Unit}
-                    </p>
-                    <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{getProductCatalogueData(p).field3}{" "}
-                      {getProductCatalogueData(p).field3Unit}
-                    </p>
+                    {getAllFields()
+                      .filter(f => f.enabled && f.key.startsWith('field'))
+                      .map(field => {
+                        const catData = getProductCatalogueData(p);
+                        const val = catData[field.key];
+                        if (!val) return null;
+                        const unit = catData[`${field.key}Unit`];
+                        const displayUnit = unit && unit !== "None" ? unit : "";
+
+                        return (
+                          <p key={field.key} style={{ margin: "2px 0" }}>
+                            &nbsp; {field.label}
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                            &nbsp;&nbsp;{val} {displayUnit}
+                          </p>
+                        );
+                      })}
                   </div>
                 </div>
 

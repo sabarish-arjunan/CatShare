@@ -197,11 +197,27 @@ export interface ProductData {
   field2Unit?: string;
   field3?: string;
   field3Unit?: string;
+  field4?: string;
+  field4Unit?: string;
+  field5?: string;
+  field5Unit?: string;
+  field6?: string;
+  field6Unit?: string;
+  field7?: string;
+  field7Unit?: string;
+  field8?: string;
+  field8Unit?: string;
+  field9?: string;
+  field9Unit?: string;
+  field10?: string;
+  field10Unit?: string;
   price?: string | number;
   priceUnit?: string;
   badge?: string;
   cropAspectRatio?: number;
 }
+
+import { getFieldConfig, getAllFields } from '../config/fieldConfig';
 
 /**
  * Draw detailed product card to canvas
@@ -222,6 +238,9 @@ export async function renderProductToCanvas(
   const scale = options.scale || 3;
   const baseWidth = options.width;
   const cropAspectRatio = product.cropAspectRatio || 1;
+
+  // Get all enabled fields
+  const allEnabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
 
   // Calculate required height for all content
   // Image section: baseWidth / cropAspectRatio
@@ -251,10 +270,12 @@ export async function renderProductToCanvas(
 
   detailsHeight += spacingBeforeFields; // spacing before fields
 
-  // Field heights (only count non-empty fields)
-  if (product.field1) detailsHeight += fieldLineHeightBase + 2;
-  if (product.field2) detailsHeight += fieldLineHeightBase + 2;
-  if (product.field3) detailsHeight += fieldLineHeightBase + 2;
+  // Field heights (only count non-empty enabled fields)
+  allEnabledFields.forEach(field => {
+    if (product[field.key]) {
+      detailsHeight += fieldLineHeightBase + 2;
+    }
+  });
 
   detailsHeight += spacingAfterFields; // spacing after fields
   detailsHeight += priceBarHeightBase;
@@ -445,11 +466,11 @@ export async function renderProductToCanvas(
   ctx.font = fieldFont;
   ctx.textAlign = 'left';
 
-  // Measure the longest label to align colons
-  const labels = ['Colour', 'Package', 'Age Group'];
+  // Measure the longest label of ENABLED and NON-EMPTY fields to align colons
+  const activeFields = allEnabledFields.filter(f => !!product[f.key]);
   let maxLabelWidth = 0;
-  labels.forEach(label => {
-    const metrics = ctx.measureText(label);
+  activeFields.forEach(field => {
+    const metrics = ctx.measureText(field.label);
     maxLabelWidth = Math.max(maxLabelWidth, metrics.width);
   });
 
@@ -457,28 +478,18 @@ export async function renderProductToCanvas(
   const colonX = fieldsLeftPadding + maxLabelWidth + 6 * scale; // Colon position aligned
   const valueX = colonX + 16 * scale; // Space after colon
 
-  if (product.field1) {
-    ctx.fillText('Colour', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
+  activeFields.forEach(field => {
+    ctx.fillText(field.label, fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
     ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
-    ctx.fillText(product.field1, valueX, currentY + renderFieldFontSize * 0.8);
-    currentY += renderFieldLineHeight + 2 * scale;
-  }
 
-  if (product.field2) {
-    ctx.fillText('Package', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
-    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
-    const field2Text = product.field2Unit && product.field2Unit !== 'None' ? `${product.field2} ${product.field2Unit}` : product.field2;
-    ctx.fillText(field2Text, valueX, currentY + renderFieldFontSize * 0.8);
-    currentY += renderFieldLineHeight + 2 * scale;
-  }
+    const unitKey = `${field.key}Unit`;
+    const val = product[field.key];
+    const unit = product[unitKey];
+    const displayText = unit && unit !== 'None' ? `${val} ${unit}` : val;
 
-  if (product.field3) {
-    ctx.fillText('Age Group', fieldsLeftPadding, currentY + renderFieldFontSize * 0.8);
-    ctx.fillText(':', colonX, currentY + renderFieldFontSize * 0.8);
-    const field3Text = product.field3Unit && product.field3Unit !== 'None' ? `${product.field3} ${product.field3Unit}` : product.field3;
-    ctx.fillText(field3Text, valueX, currentY + renderFieldFontSize * 0.8);
+    ctx.fillText(displayText, valueX, currentY + renderFieldFontSize * 0.8);
     currentY += renderFieldLineHeight + 2 * scale;
-  }
+  });
 
   currentY += spacingAfterFields * scale;
 
