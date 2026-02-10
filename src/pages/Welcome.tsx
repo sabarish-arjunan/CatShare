@@ -421,27 +421,27 @@ export default function Welcome() {
                   <>
                     <motion.label
                       whileHover={{ scale: 1.02 }}
-                      className="flex items-center p-4 border-2 border-slate-600 rounded-xl bg-slate-800/50 hover:bg-slate-800 hover:border-blue-500 cursor-pointer transition-all"
+                      className="flex items-center p-4 border-2 border-slate-600 rounded-xl bg-slate-800/50 hover:bg-slate-800 hover:border-purple-500 cursor-pointer transition-all"
                     >
                       <input
                         type="radio"
                         checked={restoreData}
                         onChange={() => setRestoreData(true)}
-                        className="w-5 h-5 accent-blue-500"
+                        className="w-5 h-5 accent-purple-500"
                       />
-                      <span className="ml-4 text-slate-200 font-semibold">Restore my products</span>
+                      <span className="ml-4 text-slate-200 font-medium">Restore my products</span>
                     </motion.label>
                     <motion.label
                       whileHover={{ scale: 1.02 }}
-                      className="flex items-center p-4 border-2 border-slate-600 rounded-xl bg-slate-800/50 hover:bg-slate-800 hover:border-blue-500 cursor-pointer transition-all"
+                      className="flex items-center p-4 border-2 border-slate-600 rounded-xl bg-slate-800/50 hover:bg-slate-800 hover:border-purple-500 cursor-pointer transition-all"
                     >
                       <input
                         type="radio"
                         checked={!restoreData}
                         onChange={() => setRestoreData(false)}
-                        className="w-5 h-5 accent-blue-500"
+                        className="w-5 h-5 accent-purple-500"
                       />
-                      <span className="ml-4 text-slate-200 font-semibold">Start with a fresh catalog</span>
+                      <span className="ml-4 text-slate-200 font-medium">Start with a fresh catalog</span>
                     </motion.label>
                   </>
                 )}
