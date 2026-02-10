@@ -90,7 +90,7 @@ export default function Welcome() {
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
-        const zip = await (window as any).JSZip.loadAsync(event.target?.result);
+        const zip = await JSZip.loadAsync(event.target?.result);
         const jsonFile = zip.file('catalogue-data.json');
 
         if (!jsonFile) {
