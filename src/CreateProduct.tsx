@@ -198,6 +198,7 @@ export default function CreateProduct() {
   const [sheetHeight, setSheetHeight] = useState(120);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
+  const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
   const sheetRef = useRef<HTMLDivElement>(null);
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
 
@@ -1082,6 +1083,30 @@ export default function CreateProduct() {
           </button>
         </header>
 
+        {/* Form Tabs */}
+        <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex gap-2">
+          <button
+            onClick={() => setFormSection('basic')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              formSection === 'basic'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            Basic Info
+          </button>
+          <button
+            onClick={() => setFormSection('catalogue')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              formSection === 'catalogue'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            Catalogue
+          </button>
+        </div>
+
         {/* Scrollable Content */}
         <div
           className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 text-sm"
@@ -1089,8 +1114,10 @@ export default function CreateProduct() {
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
           }}
         >
-          {/* Product Name & Subtitle */}
-          <div className="mb-5 space-y-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+          {formSection === 'basic' && (
+            <>
+              {/* Product Name & Subtitle */}
+              <div className="mb-5 space-y-4 pb-4 border-b border-gray-200 dark:border-gray-800">
             <div className="relative">
               <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                 Model Name
@@ -1112,232 +1139,238 @@ export default function CreateProduct() {
                 onChange={handleChange}
                 className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-sm bg-white dark:bg-gray-800"
               />
+              </div>
             </div>
-          </div>
 
-          {/* Catalogue Selector */}
-          <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
-            <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Catalogues</label>
-            <div className="flex gap-2 flex-wrap">
-              {catalogues.map((cat) => (
+              {/* Colors Section */}
+              <div className="space-y-3 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
                 <button
-                  key={cat.id}
-                  onClick={() => setSelectedCatalogue(cat.id)}
-                  className={`px-2 py-1 rounded text-xs font-medium transition ${
-                    selectedCatalogue === cat.id
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                  onClick={() => setShowColorPicker(true)}
+                  className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  {cat.label}
+                  <div
+                    style={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: overrideColor,
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  <span className="text-xs">BG: {overrideColor}</span>
                 </button>
-              ))}
-            </div>
-          </div>
 
-          {/* Catalogue Details */}
-          {isCatalogueEnabled(selectedCatalogue) && (
-            <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
-              {getAllFields()
-                .filter(f => f.enabled && f.key.startsWith('field'))
-                .map(field => {
-                  const catData = getCatalogueFormData();
-                  return (
-                    <div key={field.key} className="flex gap-3 items-end">
-                      <div className="relative flex-1">
-                        <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                          {field.label}
-                        </label>
-                        <input
-                          name={field.key}
-                          value={catData[field.key] || ""}
-                          onChange={handleChange}
-                          className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
-                        />
-                      </div>
-                      {(field.unitOptions && field.unitOptions.length > 0) && (
-                        <div className="relative flex-shrink-0">
-                          <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                            Unit
-                          </label>
-                          <select
-                            name={`${field.key}Unit`}
-                            value={catData[`${field.key}Unit`] || "None"}
-                            onChange={handleChange}
-                            className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
-                          >
-                            <option>None</option>
-                            {field.unitOptions.map(opt => (
-                              <option key={opt}>{opt}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-              <div className="flex gap-3 items-end">
-                <div className="relative flex-1">
-                  <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                    Price
-                  </label>
-                  <input
-                    name={getSelectedCataloguePriceField()}
-                    value={getSelectedCataloguePrice()}
-                    onChange={handleChange}
-                    className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
-                  />
-                </div>
-                <div className="relative flex-shrink-0">
-                  <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                    Unit
-                  </label>
-                  <select
-                    name={getSelectedCataloguePriceUnitField()}
-                    value={getSelectedCataloguePriceUnit() || "None"}
-                    onChange={handleChange}
-                    className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
-                  >
-                    <option>None</option>
-                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
-                      <option key={opt}>{opt}</option>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-1 text-xs">
+                    Font:
+                    {["white", "black"].map((color) => (
+                      <div
+                        key={color}
+                        onClick={() => setFontColor(color)}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          backgroundColor: color,
+                          border: fontColor === color ? "2px solid blue" : "1px solid #ccc",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                        }}
+                      />
                     ))}
-                  </select>
+                  </label>
+
+                  <label className="flex items-center gap-1 text-xs">
+                    Image BG:
+                    {["white", "transparent"].map((color) => (
+                      <div
+                        key={color}
+                        onClick={() => setImageBgOverride(color)}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          backgroundColor: color === "transparent" ? "#f0f0f0" : color,
+                          border: imageBgOverride === color ? "2px solid blue" : "1px solid #ccc",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          position: "relative",
+                        }}
+                      >
+                        {color === "transparent" && (
+                          <div style={{
+                            position: "absolute",
+                            width: "100%",
+                            height: "2px",
+                            backgroundColor: "#999",
+                            top: "50%",
+                            left: 0,
+                            transform: "translateY(-50%) rotate(-45deg)",
+                          }} />
+                        )}
+                      </div>
+                    ))}
+                  </label>
                 </div>
               </div>
 
-              <div className="relative">
-                <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                  Badge
-                </label>
-                <input
-                  name="badge"
-                  value={getCatalogueFormData().badge || ""}
-                  onChange={handleChange}
-                  className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-xs bg-white dark:bg-gray-800"
-                />
+              {/* Categories */}
+              <div className="mb-5">
+                <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Categories</label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => {
+                    const isSelected = formData.category.includes(cat);
+                    return (
+                      <div
+                        key={cat}
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            category: isSelected
+                              ? prev.category.filter((c) => c !== cat)
+                              : [...prev.category, cat],
+                          }));
+                        }}
+                        className={`px-2 py-1 rounded-full text-xs cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {cat}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
-          {!isCatalogueEnabled(selectedCatalogue) && (
-            <div className="text-center text-gray-500 text-xs py-3 border-b border-gray-200 dark:border-gray-800 mb-5">
-              Enable this catalogue first
-            </div>
+          {formSection === 'catalogue' && (
+            <>
+              {/* Catalogue Selector */}
+              <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Catalogues</label>
+                <div className="flex gap-2 flex-wrap">
+                  {catalogues.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCatalogue(cat.id)}
+                      className={`px-2 py-1 rounded text-xs font-medium transition ${
+                        selectedCatalogue === cat.id
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Catalogue Details */}
+              {isCatalogueEnabled(selectedCatalogue) && (
+                <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                  {getAllFields()
+                    .filter(f => f.enabled && f.key.startsWith('field'))
+                    .map(field => {
+                      const catData = getCatalogueFormData();
+                      return (
+                        <div key={field.key} className="flex gap-3 items-end">
+                          <div className="relative flex-1">
+                            <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                              {field.label}
+                            </label>
+                            <input
+                              name={field.key}
+                              value={catData[field.key] || ""}
+                              onChange={handleChange}
+                              className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
+                            />
+                          </div>
+                          {(field.unitOptions && field.unitOptions.length > 0) && (
+                            <div className="relative flex-shrink-0">
+                              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                                Unit
+                              </label>
+                              <select
+                                name={`${field.key}Unit`}
+                                value={catData[`${field.key}Unit`] || "None"}
+                                onChange={handleChange}
+                                className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
+                              >
+                                <option>None</option>
+                                {field.unitOptions.map(opt => (
+                                  <option key={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                  <div className="flex gap-3 items-end">
+                    <div className="relative flex-1">
+                      <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                        Price
+                      </label>
+                      <input
+                        name={getSelectedCataloguePriceField()}
+                        value={getSelectedCataloguePrice()}
+                        onChange={handleChange}
+                        className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
+                      />
+                    </div>
+                    <div className="relative flex-shrink-0">
+                      <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                        Unit
+                      </label>
+                      <select
+                        name={getSelectedCataloguePriceUnitField()}
+                        value={getSelectedCataloguePriceUnit() || "None"}
+                        onChange={handleChange}
+                        className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
+                      >
+                        <option>None</option>
+                        {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                          <option key={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                      Badge
+                    </label>
+                    <input
+                      name="badge"
+                      value={getCatalogueFormData().badge || ""}
+                      onChange={handleChange}
+                      className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-xs bg-white dark:bg-gray-800"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isCatalogueEnabled(selectedCatalogue) && (
+                <div className="text-center text-gray-500 text-xs py-3 border-b border-gray-200 dark:border-gray-800 mb-5">
+                  Enable this catalogue first
+                </div>
+              )}
+
+              {/* Enable/Disable Button */}
+              <button
+                onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                className={`w-full px-3 py-2.5 rounded text-xs font-medium transition-colors mb-5 ${
+                  isCatalogueEnabled(selectedCatalogue)
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                }`}
+              >
+                {isCatalogueEnabled(selectedCatalogue) ? "✓ Show" : "○ Hide"}
+              </button>
+            </>
           )}
-
-          {/* Enable/Disable Button */}
-          <button
-            onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-            className={`w-full px-3 py-2.5 rounded text-xs font-medium transition-colors mb-5 ${
-              isCatalogueEnabled(selectedCatalogue)
-                ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-            }`}
-          >
-            {isCatalogueEnabled(selectedCatalogue) ? "✓ Show" : "○ Hide"}
-          </button>
-
-          {/* Colors Section */}
-          <div className="space-y-3 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
-            <button
-              onClick={() => setShowColorPicker(true)}
-              className="flex items-center gap-2 w-full border rounded p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <div
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: overrideColor,
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-              <span className="text-xs">BG: {overrideColor}</span>
-            </button>
-
-            <div className="flex gap-4">
-              <label className="flex items-center gap-1 text-xs">
-                Font:
-                {["white", "black"].map((color) => (
-                  <div
-                    key={color}
-                    onClick={() => setFontColor(color)}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      backgroundColor: color,
-                      border: fontColor === color ? "2px solid blue" : "1px solid #ccc",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                    }}
-                  />
-                ))}
-              </label>
-
-              <label className="flex items-center gap-1 text-xs">
-                Image BG:
-                {["white", "transparent"].map((color) => (
-                  <div
-                    key={color}
-                    onClick={() => setImageBgOverride(color)}
-                    style={{
-                      width: 20,
-                      height: 20,
-                      backgroundColor: color === "transparent" ? "#f0f0f0" : color,
-                      border: imageBgOverride === color ? "2px solid blue" : "1px solid #ccc",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                      position: "relative",
-                    }}
-                  >
-                    {color === "transparent" && (
-                      <div style={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "2px",
-                        backgroundColor: "#999",
-                        top: "50%",
-                        left: 0,
-                        transform: "translateY(-50%) rotate(-45deg)",
-                      }} />
-                    )}
-                  </div>
-                ))}
-              </label>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="mb-5">
-            <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Categories</label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => {
-                const isSelected = formData.category.includes(cat);
-                return (
-                  <div
-                    key={cat}
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        category: isSelected
-                          ? prev.category.filter((c) => c !== cat)
-                          : [...prev.category, cat],
-                      }));
-                    }}
-                    className={`px-2 py-1 rounded-full text-xs cursor-pointer ${
-                      isSelected
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {cat}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Save/Cancel Buttons */}
           <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
