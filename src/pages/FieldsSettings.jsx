@@ -202,7 +202,10 @@ export default function FieldsSettings() {
       <main className="flex-1 overflow-y-auto pb-24 px-4" ref={scrollContainerRef}>
         {/* Current Configuration Summary Card */}
         <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => setExpandedTemplateCard(!expandedTemplateCard)}
+            className="w-full flex items-center justify-between mb-4 hover:opacity-75 transition-opacity"
+          >
             <div className="flex items-center gap-4">
               <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center">
                 {definition.industry === "General Products (Custom)" || !definition.industry ? "📦" :
@@ -211,28 +214,45 @@ export default function FieldsSettings() {
                  definition.industry.includes("Home") ? "🏠" :
                  definition.industry.includes("Electronics") ? "🎧" : "🛠️"}
               </div>
-              <div>
+              <div className="text-left">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
                 <h2 className="text-base font-bold dark:text-white">
                   {definition.industry || "General Products (Custom)"}
                 </h2>
               </div>
             </div>
-          </div>
-          <div className="pt-4 border-t border-gray-50 dark:border-gray-800">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
-            <div className="flex flex-wrap gap-2">
-              {productFields.filter(f => f.enabled).map(field => (
-                <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                  <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
-                  {field.label || "Untitled"}
-                </span>
-              ))}
-              {productFields.filter(f => f.enabled).length === 0 && (
-                <span className="text-xs text-gray-500 italic">No active fields</span>
-              )}
-            </div>
-          </div>
+            <motion.div
+              animate={{ rotate: expandedTemplateCard ? 180 : 0 }}
+              className="text-gray-400 shrink-0"
+            >
+              <MdExpandMore size={20} />
+            </motion.div>
+          </button>
+          <AnimatePresence>
+            {expandedTemplateCard && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden border-t border-gray-50 dark:border-gray-800"
+              >
+                <div className="pt-4">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
+                  <div className="flex flex-wrap gap-2">
+                    {productFields.filter(f => f.enabled).map(field => (
+                      <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                        <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
+                        {field.label || "Untitled"}
+                      </span>
+                    ))}
+                    {productFields.filter(f => f.enabled).length === 0 && (
+                      <span className="text-xs text-gray-500 italic">No active fields</span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Modern Tabs */}
