@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   getFieldsDefinition,
   setFieldsDefinition,
