@@ -106,6 +106,28 @@ export default function WatermarkFields() {
             </p>
           </div>
 
+          {/* Industry Selection */}
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+              Primary Industry
+            </label>
+            <select
+              value={definition.industry || "General Products (Custom)"}
+              onChange={(e) => updateIndustry(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-white appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-no-repeat bg-[right_0.5rem_center]"
+            >
+              <option>Fashion & Apparel</option>
+              <option>Lifestyle & Personal Care</option>
+              <option>Home, Kitchen & Living</option>
+              <option>Electronics & Accessories</option>
+              <option>Hardware, Tools & Industrial</option>
+              <option>General Products (Custom)</option>
+            </select>
+            <p className="mt-2 text-[10px] text-gray-400">
+              Selecting your industry helps us optimize field defaults for your products.
+            </p>
+          </div>
+
           <div className="space-y-4 pb-20">
             {definition.fields
               .filter(field => {
