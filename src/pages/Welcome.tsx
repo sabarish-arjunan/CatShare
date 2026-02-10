@@ -165,7 +165,7 @@ export default function Welcome() {
                   transition={{ duration: 3, repeat: Infinity }}
                   className="w-24 h-24 bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/50 mb-6"
                 >
-                  <span className="text-5xl">📦</span>
+                  <CatShareLogo size={80} className="text-white" />
                 </motion.div>
               </motion.div>
               
