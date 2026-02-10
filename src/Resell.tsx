@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App } from "@capacitor/app";
 import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
+import { getFieldConfig } from "./config/fieldConfig";
 import AddProductsModal from "./components/AddProductsModal";
 import BulkEdit from "./BulkEdit";
 
@@ -1060,16 +1061,16 @@ onMouseLeave={handleTouchEnd}
 
                   <div style={{ textAlign: "left", lineHeight: 1.4 }}>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Colour
+                      &nbsp; {getFieldConfig('field1')?.label || 'Colour'}
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
                       &nbsp;&nbsp;{getProductCatalogueData(p).field1}
                     </p>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Package &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                      &nbsp; {getFieldConfig('field2')?.label || 'Package'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
                       &nbsp;&nbsp;{getProductCatalogueData(p).field2} {getProductCatalogueData(p).field2Unit}
                     </p>
                     <p style={{ margin: "2px 0" }}>
-                      &nbsp; Age Group &nbsp;&nbsp;: &nbsp;&nbsp;{getProductCatalogueData(p).field3}{" "}
+                      &nbsp; {getFieldConfig('field3')?.label || 'Age Group'} &nbsp;&nbsp;: &nbsp;&nbsp;{getProductCatalogueData(p).field3}{" "}
                       {getProductCatalogueData(p).field3Unit}
                     </p>
                   </div>
