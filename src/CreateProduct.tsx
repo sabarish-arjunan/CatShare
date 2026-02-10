@@ -202,42 +202,53 @@ export default function CreateProduct() {
   const MAX_HEIGHT = typeof window !== 'undefined' ? window.innerHeight - 100 : 600;
 
   // Drag handlers - support both mouse and touch events
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
     const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
     setDragStart(clientY);
-  };
+  }, []);
 
   useEffect(() => {
-    const handleDragMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDragging) return;
+    if (!isDragging) return;
 
+    const handleDragMove = (e: MouseEvent | TouchEvent) => {
       const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
-      const diff = dragStart - clientY;
-      const newHeight = Math.max(120, Math.min(MAX_HEIGHT, sheetHeight + diff));
-      setSheetHeight(newHeight);
-      setDragStart(clientY);
+
+      setSheetHeight(prevHeight => {
+        const diff = dragStart - clientY;
+        const newHeight = Math.max(120, Math.min(MAX_HEIGHT, prevHeight + diff));
+        setDragStart(clientY);
+        return newHeight;
+      });
     };
 
     const handleDragEnd = () => {
       setIsDragging(false);
-      const targetHeight = sheetHeight > MAX_HEIGHT * 0.4 ? MAX_HEIGHT : 120;
-      setSheetHeight(targetHeight);
+      setSheetHeight(prevHeight => {
+        const targetHeight = prevHeight > MAX_HEIGHT * 0.4 ? MAX_HEIGHT : 120;
+        return targetHeight;
+      });
     };
 
-    if (isDragging) {
-      document.addEventListener("mousemove", handleDragMove as EventListener);
-      document.addEventListener("touchmove", handleDragMove as EventListener, { passive: false });
-      document.addEventListener("mouseup", handleDragEnd);
-      document.addEventListener("touchend", handleDragEnd);
-      return () => {
-        document.removeEventListener("mousemove", handleDragMove as EventListener);
-        document.removeEventListener("touchmove", handleDragMove as EventListener);
-        document.removeEventListener("mouseup", handleDragEnd);
-        document.removeEventListener("touchend", handleDragEnd);
-      };
-    }
-  }, [isDragging, dragStart, sheetHeight, MAX_HEIGHT]);
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+      handleDragMove(e);
+    };
+
+    document.addEventListener("mousemove", handleDragMove as EventListener);
+    document.addEventListener("touchmove", handleTouchMove, { passive: false } as AddEventListenerOptions);
+    document.addEventListener("mouseup", handleDragEnd);
+    document.addEventListener("touchend", handleDragEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleDragMove as EventListener);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("mouseup", handleDragEnd);
+      document.removeEventListener("touchend", handleDragEnd);
+    };
+  }, [isDragging, dragStart, MAX_HEIGHT]);
 
   // Calculate image scale
   const imageScale = Math.max(0.4, 1 - (sheetHeight - 120) / (MAX_HEIGHT - 120) * 0.6);
@@ -1011,40 +1022,48 @@ export default function CreateProduct() {
       {/* Draggable Bottom Sheet */}
       <div
         ref={sheetRef}
-        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all"
+        className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-all select-none"
         style={{
           height: `${sheetHeight}px`,
           cursor: isDragging ? "grabbing" : "grab",
+          WebkitUserSelect: "none",
+          userSelect: "none",
         }}
       >
-        {/* Drag Handle */}
+        {/* Drag Handle - Extended to full width */}
         <div
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
-          onClick={() => setSheetHeight(sheetHeight > MAX_HEIGHT * 0.5 ? 120 : MAX_HEIGHT)}
-          className="flex-shrink-0 mx-auto mt-3 mb-2 flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity touch-none"
+          className="flex-shrink-0 px-4 py-2 flex items-center justify-between cursor-grab active:cursor-grabbing select-none w-full"
           style={{
             transition: isDragging ? "none" : "all 0.3s ease",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+            touchAction: "none",
+            WebkitTouchCallout: "none",
           }}
         >
-          <svg
-            className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
-            }}
-          >
-            <path d="M5 15l7-7 7 7" />
-          </svg>
+          {/* Drag Handle Icon */}
+          <div className="mx-auto flex items-center justify-center hover:opacity-70 transition-opacity py-1">
+            <svg
+              className="w-5 h-5 text-gray-400 dark:text-gray-600 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                transform: sheetHeight > MAX_HEIGHT * 0.5 ? "rotate(180deg)" : "rotate(0deg)"
+              }}
+            >
+              <path d="M5 15l7-7 7 7" />
+            </svg>
+          </div>
         </div>
 
         {/* Header inside sheet */}
-        <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between select-none pointer-events-auto">
           <h1 className="text-base font-bold">{editingId ? "Edit Product" : "Create Product"}</h1>
           <button
             onClick={handleSelectImage}
@@ -1058,7 +1077,13 @@ export default function CreateProduct() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
+        <div
+          className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 text-sm"
+          style={{
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
+            pointerEvents: isDragging ? "none" : "auto"
+          }}
+        >
           {/* Product Name & Subtitle */}
           <div className="mb-3 space-y-3">
             <div className="relative">
