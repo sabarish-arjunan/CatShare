@@ -64,6 +64,16 @@ function AppWithBackHandler() {
     const all = customProducts || safeGetFromStorage("products", []);
     if (all.length === 0) return;
 
+    // Prevent screen from sleeping during rendering
+    try {
+      if (isNative) {
+        await KeepAwake.keepAwake();
+        console.log("🔓 Screen wakelock acquired for rendering");
+      }
+    } catch (e) {
+      console.warn("Could not acquire keep awake lock:", e);
+    }
+
     // Force synchronous state updates so overlay renders with correct total
     if (showOverlay) {
       flushSync(() => setIsRendering(true));
