@@ -61,6 +61,7 @@ export default function FieldsSettings() {
   const handleSave = async () => {
     if (definition) {
       setFieldsDefinition(definition);
+      setSavedDefinition(definition);
       window.dispatchEvent(new Event('storage'));
       try {
         await Haptics.impact({ style: ImpactStyle.Medium });
