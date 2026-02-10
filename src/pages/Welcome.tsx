@@ -227,10 +227,10 @@ export default function Welcome() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8"
               >
-                <h2 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-blue-300 mb-3">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
                   Choose Your Industry
                 </h2>
-                <p className="text-slate-300 text-base">
+                <p className="text-slate-600 text-base">
                   We'll customize fields based on your business type
                 </p>
               </motion.div>
