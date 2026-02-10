@@ -258,6 +258,33 @@ export default function Welcome() {
                     </div>
                   </motion.div>
                 ))}
+                <motion.div
+                  key="others"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: INDUSTRY_PRESETS.length * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleIndustrySelect('Others')}
+                  className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 border-2 group ${
+                    selectedIndustry === 'Others'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="text-4xl">{industryIcons['Others']}</div>
+                    <div className="flex-1">
+                      <p className="font-bold text-lg text-slate-800">Others</p>
+                      <p className="text-sm text-slate-500 mt-1">Custom template - choose your own fields</p>
+                    </div>
+                    <div className={`w-6 h-6 rounded-full border-2 transition-all ${
+                      selectedIndustry === 'Others'
+                        ? 'border-blue-400 bg-blue-500'
+                        : 'border-slate-500 group-hover:border-purple-400'
+                    }`} />
+                  </div>
+                </motion.div>
               </div>
 
               <div className="flex gap-3">
