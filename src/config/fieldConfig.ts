@@ -207,8 +207,22 @@ export function resetToDefaultFields(): void {
 }
 
 /**
+ * Map of legacy field keys to their ORIGINAL labels (before customization)
+ * These are the default labels that existed when backups were first created
+ */
+const ORIGINAL_FIELD_LABELS: { [legacyKey: string]: { fieldKey: string; originalLabel: string } } = {
+  'colour': { fieldKey: 'field1', originalLabel: 'Colour' },
+  'color': { fieldKey: 'field1', originalLabel: 'Colour' },
+  'package': { fieldKey: 'field2', originalLabel: 'Package' },
+  'age': { fieldKey: 'field3', originalLabel: 'Age Group' },
+  'wholesale': { fieldKey: 'price1', originalLabel: 'Price' },
+  'resell': { fieldKey: 'price2', originalLabel: 'Price 2' },
+};
+
+/**
  * Analyze backup products to detect which legacy fields are present
  * and intelligently enable the corresponding current field definitions
+ * Preserves ORIGINAL field labels from when the backup was created
  *
  * Returns an updated FieldsDefinition with appropriate fields enabled
  */
@@ -221,6 +235,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
   // Scan all products to detect which legacy field names are present
   const detectedLegacyFields = new Set<string>();
   const detectedFieldValues = new Map<string, any[]>();
+  const detectedLegacyKeysUsed = new Map<string, string>(); // Maps fieldKey -> legacyKey that was found
   const unknownFields = new Set<string>();
 
   // Known metadata fields to skip
@@ -246,6 +261,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
       for (const fieldConfig of DEFAULT_FIELDS) {
         if (fieldConfig.legacyKeys?.some(lk => lk.toLowerCase() === key.toLowerCase())) {
           detectedLegacyFields.add(fieldConfig.key);
+          detectedLegacyKeysUsed.set(fieldConfig.key, key.toLowerCase()); // Remember which legacy key was found
           if (!detectedFieldValues.has(fieldConfig.key)) {
             detectedFieldValues.set(fieldConfig.key, []);
           }
@@ -276,6 +292,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
         // Try to match common field abbreviations and variants
         if (keyLower.includes('color') || keyLower.includes('colour') || keyLower === 'col') {
           detectedLegacyFields.add('field1');
+          detectedLegacyKeysUsed.set('field1', 'colour');
           if (!detectedFieldValues.has('field1')) detectedFieldValues.set('field1', []);
           if (value !== null && value !== undefined && value !== '') {
             detectedFieldValues.get('field1')!.push(value);
@@ -284,6 +301,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
           console.log(`   → Fuzzy matched "${key}" to field1 (Colour)`);
         } else if (keyLower.includes('package') || keyLower === 'pkg' || keyLower.includes('pack')) {
           detectedLegacyFields.add('field2');
+          detectedLegacyKeysUsed.set('field2', 'package');
           if (!detectedFieldValues.has('field2')) detectedFieldValues.set('field2', []);
           if (value !== null && value !== undefined && value !== '') {
             detectedFieldValues.get('field2')!.push(value);
@@ -292,6 +310,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
           console.log(`   → Fuzzy matched "${key}" to field2 (Package)`);
         } else if (keyLower.includes('age') || keyLower.includes('group') || keyLower === 'agegroup') {
           detectedLegacyFields.add('field3');
+          detectedLegacyKeysUsed.set('field3', 'age');
           if (!detectedFieldValues.has('field3')) detectedFieldValues.set('field3', []);
           if (value !== null && value !== undefined && value !== '') {
             detectedFieldValues.get('field3')!.push(value);
@@ -300,6 +319,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
           console.log(`   → Fuzzy matched "${key}" to field3 (Age Group)`);
         } else if (keyLower.includes('wholesale') || keyLower.includes('wholeprice') || keyLower === 'wprice') {
           detectedLegacyFields.add('price1');
+          detectedLegacyKeysUsed.set('price1', 'wholesale');
           if (!detectedFieldValues.has('price1')) detectedFieldValues.set('price1', []);
           if (value !== null && value !== undefined && value !== '') {
             detectedFieldValues.get('price1')!.push(value);
@@ -308,6 +328,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
           console.log(`   → Fuzzy matched "${key}" to price1 (Wholesale Price)`);
         } else if (keyLower.includes('resell') || keyLower.includes('resale') || keyLower === 'rprice') {
           detectedLegacyFields.add('price2');
+          detectedLegacyKeysUsed.set('price2', 'resell');
           if (!detectedFieldValues.has('price2')) detectedFieldValues.set('price2', []);
           if (value !== null && value !== undefined && value !== '') {
             detectedFieldValues.get('price2')!.push(value);
@@ -333,15 +354,28 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[]): FieldsD
   let definition = getFieldsDefinition();
 
   // Update field definitions: enable fields that are detected in the backup
+  // AND restore original labels if they were changed
   const updatedFields = definition.fields.map(fieldConfig => {
     // Check if this field was detected in the backup
     const isDetected = detectedLegacyFields.has(fieldConfig.key);
     const hasValues = detectedFieldValues.has(fieldConfig.key) && detectedFieldValues.get(fieldConfig.key)!.length > 0;
 
     if (isDetected && hasValues) {
-      console.log(`✅ Enabling field: ${fieldConfig.key} (${fieldConfig.label}) - detected ${detectedFieldValues.get(fieldConfig.key)!.length} products with values`);
+      // Get the legacy key that was found
+      const detectedLegacyKey = detectedLegacyKeysUsed.get(fieldConfig.key);
+
+      // Look up the original label for this legacy key
+      const originalInfo = detectedLegacyKey ? ORIGINAL_FIELD_LABELS[detectedLegacyKey] : null;
+      const originalLabel = originalInfo?.originalLabel;
+
+      // Use original label if found, otherwise keep current label
+      const label = originalLabel || fieldConfig.label;
+
+      console.log(`✅ Enabling field: ${fieldConfig.key} (${label}) - detected ${detectedFieldValues.get(fieldConfig.key)!.length} products with values`);
+
       return {
         ...fieldConfig,
+        label: label, // Restore original label if it was changed
         enabled: true, // Enable the field since we found data for it
       };
     } else if (fieldConfig.enabled) {
