@@ -140,6 +140,13 @@ export function ensureProductsHaveStockFields(): void {
             [cat.stockField]: product[cat.stockField] !== undefined ? product[cat.stockField] : true,
           };
           modified = true;
+        } else {
+          // For existing catalogueData, ensure badge field is present
+          // This handles restored backups where badge might already be in catalogueData
+          if (!product.catalogueData[cat.id].badge && product.badge) {
+            product.catalogueData[cat.id].badge = product.badge;
+            modified = true;
+          }
         }
 
         // Ensure stock field exists on product level (for backward compatibility)
