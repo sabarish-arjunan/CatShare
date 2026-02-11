@@ -793,6 +793,7 @@ export default function CreateProduct() {
       newItem[`field${i}Unit`] = defaultCatalogueData[`field${i}Unit`] || "None";
     }
 
+    newItem.badge = defaultCatalogueData.badge || "";
     newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
     newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
     newItem.ageUnit = defaultCatalogueData.field3Unit || "months";

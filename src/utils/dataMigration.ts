@@ -134,6 +134,7 @@ export function ensureProductsHaveStockFields(): void {
             field3: product.field3 || "",
             field2Unit: product.field2Unit || product.packageUnit || "pcs / set",
             field3Unit: product.field3Unit || product.ageUnit || "months",
+            badge: product.badge || "",
             [cat.priceField]: product[cat.priceField] || "",
             [cat.priceUnitField]: product[cat.priceUnitField] || "/ piece",
             [cat.stockField]: product[cat.stockField] !== undefined ? product[cat.stockField] : true,
