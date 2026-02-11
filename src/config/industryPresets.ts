@@ -18,9 +18,10 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
       { label: "Size", unitOptions: ["S, M, L, XL", "28, 30, 32, 34", "Free Size"] },
       { label: "Fabric" },
       { label: "Fit" },
-      { label: "Sleeve / Style" },
-      { label: "Pattern / Design" },
-      { label: "Notes" },
+      { label: "Design" },
+      { label: "Sleeve" },
+      { label: "Occasion" },
+      { label: "Care Instructions" },
     ],
   },
   {
