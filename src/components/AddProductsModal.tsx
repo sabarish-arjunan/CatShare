@@ -24,16 +24,12 @@ export default function AddProductsModal({
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    // Always load the latest products from localStorage to ensure data consistency
-    // This prevents stale data when the modal is opened multiple times
-    try {
-      const storedProducts = JSON.parse(localStorage.getItem("products") || "[]");
-      setProducts(storedProducts);
-    } catch (err) {
-      // Fallback to prop data if localStorage read fails
+    // When modal opens, refresh from the latest parent data
+    // This ensures we have fresh product states
+    if (isOpen) {
       setProducts(allProducts);
+      setSearch(""); // Reset search when modal opens
     }
-    setSearch(""); // Reset search when products list changes
   }, [isOpen, allProducts]);
 
   const filteredProducts = products.filter((p) =>
@@ -55,14 +51,8 @@ export default function AddProductsModal({
     // Save to localStorage
     localStorage.setItem("products", JSON.stringify(updated));
 
-    // Notify parent component
+    // Notify parent component (this will trigger re-render with updated products)
     onProductsUpdate(updated);
-
-    // Dispatch event to notify all components of product update
-    // This ensures CatalogueApp and other components refresh immediately
-    window.dispatchEvent(new CustomEvent("products-updated", {
-      detail: { products: updated }
-    }));
   };
 
   const handleToggleAllProducts = () => {
@@ -85,14 +75,8 @@ export default function AddProductsModal({
     // Save to localStorage
     localStorage.setItem("products", JSON.stringify(updated));
 
-    // Notify parent component
+    // Notify parent component (this will trigger re-render with updated products)
     onProductsUpdate(updated);
-
-    // Dispatch event to notify all components of product update
-    // This ensures CatalogueApp and other components refresh immediately
-    window.dispatchEvent(new CustomEvent("products-updated", {
-      detail: { products: updated }
-    }));
   };
 
   const allFilteredEnabled = filteredProducts.length > 0 && filteredProducts.every((p) =>
