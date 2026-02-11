@@ -739,7 +739,7 @@ export default function ProductPreviewModal({
 
                   const unitKey = `${field.key}Unit`;
                   const unitValue = catalogueData[unitKey] !== undefined && catalogueData[unitKey] !== null ? catalogueData[unitKey] : (product[unitKey] || "None");
-                  const unitDisplay = unitValue !== "None" ? unitValue : "";
+                  const unitDisplay = (field.unitsEnabled && unitValue !== "None") ? unitValue : "";
 
                   return (
                     <p key={field.key} style={{ margin: "2px 0", display: "flex" }}>
@@ -765,7 +765,7 @@ export default function ProductPreviewModal({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {(() => { const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {(() => { const config = getFieldConfig(priceField); if (!config?.unitsEnabled) return ""; const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
               </div>
             )}
 

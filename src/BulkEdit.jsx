@@ -673,7 +673,7 @@ useEffect(() => {
                       className="border rounded px-2 py-1 w-28"
                       placeholder={field.label}
                     />
-                    {(field.unitOptions && field.unitOptions.length > 0) && (
+                    {(field.unitsEnabled && field.unitOptions && field.unitOptions.length > 0) && (
                       <select
                         value={item[`${field.key}Unit`] ?? "None"}
                         onChange={(e) => handleFieldChange(item.id, `${field.key}Unit`, e.target.value)}
@@ -697,15 +697,17 @@ useEffect(() => {
                   className="border rounded px-2 py-1 w-28"
                   placeholder="Price"
                 />
-                <select
-                  value={item[priceUnitField] ?? "/ piece"}
-                  onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
-                  className="border rounded px-2 py-1 pr-8 w-16"
-                >
-                  <option value="/ piece">/ piece</option>
-                  <option value="/ dozen">/ dozen</option>
-                  <option value="/ set">/ set</option>
-                </select>
+                {getFieldConfig(priceField)?.unitsEnabled && (
+                  <select
+                    value={item[priceUnitField] ?? "/ piece"}
+                    onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
+                    className="border rounded px-2 py-1 pr-8 w-16"
+                  >
+                    <option value="/ piece">/ piece</option>
+                    <option value="/ dozen">/ dozen</option>
+                    <option value="/ set">/ set</option>
+                  </select>
+                )}
               </div>
             )}
 
