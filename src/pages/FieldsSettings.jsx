@@ -151,7 +151,7 @@ export default function FieldsSettings() {
         await Haptics.impact({ style: ImpactStyle.Light });
       } catch (e) {}
 
-      showToast(`Added new field slot`, "success");
+      showToast(`Added new field`, "success");
     } else {
       showToast("Maximum number of fields reached", "warning");
     }
@@ -493,7 +493,7 @@ export default function FieldsSettings() {
                                         </div>
                                         <div>
                                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            {`Slot ${field.key.replace('field', '')}`}
+                                            {`Field ${field.key.replace('field', '')}`}
                                           </span>
                                           <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
                                             {field.label || "Untitled Field"}

@@ -329,7 +329,7 @@ export default function WatermarkFields() {
                                   </div>
                                   <div>
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                      {field.key.startsWith('field') ? `Product Slot ${field.key.replace('field', '')}` : `Catalogue Price`}
+                                      {field.key.startsWith('field') ? `Product Field ${field.key.replace('field', '')}` : `Catalogue Price`}
                                     </span>
                                     <h3 className="font-bold text-sm dark:text-white">
                                       {field.label || "Untitled Field"}
