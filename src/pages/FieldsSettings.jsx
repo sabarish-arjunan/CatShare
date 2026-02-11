@@ -188,14 +188,16 @@ export default function FieldsSettings() {
   const handleAddField = async () => {
     if (!definition) return;
 
-    // Find first disabled product field
-    const nextField = definition.fields.find(f => f.key.startsWith('field') && !f.enabled);
-    if (nextField) {
+    // First, try to find a disabled field from the pre-filled fields (1-10)
+    const nextDisabledField = definition.fields.find(f => f.key.startsWith('field') && !f.enabled && parseInt(f.key.replace('field', '')) <= 10);
+
+    if (nextDisabledField) {
+      // Enable an existing disabled field
       const newFields = definition.fields.map(f =>
-        f.key === nextField.key ? { ...f, enabled: true, label: "" } : f
+        f.key === nextDisabledField.key ? { ...f, enabled: true, label: "" } : f
       );
       setDefinition({ ...definition, fields: newFields });
-      setExpandedKey(nextField.key);
+      setExpandedKey(nextDisabledField.key);
 
       try {
         await Haptics.impact({ style: ImpactStyle.Light });
@@ -203,7 +205,32 @@ export default function FieldsSettings() {
 
       showToast(`Added new field`, "success");
     } else {
-      showToast("Maximum number of fields reached", "warning");
+      // All 1-10 are enabled, so create a new field dynamically
+      const customFields = definition.fields.filter(f => f.key.startsWith('field'));
+      const maxFieldNum = customFields.length > 0
+        ? Math.max(...customFields.map(f => parseInt(f.key.replace('field', ''))))
+        : 0;
+      const nextFieldNum = maxFieldNum + 1;
+
+      const newField = {
+        key: `field${nextFieldNum}`,
+        label: "",
+        type: 'text',
+        enabled: true,
+        unitsEnabled: false,
+        unitOptions: [],
+      };
+
+      const newFields = [...definition.fields];
+      newFields.splice(-1, 0, newField); // Insert before price1
+      setDefinition({ ...definition, fields: newFields });
+      setExpandedKey(newField.key);
+
+      try {
+        await Haptics.impact({ style: ImpactStyle.Light });
+      } catch (e) {}
+
+      showToast(`Field ${nextFieldNum} added`, "success");
     }
   };
 
@@ -491,34 +518,6 @@ export default function FieldsSettings() {
                   {(definition.industry === "General Products (Custom)" || !definition.industry) && <FiCheck className="text-white" size={20} />}
                 </button>
               </div>
-
-              <button
-                onClick={() => {
-                  const customFields = definition.fields.filter(f => f.key.startsWith('field'));
-                  const maxFieldNum = customFields.length > 0
-                    ? Math.max(...customFields.map(f => parseInt(f.key.replace('field', ''))))
-                    : 0;
-                  const nextFieldNum = maxFieldNum + 1;
-
-                  const newField = {
-                    key: `field${nextFieldNum}`,
-                    label: `Field ${nextFieldNum}`,
-                    type: 'text',
-                    enabled: true,
-                    unitsEnabled: false,
-                    unitOptions: [],
-                  };
-
-                  const updatedFields = [...definition.fields];
-                  updatedFields.splice(-1, 0, newField); // Insert before price1
-                  setDefinition({ ...definition, fields: updatedFields });
-                  showToast(`Field ${nextFieldNum} added`, "success");
-                }}
-                className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-all flex items-center justify-center gap-2 font-semibold"
-              >
-                <MdAdd size={20} />
-                Add New Field
-              </button>
             </motion.div>
           ) : (
             <motion.div
