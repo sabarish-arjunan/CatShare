@@ -8,7 +8,7 @@ import { safeGetFromStorage, safeSetInStorage } from "../utils/safeStorage";
 export default function WatermarkSettings() {
   const navigate = useNavigate();
   const [showWatermark, setShowWatermark] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     return safeGetFromStorage("watermarkText", "Created using CatShare");
@@ -19,7 +19,7 @@ export default function WatermarkSettings() {
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [initialShowWatermark] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
   const [initialWatermarkText] = useState(() => {
     return safeGetFromStorage("watermarkText", "Created using CatShare");
