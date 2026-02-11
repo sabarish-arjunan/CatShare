@@ -305,17 +305,18 @@ export default function CreateProduct() {
     setIsDragging(false);
     const velocity = info.velocity.y;
     const currentY = y.get();
+    const MIDDLE_POSITION = DRAG_RANGE * 0.5;
 
-    // Snapping logic - requires 2 swipes to close (higher threshold)
-    if (velocity < -300 || (velocity <= 0 && currentY < DRAG_RANGE * 0.5)) {
-      // Snap to top (expanded)
+    // Snapping logic with 3 positions: top, middle, bottom
+    if (velocity < -300 || currentY < DRAG_RANGE * 0.25) {
+      // Snap to top (fully expanded)
       animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
-    } else if (velocity > 500 || (velocity >= 0 && currentY > DRAG_RANGE * 0.85)) {
-      // Snap to bottom (collapsed) - requires strong downward velocity or more than 85% dragged
+    } else if (velocity > 500 || currentY > DRAG_RANGE * 0.75) {
+      // Snap to bottom (collapsed) - requires strong downward velocity or more than 75% dragged
       animate(y, DRAG_RANGE, { type: "spring", stiffness: 400, damping: 40 });
     } else {
-      // Default: snap back to top if not far enough
-      animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
+      // Snap to middle position if released in the middle range
+      animate(y, MIDDLE_POSITION, { type: "spring", stiffness: 400, damping: 40 });
     }
   };
 
