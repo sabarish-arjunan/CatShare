@@ -544,8 +544,11 @@ export default function FieldsSettings() {
                     >
                       <AnimatePresence mode="popLayout">
                         {(() => {
-                          const visibleFields = allFields.filter(f => f.enabled || (definition.industry !== "General Products (Custom)" && definition.industry !== undefined));
                           const isCustomTemplate = definition.industry === "General Products (Custom)" || !definition.industry;
+                          // For custom templates, only show enabled fields. For presets, show all fields that match the preset
+                          const visibleFields = isCustomTemplate
+                            ? allFields.filter(f => f.enabled)
+                            : allFields.filter(f => f.key.startsWith('field'));
                           return visibleFields.map((field, index) => (
                           <motion.div
                             key={field.key}
