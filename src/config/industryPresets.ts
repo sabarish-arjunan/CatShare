@@ -57,14 +57,16 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
   {
     name: "Electronics & Accessories",
     fields: [
-      { label: "Model" },
       { label: "Brand" },
-      { label: "Color" },
-      { label: "Specifications" },
       { label: "Warranty", unitOptions: ["months", "years"] },
+      { label: "Rating" },
+      { label: "Input / Output Type" },
+      { label: "Connectivity" },
+      { label: "Dimensions" },
+      { label: "Package Contents" },
+      { label: "Certification" },
       { label: "Compatibility" },
-      { label: "Features" },
-      { label: "Notes" },
+      { label: "Instructions" },
     ],
   },
   {
