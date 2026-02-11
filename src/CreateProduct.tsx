@@ -287,12 +287,19 @@ export default function CreateProduct() {
   const y = useMotionValue(DRAG_RANGE);
   const [isDragging, setIsDragging] = useState(false);
   const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
 
   // Derived values for hardware-accelerated animations
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
   const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
   const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
+
+  const handleScrollCheck = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    setIsScrollAtTop(element.scrollTop === 0);
+  };
 
   const handleDragEnd = (_: any, info: any) => {
     setIsDragging(false);
@@ -1081,10 +1088,12 @@ export default function CreateProduct() {
 
       {/* Draggable Bottom Sheet */}
       <motion.div
-        onPanStart={() => setIsDragging(true)}
+        onPanStart={() => isScrollAtTop && setIsDragging(true)}
         onPan={(_, info) => {
-          const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
-          y.set(newY);
+          if (isScrollAtTop) {
+            const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
+            y.set(newY);
+          }
         }}
         onPanEnd={handleDragEnd}
         className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col select-none"
@@ -1154,6 +1163,8 @@ export default function CreateProduct() {
 
         {/* Scrollable Content */}
         <div
+          ref={scrollRef}
+          onScroll={handleScrollCheck}
           className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 text-sm"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
