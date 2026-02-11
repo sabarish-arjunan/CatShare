@@ -473,6 +473,32 @@ export default function FieldsSettings() {
                   {(definition.industry === "General Products (Custom)" || !definition.industry) && <FiCheck className="text-white" size={20} />}
                 </button>
               </div>
+
+              <button
+                onClick={() => {
+                  const nextFieldNum = definition.fields.filter(f => f.key.startsWith('field')).length + 1;
+                  if (nextFieldNum <= 10) {
+                    const newField = {
+                      key: `field${nextFieldNum}`,
+                      label: `Field ${nextFieldNum}`,
+                      type: 'text',
+                      enabled: true,
+                      unitsEnabled: false,
+                      unitOptions: [],
+                    };
+                    const updatedFields = [...definition.fields];
+                    updatedFields.splice(-1, 0, newField); // Insert before price1
+                    setDefinition({ ...definition, fields: updatedFields });
+                    showToast(`Field ${nextFieldNum} added`, "success");
+                  } else {
+                    showToast("Maximum 10 fields allowed", "warning");
+                  }
+                }}
+                className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-all flex items-center justify-center gap-2 font-semibold"
+              >
+                <MdAdd size={20} />
+                Add New Field
+              </button>
             </motion.div>
           ) : (
             <motion.div
