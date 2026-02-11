@@ -700,19 +700,28 @@ export default function FieldsSettings() {
                                         <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30 space-y-4">
                                           {field.enabled ? (
                                             <div className="space-y-4">
-                                              {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
-                                                <div className="flex items-center justify-end">
-                                                  <button
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      toggleFieldEnabled(field.key);
-                                                    }}
-                                                    className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
-                                                  >
-                                                    <FiTrash2 size={12} />
-                                                    Remove Field
-                                                  </button>
-                                                </div>
+                                              {field.key.startsWith('field') && (
+                                                (() => {
+                                                  const fieldNum = parseInt(field.key.replace('field', ''));
+                                                  const isCustomTemplate = definition.industry === "General Products (Custom)" || !definition.industry;
+                                                  const isDynamicallyAdded = fieldNum > 10;
+                                                  const canRemove = isCustomTemplate || isDynamicallyAdded;
+
+                                                  return canRemove ? (
+                                                    <div className="flex items-center justify-end">
+                                                      <button
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          toggleFieldEnabled(field.key);
+                                                        }}
+                                                        className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
+                                                      >
+                                                        <FiTrash2 size={12} />
+                                                        Remove Field
+                                                      </button>
+                                                    </div>
+                                                  ) : null;
+                                                })()
                                               )}
 
                                               {field.key.startsWith('field') && (
