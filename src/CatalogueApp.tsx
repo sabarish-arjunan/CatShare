@@ -78,6 +78,23 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => window.removeEventListener("catalogues-changed", handleCataloguesChanged);
   }, []);
 
+  // Listen for products updates (e.g., from AddProductsModal)
+  // This ensures the catalogue view updates immediately when products are toggled
+  useEffect(() => {
+    const handleProductsUpdated = (event: any) => {
+      const { products: updatedProducts } = event.detail;
+      if (updatedProducts && Array.isArray(updatedProducts)) {
+        flushSync(() => {
+          setProducts(updatedProducts);
+        });
+        console.log("✅ Products refreshed from modal update event");
+      }
+    };
+
+    window.addEventListener("products-updated", handleProductsUpdated);
+    return () => window.removeEventListener("products-updated", handleProductsUpdated);
+  }, [setProducts]);
+
   // Handle catalogue query parameter - when returning from edit view
   useEffect(() => {
     const catalogueParam = searchParams.get("catalogue");

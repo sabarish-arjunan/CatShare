@@ -24,11 +24,17 @@ export default function AddProductsModal({
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    // Sync modal state with parent when allProducts changes
-    // This ensures changes made in the modal reflect immediately in the parent
-    setProducts(allProducts);
+    // Always load the latest products from localStorage to ensure data consistency
+    // This prevents stale data when the modal is opened multiple times
+    try {
+      const storedProducts = JSON.parse(localStorage.getItem("products") || "[]");
+      setProducts(storedProducts);
+    } catch (err) {
+      // Fallback to prop data if localStorage read fails
+      setProducts(allProducts);
+    }
     setSearch(""); // Reset search when products list changes
-  }, [allProducts]);
+  }, [isOpen, allProducts]);
 
   const filteredProducts = products.filter((p) =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -51,6 +57,12 @@ export default function AddProductsModal({
 
     // Notify parent component
     onProductsUpdate(updated);
+
+    // Dispatch event to notify all components of product update
+    // This ensures CatalogueApp and other components refresh immediately
+    window.dispatchEvent(new CustomEvent("products-updated", {
+      detail: { products: updated }
+    }));
   };
 
   const handleToggleAllProducts = () => {
@@ -75,6 +87,12 @@ export default function AddProductsModal({
 
     // Notify parent component
     onProductsUpdate(updated);
+
+    // Dispatch event to notify all components of product update
+    // This ensures CatalogueApp and other components refresh immediately
+    window.dispatchEvent(new CustomEvent("products-updated", {
+      detail: { products: updated }
+    }));
   };
 
   const allFilteredEnabled = filteredProducts.length > 0 && filteredProducts.every((p) =>
