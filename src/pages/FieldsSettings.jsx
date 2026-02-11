@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -23,6 +23,8 @@ export default function FieldsSettings() {
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
   const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
+  const [editingLabelKey, setEditingLabelKey] = useState(null);
+  const [editingLabelValue, setEditingLabelValue] = useState("");
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -202,7 +204,7 @@ export default function FieldsSettings() {
 
   const toggleFieldEnabled = async (key) => {
     if (!definition) return;
-    
+
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (e) {}
@@ -211,6 +213,19 @@ export default function FieldsSettings() {
       f.key === key ? { ...f, enabled: !f.enabled } : f
     );
     setDefinition({ ...definition, fields: newFields });
+  };
+
+  const startEditingLabel = (e, field) => {
+    e.stopPropagation();
+    setEditingLabelKey(field.key);
+    setEditingLabelValue(field.label || "");
+  };
+
+  const saveEditingLabel = (e, key) => {
+    e.stopPropagation();
+    updateFieldLabel(key, editingLabelValue);
+    setEditingLabelKey(null);
+    setEditingLabelValue("");
   };
 
   if (!definition) return null;
@@ -495,9 +510,41 @@ export default function FieldsSettings() {
                                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                                             {`Field ${field.key.replace('field', '')}`}
                                           </span>
-                                          <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
-                                            {field.label || "Untitled Field"}
-                                          </h3>
+                                          <div className="flex items-center gap-2 mt-0.5">
+                                            {editingLabelKey === field.key ? (
+                                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                <input
+                                                  autoFocus
+                                                  type="text"
+                                                  value={editingLabelValue}
+                                                  onChange={(e) => setEditingLabelValue(e.target.value)}
+                                                  onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') saveEditingLabel(e, field.key);
+                                                    if (e.key === 'Escape') setEditingLabelKey(null);
+                                                  }}
+                                                  className="bg-white dark:bg-gray-800 border border-blue-500 rounded px-2 py-0.5 text-sm font-bold w-32 outline-none focus:ring-2 ring-blue-500/20"
+                                                />
+                                                <button
+                                                  onClick={(e) => saveEditingLabel(e, field.key)}
+                                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-sm"
+                                                >
+                                                  <MdCheck size={16} />
+                                                </button>
+                                              </div>
+                                            ) : (
+                                              <>
+                                                <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
+                                                  {field.label || "Untitled Field"}
+                                                </h3>
+                                                <button
+                                                  onClick={(e) => startEditingLabel(e, field)}
+                                                  className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                >
+                                                  <MdEdit size={14} />
+                                                </button>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
 
