@@ -288,7 +288,7 @@ export default function CreateProduct() {
   const [isDragging, setIsDragging] = useState(false);
   const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
+  const isScrollAtTopRef = useRef(true);
 
   // Derived values for hardware-accelerated animations
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
@@ -298,7 +298,7 @@ export default function CreateProduct() {
 
   const handleScrollCheck = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
-    setIsScrollAtTop(element.scrollTop === 0);
+    isScrollAtTopRef.current = element.scrollTop === 0;
   };
 
   const handleDragEnd = (_: any, info: any) => {
@@ -1091,9 +1091,9 @@ export default function CreateProduct() {
 
       {/* Draggable Bottom Sheet */}
       <motion.div
-        onPanStart={() => isScrollAtTop && setIsDragging(true)}
+        onPanStart={() => isScrollAtTopRef.current && setIsDragging(true)}
         onPan={(_, info) => {
-          if (isScrollAtTop) {
+          if (isScrollAtTopRef.current) {
             const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
             y.set(newY);
           }
