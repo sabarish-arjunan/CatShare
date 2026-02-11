@@ -511,40 +511,66 @@ export default function FieldsSettings() {
                                             {`Field ${field.key.replace('field', '')}`}
                                           </span>
                                           <div className="flex items-center gap-2 mt-0.5">
-                                            {editingLabelKey === field.key ? (
-                                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                                <input
-                                                  autoFocus
-                                                  type="text"
-                                                  value={editingLabelValue}
-                                                  onChange={(e) => setEditingLabelValue(e.target.value)}
-                                                  onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') saveEditingLabel(e, field.key);
-                                                    if (e.key === 'Escape') setEditingLabelKey(null);
-                                                  }}
-                                                  className="bg-transparent border-0 border-b-2 border-blue-500 px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0"
-                                                />
-                                                <button
-                                                  onClick={(e) => saveEditingLabel(e, field.key)}
-                                                  className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
-                                                  title="Confirm"
+                                            <AnimatePresence mode="wait">
+                                              {editingLabelKey === field.key ? (
+                                                <motion.div
+                                                  key="edit-mode"
+                                                  initial={{ opacity: 0, y: -5 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  exit={{ opacity: 0, y: -5 }}
+                                                  transition={{ duration: 0.2 }}
+                                                  className="flex items-center gap-1"
+                                                  onClick={(e) => e.stopPropagation()}
                                                 >
-                                                  <MdCheck size={20} />
-                                                </button>
-                                              </div>
-                                            ) : (
-                                              <>
-                                                <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
-                                                  {field.label || "Untitled Field"}
-                                                </h3>
-                                                <button
-                                                  onClick={(e) => startEditingLabel(e, field)}
-                                                  className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                  <motion.input
+                                                    autoFocus
+                                                    type="text"
+                                                    value={editingLabelValue}
+                                                    onChange={(e) => setEditingLabelValue(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                      if (e.key === 'Enter') saveEditingLabel(e, field.key);
+                                                      if (e.key === 'Escape') setEditingLabelKey(null);
+                                                    }}
+                                                    initial={{ borderBottomWidth: 1 }}
+                                                    animate={{ borderBottomWidth: 2 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="bg-transparent border-0 border-b-2 border-blue-500 px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0"
+                                                  />
+                                                  <motion.button
+                                                    onClick={(e) => saveEditingLabel(e, field.key)}
+                                                    initial={{ scale: 0, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    exit={{ scale: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.2, type: "spring", stiffness: 200 }}
+                                                    className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                    title="Confirm"
+                                                  >
+                                                    <MdCheck size={20} />
+                                                  </motion.button>
+                                                </motion.div>
+                                              ) : (
+                                                <motion.div
+                                                  key="view-mode"
+                                                  initial={{ opacity: 0, y: 5 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  exit={{ opacity: 0, y: 5 }}
+                                                  transition={{ duration: 0.2 }}
+                                                  className="flex items-center gap-2"
                                                 >
-                                                  <MdEdit size={14} />
-                                                </button>
-                                              </>
-                                            )}
+                                                  <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
+                                                    {field.label || "Untitled Field"}
+                                                  </h3>
+                                                  <motion.button
+                                                    onClick={(e) => startEditingLabel(e, field)}
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                  >
+                                                    <MdEdit size={14} />
+                                                  </motion.button>
+                                                </motion.div>
+                                              )}
+                                            </AnimatePresence>
                                           </div>
                                         </div>
                                       </div>
