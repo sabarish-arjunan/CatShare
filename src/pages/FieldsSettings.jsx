@@ -579,12 +579,12 @@ export default function FieldsSettings() {
                                             e.stopPropagation();
                                             toggleFieldEnabled(field.key);
                                           }}
-                                          whileHover={{ scale: 1.1 }}
-                                          whileTap={{ scale: 0.95 }}
-                                          className={`p-1.5 rounded-lg transition-colors ${
+                                          whileHover={{ scale: 1.15 }}
+                                          whileTap={{ scale: 0.9 }}
+                                          className={`cursor-pointer transition-colors ${
                                             field.enabled
-                                              ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20"
-                                              : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                              ? "text-blue-600"
+                                              : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                           }`}
                                           title={field.enabled ? "Hide field" : "Show field"}
                                         >
