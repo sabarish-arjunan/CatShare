@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -574,20 +574,32 @@ export default function FieldsSettings() {
                                       </div>
 
                                       <div className="flex items-center gap-3">
-                                        <button
+                                        <motion.button
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             toggleFieldEnabled(field.key);
                                           }}
-                                          className={`w-10 h-5 rounded-full p-1 transition-all ${
-                                            field.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                                          whileHover={{ scale: 1.1 }}
+                                          whileTap={{ scale: 0.95 }}
+                                          className={`p-1.5 rounded-lg transition-colors ${
+                                            field.enabled
+                                              ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                                              : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                           }`}
+                                          title={field.enabled ? "Hide field" : "Show field"}
                                         >
                                           <motion.div
-                                            animate={{ x: field.enabled ? 20 : 0 }}
-                                            className="w-3 h-3 bg-white rounded-full shadow-sm"
-                                          />
-                                        </button>
+                                            initial={false}
+                                            animate={{ scale: field.enabled ? 1 : 0.8 }}
+                                            transition={{ duration: 0.2 }}
+                                          >
+                                            {field.enabled ? (
+                                              <MdVisibility size={20} />
+                                            ) : (
+                                              <MdVisibilityOff size={20} />
+                                            )}
+                                          </motion.div>
+                                        </motion.button>
                                         <motion.div
                                           animate={{ rotate: expandedKey === field.key ? 180 : 0 }}
                                           className="text-gray-400"
