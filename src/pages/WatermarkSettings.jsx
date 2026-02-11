@@ -31,6 +31,16 @@ export default function WatermarkSettings() {
   const renderBoxRef = useRef(null);
   const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 
+  // Initialize watermark to enabled on first load
+  useEffect(() => {
+    const storedValue = localStorage.getItem("showWatermark");
+    // If there's a stored false value, override it with true (enabled by default)
+    if (storedValue === "false") {
+      safeSetInStorage("showWatermark", true);
+      setShowWatermark(true);
+    }
+  }, []);
+
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
   }, [watermarkText]);
