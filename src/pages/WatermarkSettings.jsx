@@ -8,28 +8,45 @@ import { safeGetFromStorage, safeSetInStorage } from "../utils/safeStorage";
 export default function WatermarkSettings() {
   const navigate = useNavigate();
   const [showWatermark, setShowWatermark] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
   const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return safeGetFromStorage("watermarkPosition", "bottom-center");
+    return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [initialShowWatermark] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
   const [initialWatermarkText] = useState(() => {
     return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
   const [initialWatermarkPosition] = useState(() => {
-    return safeGetFromStorage("watermarkPosition", "bottom-center");
+    return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
   const [renderBoxVisible, setRenderBoxVisible] = useState(false);
   const renderBoxRef = useRef(null);
   const [showRenderConfirm, setShowRenderConfirm] = useState(false);
+
+  // Initialize watermark to enabled on first load
+  useEffect(() => {
+    const storedValue = localStorage.getItem("showWatermark");
+    // If there's a stored false value, override it with true (enabled by default)
+    if (storedValue === "false") {
+      safeSetInStorage("showWatermark", true);
+      setShowWatermark(true);
+    }
+
+    // Update watermark position from bottom-center to bottom-left
+    const positionValue = localStorage.getItem("watermarkPosition");
+    if (positionValue === '"bottom-center"') {
+      safeSetInStorage("watermarkPosition", "bottom-left");
+      setWatermarkPosition("bottom-left");
+    }
+  }, []);
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);

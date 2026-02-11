@@ -287,6 +287,8 @@ export default function CreateProduct() {
   const y = useMotionValue(DRAG_RANGE);
   const [isDragging, setIsDragging] = useState(false);
   const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrollAtTopRef = useRef(true);
 
   // Derived values for hardware-accelerated animations
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
@@ -294,18 +296,27 @@ export default function CreateProduct() {
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
   const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
 
+  const handleScrollCheck = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    isScrollAtTopRef.current = element.scrollTop === 0;
+  };
+
   const handleDragEnd = (_: any, info: any) => {
     setIsDragging(false);
     const velocity = info.velocity.y;
     const currentY = y.get();
+    const MIDDLE_POSITION = DRAG_RANGE * 0.5;
 
-    // Snapping logic with velocity and threshold for a "buttery" feel
-    if (velocity < -300 || (velocity <= 0 && currentY < DRAG_RANGE * 0.7)) {
-      // Snap to top (expanded)
+    // Snapping logic with 3 positions: top, middle, bottom
+    if (velocity < -300 || currentY < DRAG_RANGE * 0.25) {
+      // Snap to top (fully expanded)
       animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
-    } else {
-      // Snap to bottom (collapsed)
+    } else if (velocity > 500 || currentY > DRAG_RANGE * 0.75) {
+      // Snap to bottom (collapsed) - requires strong downward velocity or more than 75% dragged
       animate(y, DRAG_RANGE, { type: "spring", stiffness: 400, damping: 40 });
+    } else {
+      // Snap to middle position if released in the middle range
+      animate(y, MIDDLE_POSITION, { type: "spring", stiffness: 400, damping: 40 });
     }
   };
 
@@ -1083,8 +1094,12 @@ export default function CreateProduct() {
       <motion.div
         onPanStart={() => setIsDragging(true)}
         onPan={(_, info) => {
-          const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
-          y.set(newY);
+          const isAtTop = scrollRef.current ? scrollRef.current.scrollTop <= 5 : true;
+          // Only allow dragging down when at top or dragging upward
+          if (isAtTop || info.delta.y <= 0) {
+            const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
+            y.set(newY);
+          }
         }}
         onPanEnd={handleDragEnd}
         className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col select-none"
@@ -1148,12 +1163,14 @@ export default function CreateProduct() {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
             }`}
           >
-            Catalogue
+            Details
           </button>
         </div>
 
         {/* Scrollable Content */}
         <div
+          ref={scrollRef}
+          onScroll={handleScrollCheck}
           className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 text-sm"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)',
