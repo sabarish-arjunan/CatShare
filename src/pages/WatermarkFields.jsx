@@ -358,13 +358,14 @@ export default function WatermarkFields() {
                                               if (e.key === 'Enter') saveEditingLabel(e, field.key);
                                               if (e.key === 'Escape') setEditingLabelKey(null);
                                             }}
-                                            className="bg-gray-50 dark:bg-gray-800 border border-blue-500 rounded px-2 py-0.5 text-sm font-bold w-32 outline-none focus:ring-2 ring-blue-500/20"
+                                            className="bg-transparent border-b-2 border-blue-500 px-1 py-0.5 text-sm font-medium w-32 outline-none"
                                           />
                                           <button
                                             onClick={(e) => saveEditingLabel(e, field.key)}
-                                            className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-sm"
+                                            className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                            title="Confirm"
                                           >
-                                            <MdCheck size={16} />
+                                            <MdCheck size={20} />
                                           </button>
                                         </div>
                                       ) : (
