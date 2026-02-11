@@ -637,30 +637,38 @@ export default function FieldsSettings() {
                                               )}
 
                                               {field.key.startsWith('field') && (
-                                                <div className="space-y-3">
-                                                  <div className="flex items-center justify-between px-1">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                      Unit Options
-                                                    </label>
-                                                    <div className="flex items-center gap-2">
-                                                      <span className={`text-[10px] font-bold uppercase ${field.unitsEnabled ? 'text-blue-500' : 'text-gray-400'}`}>
-                                                        {field.unitsEnabled ? 'Enabled' : 'Disabled'}
-                                                      </span>
-                                                      <button
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          toggleUnitsEnabled(field.key);
-                                                        }}
-                                                        className={`w-8 h-4 rounded-full p-0.5 transition-all ${
-                                                          field.unitsEnabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
-                                                        }`}
-                                                      >
-                                                        <motion.div
-                                                          animate={{ x: field.unitsEnabled ? 16 : 0 }}
-                                                          className="w-3 h-3 bg-white rounded-full shadow-sm"
-                                                        />
-                                                      </button>
+                                                <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3 bg-gray-50/50 dark:bg-gray-800/20">
+                                                  <div className="flex items-center justify-between">
+                                                    <div>
+                                                      <h4 className="text-sm font-semibold dark:text-white">Unit Options</h4>
+                                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Add measurement units for this field</p>
                                                     </div>
+                                                    <motion.button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleUnitsEnabled(field.key);
+                                                      }}
+                                                      whileHover={{ scale: 1.15 }}
+                                                      whileTap={{ scale: 0.9 }}
+                                                      className={`cursor-pointer transition-colors ${
+                                                        field.unitsEnabled
+                                                          ? "text-blue-600"
+                                                          : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                      }`}
+                                                      title={field.unitsEnabled ? "Disable units" : "Enable units"}
+                                                    >
+                                                      <motion.div
+                                                        initial={false}
+                                                        animate={{ scale: field.unitsEnabled ? 1 : 0.8 }}
+                                                        transition={{ duration: 0.2 }}
+                                                      >
+                                                        {field.unitsEnabled ? (
+                                                          <MdVisibility size={20} />
+                                                        ) : (
+                                                          <MdVisibilityOff size={20} />
+                                                        )}
+                                                      </motion.div>
+                                                    </motion.button>
                                                   </div>
 
                                                   <AnimatePresence>
@@ -669,23 +677,32 @@ export default function FieldsSettings() {
                                                         initial={{ height: 0, opacity: 0 }}
                                                         animate={{ height: "auto", opacity: 1 }}
                                                         exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3 }}
                                                         className="overflow-hidden"
                                                       >
-                                                        <div className="relative">
-                                                          <input
-                                                            type="text"
-                                                            value={field.unitOptions?.join(", ") || ""}
-                                                            onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                                            placeholder="e.g. kg, lbs, meters (comma separated)"
-                                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
-                                                          />
-                                                          {field.unitOptions && field.unitOptions.length > 0 && (
-                                                            <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                                                          )}
+                                                        <div className="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                                          <div className="relative">
+                                                            <input
+                                                              type="text"
+                                                              value={field.unitOptions?.join(", ") || ""}
+                                                              onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                                              placeholder="e.g. kg, lbs, meters"
+                                                              className="w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-sm outline-none transition-all dark:text-white pr-10"
+                                                            />
+                                                            {field.unitOptions && field.unitOptions.length > 0 && (
+                                                              <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                                transition={{ type: "spring", stiffness: 200 }}
+                                                              >
+                                                                <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                                              </motion.div>
+                                                            )}
+                                                          </div>
+                                                          <p className="text-xs text-gray-500 dark:text-gray-400 px-1">
+                                                            Separate units with commas (e.g. kg, lbs, meters)
+                                                          </p>
                                                         </div>
-                                                        <p className="mt-1.5 text-[9px] text-gray-400 italic px-1 leading-relaxed">
-                                                          Enter unit options separated by commas (e.g. "kg, lbs, meters").
-                                                        </p>
                                                       </motion.div>
                                                     )}
                                                   </AnimatePresence>
