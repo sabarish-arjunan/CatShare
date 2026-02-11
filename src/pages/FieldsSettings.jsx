@@ -526,11 +526,10 @@ export default function FieldsSettings() {
                                                     className="bg-transparent border-0 border-b-2 border-transparent px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0 relative z-10"
                                                   />
                                                   <motion.div
-                                                    initial={{ scaleX: 0 }}
-                                                    animate={{ scaleX: 1 }}
-                                                    exit={{ scaleX: 0 }}
+                                                    initial={{ scaleX: 0, originX: 0 }}
+                                                    animate={{ scaleX: 1, originX: 0 }}
+                                                    exit={{ scaleX: 0, originX: 1 }}
                                                     transition={{ duration: 0.4, ease: "easeOut" }}
-                                                    style={{ originX: 0 }}
                                                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"
                                                   />
                                                 </div>
