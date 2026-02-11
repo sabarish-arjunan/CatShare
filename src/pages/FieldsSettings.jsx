@@ -609,45 +609,20 @@ export default function FieldsSettings() {
                                         <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30 space-y-4">
                                           {field.enabled ? (
                                             <div className="space-y-4">
-                                              <div className="flex items-center justify-between">
-                                                <div>
-                                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                                    Display Label
-                                                  </label>
-                                                </div>
-                                                <div className="flex items-center gap-2">
+                                              {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
+                                                <div className="flex items-center justify-end">
                                                   <button
                                                     onClick={(e) => {
                                                       e.stopPropagation();
-                                                      updateFieldLabel(field.key, "");
+                                                      toggleFieldEnabled(field.key);
                                                     }}
-                                                    className="flex items-center gap-1 text-gray-400 hover:text-red-500 text-[10px] font-bold uppercase transition-colors"
-                                                    title="Clear Display Label"
+                                                    className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
                                                   >
                                                     <FiTrash2 size={12} />
-                                                    Clear
+                                                    Remove Field
                                                   </button>
-                                                  {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
-                                                    <button
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        toggleFieldEnabled(field.key);
-                                                      }}
-                                                      className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
-                                                    >
-                                                      <FiTrash2 size={12} />
-                                                      Remove Field
-                                                    </button>
-                                                  )}
                                                 </div>
-                                              </div>
-                                              <input
-                                                type="text"
-                                                value={field.label}
-                                                onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                                                placeholder="e.g. Colour, Size, Brand..."
-                                                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
-                                              />
+                                              )}
 
                                               {field.key.startsWith('field') && (
                                                 <div className="space-y-3">
