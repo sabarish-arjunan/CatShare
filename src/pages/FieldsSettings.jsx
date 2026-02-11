@@ -775,8 +775,8 @@ export default function FieldsSettings() {
                                 </motion.div>
                               )}
                             </Draggable>
-                            {/* Add New Field button after field 10 or last field in custom template */}
-                            {(field.key === "field10" || (isCustomTemplate && index === visibleFields.length - 1)) && (
+                            {/* Add New Field button after field 10 for industry templates */}
+                            {!isCustomTemplate && field.key === "field10" && (
                               <motion.div
                                 key="add-field-button"
                                 initial={{ opacity: 0, y: 10 }}
@@ -794,6 +794,26 @@ export default function FieldsSettings() {
                             )}
                           </motion.div>
                         ));
+                        })()}
+                        {/* Add New Field button for custom templates - always visible */}
+                        {(() => {
+                          const isCustomTemplate = definition.industry === "General Products (Custom)" || !definition.industry;
+                          return isCustomTemplate ? (
+                            <motion.div
+                              key="add-field-button-custom"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                            >
+                              <button
+                                onClick={handleAddField}
+                                className="w-full py-4 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex items-center justify-center gap-2 text-gray-400 hover:text-blue-500 hover:border-blue-200 dark:hover:border-blue-900 transition-all active:scale-[0.98]"
+                              >
+                                <MdAdd size={24} />
+                                <span className="font-bold text-sm">Add New Field</span>
+                              </button>
+                            </motion.div>
+                          ) : null;
                         })()}
                       </AnimatePresence>
 
