@@ -615,18 +615,31 @@ export default function FieldsSettings() {
                                                     Display Label
                                                   </label>
                                                 </div>
-                                                {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
+                                                <div className="flex items-center gap-2">
                                                   <button
                                                     onClick={(e) => {
                                                       e.stopPropagation();
-                                                      toggleFieldEnabled(field.key);
+                                                      updateFieldLabel(field.key, "");
                                                     }}
-                                                    className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
+                                                    className="flex items-center gap-1 text-gray-400 hover:text-red-500 text-[10px] font-bold uppercase transition-colors"
+                                                    title="Clear Display Label"
                                                   >
                                                     <FiTrash2 size={12} />
-                                                    Remove Field
+                                                    Clear
                                                   </button>
-                                                )}
+                                                  {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleFieldEnabled(field.key);
+                                                      }}
+                                                      className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
+                                                    >
+                                                      <FiTrash2 size={12} />
+                                                      Remove Field
+                                                    </button>
+                                                  )}
+                                                </div>
                                               </div>
                                               <input
                                                 type="text"
