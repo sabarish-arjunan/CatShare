@@ -202,6 +202,27 @@ export default function WatermarkFields() {
           </div>
           
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide no-scrollbar">
+            {INDUSTRY_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => updateIndustry(preset.name)}
+                className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
+                  definition.industry === preset.name
+                    ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <div className="text-lg mb-1">
+                  {preset.name.includes("Fashion") ? "👕" :
+                   preset.name.includes("Lifestyle") ? "🧴" :
+                   preset.name.includes("Home") ? "🏠" :
+                   preset.name.includes("Electronics") ? "🎧" : "🛠️"}
+                </div>
+                <span className="font-bold text-sm truncate w-full text-left">{preset.name.split(" ")[0]}</span>
+                <span className="text-[10px] opacity-70">{preset.fields.length} Fields</span>
+              </button>
+            ))}
+
             <button
               onClick={() => updateIndustry("General Products (Custom)")}
               className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
@@ -214,27 +235,6 @@ export default function WatermarkFields() {
               <span className="font-bold text-sm">Custom</span>
               <span className="text-[10px] opacity-70">Flexible fields</span>
             </button>
-            
-            {INDUSTRY_PRESETS.map((preset) => (
-              <button
-                key={preset.name}
-                onClick={() => updateIndustry(preset.name)}
-                className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
-                  definition.industry === preset.name
-                    ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30"
-                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                <div className="text-lg mb-1">
-                  {preset.name.includes("Fashion") ? "👕" : 
-                   preset.name.includes("Lifestyle") ? "🧴" : 
-                   preset.name.includes("Home") ? "🏠" : 
-                   preset.name.includes("Electronics") ? "🎧" : "🛠️"}
-                </div>
-                <span className="font-bold text-sm truncate w-full text-left">{preset.name.split(" ")[0]}</span>
-                <span className="text-[10px] opacity-70">{preset.fields.length} Fields</span>
-              </button>
-            ))}
           </div>
         </section>
 
