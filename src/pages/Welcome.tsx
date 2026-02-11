@@ -379,30 +379,24 @@ export default function Welcome() {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.05 }}
                           whileHover={{ x: 4 }}
-                          className="flex items-start sm:items-center p-2.5 sm:p-3 md:p-4 border border-slate-300 rounded-lg sm:rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group gap-2 sm:gap-3"
+                          onClick={() => handleFieldToggle(fieldKey)}
+                          className="flex items-start sm:items-center p-2.5 sm:p-3 md:p-4 border border-slate-300 rounded-lg sm:rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all cursor-pointer group gap-2 sm:gap-3 select-none"
                         >
-                          <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                          <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                             isChecked
-                              ? 'bg-blue-600 border-blue-600'
-                              : 'border-slate-300 group-hover:border-slate-400'
+                              ? 'bg-blue-600 border-blue-600 scale-100'
+                              : 'border-slate-300 group-hover:border-slate-400 scale-100'
                           }`}>
-                            {isChecked && <span className="text-white text-xs sm:text-sm">✓</span>}
+                            {isChecked && <span className="text-white text-xs sm:text-sm font-semibold">✓</span>}
                           </div>
-                          <label htmlFor={fieldKey} className="flex-1 cursor-pointer">
+                          <div className="flex-1 pointer-events-none">
                             <p className="font-semibold text-xs sm:text-sm md:text-base text-slate-800">{field.label}</p>
                             {field.unitOptions && (
                               <p className="text-xs text-slate-500 mt-0.5 sm:mt-1">
                                 {field.unitOptions.slice(0, 2).join(', ')}
                               </p>
                             )}
-                          </label>
-                          <input
-                            type="checkbox"
-                            id={fieldKey}
-                            checked={isChecked}
-                            onChange={() => handleFieldToggle(fieldKey)}
-                            className="hidden"
-                          />
+                          </div>
                         </motion.div>
                       );
                     })}
