@@ -800,6 +800,16 @@ export default function CreateProduct() {
     newItem.wholesale = newItem.price1 || "";
     newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
 
+    // Ensure catalogueData is preserved and all catalogues have the badge synced
+    if (newItem.catalogueData) {
+      for (const cat of allCatalogues) {
+        if (newItem.catalogueData[cat.id]) {
+          // Sync badge to all catalogues to ensure consistency
+          newItem.catalogueData[cat.id].badge = newItem.badge;
+        }
+      }
+    }
+
     try {
       const all = JSON.parse(localStorage.getItem("products") || "[]");
       const updated = editingId

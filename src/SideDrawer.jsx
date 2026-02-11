@@ -245,6 +245,17 @@ const handleBackup = async () => {
     delete product.imageBase64;
     delete product.image; // Remove any base64 image data
 
+    // IMPORTANT: Ensure root-level badge is synced from catalogueData
+    // This fixes old products that might only have badge in catalogueData
+    if (!product.badge && product.catalogueData) {
+      for (const catId in product.catalogueData) {
+        if (product.catalogueData[catId]?.badge) {
+          product.badge = product.catalogueData[catId].badge;
+          break;
+        }
+      }
+    }
+
     // Try to back up the image
     if (p.imagePath) {
       try {
@@ -468,6 +479,18 @@ const exportProductsToCSV = (products) => {
 
           // Migrate old field names to new field names (Colour -> field1, Package -> field2, etc.)
           const migrated = migrateProductToNewFormat(clean);
+
+          // IMPORTANT: Sync badge from catalogueData to root level for consistency
+          // This ensures old backups with badge only in catalogueData get the root-level field
+          if (!migrated.badge && migrated.catalogueData) {
+            // Find the first catalogue with a badge and sync it to root level
+            for (const catId in migrated.catalogueData) {
+              if (migrated.catalogueData[catId]?.badge) {
+                migrated.badge = migrated.catalogueData[catId].badge;
+                break;
+              }
+            }
+          }
 
           return migrated;
         })
