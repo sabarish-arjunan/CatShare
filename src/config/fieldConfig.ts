@@ -40,7 +40,8 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     type: 'text',
     enabled: false,
     legacyKeys: ['color', 'colour', 'Colour'],
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field2',
@@ -69,169 +70,56 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     label: 'Field 4',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field5',
     label: 'Field 5',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field6',
     label: 'Field 6',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field7',
     label: 'Field 7',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field8',
     label: 'Field 8',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field9',
     label: 'Field 9',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'field10',
     label: 'Field 10',
     type: 'text',
     enabled: false,
-    unitsEnabled: true,
-  },
-  {
-    key: 'field11', label: 'Field 11', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field12', label: 'Field 12', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field13', label: 'Field 13', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field14', label: 'Field 14', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field15', label: 'Field 15', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field16', label: 'Field 16', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field17', label: 'Field 17', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field18', label: 'Field 18', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field19', label: 'Field 19', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field20', label: 'Field 20', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field21', label: 'Field 21', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field22', label: 'Field 22', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field23', label: 'Field 23', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field24', label: 'Field 24', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field25', label: 'Field 25', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field26', label: 'Field 26', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field27', label: 'Field 27', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field28', label: 'Field 28', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field29', label: 'Field 29', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field30', label: 'Field 30', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field31', label: 'Field 31', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field32', label: 'Field 32', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field33', label: 'Field 33', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field34', label: 'Field 34', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field35', label: 'Field 35', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field36', label: 'Field 36', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field37', label: 'Field 37', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field38', label: 'Field 38', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field39', label: 'Field 39', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field40', label: 'Field 40', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field41', label: 'Field 41', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field42', label: 'Field 42', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field43', label: 'Field 43', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field44', label: 'Field 44', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field45', label: 'Field 45', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field46', label: 'Field 46', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field47', label: 'Field 47', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field48', label: 'Field 48', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field49', label: 'Field 49', type: 'text', enabled: false, unitsEnabled: false
-  },
-  {
-    key: 'field50', label: 'Field 50', type: 'text', enabled: false, unitsEnabled: false
+    unitsEnabled: false,
+    unitOptions: [],
   },
   {
     key: 'price1',
@@ -255,9 +143,15 @@ export function getFieldsDefinition(): FieldsDefinition {
     const stored = localStorage.getItem('fieldsDefinition');
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Prune price2 if it exists (legacy)
+      // Prune price2 and remove fields beyond field10 (legacy cleanup)
       if (parsed.fields) {
-        parsed.fields = parsed.fields.filter((f: any) => f.key !== 'price2');
+        parsed.fields = parsed.fields.filter((f: any) => {
+          if (f.key === 'price2') return false; // Remove price2
+          if (f.key.startsWith('field') && parseInt(f.key.replace('field', '')) > 10 && !f.enabled) {
+            return false; // Remove disabled fields beyond field10
+          }
+          return true;
+        });
       }
       return parsed;
     }

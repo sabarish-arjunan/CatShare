@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck, MdVisibility, MdVisibilityOff, MdToggleOn, MdToggleOff } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -28,7 +28,25 @@ export default function FieldsSettings() {
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    const def = getFieldsDefinition();
+    let def = getFieldsDefinition();
+
+    // Cleanup: Remove old disabled fields beyond field10
+    const customFields = def.fields.filter(f => f.key.startsWith('field'));
+    const hasOldFields = customFields.some(f => parseInt(f.key.replace('field', '')) > 10 && !f.enabled);
+
+    if (hasOldFields) {
+      def = {
+        ...def,
+        fields: def.fields.filter(f => {
+          if (f.key.startsWith('field') && parseInt(f.key.replace('field', '')) > 10 && !f.enabled) {
+            return false;
+          }
+          return true;
+        })
+      };
+      setFieldsDefinition(def);
+    }
+
     setDefinition(def);
     setSavedDefinition(def);
 
@@ -79,6 +97,36 @@ export default function FieldsSettings() {
     items.splice(destIndex, 0, reorderedItem);
 
     setDefinition({ ...definition, fields: items });
+  };
+
+  const getUnitPlaceholder = (label) => {
+    const labelLower = label?.toLowerCase() || '';
+
+    // Fashion & Apparel examples
+    if (labelLower.includes('size')) return "e.g. S, M, L, XL";
+    if (labelLower.includes('fabric')) return "e.g. Cotton, Silk, Polyester";
+    if (labelLower.includes('fit')) return "e.g. Slim, Regular, Loose";
+
+    // Lifestyle & Personal Care examples
+    if (labelLower.includes('volume') || labelLower.includes('weight')) return "e.g. ml, g, kg";
+    if (labelLower.includes('skin') || labelLower.includes('hair')) return "e.g. Dry, Oily, Normal";
+
+    // Home, Kitchen & Living examples
+    if (labelLower.includes('material')) return "e.g. Steel, Plastic, Wood";
+    if (labelLower.includes('dimension')) return "e.g. inches, cm, mm";
+    if (labelLower.includes('capacity')) return "e.g. 500ml, 1L, 2L";
+
+    // Electronics examples
+    if (labelLower.includes('warranty')) return "e.g. months, years";
+    if (labelLower.includes('connectivity')) return "e.g. WiFi, Bluetooth, USB";
+
+    // Industrial examples
+    if (labelLower.includes('specification')) return "e.g. High, Medium, Low";
+    if (labelLower.includes('quality')) return "e.g. Premium, Standard, Economy";
+    if (labelLower.includes('coating')) return "e.g. Powder, Galvanized, Painted";
+
+    // Default
+    return "e.g. option1, option2, option3";
   };
 
   const handleSave = async () => {
@@ -140,14 +188,16 @@ export default function FieldsSettings() {
   const handleAddField = async () => {
     if (!definition) return;
 
-    // Find first disabled product field
-    const nextField = definition.fields.find(f => f.key.startsWith('field') && !f.enabled);
-    if (nextField) {
+    // First, try to find a disabled field from the pre-filled fields (1-10)
+    const nextDisabledField = definition.fields.find(f => f.key.startsWith('field') && !f.enabled && parseInt(f.key.replace('field', '')) <= 10);
+
+    if (nextDisabledField) {
+      // Enable an existing disabled field
       const newFields = definition.fields.map(f =>
-        f.key === nextField.key ? { ...f, enabled: true, label: "" } : f
+        f.key === nextDisabledField.key ? { ...f, enabled: true, label: "" } : f
       );
       setDefinition({ ...definition, fields: newFields });
-      setExpandedKey(nextField.key);
+      setExpandedKey(nextDisabledField.key);
 
       try {
         await Haptics.impact({ style: ImpactStyle.Light });
@@ -155,7 +205,32 @@ export default function FieldsSettings() {
 
       showToast(`Added new field`, "success");
     } else {
-      showToast("Maximum number of fields reached", "warning");
+      // All 1-10 are enabled, so create a new field dynamically
+      const customFields = definition.fields.filter(f => f.key.startsWith('field'));
+      const maxFieldNum = customFields.length > 0
+        ? Math.max(...customFields.map(f => parseInt(f.key.replace('field', ''))))
+        : 0;
+      const nextFieldNum = maxFieldNum + 1;
+
+      const newField = {
+        key: `field${nextFieldNum}`,
+        label: "",
+        type: 'text',
+        enabled: true,
+        unitsEnabled: false,
+        unitOptions: [],
+      };
+
+      const newFields = [...definition.fields];
+      newFields.splice(-1, 0, newField); // Insert before price1
+      setDefinition({ ...definition, fields: newFields });
+      setExpandedKey(newField.key);
+
+      try {
+        await Haptics.impact({ style: ImpactStyle.Light });
+      } catch (e) {}
+
+      showToast(`Field ${nextFieldNum} added`, "success");
     }
   };
 
@@ -511,59 +586,95 @@ export default function FieldsSettings() {
                                             {`Field ${field.key.replace('field', '')}`}
                                           </span>
                                           <div className="flex items-center gap-2 mt-0.5">
-                                            {editingLabelKey === field.key ? (
-                                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                                <input
-                                                  autoFocus
-                                                  type="text"
-                                                  value={editingLabelValue}
-                                                  onChange={(e) => setEditingLabelValue(e.target.value)}
-                                                  onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') saveEditingLabel(e, field.key);
-                                                    if (e.key === 'Escape') setEditingLabelKey(null);
-                                                  }}
-                                                  className="bg-transparent border-0 border-b-2 border-blue-500 px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0"
-                                                />
-                                                <button
-                                                  onClick={(e) => saveEditingLabel(e, field.key)}
-                                                  className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
-                                                  title="Confirm"
+                                            <AnimatePresence mode="wait">
+                                              {editingLabelKey === field.key ? (
+                                                <motion.div
+                                                  key="edit-mode"
+                                                  className="flex items-center gap-1"
+                                                  onClick={(e) => e.stopPropagation()}
                                                 >
-                                                  <MdCheck size={20} />
-                                                </button>
-                                              </div>
-                                            ) : (
-                                              <>
-                                                <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
-                                                  {field.label || "Untitled Field"}
-                                                </h3>
-                                                <button
-                                                  onClick={(e) => startEditingLabel(e, field)}
-                                                  className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                  <div className="relative">
+                                                    <input
+                                                      autoFocus
+                                                      type="text"
+                                                      value={editingLabelValue}
+                                                      onChange={(e) => setEditingLabelValue(e.target.value)}
+                                                      onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') saveEditingLabel(e, field.key);
+                                                        if (e.key === 'Escape') setEditingLabelKey(null);
+                                                      }}
+                                                      className="bg-transparent border-0 border-b-2 border-transparent px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0 relative z-10"
+                                                    />
+                                                    <motion.div
+                                                      initial={{ scaleX: 0, originX: 0 }}
+                                                      animate={{ scaleX: 1, originX: 0 }}
+                                                      exit={{ scaleX: 0, originX: 1 }}
+                                                      transition={{ duration: 0.4, ease: "easeOut" }}
+                                                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"
+                                                    />
+                                                  </div>
+                                                  <motion.button
+                                                    onClick={(e) => saveEditingLabel(e, field.key)}
+                                                    initial={{ opacity: 0, rotate: -90 }}
+                                                    animate={{ opacity: 1, rotate: 0 }}
+                                                    exit={{ opacity: 0, rotate: 90 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                    title="Save"
+                                                  >
+                                                    <MdCheck size={20} />
+                                                  </motion.button>
+                                                </motion.div>
+                                              ) : (
+                                                <motion.div
+                                                  key="view-mode"
+                                                  className="flex items-center gap-2"
                                                 >
-                                                  <MdEdit size={14} />
-                                                </button>
-                                              </>
-                                            )}
+                                                  <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
+                                                    {field.label || "Untitled Field"}
+                                                  </h3>
+                                                  <motion.button
+                                                    onClick={(e) => startEditingLabel(e, field)}
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                  >
+                                                    <MdEdit size={14} />
+                                                  </motion.button>
+                                                </motion.div>
+                                              )}
+                                            </AnimatePresence>
                                           </div>
                                         </div>
                                       </div>
 
                                       <div className="flex items-center gap-3">
-                                        <button
+                                        <motion.button
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             toggleFieldEnabled(field.key);
                                           }}
-                                          className={`w-10 h-5 rounded-full p-1 transition-all ${
-                                            field.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                                          whileHover={{ scale: 1.15 }}
+                                          whileTap={{ scale: 0.9 }}
+                                          className={`cursor-pointer transition-colors ${
+                                            field.enabled
+                                              ? "text-blue-600"
+                                              : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                           }`}
+                                          title={field.enabled ? "Hide field" : "Show field"}
                                         >
                                           <motion.div
-                                            animate={{ x: field.enabled ? 20 : 0 }}
-                                            className="w-3 h-3 bg-white rounded-full shadow-sm"
-                                          />
-                                        </button>
+                                            initial={false}
+                                            animate={{ scale: field.enabled ? 1 : 0.8 }}
+                                            transition={{ duration: 0.2 }}
+                                          >
+                                            {field.enabled ? (
+                                              <MdVisibility size={20} />
+                                            ) : (
+                                              <MdVisibilityOff size={20} />
+                                            )}
+                                          </motion.div>
+                                        </motion.button>
                                         <motion.div
                                           animate={{ rotate: expandedKey === field.key ? 180 : 0 }}
                                           className="text-gray-400"
@@ -585,13 +696,8 @@ export default function FieldsSettings() {
                                         <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30 space-y-4">
                                           {field.enabled ? (
                                             <div className="space-y-4">
-                                              <div className="flex items-center justify-between">
-                                                <div>
-                                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                                    Display Label
-                                                  </label>
-                                                </div>
-                                                {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
+                                              {(definition.industry === "General Products (Custom)" || !definition.industry) && field.key.startsWith('field') && (
+                                                <div className="flex items-center justify-end">
                                                   <button
                                                     onClick={(e) => {
                                                       e.stopPropagation();
@@ -602,41 +708,31 @@ export default function FieldsSettings() {
                                                     <FiTrash2 size={12} />
                                                     Remove Field
                                                   </button>
-                                                )}
-                                              </div>
-                                              <input
-                                                type="text"
-                                                value={field.label}
-                                                onChange={(e) => updateFieldLabel(field.key, e.target.value)}
-                                                placeholder="e.g. Colour, Size, Brand..."
-                                                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white"
-                                              />
+                                                </div>
+                                              )}
 
                                               {field.key.startsWith('field') && (
-                                                <div className="space-y-3">
-                                                  <div className="flex items-center justify-between px-1">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                      Unit Options
+                                                <div className="space-y-2">
+                                                  <div className="flex items-center justify-between">
+                                                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                                                      Units
                                                     </label>
-                                                    <div className="flex items-center gap-2">
-                                                      <span className={`text-[10px] font-bold uppercase ${field.unitsEnabled ? 'text-blue-500' : 'text-gray-400'}`}>
-                                                        {field.unitsEnabled ? 'Enabled' : 'Disabled'}
-                                                      </span>
-                                                      <button
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          toggleUnitsEnabled(field.key);
-                                                        }}
-                                                        className={`w-8 h-4 rounded-full p-0.5 transition-all ${
-                                                          field.unitsEnabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
-                                                        }`}
-                                                      >
-                                                        <motion.div
-                                                          animate={{ x: field.unitsEnabled ? 16 : 0 }}
-                                                          className="w-3 h-3 bg-white rounded-full shadow-sm"
-                                                        />
-                                                      </button>
-                                                    </div>
+                                                    <motion.button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleUnitsEnabled(field.key);
+                                                      }}
+                                                      whileHover={{ scale: 1.2 }}
+                                                      whileTap={{ scale: 0.95 }}
+                                                      className="cursor-pointer transition-colors"
+                                                      title={field.unitsEnabled ? "Disable units" : "Enable units"}
+                                                    >
+                                                      {field.unitsEnabled ? (
+                                                        <MdToggleOn size={28} className="text-blue-600" />
+                                                      ) : (
+                                                        <MdToggleOff size={28} className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-400" />
+                                                      )}
+                                                    </motion.button>
                                                   </div>
 
                                                   <AnimatePresence>
@@ -645,23 +741,18 @@ export default function FieldsSettings() {
                                                         initial={{ height: 0, opacity: 0 }}
                                                         animate={{ height: "auto", opacity: 1 }}
                                                         exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3 }}
                                                         className="overflow-hidden"
                                                       >
-                                                        <div className="relative">
+                                                        <div className="relative pt-2">
                                                           <input
                                                             type="text"
                                                             value={field.unitOptions?.join(", ") || ""}
                                                             onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                                            placeholder="e.g. kg, lbs, meters (comma separated)"
-                                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
+                                                            placeholder={getUnitPlaceholder(field.label)}
+                                                            className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-sm outline-none transition-all dark:text-white"
                                                           />
-                                                          {field.unitOptions && field.unitOptions.length > 0 && (
-                                                            <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                                                          )}
                                                         </div>
-                                                        <p className="mt-1.5 text-[9px] text-gray-400 italic px-1 leading-relaxed">
-                                                          Enter unit options separated by commas (e.g. "kg, lbs, meters").
-                                                        </p>
                                                       </motion.div>
                                                     )}
                                                   </AnimatePresence>
