@@ -81,6 +81,36 @@ export default function FieldsSettings() {
     setDefinition({ ...definition, fields: items });
   };
 
+  const getUnitPlaceholder = (label) => {
+    const labelLower = label?.toLowerCase() || '';
+
+    // Fashion & Apparel examples
+    if (labelLower.includes('size')) return "e.g. S, M, L, XL";
+    if (labelLower.includes('fabric')) return "e.g. Cotton, Silk, Polyester";
+    if (labelLower.includes('fit')) return "e.g. Slim, Regular, Loose";
+
+    // Lifestyle & Personal Care examples
+    if (labelLower.includes('volume') || labelLower.includes('weight')) return "e.g. ml, g, kg";
+    if (labelLower.includes('skin') || labelLower.includes('hair')) return "e.g. Dry, Oily, Normal";
+
+    // Home, Kitchen & Living examples
+    if (labelLower.includes('material')) return "e.g. Steel, Plastic, Wood";
+    if (labelLower.includes('dimension')) return "e.g. inches, cm, mm";
+    if (labelLower.includes('capacity')) return "e.g. 500ml, 1L, 2L";
+
+    // Electronics examples
+    if (labelLower.includes('warranty')) return "e.g. months, years";
+    if (labelLower.includes('connectivity')) return "e.g. WiFi, Bluetooth, USB";
+
+    // Industrial examples
+    if (labelLower.includes('specification')) return "e.g. High, Medium, Low";
+    if (labelLower.includes('quality')) return "e.g. Premium, Standard, Economy";
+    if (labelLower.includes('coating')) return "e.g. Powder, Galvanized, Painted";
+
+    // Default
+    return "e.g. option1, option2, option3";
+  };
+
   const handleSave = async () => {
     if (definition) {
       setFieldsDefinition(definition);
@@ -674,7 +704,7 @@ export default function FieldsSettings() {
                                                             type="text"
                                                             value={field.unitOptions?.join(", ") || ""}
                                                             onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                                            placeholder="e.g. kg, lbs, meters"
+                                                            placeholder={getUnitPlaceholder(field.label)}
                                                             className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-sm outline-none transition-all dark:text-white"
                                                           />
                                                         </div>
