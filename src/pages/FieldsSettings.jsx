@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck, MdVisibility, MdVisibilityOff, MdToggleOn, MdToggleOff } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -637,37 +637,26 @@ export default function FieldsSettings() {
                                               )}
 
                                               {field.key.startsWith('field') && (
-                                                <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3 bg-gray-50/50 dark:bg-gray-800/20">
+                                                <div className="space-y-2">
                                                   <div className="flex items-center justify-between">
-                                                    <div>
-                                                      <h4 className="text-sm font-semibold dark:text-white">Unit Options</h4>
-                                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Add measurement units for this field</p>
-                                                    </div>
+                                                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                                                      Units
+                                                    </label>
                                                     <motion.button
                                                       onClick={(e) => {
                                                         e.stopPropagation();
                                                         toggleUnitsEnabled(field.key);
                                                       }}
-                                                      whileHover={{ scale: 1.15 }}
-                                                      whileTap={{ scale: 0.9 }}
-                                                      className={`cursor-pointer transition-colors ${
-                                                        field.unitsEnabled
-                                                          ? "text-blue-600"
-                                                          : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                                      }`}
+                                                      whileHover={{ scale: 1.2 }}
+                                                      whileTap={{ scale: 0.95 }}
+                                                      className="cursor-pointer transition-colors"
                                                       title={field.unitsEnabled ? "Disable units" : "Enable units"}
                                                     >
-                                                      <motion.div
-                                                        initial={false}
-                                                        animate={{ scale: field.unitsEnabled ? 1 : 0.8 }}
-                                                        transition={{ duration: 0.2 }}
-                                                      >
-                                                        {field.unitsEnabled ? (
-                                                          <MdVisibility size={20} />
-                                                        ) : (
-                                                          <MdVisibilityOff size={20} />
-                                                        )}
-                                                      </motion.div>
+                                                      {field.unitsEnabled ? (
+                                                        <MdToggleOn size={28} className="text-blue-600" />
+                                                      ) : (
+                                                        <MdToggleOff size={28} className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-400" />
+                                                      )}
                                                     </motion.button>
                                                   </div>
 
@@ -680,28 +669,14 @@ export default function FieldsSettings() {
                                                         transition={{ duration: 0.3 }}
                                                         className="overflow-hidden"
                                                       >
-                                                        <div className="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                                          <div className="relative">
-                                                            <input
-                                                              type="text"
-                                                              value={field.unitOptions?.join(", ") || ""}
-                                                              onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                                              placeholder="e.g. kg, lbs, meters"
-                                                              className="w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-sm outline-none transition-all dark:text-white pr-10"
-                                                            />
-                                                            {field.unitOptions && field.unitOptions.length > 0 && (
-                                                              <motion.div
-                                                                initial={{ scale: 0 }}
-                                                                animate={{ scale: 1 }}
-                                                                transition={{ type: "spring", stiffness: 200 }}
-                                                              >
-                                                                <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                                                              </motion.div>
-                                                            )}
-                                                          </div>
-                                                          <p className="text-xs text-gray-500 dark:text-gray-400 px-1">
-                                                            Separate units with commas (e.g. kg, lbs, meters)
-                                                          </p>
+                                                        <div className="relative pt-2">
+                                                          <input
+                                                            type="text"
+                                                            value={field.unitOptions?.join(", ") || ""}
+                                                            onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                                            placeholder="e.g. kg, lbs, meters"
+                                                            className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-sm outline-none transition-all dark:text-white"
+                                                          />
                                                         </div>
                                                       </motion.div>
                                                     )}
