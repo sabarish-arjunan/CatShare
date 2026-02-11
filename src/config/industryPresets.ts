@@ -27,14 +27,16 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
   {
     name: "Lifestyle & Personal Care",
     fields: [
-      { label: "Brand" },
+      { label: "Variant / Shade" },
       { label: "Volume / Weight", unitOptions: ["ml", "g", "kg", "oz"] },
-      { label: "Type" },
-      { label: "Fragrance" },
-      { label: "Skin Type" },
+      { label: "Skin / Hair Type" },
+      { label: "Usage / Purpose" },
       { label: "Ingredients" },
-      { label: "Pack Size" },
-      { label: "Notes" },
+      { label: "Fragrance" },
+      { label: "Shelf Life" },
+      { label: "Package Type" },
+      { label: "Brand" },
+      { label: "Safety Notes" },
     ],
   },
   {
