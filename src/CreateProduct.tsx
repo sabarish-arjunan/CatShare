@@ -1375,7 +1375,7 @@ export default function CreateProduct() {
                               className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                             />
                           </div>
-                          {(field.unitOptions && field.unitOptions.length > 0) && (
+                          {(field.unitsEnabled && field.unitOptions && field.unitOptions.length > 0) && (
                             <div className="relative flex-shrink-0">
                               <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                                 Unit
@@ -1409,22 +1409,24 @@ export default function CreateProduct() {
                         className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                       />
                     </div>
-                    <div className="relative flex-shrink-0">
-                      <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                        Unit
-                      </label>
-                      <select
-                        name={getSelectedCataloguePriceUnitField()}
-                        value={getSelectedCataloguePriceUnit() || "None"}
-                        onChange={handleChange}
-                        className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
-                      >
-                        <option>None</option>
-                        {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
-                          <option key={opt}>{opt}</option>
-                        ))}
-                      </select>
-                    </div>
+                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitsEnabled && (getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).length > 0) && (
+                      <div className="relative flex-shrink-0">
+                        <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                          Unit
+                        </label>
+                        <select
+                          name={getSelectedCataloguePriceUnitField()}
+                          value={getSelectedCataloguePriceUnit() || "None"}
+                          onChange={handleChange}
+                          className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
+                        >
+                          <option>None</option>
+                          {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                            <option key={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                   </div>
 
                   <div className="relative">

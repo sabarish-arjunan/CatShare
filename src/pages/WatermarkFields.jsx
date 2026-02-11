@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdEdit, MdCheck } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -20,6 +20,8 @@ export default function WatermarkFields() {
   const [definition, setDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("product-fields"); // "product-fields" or "price-fields"
+  const [editingLabelKey, setEditingLabelKey] = useState(null);
+  const [editingLabelValue, setEditingLabelValue] = useState("");
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -90,6 +92,19 @@ export default function WatermarkFields() {
     setDefinition({ ...definition, fields: newFields });
   };
 
+  const toggleUnitsEnabled = async (key) => {
+    if (!definition) return;
+
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (e) {}
+
+    const newFields = definition.fields.map(f =>
+      f.key === key ? { ...f, unitsEnabled: !f.unitsEnabled } : f
+    );
+    setDefinition({ ...definition, fields: newFields });
+  };
+
   const updateIndustry = async (industry) => {
     if (!definition) return;
 
@@ -137,7 +152,7 @@ export default function WatermarkFields() {
 
   const toggleFieldEnabled = async (key) => {
     if (!definition) return;
-    
+
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (e) {}
@@ -146,6 +161,19 @@ export default function WatermarkFields() {
       f.key === key ? { ...f, enabled: !f.enabled } : f
     );
     setDefinition({ ...definition, fields: newFields });
+  };
+
+  const startEditingLabel = (e, field) => {
+    e.stopPropagation();
+    setEditingLabelKey(field.key);
+    setEditingLabelValue(field.label || "");
+  };
+
+  const saveEditingLabel = (e, key) => {
+    e.stopPropagation();
+    updateFieldLabel(key, editingLabelValue);
+    setEditingLabelKey(null);
+    setEditingLabelValue("");
   };
 
   if (!definition) return null;
@@ -202,6 +230,27 @@ export default function WatermarkFields() {
           </div>
           
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide no-scrollbar">
+            {INDUSTRY_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => updateIndustry(preset.name)}
+                className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
+                  definition.industry === preset.name
+                    ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <div className="text-lg mb-1">
+                  {preset.name.includes("Fashion") ? "👕" :
+                   preset.name.includes("Lifestyle") ? "🧴" :
+                   preset.name.includes("Home") ? "🏠" :
+                   preset.name.includes("Electronics") ? "🎧" : "🛠️"}
+                </div>
+                <span className="font-bold text-sm truncate w-full text-left">{preset.name.split(" ")[0]}</span>
+                <span className="text-[10px] opacity-70">{preset.fields.length} Fields</span>
+              </button>
+            ))}
+
             <button
               onClick={() => updateIndustry("General Products (Custom)")}
               className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
@@ -214,27 +263,6 @@ export default function WatermarkFields() {
               <span className="font-bold text-sm">Custom</span>
               <span className="text-[10px] opacity-70">Flexible fields</span>
             </button>
-            
-            {INDUSTRY_PRESETS.map((preset) => (
-              <button
-                key={preset.name}
-                onClick={() => updateIndustry(preset.name)}
-                className={`shrink-0 px-4 py-3 rounded-2xl border-2 transition-all flex flex-col gap-1 items-start min-w-[140px] ${
-                  definition.industry === preset.name
-                    ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30"
-                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                <div className="text-lg mb-1">
-                  {preset.name.includes("Fashion") ? "👕" : 
-                   preset.name.includes("Lifestyle") ? "🧴" : 
-                   preset.name.includes("Home") ? "🏠" : 
-                   preset.name.includes("Electronics") ? "🎧" : "🛠️"}
-                </div>
-                <span className="font-bold text-sm truncate w-full text-left">{preset.name.split(" ")[0]}</span>
-                <span className="text-[10px] opacity-70">{preset.fields.length} Fields</span>
-              </button>
-            ))}
           </div>
         </section>
 
@@ -316,11 +344,44 @@ export default function WatermarkFields() {
                                   </div>
                                   <div>
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                      {field.key.startsWith('field') ? `Product Slot ${field.key.replace('field', '')}` : `Catalogue Price`}
+                                      {field.key.startsWith('field') ? `Product Field ${field.key.replace('field', '')}` : `Catalogue Price`}
                                     </span>
-                                    <h3 className="font-bold text-sm dark:text-white">
-                                      {field.label || "Untitled Field"}
-                                    </h3>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      {editingLabelKey === field.key ? (
+                                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                          <input
+                                            autoFocus
+                                            type="text"
+                                            value={editingLabelValue}
+                                            onChange={(e) => setEditingLabelValue(e.target.value)}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter') saveEditingLabel(e, field.key);
+                                              if (e.key === 'Escape') setEditingLabelKey(null);
+                                            }}
+                                            className="bg-transparent border-0 border-b-2 border-blue-500 px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0"
+                                          />
+                                          <button
+                                            onClick={(e) => saveEditingLabel(e, field.key)}
+                                            className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                            title="Confirm"
+                                          >
+                                            <MdCheck size={20} />
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
+                                            {field.label || "Untitled Field"}
+                                          </h3>
+                                          <button
+                                            onClick={(e) => startEditingLabel(e, field)}
+                                            className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                          >
+                                            <MdEdit size={14} />
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
 
@@ -355,22 +416,58 @@ export default function WatermarkFields() {
                                   </div>
 
                                   {field.key.startsWith('field') && (
-                                    <div>
-                                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                        Unit Options
-                                      </label>
-                                      <div className="relative">
-                                        <input
-                                          type="text"
-                                          value={field.unitOptions?.join(", ") || ""}
-                                          onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                          placeholder="e.g. kg, lbs, meters (comma separated)"
-                                          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
-                                        />
-                                        {field.unitOptions && field.unitOptions.length > 0 && (
-                                          <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                                        )}
+                                    <div className="space-y-3">
+                                      <div className="flex items-center justify-between px-1">
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                          Unit Options
+                                        </label>
+                                        <div className="flex items-center gap-2">
+                                          <span className={`text-[10px] font-bold uppercase ${field.unitsEnabled ? 'text-blue-500' : 'text-gray-400'}`}>
+                                            {field.unitsEnabled ? 'Enabled' : 'Disabled'}
+                                          </span>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toggleUnitsEnabled(field.key);
+                                            }}
+                                            className={`w-8 h-4 rounded-full p-0.5 transition-all ${
+                                              field.unitsEnabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                                            }`}
+                                          >
+                                            <motion.div
+                                              animate={{ x: field.unitsEnabled ? 16 : 0 }}
+                                              className="w-3 h-3 bg-white rounded-full shadow-sm"
+                                            />
+                                          </button>
+                                        </div>
                                       </div>
+
+                                      <AnimatePresence>
+                                        {field.unitsEnabled && (
+                                          <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="overflow-hidden"
+                                          >
+                                            <div className="relative">
+                                              <input
+                                                type="text"
+                                                value={field.unitOptions?.join(", ") || ""}
+                                                onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                                placeholder="e.g. kg, lbs, meters (comma separated)"
+                                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-transparent focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
+                                              />
+                                              {field.unitOptions && field.unitOptions.length > 0 && (
+                                                <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                              )}
+                                            </div>
+                                            <p className="mt-1.5 text-[9px] text-gray-400 italic px-1 leading-relaxed">
+                                              Enter unit options separated by commas (e.g. "kg, lbs, meters").
+                                            </p>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
                                   )}
                                 </div>

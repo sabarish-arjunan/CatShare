@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore } from "react-icons/md";
+import { MdArrowBack, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -23,6 +23,8 @@ export default function FieldsSettings() {
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
   const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
+  const [editingLabelKey, setEditingLabelKey] = useState(null);
+  const [editingLabelValue, setEditingLabelValue] = useState("");
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -122,6 +124,19 @@ export default function FieldsSettings() {
     setDefinition({ ...definition, fields: newFields });
   };
 
+  const toggleUnitsEnabled = async (key) => {
+    if (!definition) return;
+
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (e) {}
+
+    const newFields = definition.fields.map(f =>
+      f.key === key ? { ...f, unitsEnabled: !f.unitsEnabled } : f
+    );
+    setDefinition({ ...definition, fields: newFields });
+  };
+
   const handleAddField = async () => {
     if (!definition) return;
 
@@ -138,7 +153,7 @@ export default function FieldsSettings() {
         await Haptics.impact({ style: ImpactStyle.Light });
       } catch (e) {}
 
-      showToast(`Added new field slot`, "success");
+      showToast(`Added new field`, "success");
     } else {
       showToast("Maximum number of fields reached", "warning");
     }
@@ -164,6 +179,7 @@ export default function FieldsSettings() {
               ...f,
               label: presetField.label,
               unitOptions: presetField.defaultUnits || f.unitOptions || [],
+              unitsEnabled: !!(presetField.defaultUnits || f.unitOptions?.length > 0),
               enabled: true
             };
           } else {
@@ -188,7 +204,7 @@ export default function FieldsSettings() {
 
   const toggleFieldEnabled = async (key) => {
     if (!definition) return;
-    
+
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
     } catch (e) {}
@@ -197,6 +213,19 @@ export default function FieldsSettings() {
       f.key === key ? { ...f, enabled: !f.enabled } : f
     );
     setDefinition({ ...definition, fields: newFields });
+  };
+
+  const startEditingLabel = (e, field) => {
+    e.stopPropagation();
+    setEditingLabelKey(field.key);
+    setEditingLabelValue(field.label || "");
+  };
+
+  const saveEditingLabel = (e, key) => {
+    e.stopPropagation();
+    updateFieldLabel(key, editingLabelValue);
+    setEditingLabelKey(null);
+    setEditingLabelValue("");
   };
 
   if (!definition) return null;
@@ -370,6 +399,32 @@ export default function FieldsSettings() {
               </p>
 
               <div className="grid grid-cols-1 gap-3">
+                {INDUSTRY_PRESETS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => updateIndustry(preset.name)}
+                    className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
+                      definition.industry === preset.name
+                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
+                        : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-blue-200 dark:hover:border-blue-900"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        {preset.name.includes("Fashion") ? "👕" :
+                         preset.name.includes("Lifestyle") ? "🧴" :
+                         preset.name.includes("Home") ? "🏠" :
+                         preset.name.includes("Electronics") ? "🎧" : "🛠️"}
+                      </div>
+                      <div className="text-left">
+                        <span className="font-bold text-sm block">{preset.name}</span>
+                        <span className="text-[10px] opacity-70">{preset.fields.length} Recommended Fields</span>
+                      </div>
+                    </div>
+                    {definition.industry === preset.name && <FiCheck className="text-white" size={20} />}
+                  </button>
+                ))}
+
                 <button
                   onClick={() => updateIndustry("General Products (Custom)")}
                   className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
@@ -387,32 +442,6 @@ export default function FieldsSettings() {
                   </div>
                   {(definition.industry === "General Products (Custom)" || !definition.industry) && <FiCheck className="text-white" size={20} />}
                 </button>
-                
-                {INDUSTRY_PRESETS.map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() => updateIndustry(preset.name)}
-                    className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
-                      definition.industry === preset.name
-                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
-                        : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-blue-200 dark:hover:border-blue-900"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                        {preset.name.includes("Fashion") ? "👕" : 
-                         preset.name.includes("Lifestyle") ? "🧴" : 
-                         preset.name.includes("Home") ? "🏠" : 
-                         preset.name.includes("Electronics") ? "🎧" : "🛠️"}
-                      </div>
-                      <div className="text-left">
-                        <span className="font-bold text-sm block">{preset.name}</span>
-                        <span className="text-[10px] opacity-70">{preset.fields.length} Recommended Fields</span>
-                      </div>
-                    </div>
-                    {definition.industry === preset.name && <FiCheck className="text-white" size={20} />}
-                  </button>
-                ))}
               </div>
             </motion.div>
           ) : (
@@ -479,11 +508,44 @@ export default function FieldsSettings() {
                                         </div>
                                         <div>
                                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                            {`Slot ${field.key.replace('field', '')}`}
+                                            {`Field ${field.key.replace('field', '')}`}
                                           </span>
-                                          <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
-                                            {field.label || "Untitled Field"}
-                                          </h3>
+                                          <div className="flex items-center gap-2 mt-0.5">
+                                            {editingLabelKey === field.key ? (
+                                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                <input
+                                                  autoFocus
+                                                  type="text"
+                                                  value={editingLabelValue}
+                                                  onChange={(e) => setEditingLabelValue(e.target.value)}
+                                                  onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') saveEditingLabel(e, field.key);
+                                                    if (e.key === 'Escape') setEditingLabelKey(null);
+                                                  }}
+                                                  className="bg-transparent border-0 border-b-2 border-blue-500 px-0 py-0.5 text-sm font-medium w-32 outline-none focus:ring-0"
+                                                />
+                                                <button
+                                                  onClick={(e) => saveEditingLabel(e, field.key)}
+                                                  className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                  title="Confirm"
+                                                >
+                                                  <MdCheck size={20} />
+                                                </button>
+                                              </div>
+                                            ) : (
+                                              <>
+                                                <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">
+                                                  {field.label || "Untitled Field"}
+                                                </h3>
+                                                <button
+                                                  onClick={(e) => startEditingLabel(e, field)}
+                                                  className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                                >
+                                                  <MdEdit size={14} />
+                                                </button>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
 
@@ -551,22 +613,58 @@ export default function FieldsSettings() {
                                               />
 
                                               {field.key.startsWith('field') && (
-                                                <div>
-                                                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                                                    Unit Options
-                                                  </label>
-                                                  <div className="relative">
-                                                    <input
-                                                      type="text"
-                                                      value={field.unitOptions?.join(", ") || ""}
-                                                      onChange={(e) => updateFieldUnits(field.key, e.target.value)}
-                                                      placeholder="e.g. kg, lbs, meters (comma separated)"
-                                                      className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
-                                                    />
-                                                    {field.unitOptions && field.unitOptions.length > 0 && (
-                                                      <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
-                                                    )}
+                                                <div className="space-y-3">
+                                                  <div className="flex items-center justify-between px-1">
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                      Unit Options
+                                                    </label>
+                                                    <div className="flex items-center gap-2">
+                                                      <span className={`text-[10px] font-bold uppercase ${field.unitsEnabled ? 'text-blue-500' : 'text-gray-400'}`}>
+                                                        {field.unitsEnabled ? 'Enabled' : 'Disabled'}
+                                                      </span>
+                                                      <button
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          toggleUnitsEnabled(field.key);
+                                                        }}
+                                                        className={`w-8 h-4 rounded-full p-0.5 transition-all ${
+                                                          field.unitsEnabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-700"
+                                                        }`}
+                                                      >
+                                                        <motion.div
+                                                          animate={{ x: field.unitsEnabled ? 16 : 0 }}
+                                                          className="w-3 h-3 bg-white rounded-full shadow-sm"
+                                                        />
+                                                      </button>
+                                                    </div>
                                                   </div>
+
+                                                  <AnimatePresence>
+                                                    {field.unitsEnabled && (
+                                                      <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: "auto", opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        className="overflow-hidden"
+                                                      >
+                                                        <div className="relative">
+                                                          <input
+                                                            type="text"
+                                                            value={field.unitOptions?.join(", ") || ""}
+                                                            onChange={(e) => updateFieldUnits(field.key, e.target.value)}
+                                                            placeholder="e.g. kg, lbs, meters (comma separated)"
+                                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl text-sm outline-none transition-all dark:text-white pr-10"
+                                                          />
+                                                          {field.unitOptions && field.unitOptions.length > 0 && (
+                                                            <MdCheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={18} />
+                                                          )}
+                                                        </div>
+                                                        <p className="mt-1.5 text-[9px] text-gray-400 italic px-1 leading-relaxed">
+                                                          Enter unit options separated by commas (e.g. "kg, lbs, meters").
+                                                        </p>
+                                                      </motion.div>
+                                                    )}
+                                                  </AnimatePresence>
                                                 </div>
                                               )}
                                             </div>
