@@ -1148,7 +1148,7 @@ export default function CreateProduct() {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
             }`}
           >
-            Catalogue
+            Details
           </button>
         </div>
 
