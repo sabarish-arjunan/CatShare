@@ -290,6 +290,19 @@ export default function FieldsSettings() {
     setDefinition({ ...definition, fields: newFields });
   };
 
+  const removeField = async (key) => {
+    if (!definition) return;
+
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (e) {}
+
+    // Actually delete the field from the array
+    const newFields = definition.fields.filter(f => f.key !== key);
+    setDefinition({ ...definition, fields: newFields });
+    showToast("Field removed", "success");
+  };
+
   const startEditingLabel = (e, field) => {
     e.stopPropagation();
     setEditingLabelKey(field.key);
@@ -712,7 +725,13 @@ export default function FieldsSettings() {
                                                       <button
                                                         onClick={(e) => {
                                                           e.stopPropagation();
-                                                          toggleFieldEnabled(field.key);
+                                                          // For dynamically added fields in industry templates, delete the field
+                                                          // For custom templates, just hide it
+                                                          if (!isCustomTemplate && isDynamicallyAdded) {
+                                                            removeField(field.key);
+                                                          } else {
+                                                            toggleFieldEnabled(field.key);
+                                                          }
                                                         }}
                                                         className="flex items-center gap-1 text-red-500 hover:text-red-600 text-[10px] font-bold uppercase"
                                                       >
