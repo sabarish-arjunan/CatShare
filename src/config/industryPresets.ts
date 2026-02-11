@@ -72,14 +72,16 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
   {
     name: "Hardware, Tools & Industrial",
     fields: [
+      { label: "Specification" },
       { label: "Material" },
-      { label: "Grade" },
-      { label: "Size" },
-      { label: "Brand" },
-      { label: "Weight", unitOptions: ["kg", "lbs", "ton"] },
-      { label: "Quantity" },
       { label: "Type" },
-      { label: "Notes" },
+      { label: "Quality" },
+      { label: "Coating" },
+      { label: "Usage" },
+      { label: "Certification" },
+      { label: "Brand" },
+      { label: "Warranty", unitOptions: ["months", "years"] },
+      { label: "Package" },
     ],
   },
 ];
