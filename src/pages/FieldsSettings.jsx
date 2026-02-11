@@ -28,7 +28,25 @@ export default function FieldsSettings() {
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    const def = getFieldsDefinition();
+    let def = getFieldsDefinition();
+
+    // Cleanup: Remove old disabled fields beyond field10
+    const customFields = def.fields.filter(f => f.key.startsWith('field'));
+    const hasOldFields = customFields.some(f => parseInt(f.key.replace('field', '')) > 10 && !f.enabled);
+
+    if (hasOldFields) {
+      def = {
+        ...def,
+        fields: def.fields.filter(f => {
+          if (f.key.startsWith('field') && parseInt(f.key.replace('field', '')) > 10 && !f.enabled) {
+            return false;
+          }
+          return true;
+        })
+      };
+      setFieldsDefinition(def);
+    }
+
     setDefinition(def);
     setSavedDefinition(def);
 
@@ -476,23 +494,25 @@ export default function FieldsSettings() {
 
               <button
                 onClick={() => {
-                  const nextFieldNum = definition.fields.filter(f => f.key.startsWith('field')).length + 1;
-                  if (nextFieldNum <= 10) {
-                    const newField = {
-                      key: `field${nextFieldNum}`,
-                      label: `Field ${nextFieldNum}`,
-                      type: 'text',
-                      enabled: true,
-                      unitsEnabled: false,
-                      unitOptions: [],
-                    };
-                    const updatedFields = [...definition.fields];
-                    updatedFields.splice(-1, 0, newField); // Insert before price1
-                    setDefinition({ ...definition, fields: updatedFields });
-                    showToast(`Field ${nextFieldNum} added`, "success");
-                  } else {
-                    showToast("Maximum 10 fields allowed", "warning");
-                  }
+                  const customFields = definition.fields.filter(f => f.key.startsWith('field'));
+                  const maxFieldNum = customFields.length > 0
+                    ? Math.max(...customFields.map(f => parseInt(f.key.replace('field', ''))))
+                    : 0;
+                  const nextFieldNum = maxFieldNum + 1;
+
+                  const newField = {
+                    key: `field${nextFieldNum}`,
+                    label: `Field ${nextFieldNum}`,
+                    type: 'text',
+                    enabled: true,
+                    unitsEnabled: false,
+                    unitOptions: [],
+                  };
+
+                  const updatedFields = [...definition.fields];
+                  updatedFields.splice(-1, 0, newField); // Insert before price1
+                  setDefinition({ ...definition, fields: updatedFields });
+                  showToast(`Field ${nextFieldNum} added`, "success");
                 }}
                 className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-all flex items-center justify-center gap-2 font-semibold"
               >

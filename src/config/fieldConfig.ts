@@ -143,9 +143,15 @@ export function getFieldsDefinition(): FieldsDefinition {
     const stored = localStorage.getItem('fieldsDefinition');
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Prune price2 if it exists (legacy)
+      // Prune price2 and remove fields beyond field10 (legacy cleanup)
       if (parsed.fields) {
-        parsed.fields = parsed.fields.filter((f: any) => f.key !== 'price2');
+        parsed.fields = parsed.fields.filter((f: any) => {
+          if (f.key === 'price2') return false; // Remove price2
+          if (f.key.startsWith('field') && parseInt(f.key.replace('field', '')) > 10 && !f.enabled) {
+            return false; // Remove disabled fields beyond field10
+          }
+          return true;
+        });
       }
       return parsed;
     }
