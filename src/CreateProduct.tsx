@@ -306,13 +306,16 @@ export default function CreateProduct() {
     const velocity = info.velocity.y;
     const currentY = y.get();
 
-    // Snapping logic with velocity and threshold for a "buttery" feel
-    if (velocity < -300 || (velocity <= 0 && currentY < DRAG_RANGE * 0.7)) {
+    // Snapping logic - requires 2 swipes to close (higher threshold)
+    if (velocity < -300 || (velocity <= 0 && currentY < DRAG_RANGE * 0.5)) {
       // Snap to top (expanded)
       animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
-    } else {
-      // Snap to bottom (collapsed)
+    } else if (velocity > 500 || (velocity >= 0 && currentY > DRAG_RANGE * 0.85)) {
+      // Snap to bottom (collapsed) - requires strong downward velocity or more than 85% dragged
       animate(y, DRAG_RANGE, { type: "spring", stiffness: 400, damping: 40 });
+    } else {
+      // Default: snap back to top if not far enough
+      animate(y, 0, { type: "spring", stiffness: 400, damping: 40 });
     }
   };
 
