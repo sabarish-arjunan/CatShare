@@ -543,9 +543,10 @@ export default function FieldsSettings() {
                       className="space-y-3"
                     >
                       <AnimatePresence mode="popLayout">
-                        {allFields
-                          .filter(f => f.enabled || (definition.industry !== "General Products (Custom)" && definition.industry !== undefined))
-                          .map((field, index) => (
+                        {(() => {
+                          const visibleFields = allFields.filter(f => f.enabled || (definition.industry !== "General Products (Custom)" && definition.industry !== undefined));
+                          const isCustomTemplate = definition.industry === "General Products (Custom)" || !definition.industry;
+                          return visibleFields.map((field, index) => (
                           <motion.div
                             key={field.key}
                             initial={{ opacity: 0, y: 10 }}
@@ -771,8 +772,8 @@ export default function FieldsSettings() {
                                 </motion.div>
                               )}
                             </Draggable>
-                            {/* Add New Field button after field 10 */}
-                            {field.key === "field10" && (
+                            {/* Add New Field button after field 10 or last field in custom template */}
+                            {(field.key === "field10" || (isCustomTemplate && index === visibleFields.length - 1)) && (
                               <motion.div
                                 key="add-field-button"
                                 initial={{ opacity: 0, y: 10 }}
@@ -789,7 +790,8 @@ export default function FieldsSettings() {
                               </motion.div>
                             )}
                           </motion.div>
-                        ))}
+                        ));
+                        })()}
                       </AnimatePresence>
 
                       {provided.placeholder}
