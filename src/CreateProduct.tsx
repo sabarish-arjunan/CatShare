@@ -1449,7 +1449,7 @@ export default function CreateProduct() {
                         className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                       />
                     </div>
-                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitsEnabled && getPriceUnits().length > 0) && (
+                    {getPriceUnits().length > 0 && (
                       <div className="relative flex-shrink-0">
                         <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                           Unit
