@@ -53,19 +53,13 @@ const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'
 const navigate = useNavigate();
 const { showToast } = useToast();
 
-  // Listen for close-popup event to close backups/renders
+  // Expose popup state globally for back button handlers
   useEffect(() => {
-    const handleClosePopup = () => {
-      if (showBackupPopup) {
-        setShowBackupPopup(false);
-      } else if (showRenderAfterRestore) {
-        setShowRenderAfterRestore(false);
-      }
-    };
-
-    window.addEventListener("close-drawer-popup", handleClosePopup);
-    return () => {
-      window.removeEventListener("close-drawer-popup", handleClosePopup);
+    window.__sideDrawerState = {
+      showBackupPopup,
+      showRenderAfterRestore,
+      setShowBackupPopup,
+      setShowRenderAfterRestore,
     };
   }, [showBackupPopup, showRenderAfterRestore]);
 

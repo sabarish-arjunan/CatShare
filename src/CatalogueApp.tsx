@@ -255,10 +255,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // 1. Check for backup/restore popup or other drawer popups first
-      const backupPopup = document.querySelector("[data-backup-popup]");
-      if (backupPopup) {
-        window.dispatchEvent(new CustomEvent("close-drawer-popup"));
+      // 1. Check for backup/restore popup from SideDrawer first
+      const sideDrawerState = (window as any).__sideDrawerState;
+      if (sideDrawerState?.showBackupPopup) {
+        sideDrawerState.setShowBackupPopup(false);
+        return;
+      }
+      if (sideDrawerState?.showRenderAfterRestore) {
+        sideDrawerState.setShowRenderAfterRestore(false);
         return;
       }
 

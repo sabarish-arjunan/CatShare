@@ -377,9 +377,13 @@ function AppWithBackHandler() {
       }
 
       // Check for backup/restore popup in drawer
-      const backupPopup = document.querySelector("[data-backup-popup]");
-      if (backupPopup) {
-        window.dispatchEvent(new CustomEvent("close-drawer-popup"));
+      const sideDrawerState = (window as any).__sideDrawerState;
+      if (sideDrawerState?.showBackupPopup) {
+        sideDrawerState.setShowBackupPopup(false);
+        return;
+      }
+      if (sideDrawerState?.showRenderAfterRestore) {
+        sideDrawerState.setShowRenderAfterRestore(false);
         return;
       }
 
