@@ -53,6 +53,21 @@ const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'
 const navigate = useNavigate();
 const { showToast } = useToast();
 
+  // Expose all modal states globally for back button handlers
+  useEffect(() => {
+    window.__sideDrawerState = {
+      showBackupPopup,
+      showRenderAfterRestore,
+      showCategories,
+      showBulkEdit,
+      showMediaLibrary,
+      setShowBackupPopup,
+      setShowRenderAfterRestore,
+      setShowCategories,
+      setShowBulkEdit,
+      setShowMediaLibrary,
+    };
+  }, [showBackupPopup, showRenderAfterRestore, showCategories, showBulkEdit, showMediaLibrary]);
 
   if (!open) return null;
 
@@ -473,6 +488,24 @@ const exportProductsToCSV = (products) => {
       if (parsed.fieldsDefinition) {
         // Backup has its own field definition - use it to preserve original field labels
         console.log("✅ Found fieldsDefinition in backup - using original field labels and configuration");
+
+        // Ensure price fields retain their unit configuration from defaults if not in backup
+        const defaultDef = getCataloguesDefinition ? safeGetFromStorage('fieldsDefinition', null) : null;
+        if (parsed.fieldsDefinition.fields && !parsed.fieldsDefinition.fields.some(f => f.key === 'price1' && f.unitOptions?.length > 0)) {
+          // Price fields might not have unit options in old backups, merge with defaults
+          parsed.fieldsDefinition.fields = parsed.fieldsDefinition.fields.map(f => {
+            if (f.key === 'price1' && (!f.unitOptions || f.unitOptions.length === 0)) {
+              // Add default unit options for price1
+              return {
+                ...f,
+                unitsEnabled: true,
+                unitOptions: ['/ piece', '/ dozen', '/ set'],
+                defaultUnit: '/ piece'
+              };
+            }
+            return f;
+          });
+        }
         backupFieldDef = parsed.fieldsDefinition;
 
         // For v3 backups, also log the field names being restored
@@ -480,7 +513,14 @@ const exportProductsToCSV = (products) => {
           const enabledFields = parsed.metadata.fieldNames.filter(f => f.enabled);
           console.log(`\n📋 RESTORING FIELD CONFIGURATION FROM BACKUP:`);
           console.log(`   Template: ${parsed.metadata.template}`);
+          console.log(`   Total Fields in Backup: ${parsed.metadata.fieldNames.length}`);
           console.log(`   Enabled Fields: ${enabledFields.length}`);
+
+          // Log ALL enabled fields including price fields
+          enabledFields.forEach(f => {
+            const unitInfo = f.unitsEnabled ? `✅ Units: ${f.unitOptions?.join(', ') || 'default units'}` : 'No units';
+            console.log(`      • ${f.key} (${f.label}) - ${unitInfo}`);
+          });
 
           if (parsed.metadata.customFieldLabelsCount > 0) {
             console.log(`   Custom Field Labels: ${parsed.metadata.customFieldLabelsCount}`);
@@ -594,6 +634,28 @@ const exportProductsToCSV = (products) => {
       console.log("💾 Preserved critical settings:", Object.keys(preservedSettings));
       if (isV3Backup && parsed.metadata?.watermarkSettings) {
         console.log("📝 Restoring watermark settings from backup metadata");
+      }
+
+      // Validate that fieldsDefinition includes units configuration
+      if (backupFieldDef?.fields) {
+        const fieldsWithUnits = backupFieldDef.fields.filter(f => f.enabled && f.unitsEnabled);
+        const priceFields = backupFieldDef.fields.filter(f => f.key.startsWith('price'));
+
+        console.log(`\n🔍 FIELD RESTORATION VALIDATION:`);
+        console.log(`   Total fields in definition: ${backupFieldDef.fields.length}`);
+        console.log(`   Enabled fields: ${backupFieldDef.fields.filter(f => f.enabled).length}`);
+        console.log(`   Price fields found: ${priceFields.length}`);
+
+        priceFields.forEach(f => {
+          console.log(`   → ${f.key} (${f.label}): enabled=${f.enabled}, unitsEnabled=${f.unitsEnabled}, units=${f.unitOptions?.join(', ') || 'none'}`);
+        });
+
+        if (fieldsWithUnits.length > 0) {
+          console.log(`✅ UNITS ENABLED - Fields with units in restored definition:`);
+          fieldsWithUnits.forEach(f => {
+            console.log(`   • ${f.label}: ${f.unitOptions?.join(', ') || 'default units'}`);
+          });
+        }
       }
 
       setDeletedProducts([]);
@@ -954,6 +1016,7 @@ const exportProductsToCSV = (products) => {
 {showBackupPopup && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
   onClick={() => setShowBackupPopup(false)}
+  data-backup-popup="true"
   >
     <div className="bg-white/80 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs text-center"
     onClick={(e) => e.stopPropagation()}
@@ -1230,22 +1293,6 @@ function CategoryModal({ onClose }) {
     const stored = JSON.parse(localStorage.getItem("categories") || "[]");
     setCategories(stored);
   }, []);
-
-  useEffect(() => {
-  let backHandler;
-
-  const setup = async () => {
-    backHandler = await App.addListener("backButton", () => {
-      onClose();
-    });
-  };
-
-  setup();
-
-  return () => {
-    if (backHandler) backHandler.remove();
-  };
-}, [onClose]);
 
 
   const save = (list) => {

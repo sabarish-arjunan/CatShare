@@ -146,6 +146,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => window.removeEventListener("toggle-sort", toggleSort);
   }, []);
 
+  // Expose tutorial state globally for back button handlers
+  useEffect(() => {
+    window.__catalogueAppState = {
+      showTutorial,
+      setShowTutorial,
+    };
+  }, [showTutorial]);
+
   const handleSort = (type) => {
     setSortBy(type);
     setShowSortMenu(false);
@@ -255,7 +263,39 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // 1. Check for open preview modals or full-screen images first
+      // 1. Check for any open modals from SideDrawer or CatalogueApp
+      const sideDrawerState = (window as any).__sideDrawerState;
+      const catalogueAppState = (window as any).__catalogueAppState;
+
+      // Check SideDrawer modals first
+      if (sideDrawerState?.showBackupPopup) {
+        sideDrawerState.setShowBackupPopup(false);
+        return;
+      }
+      if (sideDrawerState?.showRenderAfterRestore) {
+        sideDrawerState.setShowRenderAfterRestore(false);
+        return;
+      }
+      if (sideDrawerState?.showCategories) {
+        sideDrawerState.setShowCategories(false);
+        return;
+      }
+      if (sideDrawerState?.showBulkEdit) {
+        sideDrawerState.setShowBulkEdit(false);
+        return;
+      }
+      if (sideDrawerState?.showMediaLibrary) {
+        sideDrawerState.setShowMediaLibrary(false);
+        return;
+      }
+
+      // Check CatalogueApp modals
+      if (catalogueAppState?.showTutorial) {
+        catalogueAppState.setShowTutorial(false);
+        return;
+      }
+
+      // 2. Check for open preview modals or full-screen images
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
       if (fullScreenImageOpen || previewModalOpen) {
@@ -263,19 +303,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // 2. If inside a catalogue view, let history management handle it (deselect or exit)
+      // 3. If inside a catalogue view, let history management handle it (deselect or exit)
       if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
         window.history.back();
         return;
       }
 
-      // 3. If on catalogues tab (showing list), go back to products tab
+      // 4. If on catalogues tab (showing list), go back to products tab
       if (tab === "catalogues") {
         setTab("products");
         return;
       }
 
-      // 4. If on products tab and no preview open, let App.tsx handle exit
+      // 5. If on products tab and no preview open, let App.tsx handle exit
       // Dispatch custom event so App.tsx can handle it properly
       window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
     }).then((listener) => {
