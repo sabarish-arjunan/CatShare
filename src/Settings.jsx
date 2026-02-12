@@ -225,6 +225,20 @@ export default function Settings({
                 <p className="text-xs text-gray-500 dark:text-gray-400">Configure custom fields and units for your products</p>
               </div>
             </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 dark:border-gray-800"></div>
+
+            {/* Currency Setting */}
+            <div
+              onClick={() => navigate("/settings/currency")}
+              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer text-left"
+            >
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Currency</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Set default currency for your products</p>
+              </div>
+            </div>
           </div>
 
           {/* Clear Cache Button */}
