@@ -274,9 +274,90 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
+      title: "Product Fields & Templates",
+      description:
+        "Customize your product information by choosing field templates or creating custom fields. Templates provide pre-configured fields for different industries.",
+      icon: <RiLayout4Line className="w-10 h-10 text-orange-600" />,
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
+          <div className="p-3 bg-white rounded-lg border-l-4 border-orange-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">📋 What are Templates?</p>
+            <p className="text-xs text-gray-700">
+              Pre-configured field sets for different industries:
+            </p>
+            <ul className="text-xs text-gray-600 space-y-1 ml-3 mt-2">
+              <li>✓ Fashion & Apparel (Size, Color, Fit, etc.)</li>
+              <li>✓ Lifestyle & Personal Care</li>
+              <li>✓ Home & Furniture</li>
+              <li>✓ Electronics</li>
+              <li>✓ Hardware & Tools</li>
+              <li>✓ Custom/General Products</li>
+            </ul>
+          </div>
+
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">⚙️ Customize Fields</p>
+            <p className="text-xs text-gray-700 mb-2">In Settings → Product Fields, you can:</p>
+            <ul className="text-xs text-gray-600 space-y-1 ml-3">
+              <li>✓ Choose a template for your industry</li>
+              <li>✓ Enable/disable specific fields</li>
+              <li>✓ Rename field labels (e.g., "Size" → "Dimensions")</li>
+              <li>✓ Add custom fields (up to 10 custom fields)</li>
+              <li>✓ Configure units for fields (e.g., kg, pieces, etc.)</li>
+            </ul>
+          </div>
+
+          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
+            <p className="font-semibold text-sm text-green-800 mb-2">💡 Pro Tip:</p>
+            <p className="text-xs text-green-700">
+              Field changes apply to all products. Customize once, then add products knowing your structure is perfect!
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Currency & Price Units",
+      description:
+        "Configure your default currency and set up price units (pieces, dozen, kg, etc.) for consistent pricing across all catalogues.",
+      icon: <RiExchangeDollarLine className="w-10 h-10 text-emerald-600" />,
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
+          <div className="p-3 bg-white rounded-lg border-l-4 border-emerald-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">💱 Default Currency</p>
+            <p className="text-xs text-gray-700 mb-2">Choose your primary currency:</p>
+            <ul className="text-xs text-gray-600 space-y-1 ml-3">
+              <li>✓ 15+ standard currencies (USD, EUR, INR, GBP, etc.)</li>
+              <li>✓ Custom currency support (create your own symbol)</li>
+              <li>✓ Applied to all product prices</li>
+              <li>✓ Shows in rendered images automatically</li>
+            </ul>
+          </div>
+
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
+            <p className="font-semibold text-sm text-gray-800 mb-2">📦 Price Units</p>
+            <p className="text-xs text-gray-700 mb-2">Set available pricing options:</p>
+            <ul className="text-xs text-gray-600 space-y-1 ml-3">
+              <li>✓ Default: pieces, dozen, sets, kg</li>
+              <li>✓ Add custom units (boxes, bundles, etc.)</li>
+              <li>✓ Use different units per catalogue if needed</li>
+              <li>✓ Applies when adding/editing prices</li>
+            </ul>
+          </div>
+
+          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+            <p className="font-semibold text-sm text-amber-800 mb-2">⚙️ Where to Configure</p>
+            <p className="text-xs text-amber-700">
+              Go to Settings → Currency/Price Units to change these settings. Changes apply instantly to all products and catalogues!
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "Backup & Restore",
       description:
-        "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products and images, then restore them whenever needed.",
+        "Protect your catalogue data with Backup & Restore. Create ZIP file backups including all products, images, fields, currency settings, and catalogues. Changes include backing up currency and price units for complete restoration.",
       icon: <RiShieldLine className="w-10 h-10 text-cyan-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
@@ -594,19 +675,20 @@ export default function Tutorial({ onClose }) {
     {
       title: "You're All Set!",
       description:
-        "You now know all the main features. Start creating products, organizing them with categories, managing multiple catalogues with different pricing, and use Render images to create professional catalogs!",
+        "You now know all the main features. Start creating products, customizing fields, managing catalogues with different pricing, and rendering professional catalogs!",
       icon: <RiCheckDoubleLine className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
           <div className="text-center text-sm">
-            <p className="font-semibold text-gray-800 mb-2">Quick Summary:</p>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              1️⃣ Create products with +button<br/>
-              2️⃣ Manage catalogues with different pricing<br/>
-              3️⃣ Toggle stock status per catalogue<br/>
-              4️⃣ Use Render images for all catalogues<br/>
-              5️⃣ Backup your data regularly<br/>
-              6️⃣ Scale your business with multiple pricing models!
+            <p className="font-semibold text-gray-800 mb-3">Your CatShare Journey:</p>
+            <p className="text-xs text-gray-600 leading-relaxed space-y-2">
+              ✨ <span className="font-medium">Customize:</span> Choose templates & fields for your products<br/>
+              💱 <span className="font-medium">Set Currency:</span> Configure pricing & units<br/>
+              ➕ <span className="font-medium">Create Products:</span> Add details using your custom fields<br/>
+              🗂️ <span className="font-medium">Organize:</span> Use categories & manage catalogues<br/>
+              🖼️ <span className="font-medium">Render:</span> Generate professional product images<br/>
+              💾 <span className="font-medium">Protect:</span> Backup your data regularly<br/>
+              🚀 <span className="font-medium">Scale:</span> Manage multiple pricing models effortlessly!
             </p>
           </div>
         </div>
