@@ -306,13 +306,32 @@ const handleBackup = async () => {
     lastUpdated: Date.now(),
   };
 
+  // Get additional metadata for comprehensive backup
+  const backupMetadata = {
+    template: backupFieldsDefinition.industry || 'General Products (Custom)',
+    fieldNames: backupFieldsDefinition.fields?.map(f => ({
+      key: f.key,
+      label: f.label,
+      enabled: f.enabled,
+      type: f.type,
+      unitsEnabled: f.unitsEnabled || false,
+      unitOptions: f.unitOptions || [],
+    })) || [],
+    watermarkSettings: {
+      showWatermark: safeGetFromStorage('showWatermark', false),
+      watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
+      watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
+    },
+  };
+
   zip.file("catalogue-data.json", JSON.stringify({
-    version: 2, // Increment version for future compatibility
+    version: 3, // New version with comprehensive metadata
     products: dataForJson,
     deleted: deletedForJson,
     cataloguesDefinition,
     fieldsDefinition: backupFieldsDefinition, // Include field definitions with template name to preserve custom field labels
     categories,
+    metadata: backupMetadata, // NEW: Comprehensive metadata for complete restoration
     backupDate: new Date().toISOString(),
     appVersion: APP_VERSION
   }, null, 2));
@@ -431,6 +450,15 @@ const exportProductsToCSV = (products) => {
         // Backup has its own field definition - use it to preserve original field labels
         console.log("✅ Found fieldsDefinition in backup - using original field labels and configuration");
         backupFieldDef = parsed.fieldsDefinition;
+
+        // For v3 backups, also log the field names being restored
+        if (isV3Backup && parsed.metadata?.fieldNames) {
+          const enabledFields = parsed.metadata.fieldNames
+            .filter(f => f.enabled)
+            .map(f => `${f.label}${f.unitsEnabled ? ' (with units)' : ''}`)
+            .join(', ');
+          console.log(`   📋 Fields from backup: ${enabledFields || 'None'}`);
+        }
       } else {
         // Old backup without fieldsDefinition - analyze the product data to detect fields
         console.log("🔎 Analyzing original backup fields BEFORE migration (old backup format - v1)...");
@@ -500,18 +528,32 @@ const exportProductsToCSV = (products) => {
       // BUT preserve critical settings that shouldn't be lost during restore
       console.log("🗑️ Clearing old data to free up maximum space...");
 
+      // Check if this is a v3 backup with comprehensive metadata
+      const isV3Backup = parsed.version === 3 && parsed.metadata;
+      console.log(`📦 Backup format: v${parsed.version}${isV3Backup ? ' (comprehensive)' : ''}`);
+
       // Preserve critical settings before clearing
       const preservedSettings = {
         hasCompletedOnboarding: safeGetFromStorage('hasCompletedOnboarding', false),
         darkMode: safeGetFromStorage('darkMode', false),
-        showWatermark: safeGetFromStorage('showWatermark', false),
-        watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
-        watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
+        // For v3 backups, restore from metadata; otherwise keep current settings
+        showWatermark: isV3Backup && parsed.metadata?.watermarkSettings
+          ? parsed.metadata.watermarkSettings.showWatermark
+          : safeGetFromStorage('showWatermark', false),
+        watermarkText: isV3Backup && parsed.metadata?.watermarkSettings
+          ? parsed.metadata.watermarkSettings.watermarkText
+          : safeGetFromStorage('watermarkText', 'Created using CatShare'),
+        watermarkPosition: isV3Backup && parsed.metadata?.watermarkSettings
+          ? parsed.metadata.watermarkSettings.watermarkPosition
+          : safeGetFromStorage('watermarkPosition', 'bottom-center'),
         fieldsDefinition: backupFieldDef, // Use the newly analyzed field definition
         userId: localStorage.getItem('userId'),
       };
 
       console.log("💾 Preserved critical settings:", Object.keys(preservedSettings));
+      if (isV3Backup && parsed.metadata?.watermarkSettings) {
+        console.log("📝 Restoring watermark settings from backup metadata");
+      }
 
       setDeletedProducts([]);
       localStorage.clear(); // Nuclear option - clear EVERYTHING
@@ -673,6 +715,25 @@ const exportProductsToCSV = (products) => {
       }));
       console.log(`🔄 Dispatched fieldDefinitionsChanged event - Template: ${templateName}`);
       console.log(`📋 Field definitions restored with template: ${templateName}`);
+
+      // Log restoration summary for v3 backups
+      if (isV3Backup && parsed.metadata) {
+        console.log(`\n📊 COMPREHENSIVE BACKUP RESTORATION SUMMARY:`);
+        console.log(`   ✅ Template: ${parsed.metadata.template}`);
+        console.log(`   ✅ Fields: ${parsed.metadata.fieldNames?.length || 0} configured fields`);
+        console.log(`   ✅ Products: ${rebuilt.length} product(s)`);
+        console.log(`   ✅ Deleted Items: ${Array.isArray(parsed.deleted) ? parsed.deleted.length : 0}`);
+        console.log(`   ✅ Categories: ${Array.isArray(parsed.categories) ? parsed.categories.length : 0}`);
+        console.log(`   ✅ Catalogues: ${cataloguesDefinition?.catalogues?.length || 0}`);
+        console.log(`   ✅ Watermark Settings: Restored`);
+        console.log(`   ✅ Backup Date: ${parsed.backupDate}`);
+        console.log(`   ✅ App Version: ${parsed.appVersion}`);
+      } else {
+        console.log(`\n📊 BACKUP RESTORATION SUMMARY:`);
+        console.log(`   ✅ Products: ${rebuilt.length} product(s)`);
+        console.log(`   ✅ Template: ${templateName}`);
+        console.log(`   ⚠️ Backup Version: v${parsed.version} (legacy format)`);
+      }
 
       setShowRenderAfterRestore(true);
     } catch (err) {
