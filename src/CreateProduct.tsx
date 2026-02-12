@@ -1416,11 +1416,11 @@ export default function CreateProduct() {
                     .map(field => {
                       const catData = getCatalogueFormData();
                       return (
-                        <div key={field.key} className="flex gap-3 items-end">
+                        <div key={field.key} className="flex gap-3 items-center">
+                          <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
+                            {field.label}
+                          </label>
                           <div className="relative flex-1">
-                            <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                              {field.label}
-                            </label>
                             <input
                               name={field.key}
                               value={catData[field.key] || ""}
@@ -1429,8 +1429,8 @@ export default function CreateProduct() {
                             />
                           </div>
                           {(field.unitsEnabled && field.unitOptions && field.unitOptions.length > 0) && (
-                            <div className="relative flex-shrink-0">
-                              <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                            <div className="relative flex-shrink-0 flex items-center gap-1.5">
+                              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400">
                                 Unit
                               </label>
                               <select
@@ -1450,11 +1450,11 @@ export default function CreateProduct() {
                       );
                     })}
 
-                  <div className="flex gap-3 items-end">
+                  <div className="flex gap-3 items-center">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
+                      Price
+                    </label>
                     <div className="relative flex-1">
-                      <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
-                        Price
-                      </label>
                       <input
                         name={getSelectedCataloguePriceField()}
                         value={getSelectedCataloguePrice()}
@@ -1463,8 +1463,8 @@ export default function CreateProduct() {
                       />
                     </div>
                     {getPriceUnits().length > 0 && (
-                      <div className="relative flex-shrink-0">
-                        <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                      <div className="relative flex-shrink-0 flex items-center gap-1.5">
+                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400">
                           Unit
                         </label>
                         <select
@@ -1482,16 +1482,18 @@ export default function CreateProduct() {
                     )}
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
+                  <div className="flex gap-3 items-center">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 w-20 flex-shrink-0">
                       Badge
                     </label>
-                    <input
-                      name="badge"
-                      value={getCatalogueFormData().badge || ""}
-                      onChange={handleChange}
-                      className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-xs bg-white dark:bg-gray-800"
-                    />
+                    <div className="relative flex-1">
+                      <input
+                        name="badge"
+                        value={getCatalogueFormData().badge || ""}
+                        onChange={handleChange}
+                        className="border border-gray-300 dark:border-gray-700 p-2 rounded w-full text-xs bg-white dark:bg-gray-800"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
