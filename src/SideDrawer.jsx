@@ -488,6 +488,24 @@ const exportProductsToCSV = (products) => {
       if (parsed.fieldsDefinition) {
         // Backup has its own field definition - use it to preserve original field labels
         console.log("✅ Found fieldsDefinition in backup - using original field labels and configuration");
+
+        // Ensure price fields retain their unit configuration from defaults if not in backup
+        const defaultDef = getCataloguesDefinition ? safeGetFromStorage('fieldsDefinition', null) : null;
+        if (parsed.fieldsDefinition.fields && !parsed.fieldsDefinition.fields.some(f => f.key === 'price1' && f.unitOptions?.length > 0)) {
+          // Price fields might not have unit options in old backups, merge with defaults
+          parsed.fieldsDefinition.fields = parsed.fieldsDefinition.fields.map(f => {
+            if (f.key === 'price1' && (!f.unitOptions || f.unitOptions.length === 0)) {
+              // Add default unit options for price1
+              return {
+                ...f,
+                unitsEnabled: true,
+                unitOptions: ['/ piece', '/ dozen', '/ set'],
+                defaultUnit: '/ piece'
+              };
+            }
+            return f;
+          });
+        }
         backupFieldDef = parsed.fieldsDefinition;
 
         // For v3 backups, also log the field names being restored
@@ -495,7 +513,14 @@ const exportProductsToCSV = (products) => {
           const enabledFields = parsed.metadata.fieldNames.filter(f => f.enabled);
           console.log(`\n📋 RESTORING FIELD CONFIGURATION FROM BACKUP:`);
           console.log(`   Template: ${parsed.metadata.template}`);
+          console.log(`   Total Fields in Backup: ${parsed.metadata.fieldNames.length}`);
           console.log(`   Enabled Fields: ${enabledFields.length}`);
+
+          // Log ALL enabled fields including price fields
+          enabledFields.forEach(f => {
+            const unitInfo = f.unitsEnabled ? `✅ Units: ${f.unitOptions?.join(', ') || 'default units'}` : 'No units';
+            console.log(`      • ${f.key} (${f.label}) - ${unitInfo}`);
+          });
 
           if (parsed.metadata.customFieldLabelsCount > 0) {
             console.log(`   Custom Field Labels: ${parsed.metadata.customFieldLabelsCount}`);
@@ -614,6 +639,17 @@ const exportProductsToCSV = (products) => {
       // Validate that fieldsDefinition includes units configuration
       if (backupFieldDef?.fields) {
         const fieldsWithUnits = backupFieldDef.fields.filter(f => f.enabled && f.unitsEnabled);
+        const priceFields = backupFieldDef.fields.filter(f => f.key.startsWith('price'));
+
+        console.log(`\n🔍 FIELD RESTORATION VALIDATION:`);
+        console.log(`   Total fields in definition: ${backupFieldDef.fields.length}`);
+        console.log(`   Enabled fields: ${backupFieldDef.fields.filter(f => f.enabled).length}`);
+        console.log(`   Price fields found: ${priceFields.length}`);
+
+        priceFields.forEach(f => {
+          console.log(`   → ${f.key} (${f.label}): enabled=${f.enabled}, unitsEnabled=${f.unitsEnabled}, units=${f.unitOptions?.join(', ') || 'none'}`);
+        });
+
         if (fieldsWithUnits.length > 0) {
           console.log(`✅ UNITS ENABLED - Fields with units in restored definition:`);
           fieldsWithUnits.forEach(f => {

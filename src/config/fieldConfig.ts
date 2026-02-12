@@ -398,6 +398,11 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
 
       console.log(`✅ Enabling field: ${fieldConfig.key} (${label}) - detected ${detectedFieldValues.get(fieldConfig.key)!.length} products with values`);
 
+      // Special logging for price fields to ensure units are preserved
+      if (fieldConfig.key.startsWith('price')) {
+        console.log(`   → Price field units: enabled=${fieldConfig.unitsEnabled}, options=${fieldConfig.unitOptions?.join(', ') || 'none'}`);
+      }
+
       return {
         ...fieldConfig,
         label: label, // Restore original label if it was changed
@@ -458,10 +463,24 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
     }
   }
 
+  // Ensure price fields have proper unit configuration
+  const finalFields = updatedFields.map(f => {
+    if (f.key === 'price1' && f.enabled && (!f.unitOptions || f.unitOptions.length === 0)) {
+      console.log(`⚙️ Restoring default unit options for ${f.label}`);
+      return {
+        ...f,
+        unitsEnabled: true,
+        unitOptions: ['/ piece', '/ dozen', '/ set'],
+        defaultUnit: '/ piece'
+      };
+    }
+    return f;
+  });
+
   // Create updated definition
   const updatedDefinition: FieldsDefinition = {
     version: 1,
-    fields: updatedFields,
+    fields: finalFields,
     industry: backupIndustry,
     lastUpdated: Date.now(),
   };
@@ -469,6 +488,15 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
   console.log('📋 Updated field definition with detected fields');
   console.log('   Industry/Template:', backupIndustry);
   console.log('   Enabled fields:', updatedDefinition.fields.filter(f => f.enabled).map(f => `${f.key}(${f.label})`).join(', '));
+
+  // Log price field configuration
+  const priceFields = updatedDefinition.fields.filter(f => f.key.startsWith('price') && f.enabled);
+  if (priceFields.length > 0) {
+    console.log('   Price Fields with Units:');
+    priceFields.forEach(f => {
+      console.log(`      • ${f.key}: ${f.unitOptions?.join(', ') || 'no units'}`);
+    });
+  }
 
   return updatedDefinition;
 }
