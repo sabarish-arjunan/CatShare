@@ -253,8 +253,8 @@ export default function FieldsSettings() {
             return {
               ...f,
               label: presetField.label,
-              unitOptions: presetField.defaultUnits || f.unitOptions || [],
-              unitsEnabled: !!(presetField.defaultUnits || f.unitOptions?.length > 0),
+              unitOptions: presetField.unitOptions || [],
+              unitsEnabled: !!(presetField.unitOptions && presetField.unitOptions.length > 0),
               enabled: true
             };
           } else {
@@ -266,7 +266,7 @@ export default function FieldsSettings() {
     } else {
       newFields = newFields.map(f => {
         if (f.key.startsWith('field')) {
-          return { ...f, enabled: false };
+          return { ...f, enabled: false, unitsEnabled: false, unitOptions: [] };
         }
         return f;
       });

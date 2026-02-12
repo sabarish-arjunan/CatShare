@@ -117,7 +117,14 @@ export default function Welcome() {
             ...field,
             enabled: isSelected,
             label: presetField?.label || field.label,
-            ...(presetField?.unitOptions && { unitOptions: presetField.unitOptions })
+            ...(presetField?.unitOptions && {
+              unitOptions: presetField.unitOptions,
+              unitsEnabled: true
+            }),
+            ...(!presetField?.unitOptions && {
+              unitOptions: [],
+              unitsEnabled: false
+            })
           };
         });
       }
