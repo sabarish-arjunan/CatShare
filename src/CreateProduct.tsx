@@ -1352,24 +1352,16 @@ export default function CreateProduct() {
               </div>
 
               {/* Show Toggle and Fill Options */}
-              <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <button
-                  onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
-                    isCatalogueEnabled(selectedCatalogue)
-                      ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  <span className="transition-transform">
-                    {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
+              <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Catalogue Name */}
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                    {catalogues.find(c => c.id === selectedCatalogue)?.label || selectedCatalogue}
                   </span>
-                  {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
-                </button>
 
-                {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
-                  <div className="flex flex-wrap gap-x-6 gap-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                  {/* Fill Fields Checkbox */}
+                  {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={fetchFieldsChecked}
@@ -1380,7 +1372,11 @@ export default function CreateProduct() {
                         Fill Fields
                       </span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                  )}
+
+                  {/* Fill Price Checkbox */}
+                  {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={fetchPriceChecked}
@@ -1391,8 +1387,23 @@ export default function CreateProduct() {
                         Fill Price
                       </span>
                     </label>
-                  </div>
-                )}
+                  )}
+
+                  {/* Show/Hide Button */}
+                  <button
+                    onClick={() => toggleCatalogueEnabled(selectedCatalogue)}
+                    className={`ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                      isCatalogueEnabled(selectedCatalogue)
+                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:shadow-green-500/40"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    <span className="transition-transform">
+                      {isCatalogueEnabled(selectedCatalogue) ? "✓" : "○"}
+                    </span>
+                    {isCatalogueEnabled(selectedCatalogue) ? "Show" : "Hide"}
+                  </button>
+                </div>
               </div>
 
               {/* Catalogue Details */}
