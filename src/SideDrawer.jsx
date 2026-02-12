@@ -53,6 +53,32 @@ const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'
 const navigate = useNavigate();
 const { showToast } = useToast();
 
+  // Handle back button for popups
+  useEffect(() => {
+    let backHandler;
+
+    const handleBackButton = () => {
+      if (showBackupPopup) {
+        setShowBackupPopup(false);
+        return;
+      }
+      if (showRenderAfterRestore) {
+        setShowRenderAfterRestore(false);
+        return;
+      }
+      onClose();
+    };
+
+    const setup = async () => {
+      backHandler = await App.addListener("backButton", handleBackButton);
+    };
+
+    setup();
+
+    return () => {
+      if (backHandler) backHandler.remove();
+    };
+  }, [onClose, showBackupPopup, showRenderAfterRestore]);
 
   if (!open) return null;
 
@@ -1230,32 +1256,6 @@ function CategoryModal({ onClose }) {
     const stored = JSON.parse(localStorage.getItem("categories") || "[]");
     setCategories(stored);
   }, []);
-
-  useEffect(() => {
-    let backHandler;
-
-    const handleBackButton = () => {
-      if (showBackupPopup) {
-        setShowBackupPopup(false);
-        return;
-      }
-      if (showRenderAfterRestore) {
-        setShowRenderAfterRestore(false);
-        return;
-      }
-      onClose();
-    };
-
-    const setup = async () => {
-      backHandler = await App.addListener("backButton", handleBackButton);
-    };
-
-    setup();
-
-    return () => {
-      if (backHandler) backHandler.remove();
-    };
-  }, [onClose, showBackupPopup, showRenderAfterRestore]);
 
 
   const save = (list) => {
