@@ -4,6 +4,7 @@ import { safeGetFromStorage } from "./utils/safeStorage";
 import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getAllFields } from "./config/fieldConfig";
+import { getCurrentCurrencySymbol } from "./utils/currencyUtils";
 
 /**
  * Delete all rendered images for a specific product
@@ -321,6 +322,7 @@ export async function saveRenderedImage(product, type, units = {}) {
         imageBgColor: imageBg,
         fontColor: fontColor,
         backgroundColor: "#ffffff",
+        currencySymbol: getCurrentCurrencySymbol(),
       }, {
         enabled: isWatermarkEnabled,
         text: watermarkText,

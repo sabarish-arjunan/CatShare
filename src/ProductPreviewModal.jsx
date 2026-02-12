@@ -11,6 +11,7 @@ import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import { safeGetFromStorage } from "./utils/safeStorage";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -349,6 +350,7 @@ export default function ProductPreviewModal({
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
   const [showShelfModal, setShowShelfModal] = useState(false);
+  const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
   const fullScreenImageRef = useRef(false);
 
   const handleDragEnd = (event, info) => {
@@ -371,6 +373,14 @@ export default function ProductPreviewModal({
   useEffect(() => {
     fullScreenImageRef.current = showFullScreenImage;
   }, [showFullScreenImage]);
+
+  useEffect(() => {
+    // Listen for currency changes
+    const unsubscribe = onCurrencyChange((currency, symbol) => {
+      setCurrencySymbol(symbol);
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const handler = () => {
@@ -765,7 +775,7 @@ export default function ProductPreviewModal({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{catalogueData[priceField] || product[priceField]} {(() => { const config = getFieldConfig(priceField); if (!config?.unitsEnabled) return ""; const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]} {(() => { const config = getFieldConfig(priceField); if (!config?.unitsEnabled) return ""; const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
               </div>
             )}
 
