@@ -1409,6 +1409,9 @@ export default function CreateProduct() {
               {/* Catalogue Details */}
               {isCatalogueEnabled(selectedCatalogue) && (
                 <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3">
+                    {catalogues.find(c => c.id === selectedCatalogue)?.label || selectedCatalogue} Details :
+                  </label>
                   {getAllFields()
                     .filter(f => f.enabled && f.key.startsWith('field'))
                     .map(field => {
