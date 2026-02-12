@@ -484,11 +484,16 @@ export default function FieldsSettings() {
                    savedDefinition.industry.includes("Home") ? "🏠" :
                    savedDefinition.industry.includes("Electronics") ? "🎧" : "🛠️"}
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-1">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
-                  <h2 className="text-base font-bold dark:text-white">
-                    {savedDefinition.industry || "General Products (Custom)"}
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-bold dark:text-white">
+                      {savedDefinition.industry || "General Products (Custom)"}
+                    </h2>
+                    <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length}
+                    </span>
+                  </div>
                 </div>
               </div>
               <motion.div
