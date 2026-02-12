@@ -13,7 +13,7 @@ interface CataloguesListProps {
   renamingCatalogueIds?: Set<string>;
 }
 
-export default function CataloguesList({
+export default React.memo(function CataloguesList({
   catalogues,
   onSelectCatalogue,
   imageMap,
@@ -206,4 +206,4 @@ export default function CataloguesList({
       )}
     </>
   );
-}
+});

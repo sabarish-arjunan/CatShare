@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { flushSync } from "react-dom";
 import { FiPlus, FiSearch, FiTrash2, FiEdit, FiMenu, FiMessageSquare } from "react-icons/fi";
@@ -172,21 +172,31 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   useEffect(() => {
     const loadImages = async () => {
       const map = {};
-      // Use Promise.all to read all images in parallel instead of sequentially
-      const promises = products.map(async (p) => {
-        if (p.imagePath) {
-          try {
-            const result = await Filesystem.readFile({ path: p.imagePath, directory: Directory.Data });
-            map[p.id] = `data:image/png;base64,${result.data}`;
-          } catch {
+      const batchSize = 8; // Load 8 images at a time to avoid memory spikes
+
+      for (let i = 0; i < products.length; i += batchSize) {
+        const batch = products.slice(i, i + batchSize);
+
+        // Load this batch in parallel
+        const promises = batch.map(async (p) => {
+          if (p.imagePath) {
+            try {
+              const result = await Filesystem.readFile({ path: p.imagePath, directory: Directory.Data });
+              map[p.id] = `data:image/png;base64,${result.data}`;
+            } catch {
+              map[p.id] = p.image || "";
+            }
+          } else {
             map[p.id] = p.image || "";
           }
-        } else {
-          map[p.id] = p.image || "";
-        }
-      });
-      await Promise.all(promises);
-      setImageMap(map);
+        });
+
+        // Wait for batch to complete before loading next batch
+        await Promise.all(promises);
+
+        // Update state incrementally so UI renders as images load
+        setImageMap(prev => ({ ...prev, ...map }));
+      }
     };
     loadImages();
   }, [products]);
@@ -585,25 +595,29 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return color;
   };
 
-  const filtered = products.filter((p) => {
+  const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return p.name.toLowerCase().includes(q) || (p.subtitle && p.subtitle.toLowerCase().includes(q));
-  });
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(q) || (p.subtitle && p.subtitle.toLowerCase().includes(q))
+    );
+  }, [products, search]);
 
-  const visible = [...filtered];
-  if (sortBy === "name") visible.sort((a, b) => a.name.localeCompare(b.name));
-  else if (sortBy.endsWith(":out")) {
-    // Out of stock sorting
-    const field = sortBy.replace(":out", "");
-    visible.sort((a, b) => (a[field] ? 1 : -1));
-  }
-  else if (sortBy === "wholesaleStock") visible.sort((a, b) => a.wholesaleStock ? -1 : 1);
-  else if (sortBy === "resellStock") visible.sort((a, b) => a.resellStock ? -1 : 1);
-  else if (sortBy === "category") visible.sort((a, b) => {
-    const aCat = Array.isArray(a.category) ? a.category[0] || "" : a.category || "";
-    const bCat = Array.isArray(b.category) ? b.category[0] || "" : b.category || "";
-    return aCat.localeCompare(bCat);
-  });
+  const visible = useMemo(() => {
+    const v = [...filtered];
+    if (sortBy === "name") v.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortBy.endsWith(":out")) {
+      const field = sortBy.replace(":out", "");
+      v.sort((a, b) => (a[field] ? 1 : -1));
+    }
+    else if (sortBy === "wholesaleStock") v.sort((a, b) => a.wholesaleStock ? -1 : 1);
+    else if (sortBy === "resellStock") v.sort((a, b) => a.resellStock ? -1 : 1);
+    else if (sortBy === "category") v.sort((a, b) => {
+      const aCat = Array.isArray(a.category) ? a.category[0] || "" : a.category || "";
+      const bCat = Array.isArray(b.category) ? b.category[0] || "" : b.category || "";
+      return aCat.localeCompare(bCat);
+    });
+    return v;
+  }, [filtered, sortBy, catalogues]);
 
 
   return (

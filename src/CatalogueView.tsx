@@ -19,7 +19,7 @@ import BulkEdit from "./BulkEdit";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 
 
-export default function CatalogueView({
+export default React.memo(function CatalogueView({
   filtered,
   allProducts,
   setProducts,
@@ -1314,4 +1314,4 @@ onMouseLeave={handleTouchEnd}
     </button>
     </>
   );
-}
+});
