@@ -26,8 +26,17 @@ export default function CurrencySettings() {
   const { showToast } = useToast();
   const [selectedCurrency, setSelectedCurrency] = useState(() => {
     const stored = localStorage.getItem("defaultCurrency");
-    return stored || "USD";
+    return stored || "INR";
   });
+
+  useEffect(() => {
+    // Initialize default currency to INR if not already set
+    const stored = localStorage.getItem("defaultCurrency");
+    if (!stored) {
+      localStorage.setItem("defaultCurrency", "INR");
+      window.dispatchEvent(new CustomEvent("currencyChanged", { detail: { currency: "INR" } }));
+    }
+  }, []);
 
   const handleCurrencySelect = (currencyCode) => {
     setSelectedCurrency(currencyCode);
