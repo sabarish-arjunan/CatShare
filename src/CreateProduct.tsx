@@ -1354,10 +1354,12 @@ export default function CreateProduct() {
               {/* Show Toggle and Fill Options */}
               <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
                 <div className="flex flex-wrap items-center gap-3">
-                  {/* Catalogue Name with Details Label */}
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                    {catalogues.find(c => c.id === selectedCatalogue)?.label || selectedCatalogue} Details :
-                  </span>
+                  {/* Catalogue Name with Details Label - Only show when enabled */}
+                  {isCatalogueEnabled(selectedCatalogue) && (
+                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                      {catalogues.find(c => c.id === selectedCatalogue)?.label || selectedCatalogue} Details :
+                    </span>
+                  )}
 
                   {/* Fill Fields Checkbox */}
                   {isCatalogueEnabled(selectedCatalogue) && selectedCatalogue !== 'cat1' && (
