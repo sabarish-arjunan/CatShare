@@ -217,13 +217,20 @@ export default function FieldsSettings() {
       showToast("Unit cannot be empty", "error");
       return;
     }
-    if (priceUnits.includes(newUnitInput.trim())) {
+
+    // Normalize unit to include "/ " prefix
+    let normalizedUnit = newUnitInput.trim();
+    if (!normalizedUnit.startsWith("/ ")) {
+      normalizedUnit = `/ ${normalizedUnit}`;
+    }
+
+    if (priceUnits.includes(normalizedUnit)) {
       showToast("This unit already exists", "error");
       return;
     }
     try {
       await Haptics.impact({ style: ImpactStyle.Light });
-      setPriceUnits([...priceUnits, newUnitInput.trim()]);
+      setPriceUnits([...priceUnits, normalizedUnit]);
       setNewUnitInput("");
       showToast("Unit added", "success");
     } catch (e) {
@@ -255,13 +262,20 @@ export default function FieldsSettings() {
       showToast("Unit cannot be empty", "error");
       return;
     }
-    if (priceUnits.some((unit, i) => unit === editingUnitValue.trim() && i !== index)) {
+
+    // Normalize unit to include "/ " prefix
+    let normalizedUnit = editingUnitValue.trim();
+    if (!normalizedUnit.startsWith("/ ")) {
+      normalizedUnit = `/ ${normalizedUnit}`;
+    }
+
+    if (priceUnits.some((unit, i) => unit === normalizedUnit && i !== index)) {
       showToast("This unit already exists", "error");
       return;
     }
     try {
       const updated = [...priceUnits];
-      updated[index] = editingUnitValue.trim();
+      updated[index] = normalizedUnit;
       setPriceUnits(updated);
       setEditingUnitIndex(null);
       setEditingUnitValue("");
@@ -1054,7 +1068,7 @@ export default function FieldsSettings() {
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') addPriceUnit();
                             }}
-                            placeholder="e.g. / box, / pallet"
+                            placeholder="e.g. box, pallet (/ will be added automatically)"
                             className="flex-1 border border-gray-300 dark:border-gray-600 px-3 py-2 rounded text-xs bg-white dark:bg-gray-800 dark:text-white outline-none focus:ring-1 focus:ring-blue-500"
                           />
                           <motion.button
