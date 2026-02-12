@@ -12,6 +12,7 @@ import { App } from "@capacitor/app";
 import ProductPreviewModal from "./ProductPreviewModal";
 import { useToast } from "./context/ToastContext";
 import { getFieldConfig } from "./config/fieldConfig";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
@@ -39,6 +40,15 @@ export default function Retail({ products = [] }) {
   const [processing, setProcessing] = useState(false);
   const [processingIndex, setProcessingIndex] = useState(0);
   const [processingTotal, setProcessingTotal] = useState(0);
+  const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
+
+  useEffect(() => {
+    // Listen for currency changes
+    const unsubscribe = onCurrencyChange((currency, symbol) => {
+      setCurrencySymbol(symbol);
+    });
+    return unsubscribe;
+  }, []);
 
   // touch selection helpers
   let touchTimer = null;
@@ -601,7 +611,7 @@ export default function Retail({ products = [] }) {
               <div className="px-1 py-1 flex items-center justify-between text-[11px]">
                 <div className="truncate text-left font-medium">{p.name}</div>
                 <div className="ml-2">
-                  <span className="bg-red-800 text-white text-[11px] font-medium px-2 py-0.5 rounded-full shadow-md">₹{p.retail}</span>
+                  <span className="bg-red-800 text-white text-[11px] font-medium px-2 py-0.5 rounded-full shadow-md">{currencySymbol}{p.retail}</span>
                 </div>
               </div>
 
@@ -623,7 +633,7 @@ export default function Retail({ products = [] }) {
                   <img src={p.image || p.imagePath || ""} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
                   <div className="min-w-0">
                     <div className="font-medium truncate">{p.name}</div>
-                    <div className="text-xs text-gray-500">Wholesale: ₹{p.wholesale || 0}</div>
+                    <div className="text-xs text-gray-500">Wholesale: {currencySymbol}{p.wholesale || 0}</div>
                   </div>
                 </label>
               ))}
@@ -833,7 +843,7 @@ export default function Retail({ products = [] }) {
                         </div>
 
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;₹{editingProduct.price1 || editingProduct.wholesale} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{editingProduct.price1 || editingProduct.wholesale} / piece
                         </div>
                       </div>
 

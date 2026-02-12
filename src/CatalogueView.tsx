@@ -16,6 +16,7 @@ import { getCatalogueData, isProductEnabledForCatalogue } from "./config/catalog
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import AddProductsModal from "./components/AddProductsModal";
 import BulkEdit from "./BulkEdit";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 
 
 export default function CatalogueView({
@@ -81,7 +82,16 @@ export default function CatalogueView({
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const toolsMenuRef = useRef(null);
+  const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
 
+
+useEffect(() => {
+  // Listen for currency changes
+  const unsubscribe = onCurrencyChange((currency, symbol) => {
+    setCurrencySymbol(symbol);
+  });
+  return unsubscribe;
+}, []);
 
 useEffect(() => {
   console.log("✅ CatalogueView: Setting up event listeners");
@@ -988,7 +998,7 @@ onMouseLeave={handleTouchEnd}
 <div
   className="absolute top-1.5 left-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
 >
-  ₹{getProductCatalogueData(p).price}
+  {currencySymbol}{getProductCatalogueData(p).price}
 </div>
 )}
 

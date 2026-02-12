@@ -2,24 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack, MdCheck } from "react-icons/md";
 import { useToast } from "../context/ToastContext";
-
-const COMMON_CURRENCIES = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-  { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
-  { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
-  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
-  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-];
+import { getAllCurrencies } from "../utils/currencyUtils";
 
 export default function CurrencySettings() {
   const navigate = useNavigate();
@@ -45,7 +28,7 @@ export default function CurrencySettings() {
     showToast(`Currency changed to ${currencyCode}`, "success");
   };
 
-  const selectedCurrencyObj = COMMON_CURRENCIES.find(c => c.code === selectedCurrency);
+  const selectedCurrencyObj = getAllCurrencies().find(c => c.code === selectedCurrency);
 
   return (
     <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950 relative">
@@ -91,7 +74,7 @@ export default function CurrencySettings() {
           <div>
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Select Currency</h3>
             <div className="grid grid-cols-2 gap-3">
-              {COMMON_CURRENCIES.map((currency) => (
+              {getAllCurrencies().map((currency) => (
                 <button
                   key={currency.code}
                   onClick={() => handleCurrencySelect(currency.code)}

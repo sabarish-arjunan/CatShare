@@ -23,6 +23,7 @@ import {
   type ProductWithCatalogueData
 } from "./config/catalogueProductUtils";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -343,6 +344,16 @@ export default function CreateProduct() {
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
     return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
+
+  const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
+
+  // Listen for currency changes
+  useEffect(() => {
+    const unsubscribe = onCurrencyChange((currency, symbol) => {
+      setCurrencySymbol(symbol);
+    });
+    return unsubscribe;
+  }, []);
 
   // Listen for watermark setting changes
   useEffect(() => {
@@ -1079,7 +1090,7 @@ export default function CreateProduct() {
                         fontSize: "16px",
                       }}
                     >
-                      Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+                      Price: {currencySymbol}{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
                     </div>
                   )}
                 </>
