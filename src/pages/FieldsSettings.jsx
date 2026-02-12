@@ -25,7 +25,7 @@ export default function FieldsSettings() {
   const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
   const [editingLabelKey, setEditingLabelKey] = useState(null);
   const [editingLabelValue, setEditingLabelValue] = useState("");
-  const [priceUnits] = useState(() => {
+  const [priceUnits, setPriceUnits] = useState(() => {
     const stored = localStorage.getItem("priceFieldUnits");
     if (stored) {
       return JSON.parse(stored);
@@ -35,6 +35,10 @@ export default function FieldsSettings() {
     localStorage.setItem("priceFieldUnits", JSON.stringify(defaultUnits));
     return defaultUnits;
   });
+  const [editingPriceUnits, setEditingPriceUnits] = useState(false);
+  const [newUnitInput, setNewUnitInput] = useState("");
+  const [editingUnitIndex, setEditingUnitIndex] = useState(null);
+  const [editingUnitValue, setEditingUnitValue] = useState("");
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -193,6 +197,79 @@ export default function FieldsSettings() {
       f.key === key ? { ...f, unitsEnabled: !f.unitsEnabled } : f
     );
     setDefinition({ ...definition, fields: newFields });
+  };
+
+  // Price Units Management Functions
+  const savePriceUnits = async () => {
+    try {
+      localStorage.setItem("priceFieldUnits", JSON.stringify(priceUnits));
+      window.dispatchEvent(new CustomEvent("priceUnitsChanged", { detail: { units: priceUnits } }));
+      await Haptics.impact({ style: ImpactStyle.Light });
+      showToast("Price units updated successfully", "success");
+      setEditingPriceUnits(false);
+    } catch (e) {
+      showToast("Failed to save price units", "error");
+    }
+  };
+
+  const addPriceUnit = async () => {
+    if (!newUnitInput.trim()) {
+      showToast("Unit cannot be empty", "error");
+      return;
+    }
+    if (priceUnits.includes(newUnitInput.trim())) {
+      showToast("This unit already exists", "error");
+      return;
+    }
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+      setPriceUnits([...priceUnits, newUnitInput.trim()]);
+      setNewUnitInput("");
+      showToast("Unit added", "success");
+    } catch (e) {
+      showToast("Failed to add unit", "error");
+    }
+  };
+
+  const deletePriceUnit = async (index) => {
+    if (priceUnits.length <= 1) {
+      showToast("Must keep at least one unit", "error");
+      return;
+    }
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+      setPriceUnits(priceUnits.filter((_, i) => i !== index));
+      showToast("Unit removed", "success");
+    } catch (e) {
+      showToast("Failed to remove unit", "error");
+    }
+  };
+
+  const startEditingUnit = (index) => {
+    setEditingUnitIndex(index);
+    setEditingUnitValue(priceUnits[index]);
+  };
+
+  const saveEditingUnit = async (index) => {
+    if (!editingUnitValue.trim()) {
+      showToast("Unit cannot be empty", "error");
+      return;
+    }
+    if (priceUnits.some((unit, i) => unit === editingUnitValue.trim() && i !== index)) {
+      showToast("This unit already exists", "error");
+      return;
+    }
+    try {
+      const updated = [...priceUnits];
+      updated[index] = editingUnitValue.trim();
+      setPriceUnits(updated);
+      setEditingUnitIndex(null);
+      setEditingUnitValue("");
+      await Haptics.impact({ style: ImpactStyle.Light });
+      showToast("Unit updated", "success");
+    } catch (e) {
+      showToast("Failed to update unit", "error");
+    }
   };
 
   const handleAddField = async () => {
@@ -863,20 +940,149 @@ export default function FieldsSettings() {
 
               {/* Price Field Units - Below Field Configuration */}
               <div className="mt-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Price Units</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Default units for pricing</p>
+                <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Price Units</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Default units for pricing</p>
+                  </div>
+                  <motion.button
+                    onClick={() => setEditingPriceUnits(!editingPriceUnits)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      editingPriceUnits
+                        ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300"
+                        : "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                    }`}
+                  >
+                    {editingPriceUnits ? "Cancel" : "Edit"}
+                  </motion.button>
                 </div>
 
-                <div className="p-4">
-                  <div className="flex flex-wrap gap-2">
-                    {priceUnits.map((unit, idx) => (
-                      <span key={idx} className="inline-flex items-center gap-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                        ✓ {unit}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">These units are applied to all pricing fields</p>
+                <div className="p-4 space-y-3">
+                  {!editingPriceUnits ? (
+                    <>
+                      <div className="flex flex-wrap gap-2">
+                        {priceUnits.map((unit, idx) => (
+                          <span key={idx} className="inline-flex items-center gap-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                            ✓ {unit}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">These units are applied to all pricing fields</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        {priceUnits.map((unit, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            className="flex items-center gap-2"
+                          >
+                            {editingUnitIndex === idx ? (
+                              <>
+                                <input
+                                  autoFocus
+                                  type="text"
+                                  value={editingUnitValue}
+                                  onChange={(e) => setEditingUnitValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') saveEditingUnit(idx);
+                                    if (e.key === 'Escape') setEditingUnitIndex(null);
+                                  }}
+                                  className="flex-1 border border-gray-300 dark:border-gray-600 px-2 py-1 rounded text-xs bg-white dark:bg-gray-800 dark:text-white outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                                <motion.button
+                                  onClick={() => saveEditingUnit(idx)}
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className="p-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
+                                  title="Save"
+                                >
+                                  <MdCheck size={16} />
+                                </motion.button>
+                                <motion.button
+                                  onClick={() => setEditingUnitIndex(null)}
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className="p-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                  title="Cancel"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </motion.button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="flex-1 px-2 py-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs font-medium text-gray-700 dark:text-gray-300">
+                                  {unit}
+                                </span>
+                                <motion.button
+                                  onClick={() => startEditingUnit(idx)}
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                                  title="Edit"
+                                >
+                                  <MdEdit size={16} />
+                                </motion.button>
+                                <motion.button
+                                  onClick={() => deletePriceUnit(idx)}
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+                                  title="Delete"
+                                >
+                                  <FiTrash2 size={16} />
+                                </motion.button>
+                              </>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Add New Unit Input */}
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Add New Unit</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newUnitInput}
+                            onChange={(e) => setNewUnitInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') addPriceUnit();
+                            }}
+                            placeholder="e.g. / box, / pallet"
+                            className="flex-1 border border-gray-300 dark:border-gray-600 px-3 py-2 rounded text-xs bg-white dark:bg-gray-800 dark:text-white outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                          <motion.button
+                            onClick={addPriceUnit}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold text-xs flex items-center gap-1 transition-colors"
+                          >
+                            <MdAdd size={16} />
+                            Add
+                          </motion.button>
+                        </div>
+                      </div>
+
+                      {/* Save Button */}
+                      <div className="mt-4 flex gap-2">
+                        <motion.button
+                          onClick={savePriceUnits}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-colors shadow-md"
+                        >
+                          <MdSave size={16} />
+                          Save Changes
+                        </motion.button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
