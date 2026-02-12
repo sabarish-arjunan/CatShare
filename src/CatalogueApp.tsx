@@ -255,7 +255,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // 1. Check for open preview modals or full-screen images first
+      // 1. Check for backup/restore popup or other drawer popups first
+      const backupPopup = document.querySelector("[data-backup-popup]");
+      if (backupPopup) {
+        window.dispatchEvent(new CustomEvent("close-drawer-popup"));
+        return;
+      }
+
+      // 2. Check for open preview modals or full-screen images
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
       if (fullScreenImageOpen || previewModalOpen) {
@@ -263,19 +270,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         return;
       }
 
-      // 2. If inside a catalogue view, let history management handle it (deselect or exit)
+      // 3. If inside a catalogue view, let history management handle it (deselect or exit)
       if (tab === "catalogues" && selectedCatalogueInCataloguesTab) {
         window.history.back();
         return;
       }
 
-      // 3. If on catalogues tab (showing list), go back to products tab
+      // 4. If on catalogues tab (showing list), go back to products tab
       if (tab === "catalogues") {
         setTab("products");
         return;
       }
 
-      // 4. If on products tab and no preview open, let App.tsx handle exit
+      // 5. If on products tab and no preview open, let App.tsx handle exit
       // Dispatch custom event so App.tsx can handle it properly
       window.dispatchEvent(new CustomEvent("catalogue-app-back-not-handled"));
     }).then((listener) => {

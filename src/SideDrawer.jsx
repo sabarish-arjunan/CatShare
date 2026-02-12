@@ -53,32 +53,21 @@ const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'
 const navigate = useNavigate();
 const { showToast } = useToast();
 
-  // Handle back button for popups
+  // Listen for close-popup event to close backups/renders
   useEffect(() => {
-    let backHandler;
-
-    const handleBackButton = () => {
+    const handleClosePopup = () => {
       if (showBackupPopup) {
         setShowBackupPopup(false);
-        return;
-      }
-      if (showRenderAfterRestore) {
+      } else if (showRenderAfterRestore) {
         setShowRenderAfterRestore(false);
-        return;
       }
-      onClose();
     };
 
-    const setup = async () => {
-      backHandler = await App.addListener("backButton", handleBackButton);
-    };
-
-    setup();
-
+    window.addEventListener("close-drawer-popup", handleClosePopup);
     return () => {
-      if (backHandler) backHandler.remove();
+      window.removeEventListener("close-drawer-popup", handleClosePopup);
     };
-  }, [onClose, showBackupPopup, showRenderAfterRestore]);
+  }, [showBackupPopup, showRenderAfterRestore]);
 
   if (!open) return null;
 
@@ -980,6 +969,7 @@ const exportProductsToCSV = (products) => {
 {showBackupPopup && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
   onClick={() => setShowBackupPopup(false)}
+  data-backup-popup="true"
   >
     <div className="bg-white/80 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs text-center"
     onClick={(e) => e.stopPropagation()}
