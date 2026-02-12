@@ -67,9 +67,10 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
   },
   {
     key: 'field4',
-    label: 'Field 4',
+    label: 'Currency',
     type: 'text',
     enabled: false,
+    legacyKeys: ['currency', 'Currency'],
     unitsEnabled: false,
     unitOptions: [],
   },
@@ -238,6 +239,7 @@ const ORIGINAL_FIELD_LABELS: { [legacyKey: string]: { fieldKey: string; original
   'color': { fieldKey: 'field1', originalLabel: 'Colour' },
   'package': { fieldKey: 'field2', originalLabel: 'Package' },
   'age': { fieldKey: 'field3', originalLabel: 'Age Group' },
+  'currency': { fieldKey: 'field4', originalLabel: 'Currency' },
   'wholesale': { fieldKey: 'price1', originalLabel: 'Price' },
 };
 
