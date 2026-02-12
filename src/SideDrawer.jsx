@@ -19,6 +19,8 @@ import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
 import { applyBackupFieldAnalysis } from "./config/fieldConfig";
 import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
+import { getCurrentCurrency } from "./utils/currencyUtils";
+import { getPriceUnits } from "./utils/priceUnitsUtils";
 
 
 export default function SideDrawer({
@@ -329,6 +331,13 @@ const handleBackup = async () => {
     return f.label !== defaultLabel && f.label !== f.key;
   });
 
+  // Fetch currency and custom currencies
+  const defaultCurrency = getCurrentCurrency();
+  const customCurrencies = safeGetFromStorage('customCurrencies', {});
+
+  // Fetch price units
+  const priceUnits = getPriceUnits();
+
   const backupMetadata = {
     template: backupFieldsDefinition.industry || 'General Products (Custom)',
     fieldNames: backupFieldsDefinition.fields?.map(f => ({
@@ -346,6 +355,11 @@ const handleBackup = async () => {
       watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
       watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
     },
+    currencySettings: {
+      defaultCurrency,
+      customCurrencies,
+    },
+    priceUnits,
   };
 
   // Log what's being backed up
@@ -362,6 +376,16 @@ const handleBackup = async () => {
       console.log(`      • ${f.label}: ${f.unitOptions?.join(', ') || 'default units'}`);
     });
   }
+
+  console.log(`\n💱 BACKING UP CURRENCY & PRICE SETTINGS:`);
+  console.log(`   Default Currency: ${backupMetadata.currencySettings.defaultCurrency}`);
+  if (Object.keys(backupMetadata.currencySettings.customCurrencies).length > 0) {
+    console.log(`   Custom Currencies: ${Object.keys(backupMetadata.currencySettings.customCurrencies).length}`);
+    Object.entries(backupMetadata.currencySettings.customCurrencies).forEach(([code, symbol]) => {
+      console.log(`      • ${code}: ${symbol}`);
+    });
+  }
+  console.log(`   Price Units: ${backupMetadata.priceUnits.join(', ')}`);
 
   zip.file("catalogue-data.json", JSON.stringify({
     version: 3, // New version with comprehensive metadata
@@ -631,9 +655,29 @@ const exportProductsToCSV = (products) => {
         userId: localStorage.getItem('userId'),
       };
 
+      // Restore currency and price units from backup if available
+      if (isV3Backup && parsed.metadata?.currencySettings) {
+        if (parsed.metadata.currencySettings.defaultCurrency) {
+          preservedSettings.defaultCurrency = parsed.metadata.currencySettings.defaultCurrency;
+        }
+        if (parsed.metadata.currencySettings.customCurrencies && Object.keys(parsed.metadata.currencySettings.customCurrencies).length > 0) {
+          preservedSettings.customCurrencies = parsed.metadata.currencySettings.customCurrencies;
+        }
+      }
+
+      if (isV3Backup && parsed.metadata?.priceUnits && Array.isArray(parsed.metadata.priceUnits) && parsed.metadata.priceUnits.length > 0) {
+        preservedSettings.priceFieldUnits = parsed.metadata.priceUnits;
+      }
+
       console.log("💾 Preserved critical settings:", Object.keys(preservedSettings));
       if (isV3Backup && parsed.metadata?.watermarkSettings) {
         console.log("📝 Restoring watermark settings from backup metadata");
+      }
+      if (isV3Backup && parsed.metadata?.currencySettings) {
+        console.log("💱 Restoring currency and custom currencies from backup metadata");
+      }
+      if (isV3Backup && parsed.metadata?.priceUnits) {
+        console.log("💵 Restoring price units from backup metadata");
       }
 
       // Validate that fieldsDefinition includes units configuration
@@ -675,6 +719,23 @@ const exportProductsToCSV = (products) => {
         }
       });
       console.log("✅ Preserved settings restored with auto-detected fields");
+
+      // Log currency and price units restoration
+      if (isV3Backup && parsed.metadata?.currencySettings) {
+        console.log(`\n💱 CURRENCY RESTORATION SUMMARY:`);
+        console.log(`   Default Currency: ${preservedSettings.defaultCurrency || 'Not restored'}`);
+        if (preservedSettings.customCurrencies && Object.keys(preservedSettings.customCurrencies).length > 0) {
+          console.log(`   Custom Currencies: ${Object.keys(preservedSettings.customCurrencies).length}`);
+          Object.entries(preservedSettings.customCurrencies).forEach(([code, symbol]) => {
+            console.log(`      • ${code}: ${symbol}`);
+          });
+        }
+      }
+
+      if (isV3Backup && parsed.metadata?.priceUnits) {
+        console.log(`\n💵 PRICE UNITS RESTORATION SUMMARY:`);
+        console.log(`   Price Units: ${preservedSettings.priceFieldUnits?.join(', ') || 'Not restored'}`);
+      }
 
       // Aggressively clean products - remove ALL image data except imagePath reference
       const cleanedProducts = rebuilt.map(p => {
