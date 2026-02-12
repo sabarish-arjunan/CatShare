@@ -307,6 +307,13 @@ const handleBackup = async () => {
   };
 
   // Get additional metadata for comprehensive backup
+  const enabledFields = backupFieldsDefinition.fields?.filter(f => f.enabled) || [];
+  const customFieldLabels = enabledFields.filter(f => {
+    // Check if label is custom (not the default)
+    const defaultLabel = `Field ${f.key.replace('field', '')}`;
+    return f.label !== defaultLabel && f.label !== f.key;
+  });
+
   const backupMetadata = {
     template: backupFieldsDefinition.industry || 'General Products (Custom)',
     fieldNames: backupFieldsDefinition.fields?.map(f => ({
@@ -317,12 +324,29 @@ const handleBackup = async () => {
       unitsEnabled: f.unitsEnabled || false,
       unitOptions: f.unitOptions || [],
     })) || [],
+    customFieldLabelsCount: customFieldLabels.length,
+    enabledFieldsCount: enabledFields.length,
     watermarkSettings: {
       showWatermark: safeGetFromStorage('showWatermark', false),
       watermarkText: safeGetFromStorage('watermarkText', 'Created using CatShare'),
       watermarkPosition: safeGetFromStorage('watermarkPosition', 'bottom-center'),
     },
   };
+
+  // Log what's being backed up
+  console.log(`\n📋 BACKING UP FIELD CONFIGURATION:`);
+  console.log(`   Template: ${backupMetadata.template}`);
+  console.log(`   Enabled Fields: ${backupMetadata.enabledFieldsCount}`);
+  if (backupMetadata.customFieldLabelsCount > 0) {
+    console.log(`   Custom Field Labels: ${backupMetadata.customFieldLabelsCount}`);
+    customFieldLabels.forEach(f => console.log(`      • ${f.key}: "${f.label}"`));
+  }
+  if (enabledFields.some(f => f.unitsEnabled)) {
+    console.log(`   Fields with Units:`);
+    enabledFields.filter(f => f.unitsEnabled).forEach(f => {
+      console.log(`      • ${f.label}: ${f.unitOptions?.join(', ') || 'default units'}`);
+    });
+  }
 
   zip.file("catalogue-data.json", JSON.stringify({
     version: 3, // New version with comprehensive metadata
@@ -453,11 +477,28 @@ const exportProductsToCSV = (products) => {
 
         // For v3 backups, also log the field names being restored
         if (isV3Backup && parsed.metadata?.fieldNames) {
-          const enabledFields = parsed.metadata.fieldNames
-            .filter(f => f.enabled)
-            .map(f => `${f.label}${f.unitsEnabled ? ' (with units)' : ''}`)
-            .join(', ');
-          console.log(`   📋 Fields from backup: ${enabledFields || 'None'}`);
+          const enabledFields = parsed.metadata.fieldNames.filter(f => f.enabled);
+          console.log(`\n📋 RESTORING FIELD CONFIGURATION FROM BACKUP:`);
+          console.log(`   Template: ${parsed.metadata.template}`);
+          console.log(`   Enabled Fields: ${enabledFields.length}`);
+
+          if (parsed.metadata.customFieldLabelsCount > 0) {
+            console.log(`   Custom Field Labels: ${parsed.metadata.customFieldLabelsCount}`);
+            enabledFields.forEach(f => {
+              const defaultLabel = `Field ${f.key.replace('field', '')}`;
+              if (f.label !== defaultLabel && f.label !== f.key) {
+                console.log(`      ✅ ${f.key}: "${f.label}"`);
+              }
+            });
+          }
+
+          const fieldsWithUnits = enabledFields.filter(f => f.unitsEnabled);
+          if (fieldsWithUnits.length > 0) {
+            console.log(`   Fields with Units:`);
+            fieldsWithUnits.forEach(f => {
+              console.log(`      ✅ ${f.label}: ${f.unitOptions?.join(', ') || 'default units'}`);
+            });
+          }
         }
       } else {
         // Old backup without fieldsDefinition - analyze the product data to detect fields
@@ -718,9 +759,16 @@ const exportProductsToCSV = (products) => {
 
       // Log restoration summary for v3 backups
       if (isV3Backup && parsed.metadata) {
+        const enabledFields = parsed.metadata.fieldNames?.filter(f => f.enabled) || [];
         console.log(`\n📊 COMPREHENSIVE BACKUP RESTORATION SUMMARY:`);
         console.log(`   ✅ Template: ${parsed.metadata.template}`);
-        console.log(`   ✅ Fields: ${parsed.metadata.fieldNames?.length || 0} configured fields`);
+        console.log(`   ✅ Enabled Fields: ${enabledFields.length} (of ${parsed.metadata.fieldNames?.length || 0} total)`);
+        if (parsed.metadata.customFieldLabelsCount > 0) {
+          console.log(`   ✅ Custom Field Names: ${parsed.metadata.customFieldLabelsCount}`);
+        }
+        if (enabledFields.some(f => f.unitsEnabled)) {
+          console.log(`   ✅ Fields with Units: ${enabledFields.filter(f => f.unitsEnabled).length}`);
+        }
         console.log(`   ✅ Products: ${rebuilt.length} product(s)`);
         console.log(`   ✅ Deleted Items: ${Array.isArray(parsed.deleted) ? parsed.deleted.length : 0}`);
         console.log(`   ✅ Categories: ${Array.isArray(parsed.categories) ? parsed.categories.length : 0}`);
@@ -732,7 +780,7 @@ const exportProductsToCSV = (products) => {
         console.log(`\n📊 BACKUP RESTORATION SUMMARY:`);
         console.log(`   ✅ Products: ${rebuilt.length} product(s)`);
         console.log(`   ✅ Template: ${templateName}`);
-        console.log(`   ⚠️ Backup Version: v${parsed.version} (legacy format)`);
+        console.log(`   ⚠️ Backup Version: v${parsed.version} (legacy format - no custom field names preserved)`);
       }
 
       setShowRenderAfterRestore(true);
