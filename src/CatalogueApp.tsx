@@ -19,6 +19,16 @@ import { MdInventory2 } from "react-icons/md";
 import { saveRenderedImage, deleteRenderedImageForProduct } from "./Save";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 
+declare global {
+  interface Window {
+    __catalogueAppState?: {
+      showTutorial: boolean;
+      setShowTutorial: React.Dispatch<React.SetStateAction<boolean>>;
+    };
+    __sideDrawerState?: any;
+  }
+}
+
 export function openPreviewHtml(id, tab = null) {
   const evt = new CustomEvent("open-preview", { detail: { id, tab } });
   window.dispatchEvent(evt);
