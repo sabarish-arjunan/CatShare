@@ -1231,12 +1231,18 @@ function CategoryModal({ onClose }) {
     setCategories(stored);
   }, []);
 
+  const backupPopupRef = useRef(showBackupPopup);
+
+  useEffect(() => {
+    backupPopupRef.current = showBackupPopup;
+  }, [showBackupPopup]);
+
   useEffect(() => {
   let backHandler;
 
   const setup = async () => {
     backHandler = await App.addListener("backButton", () => {
-      if (showBackupPopup) {
+      if (backupPopupRef.current) {
         setShowBackupPopup(false);
       } else {
         onClose();
@@ -1249,7 +1255,7 @@ function CategoryModal({ onClose }) {
   return () => {
     if (backHandler) backHandler.remove();
   };
-}, [onClose, showBackupPopup]);
+}, [onClose]);
 
 
   const save = (list) => {
