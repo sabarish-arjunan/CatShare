@@ -25,6 +25,12 @@ export default function FieldsSettings() {
   const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
   const [editingLabelKey, setEditingLabelKey] = useState(null);
   const [editingLabelValue, setEditingLabelValue] = useState("");
+  const [editingUnits, setEditingUnits] = useState(false);
+  const [unitsInput, setUnitsInput] = useState("");
+  const [priceUnits, setPriceUnits] = useState(() => {
+    const stored = localStorage.getItem("priceFieldUnits");
+    return stored ? JSON.parse(stored) : [];
+  });
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -183,6 +189,28 @@ export default function FieldsSettings() {
       f.key === key ? { ...f, unitsEnabled: !f.unitsEnabled } : f
     );
     setDefinition({ ...definition, fields: newFields });
+  };
+
+  const handleSavePriceUnits = async () => {
+    const units = unitsInput
+      .split(/[,\n]/)
+      .map(u => u.trim())
+      .filter(u => u !== "");
+
+    if (units.length === 0) {
+      showToast("Please enter at least one unit", "error");
+      return;
+    }
+
+    setPriceUnits(units);
+    localStorage.setItem("priceFieldUnits", JSON.stringify(units));
+    setEditingUnits(false);
+
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (e) {}
+
+    showToast("Price units saved successfully", "success");
   };
 
   const handleAddField = async () => {
@@ -439,6 +467,78 @@ export default function FieldsSettings() {
             </AnimatePresence>
           </div>
         )}
+
+        {/* Price Field Units */}
+        <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Price Units</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Set available units for pricing</p>
+          </div>
+
+          <div className="p-4">
+            {!editingUnits ? (
+              <div className="space-y-3">
+                {priceUnits.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {priceUnits.map((unit, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                        {unit}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 italic">No units configured. Click Edit to add units.</p>
+                )}
+
+                <button
+                  onClick={() => {
+                    setEditingUnits(true);
+                    setUnitsInput(priceUnits.join(", "));
+                  }}
+                  className="w-full mt-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition"
+                >
+                  Edit Units
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Enter units (comma or newline-separated)
+                  </label>
+                  <textarea
+                    value={unitsInput}
+                    onChange={(e) => setUnitsInput(e.target.value)}
+                    placeholder="e.g. / piece, / dozen, / set, / kg"
+                    rows="3"
+                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition dark:text-white text-sm"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Enter each unit on a new line or separated by commas
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingUnits(false);
+                      setUnitsInput("");
+                    }}
+                    className="flex-1 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold text-sm transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSavePriceUnits}
+                    className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition"
+                  >
+                    Save Units
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Modern Tabs */}
         <div className="px-4 mt-4 shrink-0 -mx-4">

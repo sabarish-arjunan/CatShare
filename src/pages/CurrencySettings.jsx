@@ -18,12 +18,6 @@ export default function CurrencySettings() {
     const stored = localStorage.getItem("customCurrencies");
     return stored ? JSON.parse(stored) : {};
   });
-  const [currencyUnits, setCurrencyUnits] = useState(() => {
-    const stored = localStorage.getItem("currencyUnits");
-    return stored ? JSON.parse(stored) : {};
-  });
-  const [editingUnits, setEditingUnits] = useState(false);
-  const [unitsInput, setUnitsInput] = useState("");
 
   useEffect(() => {
     // Initialize default currency to INR if not already set
@@ -32,40 +26,13 @@ export default function CurrencySettings() {
       localStorage.setItem("defaultCurrency", "INR");
       window.dispatchEvent(new CustomEvent("currencyChanged", { detail: { currency: "INR" } }));
     }
-
-    // Load units for current currency
-    const units = currencyUnits[selectedCurrency] || [];
-    setUnitsInput(units.join(", "));
-  }, [selectedCurrency, currencyUnits]);
+  }, []);
 
   const handleCurrencySelect = (currencyCode) => {
     setSelectedCurrency(currencyCode);
     localStorage.setItem("defaultCurrency", currencyCode);
     window.dispatchEvent(new CustomEvent("currencyChanged", { detail: { currency: currencyCode } }));
     showToast(`Currency changed to ${currencyCode}`, "success");
-
-    // Load units for this currency
-    const units = currencyUnits[currencyCode] || [];
-    setUnitsInput(units.join(", "));
-    setEditingUnits(false);
-  };
-
-  const handleSaveUnits = () => {
-    const units = unitsInput
-      .split(",")
-      .map(u => u.trim())
-      .filter(u => u !== "");
-
-    if (units.length === 0) {
-      showToast("Please enter at least one unit", "error");
-      return;
-    }
-
-    const updated = { ...currencyUnits, [selectedCurrency]: units };
-    setCurrencyUnits(updated);
-    localStorage.setItem("currencyUnits", JSON.stringify(updated));
-    setEditingUnits(false);
-    showToast("Units saved successfully", "success");
   };
 
   const handleAddCustomCurrency = () => {
@@ -205,78 +172,6 @@ export default function CurrencySettings() {
             </div>
           </div>
 
-          {/* Price Field Units */}
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Price Units</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Set available units for {selectedCurrencyObj?.code}</p>
-            </div>
-
-            <div className="p-4">
-              {!editingUnits ? (
-                <div className="space-y-3">
-                  {(currencyUnits[selectedCurrency] || []).length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {(currencyUnits[selectedCurrency] || []).map((unit, idx) => (
-                        <span key={idx} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                          {unit}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 italic">No units configured. Click Edit to add units.</p>
-                  )}
-
-                  <button
-                    onClick={() => {
-                      setEditingUnits(true);
-                      setUnitsInput((currencyUnits[selectedCurrency] || []).join(", "));
-                    }}
-                    className="w-full mt-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition"
-                  >
-                    Edit Units
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Enter units (comma-separated)
-                    </label>
-                    <textarea
-                      value={unitsInput}
-                      onChange={(e) => setUnitsInput(e.target.value)}
-                      placeholder="e.g. / piece, / dozen, / set, / kg"
-                      rows="3"
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition dark:text-white text-sm"
-                    />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Enter each unit on a new line or separated by commas
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingUnits(false);
-                        setUnitsInput("");
-                      }}
-                      className="flex-1 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold text-sm transition"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveUnits}
-                      className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition"
-                    >
-                      Save Units
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Info */}
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">About</h3>
@@ -286,7 +181,6 @@ export default function CurrencySettings() {
               <li>• This setting applies to all your products</li>
               <li>• Individual products can still use different currencies</li>
               <li>• Create custom currencies for unsupported or local currencies</li>
-              <li>• Set default units for pricing (piece, dozen, kg, etc.)</li>
             </ul>
           </div>
         </div>
