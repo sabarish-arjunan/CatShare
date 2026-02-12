@@ -42,14 +42,55 @@ export function getCurrentCurrency(): string {
  */
 export function getCurrentCurrencySymbol(): string {
   const code = getCurrentCurrency();
-  return CURRENCIES[code]?.symbol || '₹';
+
+  // Check standard currencies first
+  if (CURRENCIES[code]) {
+    return CURRENCIES[code].symbol;
+  }
+
+  // Check custom currencies
+  try {
+    const customCurrencies = localStorage.getItem('customCurrencies');
+    if (customCurrencies) {
+      const parsed = JSON.parse(customCurrencies);
+      if (parsed[code]) {
+        return parsed[code];
+      }
+    }
+  } catch (e) {
+    // Silently fail
+  }
+
+  return '₹'; // Default fallback
 }
 
 /**
  * Get currency data by code
  */
 export function getCurrencyData(code: string): CurrencyData {
-  return CURRENCIES[code] || CURRENCIES['INR'];
+  // Check standard currencies first
+  if (CURRENCIES[code]) {
+    return CURRENCIES[code];
+  }
+
+  // Check custom currencies
+  try {
+    const customCurrencies = localStorage.getItem('customCurrencies');
+    if (customCurrencies) {
+      const parsed = JSON.parse(customCurrencies);
+      if (parsed[code]) {
+        return {
+          code,
+          symbol: parsed[code],
+          name: `Custom - ${code}`,
+        };
+      }
+    }
+  } catch (e) {
+    // Silently fail
+  }
+
+  return CURRENCIES['INR'];
 }
 
 /**
