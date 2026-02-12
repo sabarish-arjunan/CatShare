@@ -18,7 +18,7 @@ interface ManageCataloguesProps {
   renamingCatalogueIds?: Set<string>;
 }
 
-export default function ManageCatalogues({
+export default React.memo(function ManageCatalogues({
   onClose,
   onCataloguesChanged,
   products,
@@ -603,4 +603,4 @@ export default function ManageCatalogues({
       )}
     </div>
   );
-}
+});

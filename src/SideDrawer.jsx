@@ -46,7 +46,7 @@ export default function SideDrawer({
 const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 const [clickCountN, setClickCountN] = useState(0);
 const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
-const allproducts = JSON.parse(localStorage.getItem("products") || "[]");
+const [allProductsCached, setAllProductsCached] = useState([]);
 const totalProducts = products.length;
 const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
 const [showBackupPopup, setShowBackupPopup] = useState(false);
@@ -54,6 +54,19 @@ const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
 const navigate = useNavigate();
 const { showToast } = useToast();
+
+  // Load all products asynchronously (avoid blocking render)
+  useEffect(() => {
+    setTimeout(() => {
+      try {
+        const prods = JSON.parse(localStorage.getItem("products") || "[]");
+        setAllProductsCached(prods);
+      } catch (err) {
+        console.error("Error loading products from localStorage:", err);
+        setAllProductsCached([]);
+      }
+    }, 0);
+  }, []);
 
   // Expose all modal states globally for back button handlers
   useEffect(() => {
@@ -1292,24 +1305,16 @@ const exportProductsToCSV = (products) => {
         />
       )}
 
-      {showBulkEdit && (() => {
-        try {
-          const allProds = JSON.parse(localStorage.getItem("products") || "[]");
-          return (
-            <BulkEdit
-              products={products}
-              allProducts={allProds}
-              imageMap={imageMap}
-              setProducts={setProducts}
-              onClose={() => setShowBulkEdit(false)}
-              triggerRender={handleRenderAllPNGs}
-            />
-          );
-        } catch (err) {
-          console.error("💥 Error in BulkEdit:", err);
-          return <div className='text-red-600'>BulkEdit crashed.</div>;
-        }
-      })()}
+      {showBulkEdit && (
+        <BulkEdit
+          products={products}
+          allProducts={allProductsCached}
+          imageMap={imageMap}
+          setProducts={setProducts}
+          onClose={() => setShowBulkEdit(false)}
+          triggerRender={handleRenderAllPNGs}
+        />
+      )}
 
       {showCategories && (
         <CategoryModal onClose={() => setShowCategories(false)} />
