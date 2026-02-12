@@ -376,14 +376,35 @@ function AppWithBackHandler() {
         return;
       }
 
-      // Check for backup/restore popup in drawer
+      // Check for any open modals from SideDrawer or CatalogueApp
       const sideDrawerState = (window as any).__sideDrawerState;
+      const catalogueAppState = (window as any).__catalogueAppState;
+
+      // Check SideDrawer modals first
       if (sideDrawerState?.showBackupPopup) {
         sideDrawerState.setShowBackupPopup(false);
         return;
       }
       if (sideDrawerState?.showRenderAfterRestore) {
         sideDrawerState.setShowRenderAfterRestore(false);
+        return;
+      }
+      if (sideDrawerState?.showCategories) {
+        sideDrawerState.setShowCategories(false);
+        return;
+      }
+      if (sideDrawerState?.showBulkEdit) {
+        sideDrawerState.setShowBulkEdit(false);
+        return;
+      }
+      if (sideDrawerState?.showMediaLibrary) {
+        sideDrawerState.setShowMediaLibrary(false);
+        return;
+      }
+
+      // Check CatalogueApp modals
+      if (catalogueAppState?.showTutorial) {
+        catalogueAppState.setShowTutorial(false);
         return;
       }
 

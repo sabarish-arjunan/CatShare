@@ -53,15 +53,21 @@ const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'
 const navigate = useNavigate();
 const { showToast } = useToast();
 
-  // Expose popup state globally for back button handlers
+  // Expose all modal states globally for back button handlers
   useEffect(() => {
     window.__sideDrawerState = {
       showBackupPopup,
       showRenderAfterRestore,
+      showCategories,
+      showBulkEdit,
+      showMediaLibrary,
       setShowBackupPopup,
       setShowRenderAfterRestore,
+      setShowCategories,
+      setShowBulkEdit,
+      setShowMediaLibrary,
     };
-  }, [showBackupPopup, showRenderAfterRestore]);
+  }, [showBackupPopup, showRenderAfterRestore, showCategories, showBulkEdit, showMediaLibrary]);
 
   if (!open) return null;
 
