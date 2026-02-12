@@ -22,7 +22,7 @@ export default function FieldsSettings() {
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
-  const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
+  const [expandedTemplateCard, setExpandedTemplateCard] = useState(false);
   const [editingLabelKey, setEditingLabelKey] = useState(null);
   const [editingLabelValue, setEditingLabelValue] = useState("");
   const [priceUnits, setPriceUnits] = useState(() => {
@@ -527,7 +527,12 @@ export default function FieldsSettings() {
                       </div>
                     ) : (
                       <>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Fields</span>
+                          <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                            {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length}
+                          </span>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                           {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).map(field => (
                             <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
