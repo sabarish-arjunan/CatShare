@@ -611,6 +611,17 @@ const exportProductsToCSV = (products) => {
         console.log("📝 Restoring watermark settings from backup metadata");
       }
 
+      // Validate that fieldsDefinition includes units configuration
+      if (backupFieldDef?.fields) {
+        const fieldsWithUnits = backupFieldDef.fields.filter(f => f.enabled && f.unitsEnabled);
+        if (fieldsWithUnits.length > 0) {
+          console.log(`✅ UNITS ENABLED - Fields with units in restored definition:`);
+          fieldsWithUnits.forEach(f => {
+            console.log(`   • ${f.label}: ${f.unitOptions?.join(', ') || 'default units'}`);
+          });
+        }
+      }
+
       setDeletedProducts([]);
       localStorage.clear(); // Nuclear option - clear EVERYTHING
 

@@ -402,6 +402,8 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
         ...fieldConfig,
         label: label, // Restore original label if it was changed
         enabled: true, // Enable the field since we found data for it
+        unitsEnabled: fieldConfig.unitsEnabled || false, // Preserve units configuration
+        unitOptions: fieldConfig.unitOptions || [], // Preserve unit options
       };
     } else if (fieldConfig.enabled) {
       // Keep existing enabled state
@@ -448,6 +450,7 @@ export function analyzeBackupFieldsAndUpdateDefinition(products: any[], isOldBac
             ...updatedFields[fieldIdx],
             label: presetField.label,
             unitOptions: presetField.unitOptions || updatedFields[fieldIdx].unitOptions || [],
+            unitsEnabled: presetField.unitsEnabled || (presetField.unitOptions && presetField.unitOptions.length > 0) || false,
             enabled: true,
           };
         }
