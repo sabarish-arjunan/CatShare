@@ -1231,31 +1231,31 @@ function CategoryModal({ onClose }) {
     setCategories(stored);
   }, []);
 
-  const backupPopupRef = useRef(showBackupPopup);
-
   useEffect(() => {
-    backupPopupRef.current = showBackupPopup;
-  }, [showBackupPopup]);
+    let backHandler;
 
-  useEffect(() => {
-  let backHandler;
-
-  const setup = async () => {
-    backHandler = await App.addListener("backButton", () => {
-      if (backupPopupRef.current) {
+    const handleBackButton = () => {
+      if (showBackupPopup) {
         setShowBackupPopup(false);
-      } else {
-        onClose();
+        return;
       }
-    });
-  };
+      if (showRenderAfterRestore) {
+        setShowRenderAfterRestore(false);
+        return;
+      }
+      onClose();
+    };
 
-  setup();
+    const setup = async () => {
+      backHandler = await App.addListener("backButton", handleBackButton);
+    };
 
-  return () => {
-    if (backHandler) backHandler.remove();
-  };
-}, [onClose]);
+    setup();
+
+    return () => {
+      if (backHandler) backHandler.remove();
+    };
+  }, [onClose, showBackupPopup, showRenderAfterRestore]);
 
 
   const save = (list) => {
