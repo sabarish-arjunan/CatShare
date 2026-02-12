@@ -63,6 +63,13 @@ export function initializeCatalogueData(product?: ProductWithCatalogueData): Rec
   const catalogueData: Record<string, CatalogueData> = {};
 
   catalogues.forEach((cat) => {
+    // If product already has catalogueData for this catalogue, preserve it
+    const existingCatData = product?.catalogueData?.[cat.id];
+    if (existingCatData) {
+      catalogueData[cat.id] = { ...existingCatData };
+      return;
+    }
+
     // Dynamically get price field values based on catalogue configuration
     const priceValue = product?.[cat.priceField] || "";
     const priceUnitValue = product?.[cat.priceUnitField] || "/ piece";

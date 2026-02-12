@@ -124,13 +124,11 @@ export default function WatermarkFields() {
             return {
               ...f,
               label: presetField.label,
-              unitOptions: presetField.defaultUnits || f.unitOptions || [],
+              unitOptions: presetField.unitOptions || [],
+              unitsEnabled: !!(presetField.unitOptions && presetField.unitOptions.length > 0),
               enabled: true
             };
           } else {
-            // Keep existing fields if they were enabled but aren't in the preset?
-            // Actually, the user said "choose what to stay and what not", 
-            // but industry preset should probably set a baseline.
             return { ...f, enabled: false };
           }
         }
@@ -141,7 +139,7 @@ export default function WatermarkFields() {
       newFields = newFields.map(f => {
         if (f.key.startsWith('field')) {
           const index = parseInt(f.key.replace('field', ''));
-          return { ...f, enabled: index <= 3 || f.enabled };
+          return { ...f, enabled: index <= 3 || f.enabled, unitsEnabled: false, unitOptions: [] };
         }
         return f;
       });

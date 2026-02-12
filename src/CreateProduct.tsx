@@ -793,11 +793,22 @@ export default function CreateProduct() {
       newItem[`field${i}Unit`] = defaultCatalogueData[`field${i}Unit`] || "None";
     }
 
+    newItem.badge = defaultCatalogueData.badge || "";
     newItem.wholesaleUnit = defaultCatalogueData.price1Unit || "/ piece";
     newItem.packageUnit = defaultCatalogueData.field2Unit || "pcs / set";
     newItem.ageUnit = defaultCatalogueData.field3Unit || "months";
     newItem.wholesale = newItem.price1 || "";
     newItem.stock = newItem[allCatalogues[0]?.stockField || "wholesaleStock"] !== false;
+
+    // Ensure catalogueData is preserved and all catalogues have the badge synced
+    if (newItem.catalogueData) {
+      for (const cat of allCatalogues) {
+        if (newItem.catalogueData[cat.id]) {
+          // Sync badge to all catalogues to ensure consistency
+          newItem.catalogueData[cat.id].badge = newItem.badge;
+        }
+      }
+    }
 
     try {
       const all = JSON.parse(localStorage.getItem("products") || "[]");

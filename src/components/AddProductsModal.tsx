@@ -24,11 +24,13 @@ export default function AddProductsModal({
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    // Sync modal state with parent when allProducts changes
-    // This ensures changes made in the modal reflect immediately in the parent
-    setProducts(allProducts);
-    setSearch(""); // Reset search when products list changes
-  }, [allProducts]);
+    // When modal opens, refresh from the latest parent data
+    // This ensures we have fresh product states
+    if (isOpen) {
+      setProducts(allProducts);
+      setSearch(""); // Reset search when modal opens
+    }
+  }, [isOpen, allProducts]);
 
   const filteredProducts = products.filter((p) =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -49,7 +51,7 @@ export default function AddProductsModal({
     // Save to localStorage
     localStorage.setItem("products", JSON.stringify(updated));
 
-    // Notify parent component
+    // Notify parent component (this will trigger re-render with updated products)
     onProductsUpdate(updated);
   };
 
@@ -73,7 +75,7 @@ export default function AddProductsModal({
     // Save to localStorage
     localStorage.setItem("products", JSON.stringify(updated));
 
-    // Notify parent component
+    // Notify parent component (this will trigger re-render with updated products)
     onProductsUpdate(updated);
   };
 
