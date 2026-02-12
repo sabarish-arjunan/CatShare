@@ -22,7 +22,7 @@ export default function FieldsSettings() {
   const [activePriceFields, setActivePriceFields] = useState([]);
   const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
   const [expandedKey, setExpandedKey] = useState(null);
-  const [expandedTemplateCard, setExpandedTemplateCard] = useState(true);
+  const [expandedTemplateCard, setExpandedTemplateCard] = useState(false);
   const [editingLabelKey, setEditingLabelKey] = useState(null);
   const [editingLabelValue, setEditingLabelValue] = useState("");
   const [priceUnits, setPriceUnits] = useState(() => {
@@ -39,6 +39,7 @@ export default function FieldsSettings() {
   const [newUnitInput, setNewUnitInput] = useState("");
   const [editingUnitIndex, setEditingUnitIndex] = useState(null);
   const [editingUnitValue, setEditingUnitValue] = useState("");
+  const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
@@ -143,7 +144,12 @@ export default function FieldsSettings() {
     return "e.g. option1, option2, option3";
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
+    // Show confirmation modal instead of saving immediately
+    setShowSaveConfirmation(true);
+  };
+
+  const confirmSave = async () => {
     if (definition) {
       setFieldsDefinition(definition);
       setSavedDefinition(definition);
@@ -152,6 +158,7 @@ export default function FieldsSettings() {
         await Haptics.impact({ style: ImpactStyle.Medium });
       } catch (e) {}
       showToast("Field settings saved successfully", "success");
+      setShowSaveConfirmation(false);
     }
   };
 
@@ -477,11 +484,16 @@ export default function FieldsSettings() {
                    savedDefinition.industry.includes("Home") ? "🏠" :
                    savedDefinition.industry.includes("Electronics") ? "🎧" : "🛠️"}
                 </div>
-                <div className="text-left">
+                <div className="text-left flex-1">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
-                  <h2 className="text-base font-bold dark:text-white">
-                    {savedDefinition.industry || "General Products (Custom)"}
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-bold dark:text-white">
+                      {savedDefinition.industry || "General Products (Custom)"}
+                    </h2>
+                    <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length}
+                    </span>
+                  </div>
                 </div>
               </div>
               <motion.div
@@ -1104,7 +1116,47 @@ export default function FieldsSettings() {
         </AnimatePresence>
       </main>
 
-      
+      {/* Save Confirmation Modal */}
+      {showSaveConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-gray-200 dark:border-gray-800"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+              <MdInfoOutline className="text-blue-600 dark:text-blue-400" size={24} />
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
+              Confirm Field Changes
+            </h2>
+
+            <p className="text-gray-600 dark:text-gray-400 text-center text-sm mb-6 leading-relaxed">
+              These changes will affect the current product fields across all your catalogues. Please make sure you want to proceed with this modification.
+            </p>
+
+            <div className="space-y-3">
+              <button
+                onClick={confirmSave}
+                className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2"
+              >
+                <MdCheck size={20} />
+                Confirm & Save
+              </button>
+              <button
+                onClick={() => setShowSaveConfirmation(false)}
+                className="w-full px-4 py-3 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
