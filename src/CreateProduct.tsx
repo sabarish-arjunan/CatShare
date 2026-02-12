@@ -24,6 +24,7 @@ import {
 } from "./config/catalogueProductUtils";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
+import { getPriceUnits } from "./utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -1448,7 +1449,7 @@ export default function CreateProduct() {
                         className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                       />
                     </div>
-                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitsEnabled && (getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).length > 0) && (
+                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitsEnabled && getPriceUnits().length > 0) && (
                       <div className="relative flex-shrink-0">
                         <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                           Unit
@@ -1460,7 +1461,7 @@ export default function CreateProduct() {
                           className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
                         >
                           <option>None</option>
-                          {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                          {getPriceUnits().map(opt => (
                             <option key={opt}>{opt}</option>
                           ))}
                         </select>

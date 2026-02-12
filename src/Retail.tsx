@@ -13,6 +13,7 @@ import ProductPreviewModal from "./ProductPreviewModal";
 import { useToast } from "./context/ToastContext";
 import { getFieldConfig } from "./config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
+import { getPriceUnits } from "./utils/priceUnitsUtils";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
@@ -333,6 +334,7 @@ export default function Retail({ products = [] }) {
         name: p.name || "",
         subtitle: p.subtitle || "",
         price1: retailPrice,
+        price1Unit: p.price1Unit || getPriceUnits()[0],
         // Keep old names for backward compatibility
         wholesale: retailPrice,
         retail: retailPrice,
@@ -367,6 +369,7 @@ export default function Retail({ products = [] }) {
       name: "New Product",
       subtitle: "",
       price1: 0,
+      price1Unit: getPriceUnits()[0],
       // Keep old names for backward compatibility
       wholesale: 0,
       image: "",
@@ -843,7 +846,7 @@ export default function Retail({ products = [] }) {
                         </div>
 
                         <div style={{ backgroundColor: overrideColor, color: fontColor, padding: 8, textAlign: 'center', fontWeight: 'normal', fontSize: 19 }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{editingProduct.price1 || editingProduct.wholesale} / piece
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{editingProduct.price1 || editingProduct.wholesale} {editingProduct.price1Unit || getPriceUnits()[0]}
                         </div>
                       </div>
 

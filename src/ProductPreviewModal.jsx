@@ -12,6 +12,7 @@ import { getAllCatalogues } from "./config/catalogueConfig";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import { safeGetFromStorage } from "./utils/safeStorage";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
+import { getPriceUnits } from "./utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
