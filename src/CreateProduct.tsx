@@ -1429,10 +1429,7 @@ export default function CreateProduct() {
                             />
                           </div>
                           {(field.unitsEnabled && field.unitOptions && field.unitOptions.length > 0) && (
-                            <div className="relative flex-shrink-0 flex items-center gap-1.5">
-                              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                Unit
-                              </label>
+                            <div className="relative flex-shrink-0">
                               <select
                                 name={`${field.key}Unit`}
                                 value={catData[`${field.key}Unit`] || "None"}
@@ -1463,10 +1460,7 @@ export default function CreateProduct() {
                       />
                     </div>
                     {getPriceUnits().length > 0 && (
-                      <div className="relative flex-shrink-0 flex items-center gap-1.5">
-                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                          Unit
-                        </label>
+                      <div className="relative flex-shrink-0">
                         <select
                           name={getSelectedCataloguePriceUnitField()}
                           value={getSelectedCataloguePriceUnit() || "None"}
