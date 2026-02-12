@@ -144,7 +144,7 @@ function ColorPickerModal({ value, onChange, onClose }) {
   }, [value]);
 
   const currentColorRgb = hslToRgb(hue, saturation, brightness);
-  const currentColorHex = rgbToHex(...currentColorRgb);
+  const currentColorHex = rgbToHex(...(currentColorRgb as [number, number, number]));
   const currentColorStr = `rgb(${currentColorRgb[0]}, ${currentColorRgb[1]}, ${currentColorRgb[2]})`;
 
   const handleHexChange = (hex) => {
