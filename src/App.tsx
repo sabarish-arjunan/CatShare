@@ -375,6 +375,14 @@ function AppWithBackHandler() {
         CapacitorApp.minimizeApp();
         return;
       }
+
+      // Check for backup/restore popup in drawer
+      const backupPopup = document.querySelector("[data-backup-popup]");
+      if (backupPopup) {
+        window.dispatchEvent(new CustomEvent("close-drawer-popup"));
+        return;
+      }
+
       const fullScreenImageOpen = document.querySelector('[data-fullscreen-image="true"]');
       // Check for product preview modal backdrop (backdrop-blur-xl with z-50)
       const previewModalOpen = document.querySelector(".backdrop-blur-xl.z-50");
