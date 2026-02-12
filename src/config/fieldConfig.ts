@@ -129,7 +129,7 @@ export const DEFAULT_FIELDS: FieldConfig[] = [
     legacyKeys: ['wholesale', 'Wholesale', 'Whole price'],
     unitField: 'price1Unit',
     unitsEnabled: true,
-    unitOptions: ['/ piece', '/ dozen', '/ set'],
+    unitOptions: ['/ piece', '/ dozen', '/ set', '/ kg'],
     defaultUnit: '/ piece',
   },
 ];

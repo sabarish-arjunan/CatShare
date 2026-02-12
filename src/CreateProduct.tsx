@@ -23,6 +23,8 @@ import {
   type ProductWithCatalogueData
 } from "./config/catalogueProductUtils";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
+import { getPriceUnits } from "./utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -343,6 +345,16 @@ export default function CreateProduct() {
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
     return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
+
+  const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
+
+  // Listen for currency changes
+  useEffect(() => {
+    const unsubscribe = onCurrencyChange((currency, symbol) => {
+      setCurrencySymbol(symbol);
+    });
+    return unsubscribe;
+  }, []);
 
   // Listen for watermark setting changes
   useEffect(() => {
@@ -1079,7 +1091,7 @@ export default function CreateProduct() {
                         fontSize: "16px",
                       }}
                     >
-                      Price: ₹{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+                      Price: {currencySymbol}{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
                     </div>
                   )}
                 </>
@@ -1437,7 +1449,7 @@ export default function CreateProduct() {
                         className="border border-gray-300 dark:border-gray-700 p-2 w-full rounded text-xs bg-white dark:bg-gray-800"
                       />
                     </div>
-                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitsEnabled && (getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).length > 0) && (
+                    {(getFieldConfig(getSelectedCataloguePriceField())?.unitsEnabled && getPriceUnits().length > 0) && (
                       <div className="relative flex-shrink-0">
                         <label className="block text-xs font-semibold mb-1.5 text-gray-600 dark:text-gray-400">
                           Unit
@@ -1449,7 +1461,7 @@ export default function CreateProduct() {
                           className="border border-gray-300 dark:border-gray-700 p-2 rounded min-w-[100px] text-xs appearance-none bg-white dark:bg-gray-800"
                         >
                           <option>None</option>
-                          {(getFieldConfig(getSelectedCataloguePriceField())?.unitOptions || ['/ piece']).map(opt => (
+                          {getPriceUnits().map(opt => (
                             <option key={opt}>{opt}</option>
                           ))}
                         </select>

@@ -186,6 +186,7 @@ export interface ProductRenderOptions {
   imageBgColor: string;
   fontColor: string;
   backgroundColor: string;
+  currencySymbol?: string;
 }
 
 export interface ProductData {
@@ -518,7 +519,8 @@ export async function renderProductToCanvas(
 
     // Center price text vertically in the remaining space
     const priceTextY = currentY + remainingHeight / 2; // Exact center without offset
-    const priceText = product.priceUnit && product.priceUnit !== 'None' ? `Price   :   ₹${product.price} ${product.priceUnit}` : `Price   :   ₹${product.price}`;
+    const currencySymbol = options.currencySymbol || '₹';
+    const priceText = product.priceUnit && product.priceUnit !== 'None' ? `Price   :   ${currencySymbol}${product.price} ${product.priceUnit}` : `Price   :   ${currencySymbol}${product.price}`;
     ctx.fillText(priceText, canvasWidth / 2, priceTextY);
 
     currentY += remainingHeight;

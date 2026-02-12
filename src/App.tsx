@@ -25,6 +25,7 @@ import Settings from "./Settings";
 import AppearanceSettings from "./pages/AppearanceSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
 import FieldsSettings from "./pages/FieldsSettings";
+import CurrencySettings from "./pages/CurrencySettings";
 import ProInfo from "./pages/ProInfo";
 import Welcome from "./pages/Welcome";
 import PrivacyPolicy from "./PrivacyPolicy";
@@ -605,6 +606,10 @@ function AppWithBackHandler() {
         <Route
           path="/settings/fields"
           element={<FieldsSettings />}
+        />
+        <Route
+          path="/settings/currency"
+          element={<CurrencySettings />}
         />
         <Route
           path="/settings/pro"

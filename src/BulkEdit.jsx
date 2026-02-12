@@ -4,6 +4,7 @@ import { useToast } from "./context/ToastContext";
 import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
+import { getPriceUnits } from "./utils/priceUnitsUtils";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
@@ -699,13 +700,13 @@ useEffect(() => {
                 />
                 {getFieldConfig(priceField)?.unitsEnabled && (
                   <select
-                    value={item[priceUnitField] ?? "/ piece"}
+                    value={item[priceUnitField] ?? getPriceUnits()[0]}
                     onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
                     className="border rounded px-2 py-1 pr-8 w-16"
                   >
-                    <option value="/ piece">/ piece</option>
-                    <option value="/ dozen">/ dozen</option>
-                    <option value="/ set">/ set</option>
+                    {getPriceUnits().map(unit => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
                   </select>
                 )}
               </div>
@@ -719,13 +720,13 @@ useEffect(() => {
                   className="border rounded px-2 py-1 w-28"
                 />
                 <select
-                  value={item.wholesaleUnit ?? "/ piece"}
+                  value={item.wholesaleUnit ?? getPriceUnits()[0]}
                   onChange={(e) => handleFieldChange(item.id, "wholesaleUnit", e.target.value)}
                   className="border rounded px-2 py-1 pr-8 w-16"
                 >
-                  <option value="/ piece">/ piece</option>
-                  <option value="/ dozen">/ dozen</option>
-                  <option value="/ set">/ set</option>
+                  {getPriceUnits().map(unit => (
+                    <option key={unit} value={unit}>{unit}</option>
+                  ))}
                 </select>
               </div>
             )}
