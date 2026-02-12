@@ -1,6 +1,6 @@
 // Generic Catalogue View Component
 // Works with any catalogue (Master, Resell, custom, etc.)
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
@@ -79,6 +79,14 @@ export default function CatalogueView({
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+
+  // Touch state - moved to useRef for better performance
+  const touchStateRef = useRef({
+    touchTimer: null,
+    startX: 0,
+    startY: 0,
+    moved: false,
+  });
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const toolsMenuRef = useRef(null);
@@ -148,10 +156,10 @@ useEffect(() => {
   };
 
   useEffect(() => {
-  const toggleSearch = () => setShowSearch((prev) => !prev);
-  window.addEventListener("toggle-search", toggleSearch);
-  return () => window.removeEventListener("toggle-search", toggleSearch);
-}, []);
+    const toggleSearch = () => setShowSearch((prev) => !prev);
+    window.addEventListener("toggle-search", toggleSearch);
+    return () => window.removeEventListener("toggle-search", toggleSearch);
+  }, []);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("categories") || "[]");
@@ -204,11 +212,11 @@ useEffect(() => {
 
 
 
-  const toggleSelection = (id) => {
+  const toggleSelection = useCallback((id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-  };
+  }, []);
 
   const visibleProducts = useMemo(() => {
   return filtered
@@ -235,50 +243,45 @@ useEffect(() => {
 }, [filtered, stockFilter, categoryFilter, search, catalogueId, stockField]);
 
 
-  let touchTimer = null;
-  let startX = 0;
-  let startY = 0;
-  let moved = false;
-
-  const handleTouchStart = (e, id) => {
-    moved = false;
+  // Memoized touch handlers for better performance
+  const handleTouchStart = useCallback((e, id) => {
+    touchStateRef.current.moved = false;
     const touch = e.touches?.[0] || e;
-    startX = touch.clientX;
-    startY = touch.clientY;
+    touchStateRef.current.startX = touch.clientX;
+    touchStateRef.current.startY = touch.clientY;
 
-    touchTimer = setTimeout(() => {
-      if (!moved) {
+    touchStateRef.current.touchTimer = setTimeout(() => {
+      if (!touchStateRef.current.moved) {
         if (!selectMode) {
-  window.history.pushState({ select: true }, ""); // Push fake screen only once
-}
-setSelectMode(true);
-setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
-
+          window.history.pushState({ select: true }, "");
         }
+        setSelectMode(true);
+        setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      }
     }, 300);
-  };
+  }, [selectMode]);
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = useCallback((e) => {
     const touch = e.touches?.[0] || e;
-    const dx = Math.abs(touch.clientX - startX);
-    const dy = Math.abs(touch.clientY - startY);
+    const dx = Math.abs(touch.clientX - touchStateRef.current.startX);
+    const dy = Math.abs(touch.clientY - touchStateRef.current.startY);
     if (dx > 10 || dy > 10) {
-      moved = true;
-      clearTimeout(touchTimer);
+      touchStateRef.current.moved = true;
+      clearTimeout(touchStateRef.current.touchTimer);
     }
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
-    clearTimeout(touchTimer);
-  };
+  const handleTouchEnd = useCallback(() => {
+    clearTimeout(touchStateRef.current.touchTimer);
+  }, []);
 
-  const handleCardClick = (id) => {
+  const handleCardClick = useCallback((id) => {
     if (selectMode) {
       toggleSelection(id);
     } else {
       openPreviewHtml(id, catalogueId, visibleProducts);
     }
-  };
+  }, [selectMode, catalogueId, visibleProducts]);
 
   const handleDownload = async (e, productId, productName) => {
     e.stopPropagation();
