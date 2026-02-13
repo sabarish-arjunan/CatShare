@@ -298,6 +298,9 @@ export default function CreateProduct() {
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
   const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
 
+  // Combined scale that respects both drag and height constraints
+  const combinedScale = useTransform(imageScale, (scale) => scale * previewScale);
+
   const handleScrollCheck = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     isScrollAtTopRef.current = element.scrollTop === 0;
@@ -433,6 +436,8 @@ export default function CreateProduct() {
   const [cropping, setCropping] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1);
   const [appliedAspectRatio, setAppliedAspectRatio] = useState(1);
+  const [previewScale, setPreviewScale] = useState(1);
+  const previewCardRef = useRef<HTMLDivElement>(null);
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
@@ -738,6 +743,27 @@ export default function CreateProduct() {
     }
   }, [imagePreview]);
 
+  // Auto-scale preview to fit screen height
+  useEffect(() => {
+    const previewCard = previewCardRef.current;
+    if (!previewCard) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      const cardHeight = previewCard.offsetHeight;
+      const availableHeight = window.innerHeight - 120; // Account for padding and margins
+
+      if (cardHeight > availableHeight) {
+        const newScale = Math.min(1, availableHeight / cardHeight * 0.95); // 95% to ensure some margin
+        setPreviewScale(newScale);
+      } else {
+        setPreviewScale(1);
+      }
+    });
+
+    resizeObserver.observe(previewCard);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const commonFields = ['id', 'name', 'subtitle', 'category'];
@@ -962,6 +988,7 @@ export default function CreateProduct() {
         >
           {imagePreview && (
             <motion.div
+              ref={previewCardRef}
               style={{
                 width: "95%",
                 maxWidth: "330px",
@@ -969,7 +996,7 @@ export default function CreateProduct() {
                 borderRadius: "12px",
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-                scale: imageScale,
+                scale: combinedScale,
                 transformOrigin: "center",
               }}
             >
