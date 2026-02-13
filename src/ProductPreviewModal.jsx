@@ -647,7 +647,7 @@ export default function ProductPreviewModal({
                 flexDirection: "column",
                 width: "85vw",
                 maxWidth: "380px",
-                transformOrigin: "top center",
+                transformOrigin: "center",
                 scale: imageScale,
               }}
               initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
