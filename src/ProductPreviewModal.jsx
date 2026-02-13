@@ -578,26 +578,62 @@ export default function ProductPreviewModal({
     const calculateScale = () => {
       if (!modalRef.current) return;
 
-      requestAnimationFrame(() => {
-        const modalHeight = modalRef.current.offsetHeight;
-        const availableHeight = window.innerHeight * 0.9; // 90vh constraint
+      // Get the first child (motion.div) of the wrapper
+      const motionDiv = modalRef.current.firstElementChild?.firstElementChild;
+      if (!motionDiv) return;
 
-        if (modalHeight > availableHeight) {
-          // Scale down proportionally to fit
-          const newScale = Math.max(0.4, availableHeight / modalHeight);
-          setImageScale(newScale);
-        } else {
-          setImageScale(1);
-        }
-      });
+      // Use getBoundingClientRect for more reliable measurement
+      const rect = motionDiv.getBoundingClientRect();
+      const modalHeight = rect.height;
+      const availableHeight = window.innerHeight * 0.9; // 90vh constraint
+
+      if (modalHeight > availableHeight && availableHeight > 0) {
+        // Scale down proportionally to fit
+        const newScale = Math.max(0.4, availableHeight / modalHeight);
+        setImageScale(newScale);
+      } else {
+        setImageScale(1);
+      }
     };
 
-    // Calculate on mount and when product changes
-    calculateScale();
+    // Use observer to detect when content changes
+    if (modalRef.current) {
+      const observer = new MutationObserver(() => {
+        // Debounce calculations
+        clearTimeout(calculateScale.debounceTimer);
+        calculateScale.debounceTimer = setTimeout(calculateScale, 100);
+      });
 
-    // Recalculate on window resize
-    window.addEventListener('resize', calculateScale);
-    return () => window.removeEventListener('resize', calculateScale);
+      observer.observe(modalRef.current, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+
+      // Initial calculations with multiple attempts to catch rendering
+      const timer0 = setTimeout(() => calculateScale(), 0);
+      const timer1 = setTimeout(() => calculateScale(), 50);
+      const timer2 = setTimeout(() => calculateScale(), 150);
+      const timer3 = setTimeout(() => calculateScale(), 350);
+
+      // Recalculate on window resize
+      const resizeHandler = () => {
+        clearTimeout(calculateScale.resizeTimer);
+        calculateScale.resizeTimer = setTimeout(calculateScale, 100);
+      };
+      window.addEventListener('resize', resizeHandler);
+
+      return () => {
+        observer.disconnect();
+        window.removeEventListener('resize', resizeHandler);
+        clearTimeout(timer0);
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(calculateScale.debounceTimer);
+        clearTimeout(calculateScale.resizeTimer);
+      };
+    }
   }, [product.id, product]);
 
   // Get all enabled product fields dynamically
