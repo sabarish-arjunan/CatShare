@@ -41,6 +41,24 @@ interface PDFGenerationOptions {
 }
 
 /**
+ * Get dimensions of an image from base64 data
+ * @param base64Image The base64 encoded image
+ * @returns Promise<{width: number, height: number}> The image dimensions
+ */
+function getImageDimensions(base64Image: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      reject(new Error("Failed to load image"));
+    };
+    img.src = base64Image;
+  });
+}
+
+/**
  * Generate a PDF with selected product images and details
  * @param options PDF generation options
  * @returns Promise<Blob> The generated PDF as a blob
@@ -102,12 +120,33 @@ export async function generateProductPDF(
     pdf.text(`${i + 1}. ${product.name || "Unnamed Product"}`, margin, currentY);
     currentY += 8;
 
-    // Add image if available
-    const imageHeight = 60;
-    const imageWidth = 50;
+    // Calculate image dimensions maintaining aspect ratio
+    let imageWidth = 50;
+    let imageHeight = 50;
 
     if (product.image) {
       try {
+        // Get original image dimensions
+        const imgDimensions = await getImageDimensions(product.image);
+        const aspectRatio = imgDimensions.width / imgDimensions.height;
+
+        // Set a max width of 50mm for the image
+        imageWidth = 50;
+
+        // Calculate height based on aspect ratio
+        if (aspectRatio >= 1) {
+          // Wider images (1:1, 3:2, etc.) - use full width
+          imageHeight = imageWidth / aspectRatio;
+        } else {
+          // Taller images (3:4, etc.) - maintain proportion
+          imageHeight = imageWidth / aspectRatio;
+          // Cap max height at 70mm for page space
+          if (imageHeight > 70) {
+            imageHeight = 70;
+            imageWidth = imageHeight * aspectRatio;
+          }
+        }
+
         pdf.addImage(
           product.image,
           "JPEG",
@@ -118,6 +157,9 @@ export async function generateProductPDF(
         );
       } catch (e) {
         console.warn(`Failed to add image for product ${product.id}:`, e);
+        // Fallback to default size if image fails
+        imageWidth = 50;
+        imageHeight = 50;
       }
     }
 
