@@ -1,6 +1,6 @@
 // Generic Catalogue View Component
 // Works with any catalogue (Master, Resell, custom, etc.)
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback, Dispatch, SetStateAction } from "react";
 import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
@@ -18,6 +18,21 @@ import AddProductsModal from "./components/AddProductsModal";
 import BulkEdit from "./BulkEdit";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 
+interface CatalogueViewProps {
+  filtered: any[];
+  allProducts: any[];
+  setProducts: Dispatch<SetStateAction<any[]>>;
+  selected: any[];
+  setSelected: Dispatch<SetStateAction<any[]>>;
+  getLighterColor: (color: string) => string;
+  imageMap: Record<string, string>;
+  catalogueLabel: string;
+  catalogueId: string;
+  priceField: string;
+  priceUnitField: string;
+  stockField: string;
+  onBack: () => void;
+}
 
 export default React.memo(function CatalogueView({
   filtered,
@@ -33,7 +48,7 @@ export default React.memo(function CatalogueView({
   priceUnitField,
   stockField,
   onBack,
-}) {
+}: CatalogueViewProps) {
   // Helper function to get catalogue-specific data for a product
   const getProductCatalogueData = (product) => {
     if (!catalogueId) return product; // Fallback to product if no catalogueId
@@ -418,7 +433,7 @@ useEffect(() => {
     if (selectMode) {
       const count = document.createElement("span");
       count.className = "text-xs bg-red-500 text-white rounded-full px-1";
-      count.innerText = selected.length;
+      count.innerText = selected.length.toString();
       container.appendChild(count);
 
       const shareBtn = document.createElement("button");
