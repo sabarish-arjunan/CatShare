@@ -164,15 +164,12 @@ export async function generateProductPDF(
     }
 
     // Add product details on the right side of image
-    const detailsX = margin + imageWidth + 5;
-    const detailsMaxWidth = contentWidth - imageWidth - 5;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(60, 60, 60);
+    const detailsX = margin + imageWidth + 6;
+    const detailsMaxWidth = contentWidth - imageWidth - 6;
 
     let detailsY = currentY;
 
-    // Add field details
+    // Collect non-empty fields
     const fieldKeys = [
       "field1",
       "field2",
@@ -186,32 +183,97 @@ export async function generateProductPDF(
       "field10",
     ];
 
-    for (const fieldKey of fieldKeys) {
-      if (product[fieldKey]) {
+    const activeFields = fieldKeys.filter(fieldKey => product[fieldKey]);
+
+    // Add field details with professional layout
+    if (activeFields.length > 0) {
+      pdf.setFontSize(8);
+      pdf.setTextColor(80, 80, 80);
+
+      // Calculate column width for a 2-column layout if there are many fields
+      const useColumns = activeFields.length > 4;
+      const col1Width = useColumns ? detailsMaxWidth / 2 - 2 : detailsMaxWidth;
+      const col2X = useColumns ? detailsX + detailsMaxWidth / 2 : detailsX;
+
+      let col1Y = detailsY;
+      let col2Y = detailsY;
+      const startY = detailsY;
+
+      for (let idx = 0; idx < activeFields.length; idx++) {
+        const fieldKey = activeFields[idx];
         const label = fieldLabels[fieldKey] || fieldKey;
         const unit = product[`${fieldKey}Unit`] || "";
         const value = product[fieldKey];
-        const text = `${label}: ${value} ${unit}`.trim();
 
-        // Split text if too long
-        const textLines = pdf.splitTextToSize(text, detailsMaxWidth);
-        pdf.text(textLines, detailsX, detailsY);
-        detailsY += textLines.length * 4;
+        // Use 2 columns if many fields
+        const currentX = useColumns && idx >= Math.ceil(activeFields.length / 2) ? col2X : detailsX;
+        const currentMaxWidth = useColumns ? detailsMaxWidth / 2 - 3 : detailsMaxWidth;
+
+        // Determine current Y based on which column
+        let currentY_field = useColumns && idx >= Math.ceil(activeFields.length / 2) ? col2Y : col1Y;
+
+        // Label in bold
+        pdf.setFont(undefined, "bold");
+        pdf.setTextColor(50, 50, 50);
+        pdf.setFontSize(8);
+        const labelText = `${label}:`;
+        pdf.text(labelText, currentX, currentY_field);
+
+        // Value on same line
+        pdf.setFont(undefined, "normal");
+        pdf.setTextColor(100, 100, 100);
+        const valueText = `${value}${unit && unit !== "None" ? " " + unit : ""}`.trim();
+        const labelWidth = pdf.getTextWidth(labelText) + 2;
+        pdf.text(valueText, currentX + labelWidth, currentY_field);
+
+        currentY_field += 4.5;
+
+        // Update appropriate column Y
+        if (useColumns && idx >= Math.ceil(activeFields.length / 2)) {
+          col2Y = currentY_field;
+        } else {
+          col1Y = currentY_field;
+        }
       }
+
+      // Update detailsY to the maximum of both columns
+      detailsY = useColumns ? Math.max(col1Y, col2Y) : col1Y;
+      detailsY += 3; // Add spacing before price
     }
 
-    // Add price
+    // Add price section with distinct styling
     if (product.price) {
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 100, 0);
+      // Price box background
+      const priceBoxHeight = 11;
+      const priceBoxY = detailsY - 1;
+      pdf.setFillColor(245, 250, 245); // Light green background
+      pdf.rect(detailsX - 1, priceBoxY, detailsMaxWidth + 2, priceBoxHeight, "F");
+
+      // Price border
+      pdf.setDrawColor(34, 139, 34); // Forest green
+      pdf.setLineWidth(0.5);
+      pdf.rect(detailsX - 1, priceBoxY, detailsMaxWidth + 2, priceBoxHeight);
+
+      // Price label
+      pdf.setFontSize(9);
+      pdf.setFont(undefined, "bold");
+      pdf.setTextColor(34, 139, 34);
+      pdf.text("Price:", detailsX + 1, detailsY + 3);
+
+      // Price value
       const priceUnit = product.priceUnit || "";
-      const priceText = `Price: ${currencySymbol}${product.price} ${priceUnit}`.trim();
-      pdf.text(priceText, detailsX, detailsY);
-      detailsY += 6;
+      const priceText = `${currencySymbol}${product.price}${priceUnit ? " " + priceUnit : ""}`.trim();
+      pdf.setFontSize(11);
+      pdf.setFont(undefined, "bold");
+      pdf.setTextColor(0, 100, 0);
+      const priceValueX = detailsX + pdf.getTextWidth("Price: ") + 1;
+      pdf.text(priceText, priceValueX, detailsY + 3);
+
+      detailsY += priceBoxHeight + 2;
     }
 
     // Move to next product with some spacing
-    currentY = Math.max(currentY + imageHeight, detailsY) + 10;
+    currentY = Math.max(currentY + imageHeight, detailsY) + 8;
 
     // Add separator line
     pdf.setDrawColor(220, 220, 220);
