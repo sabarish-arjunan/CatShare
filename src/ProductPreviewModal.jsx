@@ -352,7 +352,10 @@ export default function ProductPreviewModal({
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
   const [showShelfModal, setShowShelfModal] = useState(false);
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
+  const [imageScale, setImageScale] = useState(1);
   const fullScreenImageRef = useRef(false);
+  const modalRef = useRef(null);
+  const cardContentRef = useRef(null);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -463,6 +466,9 @@ export default function ProductPreviewModal({
       }
     };
     loadImage();
+
+    // Trigger field definition update to refresh cached field data
+    setFieldDefinitionsUpdated(prev => prev + 1);
   }, [product]);
 
   // Handle image click to open full screen
@@ -557,7 +563,7 @@ export default function ProductPreviewModal({
   const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
 
   // State for tracking field definition changes
-  const [, setFieldDefinitionsUpdated] = useState(0);
+  const [fieldDefinitionsUpdated, setFieldDefinitionsUpdated] = useState(0);
 
   // Listen for field definition changes (e.g., after backup restore)
   useEffect(() => {
@@ -571,6 +577,51 @@ export default function ProductPreviewModal({
     return () => window.removeEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
   }, []);
 
+  // Measure and scale card when content changes
+  useEffect(() => {
+    const measureAndScale = () => {
+      const card = document.querySelector('[data-card="product-preview"]');
+      if (!card) return;
+
+      const cardHeight = card.offsetHeight;
+      const availableHeight = window.innerHeight * 0.9;
+
+      if (cardHeight > availableHeight) {
+        const newScale = Math.max(0.4, (availableHeight - 20) / cardHeight);
+        setImageScale(newScale);
+      } else {
+        setImageScale(1);
+      }
+    };
+
+    // Use ResizeObserver to watch for content size changes
+    const card = document.querySelector('[data-card="product-preview"]');
+    if (!card) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      measureAndScale();
+    });
+
+    resizeObserver.observe(card);
+
+    // Also measure on window resize
+    const handleWindowResize = () => measureAndScale();
+    window.addEventListener('resize', handleWindowResize);
+
+    // Initial measurement after content has time to render
+    const timers = [
+      setTimeout(() => measureAndScale(), 0),
+      setTimeout(() => measureAndScale(), 50),
+      setTimeout(() => measureAndScale(), 150),
+    ];
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleWindowResize);
+      timers.forEach(t => clearTimeout(t));
+    };
+  }, [product.id, product]);
+
   // Get all enabled product fields dynamically
   const enabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
 
@@ -581,34 +632,53 @@ export default function ProductPreviewModal({
         onClick={onClose}
         role="presentation"
       >
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div
-            key={product.id}
-            drag="x"
-            dragElastic={0.2}
-            dragSnapToOrigin
-            dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
-            onDragEnd={handleDragEnd}
-            custom={direction}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl overflow-hidden shadow-xl relative"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              width: "85vw",
-              maxWidth: "380px",
-            }}
-            initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
-            animate={{
-              x: 0,
-              opacity: 1,
-              transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
-            }}
-            exit={(dir) => ({
-              x: dir < 0 ? 300 : -300,
-              opacity: 0,
-              transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
-            })}
+        <div ref={modalRef}>
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={product.id}
+              drag="x"
+              dragElastic={0.2}
+              dragSnapToOrigin
+              dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
+              onDragEnd={handleDragEnd}
+              custom={direction}
+              onClick={(e) => e.stopPropagation()}
+              data-card="product-preview"
+              className="bg-white rounded-xl overflow-hidden shadow-xl relative"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "85vw",
+                maxWidth: "380px",
+                transformOrigin: "center",
+                scale: imageScale,
+              }}
+              initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
+              animate={{
+                x: 0,
+                opacity: 1,
+                transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
+              }}
+              onAnimationComplete={() => {
+                // Calculate scale after animation completes using data attribute
+                const card = document.querySelector('[data-card="product-preview"]');
+                if (card) {
+                  const cardHeight = card.offsetHeight;
+                  const availableHeight = window.innerHeight * 0.9;
+
+                  if (cardHeight > availableHeight) {
+                    const newScale = Math.max(0.4, (availableHeight - 20) / cardHeight);
+                    setImageScale(newScale);
+                  } else {
+                    setImageScale(1);
+                  }
+                }
+              }}
+              exit={(dir) => ({
+                x: dir < 0 ? 300 : -300,
+                opacity: 0,
+                transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
+              })}
           >
 
             {/* Image Section - Click to open full screen */}
@@ -710,10 +780,7 @@ export default function ProductPreviewModal({
                 color: product.fontColor || "white",
                 padding: "12px 12px",
                 fontSize: 17,
-                overflow: "auto",
                 flex: 1,
-                minHeight: 0,
-                touchAction: "pan-y",
               }}
               onTouchMove={(e) => {
                 // Allow the touch event to propagate to parent for swipe detection
@@ -738,6 +805,7 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                {/* Fields are automatically refreshed when product changes via fieldDefinitionsUpdated trigger */}
                 {enabledFields.map(field => {
                   const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                   const hasValue = hasFieldValue(fieldValue);
@@ -826,8 +894,9 @@ export default function ProductPreviewModal({
                 </div>
               </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Full Screen Image Viewer */}

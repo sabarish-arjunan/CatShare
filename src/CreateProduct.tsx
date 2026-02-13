@@ -293,10 +293,22 @@ export default function CreateProduct() {
   const isScrollAtTopRef = useRef(true);
 
   // Derived values for hardware-accelerated animations
+  // Preview scale state must be declared before useTransform
+  const [previewScale, setPreviewScale] = useState(1);
+
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
   const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
   const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
+
+  // Combined scale: drag animation multiplied by responsive fit constraint
+  const finalScale = useTransform(imageScale, (dragScale) => {
+    // If content needs to shrink to fit, use the smaller of the two scales
+    if (previewScale < 1) {
+      return Math.min(dragScale, previewScale);
+    }
+    return dragScale;
+  });
 
   const handleScrollCheck = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
@@ -433,6 +445,8 @@ export default function CreateProduct() {
   const [cropping, setCropping] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1);
   const [appliedAspectRatio, setAppliedAspectRatio] = useState(1);
+  const previewCardRef = useRef<HTMLDivElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
@@ -738,6 +752,74 @@ export default function CreateProduct() {
     }
   }, [imagePreview]);
 
+  // Calculate and update scale when preview content changes
+  const calculateScale = () => {
+    const previewCard = previewCardRef.current;
+    const previewContainer = previewContainerRef.current;
+    if (!previewCard || !previewContainer) return;
+
+    // Use requestAnimationFrame to ensure measurement after paint
+    requestAnimationFrame(() => {
+      const cardHeight = previewCard.offsetHeight;
+      const containerHeight = previewContainer.offsetHeight;
+
+      // Account for container padding (pt-[40px] = 40px, pb-2 = 8px) + extra margin
+      const availableHeight = containerHeight - 64;
+
+      if (cardHeight > 0 && containerHeight > 0) {
+        if (cardHeight > availableHeight) {
+          // Scale down to fit with safety margin
+          const newScale = Math.max(0.2, availableHeight / cardHeight);
+          setPreviewScale(newScale);
+        } else {
+          setPreviewScale(1);
+        }
+      }
+    });
+  };
+
+  // Recalculate on window resize and content changes
+  useEffect(() => {
+    const previewCard = previewCardRef.current;
+    if (!previewCard) return;
+
+    let mutationTimeout: NodeJS.Timeout | null = null;
+
+    const handleResize = () => {
+      calculateScale();
+    };
+
+    // Watch for DOM changes in the preview card with debounce
+    const mutationObserver = new MutationObserver(() => {
+      if (mutationTimeout) clearTimeout(mutationTimeout);
+      mutationTimeout = setTimeout(() => {
+        calculateScale();
+      }, 50);
+    });
+
+    mutationObserver.observe(previewCard, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    window.addEventListener('resize', handleResize);
+
+    // Initial calculations with multiple checks
+    const timer1 = setTimeout(() => calculateScale(), 50);
+    const timer2 = setTimeout(() => calculateScale(), 150);
+    const timer3 = setTimeout(() => calculateScale(), 300);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      mutationObserver.disconnect();
+      if (mutationTimeout) clearTimeout(mutationTimeout);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [previewCardRef]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const commonFields = ['id', 'name', 'subtitle', 'category'];
@@ -953,15 +1035,32 @@ export default function CreateProduct() {
     <div className="w-full h-screen flex flex-col bg-black overflow-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       {/* Status Bar */}
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
+
+      {/* Header below status bar */}
+      <div className="fixed top-[40px] left-0 right-0 h-12 bg-black/50 z-40 flex items-center justify-end px-4">
+        <button
+          onClick={() => navigate('/')}
+          className="text-white/40 hover:text-white/70 transition-colors flex items-center justify-center w-6 h-6"
+          title="Close"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
       
       {/* Image Preview Section with Product Card */}
-      <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative">
+      <div
+        ref={previewContainerRef}
+        className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[88px] pb-2 relative"
+      >
         <motion.div
           className="relative flex items-center justify-center"
           style={{ opacity: imageOpacity }}
         >
           {imagePreview && (
             <motion.div
+              ref={previewCardRef}
               style={{
                 width: "95%",
                 maxWidth: "330px",
@@ -969,7 +1068,7 @@ export default function CreateProduct() {
                 borderRadius: "12px",
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-                scale: imageScale,
+                scale: finalScale,
                 transformOrigin: "center",
               }}
             >
@@ -1117,12 +1216,9 @@ export default function CreateProduct() {
       <motion.div
         onPanStart={() => setIsDragging(true)}
         onPan={(_, info) => {
-          const isAtTop = scrollRef.current ? scrollRef.current.scrollTop <= 5 : true;
-          // Only allow dragging down when at top or dragging upward
-          if (isAtTop || info.delta.y <= 0) {
-            const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
-            y.set(newY);
-          }
+          // Allow dragging (up/down) from any scroll position
+          const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
+          y.set(newY);
         }}
         onPanEnd={handleDragEnd}
         className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col select-none"
@@ -1155,15 +1251,17 @@ export default function CreateProduct() {
         {/* Header inside sheet */}
         <header className="flex-shrink-0 px-4 py-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between select-none">
           <h1 className="text-base font-bold">{editingId ? "Edit Product" : "Create Product"}</h1>
-          <button
-            onClick={handleSelectImage}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-md text-xs flex items-center gap-1"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Change
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSelectImage}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-md text-xs flex items-center gap-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Change
+            </button>
+          </div>
         </header>
 
         {/* Form Tabs */}
@@ -1244,6 +1342,31 @@ export default function CreateProduct() {
                   />
                   <span className="text-xs">BG: {formatToHex(overrideColor)}</span>
                 </button>
+
+                {suggestedColors.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                      Suggested Colors:
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedColors.map((color) => (
+                        <div
+                          key={color}
+                          onClick={() => setOverrideColor(color)}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            backgroundColor: color,
+                            border: overrideColor === color ? "2px solid blue" : "1px solid #ccc",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-4">
                   <label className="flex items-center gap-1 text-xs">
