@@ -355,6 +355,7 @@ export default function ProductPreviewModal({
   const [imageScale, setImageScale] = useState(1);
   const fullScreenImageRef = useRef(false);
   const modalRef = useRef(null);
+  const cardContentRef = useRef(null);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -573,68 +574,26 @@ export default function ProductPreviewModal({
     return () => window.removeEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
   }, []);
 
-  // Auto-scale image when modal content exceeds viewport height
+  // Recalculate scale on window resize
   useEffect(() => {
-    const calculateScale = () => {
-      if (!modalRef.current) return;
+    const handleResize = () => {
+      const card = document.querySelector('[data-card="product-preview"]');
+      if (!card) return;
 
-      // Get the first child (motion.div) of the wrapper
-      const motionDiv = modalRef.current.firstElementChild?.firstElementChild;
-      if (!motionDiv) return;
+      const cardHeight = card.offsetHeight;
+      const availableHeight = window.innerHeight * 0.9;
 
-      // Use getBoundingClientRect for more reliable measurement
-      const rect = motionDiv.getBoundingClientRect();
-      const modalHeight = rect.height;
-      const availableHeight = window.innerHeight * 0.9; // 90vh constraint
-
-      if (modalHeight > availableHeight && availableHeight > 0) {
-        // Scale down proportionally to fit
-        const newScale = Math.max(0.4, availableHeight / modalHeight);
+      if (cardHeight > availableHeight) {
+        const newScale = Math.max(0.4, (availableHeight - 20) / cardHeight);
         setImageScale(newScale);
       } else {
         setImageScale(1);
       }
     };
 
-    // Use observer to detect when content changes
-    if (modalRef.current) {
-      const observer = new MutationObserver(() => {
-        // Debounce calculations
-        clearTimeout(calculateScale.debounceTimer);
-        calculateScale.debounceTimer = setTimeout(calculateScale, 100);
-      });
-
-      observer.observe(modalRef.current, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
-
-      // Initial calculations with multiple attempts to catch rendering
-      const timer0 = setTimeout(() => calculateScale(), 0);
-      const timer1 = setTimeout(() => calculateScale(), 50);
-      const timer2 = setTimeout(() => calculateScale(), 150);
-      const timer3 = setTimeout(() => calculateScale(), 350);
-
-      // Recalculate on window resize
-      const resizeHandler = () => {
-        clearTimeout(calculateScale.resizeTimer);
-        calculateScale.resizeTimer = setTimeout(calculateScale, 100);
-      };
-      window.addEventListener('resize', resizeHandler);
-
-      return () => {
-        observer.disconnect();
-        window.removeEventListener('resize', resizeHandler);
-        clearTimeout(timer0);
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-        clearTimeout(calculateScale.debounceTimer);
-        clearTimeout(calculateScale.resizeTimer);
-      };
-    }
-  }, [product.id, product]);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Get all enabled product fields dynamically
   const enabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
@@ -657,6 +616,7 @@ export default function ProductPreviewModal({
               onDragEnd={handleDragEnd}
               custom={direction}
               onClick={(e) => e.stopPropagation()}
+              data-card="product-preview"
               className="bg-white rounded-xl overflow-hidden shadow-xl relative"
               style={{
                 display: "flex",
@@ -671,6 +631,21 @@ export default function ProductPreviewModal({
                 x: 0,
                 opacity: 1,
                 transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
+              }}
+              onAnimationComplete={() => {
+                // Calculate scale after animation completes using data attribute
+                const card = document.querySelector('[data-card="product-preview"]');
+                if (card) {
+                  const cardHeight = card.offsetHeight;
+                  const availableHeight = window.innerHeight * 0.9;
+
+                  if (cardHeight > availableHeight) {
+                    const newScale = Math.max(0.4, (availableHeight - 20) / cardHeight);
+                    setImageScale(newScale);
+                  } else {
+                    setImageScale(1);
+                  }
+                }
               }}
               exit={(dir) => ({
                 x: dir < 0 ? 300 : -300,
