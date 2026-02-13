@@ -293,6 +293,9 @@ export default function CreateProduct() {
   const isScrollAtTopRef = useRef(true);
 
   // Derived values for hardware-accelerated animations
+  // Preview scale state must be declared before useTransform
+  const [previewScale, setPreviewScale] = useState(1);
+
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
   const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
@@ -442,7 +445,6 @@ export default function CreateProduct() {
   const [cropping, setCropping] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1);
   const [appliedAspectRatio, setAppliedAspectRatio] = useState(1);
-  const [previewScale, setPreviewScale] = useState(1);
   const previewCardRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const isWhiteBg =
