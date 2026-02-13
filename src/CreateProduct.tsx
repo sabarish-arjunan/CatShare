@@ -1040,7 +1040,7 @@ export default function CreateProduct() {
       <div className="fixed top-[40px] left-0 right-0 h-12 bg-black/50 z-40 flex items-center justify-end px-4">
         <button
           onClick={() => navigate('/')}
-          className="text-white hover:text-gray-300 transition-colors flex items-center justify-center w-6 h-6"
+          className="text-white/40 hover:text-white/70 transition-colors flex items-center justify-center w-6 h-6"
           title="Close"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
