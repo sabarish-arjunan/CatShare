@@ -1117,12 +1117,9 @@ export default function CreateProduct() {
       <motion.div
         onPanStart={() => setIsDragging(true)}
         onPan={(_, info) => {
-          const isAtTop = scrollRef.current ? scrollRef.current.scrollTop <= 5 : true;
-          // Only allow dragging down when at top or dragging upward
-          if (isAtTop || info.delta.y <= 0) {
-            const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
-            y.set(newY);
-          }
+          // Allow dragging (up/down) from any scroll position
+          const newY = Math.max(0, Math.min(DRAG_RANGE, y.get() + info.delta.y));
+          y.set(newY);
         }}
         onPanEnd={handleDragEnd}
         className="bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col select-none"
