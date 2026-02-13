@@ -1073,6 +1073,17 @@ export default function CreateProduct() {
                   width: "100%",
                 }}
               >
+                {/* Close button */}
+                <button
+                  onClick={() => navigate('/')}
+                  className="absolute top-2 right-2 z-50 text-white hover:text-gray-200 transition-colors p-1.5 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm"
+                  title="Close"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
                 <img
                   src={imagePreview}
                   alt="Preview"
@@ -1247,15 +1258,6 @@ export default function CreateProduct() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               Change
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-1 rounded"
-              title="Close"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
             </button>
           </div>
         </header>
