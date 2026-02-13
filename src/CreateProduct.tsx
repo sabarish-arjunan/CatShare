@@ -1034,10 +1034,13 @@ export default function CreateProduct() {
   return (
     <div className="w-full h-screen flex flex-col bg-black overflow-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       {/* Status Bar */}
-      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50 flex items-center justify-end pr-4">
+      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
+
+      {/* Header below status bar */}
+      <div className="fixed top-[40px] left-0 right-0 h-12 bg-white dark:bg-gray-900 z-40 flex items-center justify-end px-4 border-b border-gray-200 dark:border-gray-800">
         <button
           onClick={() => navigate('/')}
-          className="text-white hover:text-gray-300 transition-colors flex items-center justify-center w-6 h-6"
+          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors flex items-center justify-center w-6 h-6"
           title="Close"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -1049,7 +1052,7 @@ export default function CreateProduct() {
       {/* Image Preview Section with Product Card */}
       <div
         ref={previewContainerRef}
-        className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative"
+        className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[88px] pb-2 relative"
       >
         <motion.div
           className="relative flex items-center justify-center"
