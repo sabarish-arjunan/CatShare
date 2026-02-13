@@ -1033,8 +1033,18 @@ export default function CreateProduct() {
 
   return (
     <div className="w-full h-screen flex flex-col bg-black overflow-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
-      {/* Status Bar */}
-      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
+      {/* Status Bar with Close Button */}
+      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50 flex items-center justify-end px-4">
+        <button
+          onClick={() => navigate('/')}
+          className="text-white hover:text-gray-300 transition-colors p-2 rounded-lg active:bg-gray-700"
+          title="Close"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
       
       {/* Image Preview Section with Product Card */}
       <div
