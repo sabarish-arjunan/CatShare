@@ -352,7 +352,9 @@ export default function ProductPreviewModal({
   const [shareResult, setShareResult] = useState(null); // { status: 'success'|'error', message: string }
   const [showShelfModal, setShowShelfModal] = useState(false);
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
+  const [imageScale, setImageScale] = useState(1);
   const fullScreenImageRef = useRef(false);
+  const modalRef = useRef(null);
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
@@ -571,6 +573,33 @@ export default function ProductPreviewModal({
     return () => window.removeEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
   }, []);
 
+  // Auto-scale image when modal content exceeds viewport height
+  useEffect(() => {
+    const calculateScale = () => {
+      if (!modalRef.current) return;
+
+      requestAnimationFrame(() => {
+        const modalHeight = modalRef.current.offsetHeight;
+        const availableHeight = window.innerHeight * 0.9; // 90vh constraint
+
+        if (modalHeight > availableHeight) {
+          // Scale down proportionally to fit
+          const newScale = Math.max(0.4, availableHeight / modalHeight);
+          setImageScale(newScale);
+        } else {
+          setImageScale(1);
+        }
+      });
+    };
+
+    // Calculate on mount and when product changes
+    calculateScale();
+
+    // Recalculate on window resize
+    window.addEventListener('resize', calculateScale);
+    return () => window.removeEventListener('resize', calculateScale);
+  }, [product.id, product]);
+
   // Get all enabled product fields dynamically
   const enabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
 
@@ -583,6 +612,7 @@ export default function ProductPreviewModal({
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
+            ref={modalRef}
             key={product.id}
             drag="x"
             dragElastic={0.2}
@@ -597,8 +627,8 @@ export default function ProductPreviewModal({
               flexDirection: "column",
               width: "85vw",
               maxWidth: "380px",
-              maxHeight: "90vh",
-              height: "auto",
+              transformOrigin: "top center",
+              scale: imageScale,
             }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
@@ -712,10 +742,7 @@ export default function ProductPreviewModal({
                 color: product.fontColor || "white",
                 padding: "12px 12px",
                 fontSize: 17,
-                overflow: "auto",
                 flex: 1,
-                minHeight: 0,
-                touchAction: "pan-y",
               }}
               onTouchMove={(e) => {
                 // Allow the touch event to propagate to parent for swipe detection
