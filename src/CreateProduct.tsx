@@ -1034,7 +1034,17 @@ export default function CreateProduct() {
   return (
     <div className="w-full h-screen flex flex-col bg-black overflow-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5px)' }}>
       {/* Status Bar */}
-      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
+      <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50 flex items-center justify-end px-4">
+        <button
+          onClick={() => navigate('/')}
+          className="text-white hover:text-gray-300 transition-colors p-1"
+          title="Close"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
       
       {/* Image Preview Section with Product Card */}
       <div
@@ -1073,17 +1083,6 @@ export default function CreateProduct() {
                   width: "100%",
                 }}
               >
-                {/* Close button */}
-                <button
-                  onClick={() => navigate('/')}
-                  className="absolute top-2 right-2 z-50 text-white hover:text-gray-200 transition-colors p-1.5 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-sm"
-                  title="Close"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-
                 <img
                   src={imagePreview}
                   alt="Preview"
