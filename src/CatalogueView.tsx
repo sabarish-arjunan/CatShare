@@ -17,6 +17,7 @@ import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import AddProductsModal from "./components/AddProductsModal";
 import BulkEdit from "./BulkEdit";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
+import { generateProductPDF, downloadPDF, sharePDF } from "./utils/pdfUtils";
 
 interface CatalogueViewProps {
   filtered: any[];
@@ -410,6 +411,93 @@ useEffect(() => {
       canvas.height = 0;
     } catch (err) {
       console.error('Download failed:', err);
+    }
+  };
+
+  const handleGeneratePDF = async (actionType: 'share' | 'download') => {
+    try {
+      if (!selected || selected.length === 0) {
+        alert("No products selected.");
+        return;
+      }
+
+      setProcessing(true);
+      setProcessingPhase("rendering");
+      setProcessingTotal(selected.length);
+
+      // Get selected products with their data
+      const selectedProducts = allProducts
+        .filter(p => selected.includes(p.id))
+        .map(product => {
+          const catalogueData = getProductCatalogueData(product);
+
+          // Get the image data - try to get base64 from product.image or imageMap
+          let imageData = product.image;
+          if (!imageData && product.id && imageMap[product.id]) {
+            imageData = imageMap[product.id];
+          }
+
+          return {
+            id: product.id,
+            name: product.name || "Unnamed Product",
+            image: imageData,
+            price: catalogueData.price,
+            priceUnit: catalogueData.priceUnit,
+            field1: catalogueData.field1,
+            field2: catalogueData.field2,
+            field3: catalogueData.field3,
+            field4: catalogueData.field4,
+            field5: catalogueData.field5,
+            field6: catalogueData.field6,
+            field7: catalogueData.field7,
+            field8: catalogueData.field8,
+            field9: catalogueData.field9,
+            field10: catalogueData.field10,
+            field1Unit: catalogueData.field1Unit,
+            field2Unit: catalogueData.field2Unit,
+            field3Unit: catalogueData.field3Unit,
+            field4Unit: catalogueData.field4Unit,
+            field5Unit: catalogueData.field5Unit,
+            field6Unit: catalogueData.field6Unit,
+            field7Unit: catalogueData.field7Unit,
+            field8Unit: catalogueData.field8Unit,
+            field9Unit: catalogueData.field9Unit,
+            field10Unit: catalogueData.field10Unit,
+          };
+        });
+
+      // Get field labels for PDF
+      const allFields = getAllFields();
+      const fieldLabels: { [key: string]: string } = {};
+      allFields.forEach(field => {
+        if (field.enabled && field.key.startsWith('field')) {
+          fieldLabels[field.key] = field.label;
+        }
+      });
+
+      // Generate PDF
+      setProcessingPhase("sharing");
+      const pdfBlob = await generateProductPDF({
+        products: selectedProducts,
+        catalogueName: catalogueLabel,
+        currencySymbol,
+        fieldLabels,
+      });
+
+      setProcessing(false);
+      setShowToolsMenu(false);
+
+      if (actionType === 'download') {
+        downloadPDF(pdfBlob, `${catalogueLabel}_products_${new Date().getTime()}.pdf`);
+      } else {
+        // Share PDF
+        const filename = `${catalogueLabel}_products_${new Date().getTime()}.pdf`;
+        await sharePDF(pdfBlob, filename, `Share ${catalogueLabel} Products`);
+      }
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      setProcessing(false);
+      alert('Failed to generate PDF. Please try again.');
     }
   };
 
@@ -815,6 +903,33 @@ useEffect(() => {
                   <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                 </svg>
                 Mark as Out of Stock
+              </button>
+
+              <div className="border-t border-gray-200 my-1" />
+              <button
+                onClick={() => {
+                  handleGeneratePDF('share');
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+                title="Share as PDF"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5H21m-7.5 7.5H21m-7.5 7.5H21M3 7.5h.008v.008H3V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3 14.25h.008v.008H3v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3 21h.008v.008H3V21zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+                Share as PDF
+              </button>
+
+              <button
+                onClick={() => {
+                  handleGeneratePDF('download');
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2"
+                title="Download PDF"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download PDF
               </button>
             </>
           )}
