@@ -1245,6 +1245,31 @@ export default function CreateProduct() {
                   <span className="text-xs">BG: {formatToHex(overrideColor)}</span>
                 </button>
 
+                {suggestedColors.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                      Suggested Colors:
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedColors.map((color) => (
+                        <div
+                          key={color}
+                          onClick={() => setOverrideColor(color)}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            backgroundColor: color,
+                            border: overrideColor === color ? "2px solid blue" : "1px solid #ccc",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-4">
                   <label className="flex items-center gap-1 text-xs">
                     Font:
