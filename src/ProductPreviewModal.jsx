@@ -610,37 +610,37 @@ export default function ProductPreviewModal({
         onClick={onClose}
         role="presentation"
       >
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div
-            ref={modalRef}
-            key={product.id}
-            drag="x"
-            dragElastic={0.2}
-            dragSnapToOrigin
-            dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
-            onDragEnd={handleDragEnd}
-            custom={direction}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl overflow-hidden shadow-xl relative"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              width: "85vw",
-              maxWidth: "380px",
-              transformOrigin: "top center",
-              scale: imageScale,
-            }}
-            initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
-            animate={{
-              x: 0,
-              opacity: 1,
-              transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
-            }}
-            exit={(dir) => ({
-              x: dir < 0 ? 300 : -300,
-              opacity: 0,
-              transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
-            })}
+        <div ref={modalRef}>
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={product.id}
+              drag="x"
+              dragElastic={0.2}
+              dragSnapToOrigin
+              dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
+              onDragEnd={handleDragEnd}
+              custom={direction}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-xl overflow-hidden shadow-xl relative"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "85vw",
+                maxWidth: "380px",
+                transformOrigin: "top center",
+                scale: imageScale,
+              }}
+              initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
+              animate={{
+                x: 0,
+                opacity: 1,
+                transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
+              }}
+              exit={(dir) => ({
+                x: dir < 0 ? 300 : -300,
+                opacity: 0,
+                transition: { type: "spring", damping: 30, stiffness: 600, mass: 0.01 }
+              })}
           >
 
             {/* Image Section - Click to open full screen */}
@@ -855,8 +855,9 @@ export default function ProductPreviewModal({
                 </div>
               </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Full Screen Image Viewer */}
