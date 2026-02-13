@@ -438,6 +438,7 @@ export default function CreateProduct() {
   const [appliedAspectRatio, setAppliedAspectRatio] = useState(1);
   const [previewScale, setPreviewScale] = useState(1);
   const previewCardRef = useRef<HTMLDivElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
@@ -743,26 +744,62 @@ export default function CreateProduct() {
     }
   }, [imagePreview]);
 
-  // Auto-scale preview to fit screen height
+  // Calculate and update scale when preview content changes
+  const calculateScale = () => {
+    const previewCard = previewCardRef.current;
+    const previewContainer = previewContainerRef.current;
+    if (!previewCard || !previewContainer) return;
+
+    const cardHeight = previewCard.offsetHeight;
+    const containerHeight = previewContainer.offsetHeight;
+
+    // Account for container padding (pt-[40px] = 40px, pb-2 = 8px)
+    const availableHeight = containerHeight - 48;
+
+    if (cardHeight > availableHeight && availableHeight > 0) {
+      // Scale down to fit with 15px margin
+      const newScale = Math.max(0.25, (availableHeight - 15) / cardHeight);
+      setPreviewScale(newScale);
+    } else {
+      setPreviewScale(1);
+    }
+  };
+
+  // Recalculate on window resize and content changes
   useEffect(() => {
     const previewCard = previewCardRef.current;
     if (!previewCard) return;
 
-    const resizeObserver = new ResizeObserver(() => {
-      const cardHeight = previewCard.offsetHeight;
-      const availableHeight = window.innerHeight - 120; // Account for padding and margins
+    const handleResize = () => {
+      calculateScale();
+    };
 
-      if (cardHeight > availableHeight) {
-        const newScale = Math.min(1, availableHeight / cardHeight * 0.95); // 95% to ensure some margin
-        setPreviewScale(newScale);
-      } else {
-        setPreviewScale(1);
-      }
+    // Watch for DOM changes in the preview card
+    const mutationObserver = new MutationObserver(() => {
+      // Debounce the calculation
+      calculateScale();
     });
 
-    resizeObserver.observe(previewCard);
-    return () => resizeObserver.disconnect();
-  }, []);
+    mutationObserver.observe(previewCard, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    });
+
+    window.addEventListener('resize', handleResize);
+
+    // Initial calculation after content loads
+    const timer = setTimeout(() => {
+      calculateScale();
+    }, 150);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      mutationObserver.disconnect();
+      clearTimeout(timer);
+    };
+  }, [previewCardRef]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -981,7 +1018,10 @@ export default function CreateProduct() {
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
       
       {/* Image Preview Section with Product Card */}
-      <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative">
+      <div
+        ref={previewContainerRef}
+        className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden pt-[40px] pb-2 relative"
+      >
         <motion.div
           className="relative flex items-center justify-center"
           style={{ opacity: imageOpacity }}
