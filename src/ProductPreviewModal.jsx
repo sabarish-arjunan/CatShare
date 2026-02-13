@@ -466,6 +466,9 @@ export default function ProductPreviewModal({
       }
     };
     loadImage();
+
+    // Trigger field definition update to refresh cached field data
+    setFieldDefinitionsUpdated(prev => prev + 1);
   }, [product]);
 
   // Handle image click to open full screen
@@ -560,7 +563,7 @@ export default function ProductPreviewModal({
   const hasFieldValue = (value) => value !== undefined && value !== null && value !== "";
 
   // State for tracking field definition changes
-  const [, setFieldDefinitionsUpdated] = useState(0);
+  const [fieldDefinitionsUpdated, setFieldDefinitionsUpdated] = useState(0);
 
   // Listen for field definition changes (e.g., after backup restore)
   useEffect(() => {
@@ -802,6 +805,7 @@ export default function ProductPreviewModal({
                 )}
               </div>
               <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                {/* Fields are automatically refreshed when product changes via fieldDefinitionsUpdated trigger */}
                 {enabledFields.map(field => {
                   const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                   const hasValue = hasFieldValue(fieldValue);
