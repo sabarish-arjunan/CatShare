@@ -1037,7 +1037,7 @@ export default function CreateProduct() {
       <div className="fixed top-0 left-0 right-0 h-[40px] bg-black z-50"></div>
 
       {/* Header below status bar */}
-      <div className="fixed top-[40px] left-0 right-0 h-12 bg-black z-40 flex items-center justify-end px-4">
+      <div className="fixed top-[40px] left-0 right-0 h-12 bg-black/50 z-40 flex items-center justify-end px-4">
         <button
           onClick={() => navigate('/')}
           className="text-white hover:text-gray-300 transition-colors flex items-center justify-center w-6 h-6"
