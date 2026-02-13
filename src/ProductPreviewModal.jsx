@@ -597,6 +597,8 @@ export default function ProductPreviewModal({
               flexDirection: "column",
               width: "85vw",
               maxWidth: "380px",
+              maxHeight: "90vh",
+              height: "auto",
             }}
             initial={(dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 })}
             animate={{
