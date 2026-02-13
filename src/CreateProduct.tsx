@@ -298,8 +298,14 @@ export default function CreateProduct() {
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
   const arrowRotate = useTransform(y, [0, DRAG_RANGE], [180, 0]);
 
-  // Combined scale that respects both drag and height constraints
-  const combinedScale = useTransform(imageScale, (scale) => scale * previewScale);
+  // Combined scale: drag animation multiplied by responsive fit constraint
+  const finalScale = useTransform(imageScale, (dragScale) => {
+    // If content needs to shrink to fit, use the smaller of the two scales
+    if (previewScale < 1) {
+      return Math.min(dragScale, previewScale);
+    }
+    return dragScale;
+  });
 
   const handleScrollCheck = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
@@ -750,19 +756,24 @@ export default function CreateProduct() {
     const previewContainer = previewContainerRef.current;
     if (!previewCard || !previewContainer) return;
 
-    const cardHeight = previewCard.offsetHeight;
-    const containerHeight = previewContainer.offsetHeight;
+    // Use requestAnimationFrame to ensure measurement after paint
+    requestAnimationFrame(() => {
+      const cardHeight = previewCard.offsetHeight;
+      const containerHeight = previewContainer.offsetHeight;
 
-    // Account for container padding (pt-[40px] = 40px, pb-2 = 8px)
-    const availableHeight = containerHeight - 48;
+      // Account for container padding (pt-[40px] = 40px, pb-2 = 8px) + extra margin
+      const availableHeight = containerHeight - 64;
 
-    if (cardHeight > availableHeight && availableHeight > 0) {
-      // Scale down to fit with 15px margin
-      const newScale = Math.max(0.25, (availableHeight - 15) / cardHeight);
-      setPreviewScale(newScale);
-    } else {
-      setPreviewScale(1);
-    }
+      if (cardHeight > 0 && containerHeight > 0) {
+        if (cardHeight > availableHeight) {
+          // Scale down to fit with safety margin
+          const newScale = Math.max(0.2, availableHeight / cardHeight);
+          setPreviewScale(newScale);
+        } else {
+          setPreviewScale(1);
+        }
+      }
+    });
   };
 
   // Recalculate on window resize and content changes
@@ -770,34 +781,40 @@ export default function CreateProduct() {
     const previewCard = previewCardRef.current;
     if (!previewCard) return;
 
+    let mutationTimeout: NodeJS.Timeout | null = null;
+
     const handleResize = () => {
       calculateScale();
     };
 
-    // Watch for DOM changes in the preview card
+    // Watch for DOM changes in the preview card with debounce
     const mutationObserver = new MutationObserver(() => {
-      // Debounce the calculation
-      calculateScale();
+      if (mutationTimeout) clearTimeout(mutationTimeout);
+      mutationTimeout = setTimeout(() => {
+        calculateScale();
+      }, 50);
     });
 
     mutationObserver.observe(previewCard, {
       childList: true,
       subtree: true,
       characterData: true,
-      attributes: true,
     });
 
     window.addEventListener('resize', handleResize);
 
-    // Initial calculation after content loads
-    const timer = setTimeout(() => {
-      calculateScale();
-    }, 150);
+    // Initial calculations with multiple checks
+    const timer1 = setTimeout(() => calculateScale(), 50);
+    const timer2 = setTimeout(() => calculateScale(), 150);
+    const timer3 = setTimeout(() => calculateScale(), 300);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       mutationObserver.disconnect();
-      clearTimeout(timer);
+      if (mutationTimeout) clearTimeout(mutationTimeout);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
     };
   }, [previewCardRef]);
 
@@ -1036,7 +1053,7 @@ export default function CreateProduct() {
                 borderRadius: "12px",
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-                scale: combinedScale,
+                scale: finalScale,
                 transformOrigin: "center",
               }}
             >
