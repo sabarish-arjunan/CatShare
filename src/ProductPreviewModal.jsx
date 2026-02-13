@@ -574,9 +574,9 @@ export default function ProductPreviewModal({
     return () => window.removeEventListener("fieldDefinitionsChanged", handleFieldDefinitionsChanged);
   }, []);
 
-  // Recalculate scale on window resize
+  // Measure and scale card when content changes
   useEffect(() => {
-    const handleResize = () => {
+    const measureAndScale = () => {
       const card = document.querySelector('[data-card="product-preview"]');
       if (!card) return;
 
@@ -591,9 +591,33 @@ export default function ProductPreviewModal({
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    // Use ResizeObserver to watch for content size changes
+    const card = document.querySelector('[data-card="product-preview"]');
+    if (!card) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      measureAndScale();
+    });
+
+    resizeObserver.observe(card);
+
+    // Also measure on window resize
+    const handleWindowResize = () => measureAndScale();
+    window.addEventListener('resize', handleWindowResize);
+
+    // Initial measurement after content has time to render
+    const timers = [
+      setTimeout(() => measureAndScale(), 0),
+      setTimeout(() => measureAndScale(), 50),
+      setTimeout(() => measureAndScale(), 150),
+    ];
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleWindowResize);
+      timers.forEach(t => clearTimeout(t));
+    };
+  }, [product.id, product]);
 
   // Get all enabled product fields dynamically
   const enabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
