@@ -134,75 +134,60 @@ export default function ThemesSettings() {
                   Here's how your product cards will look in the {selectedThemeDetails?.name} theme:
                 </p>
 
-                {/* Product Card Preview */}
+                {/* Product Listing Preview - Shows how preview images will look */}
                 <div className="space-y-4">
-                  {/* Single Large Product Card */}
                   <div className="flex justify-center">
-                    <div className="w-full sm:w-80">
-                      <div className="bg-white dark:bg-gray-800 rounded-sm shadow-sm overflow-hidden cursor-pointer transition-all duration-200">
-                        <div className="relative aspect-square overflow-hidden bg-gray-100">
-                          <img
-                            src={sampleProductImage}
-                            alt={sampleProduct.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Price Badge */}
-                          <div className="absolute top-1.5 left-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.5 rounded-full shadow-md z-10">
-                            {sampleProduct.price}
+                    <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700">
+                      {/* Product Image */}
+                      <div className="aspect-square overflow-hidden bg-gray-100">
+                        <img
+                          src={sampleProductImage}
+                          alt={sampleProduct.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      {/* Product Details Section - Beige Background */}
+                      <div className="bg-amber-100 dark:bg-amber-900/30 px-6 py-5 text-center">
+                        {/* Product Name */}
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                          {sampleProduct.name}
+                        </h3>
+
+                        {/* Subtitle */}
+                        <p className="text-sm italic text-gray-700 dark:text-gray-300 mb-4">
+                          ({sampleProduct.subtitle})
+                        </p>
+
+                        {/* Details Grid */}
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between text-gray-800 dark:text-gray-200">
+                            <span>Colour</span>
+                            <span className="font-medium">: {sampleProduct.color}</span>
                           </div>
-                          {/* Name Below Image */}
-                          <div
-                            className="absolute bottom-0 left-0 w-full px-1 py-1 text-center font-medium text-white text-[11px] sm:text-[12px] truncate"
-                            style={{
-                              backgroundColor: "rgba(0, 0, 0, 0.45)",
-                              backdropFilter: "blur(1px)",
-                            }}
-                          >
-                            {sampleProduct.name}
+                          <div className="flex justify-between text-gray-800 dark:text-gray-200">
+                            <span>Package</span>
+                            <span className="font-medium">: {sampleProduct.package}</span>
                           </div>
+                          <div className="flex justify-between text-gray-800 dark:text-gray-200">
+                            <span>Age Group</span>
+                            <span className="font-medium">: {sampleProduct.ageGroup}</span>
+                          </div>
+                        </div>
+
+                        {/* Price - Highlighted */}
+                        <div className="mt-4 pt-4 border-t border-amber-300 dark:border-amber-700">
+                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                            Price : {sampleProduct.price} {sampleProduct.priceUnit}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Product Details Below Card */}
-                  <div className="space-y-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {sampleProduct.name}
-                      </h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        ({sampleProduct.subtitle})
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Colour</p>
-                        <p className="text-xs font-medium text-gray-900 dark:text-white">
-                          {sampleProduct.color}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Package</p>
-                        <p className="text-xs font-medium text-gray-900 dark:text-white">
-                          {sampleProduct.package}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Age Group</p>
-                        <p className="text-xs font-medium text-gray-900 dark:text-white">
-                          {sampleProduct.ageGroup}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Price</p>
-                        <p className="text-xs font-medium text-green-700 dark:text-green-400">
-                          {sampleProduct.price} {sampleProduct.priceUnit}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+                    This is how preview images will display with the Classic theme
+                  </p>
                 </div>
 
                 {/* Theme Details */}
