@@ -1153,7 +1153,7 @@ export default function CreateProduct() {
                   style={{
                     backgroundColor: imageBgOverride,
                     textAlign: "center",
-                    padding: 0,
+                    padding: "16px",
                     position: "relative",
                     cursor: "pointer",
                     display: "flex",
@@ -1171,7 +1171,6 @@ export default function CreateProduct() {
                       height: "100%",
                       objectFit: "contain",
                       margin: "0 auto",
-                      padding: "16px",
                     }}
                   />
 

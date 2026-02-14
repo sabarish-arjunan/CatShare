@@ -369,7 +369,7 @@ export default function ProductPreviewModal_Glass({
                   style={{
                     backgroundColor: product.imageBgColor || "white",
                     textAlign: "center",
-                    padding: 0,
+                    padding: "16px",
                     position: "relative",
                     cursor: "pointer",
                     display: "flex",
@@ -388,7 +388,6 @@ export default function ProductPreviewModal_Glass({
                       height: "100%",
                       objectFit: "contain",
                       margin: "0 auto",
-                      padding: "16px",
                     }}
                   />
 
