@@ -32,15 +32,15 @@ export default function ThemesSettings() {
 
   const selectedThemeDetails = getThemeDetails(selectedTheme);
 
-  // Sample product for preview - same as watermark page
+  // Sample product for preview
   const sampleProduct = {
     id: "sample-preview",
-    name: "Knot Top (S)",
-    subtitle: "Muslim Spl. P",
-    color: "Multiprint",
-    package: "12 pcs / dozen",
-    ageGroup: "0-3 months",
-    price: "₹37",
+    name: "Frock",
+    subtitle: "Fancy wear",
+    color: "Red",
+    package: "5 pcs / set",
+    ageGroup: "5 years",
+    price: "₹200",
     priceUnit: "/ piece",
     inStock: true,
     badge: null,
