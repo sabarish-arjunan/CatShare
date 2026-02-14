@@ -298,6 +298,9 @@ export default function CreateProduct() {
   // Preview scale state must be declared before useTransform
   const [previewScale, setPreviewScale] = useState(1);
 
+  // Initialize overrideColor from current theme instead of hardcoded value
+  const [overrideColor, setOverrideColor] = useState(() => currentTheme.styles.bgColor);
+
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
   const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
   const imageOpacity = useTransform(y, [0, DRAG_RANGE / 2, DRAG_RANGE], [0.6, 1, 1]);
@@ -406,7 +409,6 @@ export default function CreateProduct() {
   }, []);
 
   const [originalBase64, setOriginalBase64] = useState(null);
-  const [overrideColor, setOverrideColor] = useState("#d1b3c4");
   const [fontColor, setFontColor] = useState("black");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
@@ -417,6 +419,17 @@ export default function CreateProduct() {
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [, setFieldDefinitionsUpdated] = useState(0);
+
+  // Update preview colors when theme changes (unless user has customized them)
+  useEffect(() => {
+    // Only update if user hasn't explicitly set a color (i.e., still using theme default)
+    if (!editingId) {
+      setOverrideColor(currentTheme.styles.bgColor);
+      setFontColor(currentTheme.styles.fontColor);
+      setImageBgOverride(currentTheme.styles.imageBgColor);
+      console.log(`🎨 Updated preview colors for theme: ${currentTheme.id}`);
+    }
+  }, [currentTheme.id, editingId]);
 
   // Initialize catalogues on mount
   useEffect(() => {
