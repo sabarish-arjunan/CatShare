@@ -192,14 +192,29 @@ export default function ThemesSettings() {
                         {/* Red Background behind glass box */}
                         <div
                           style={{
-                            backgroundColor: "#dc2626",
+                            background: "linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #dc2626 100%)",
+                            backgroundSize: "400% 400%",
                             width: "100%",
                             padding: "8px",
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
+                            position: "relative",
+                            overflow: "hidden",
                           }}
                         >
+                          {/* Decorative gradient overlay */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              background: "radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%)",
+                              pointerEvents: "none",
+                            }}
+                          ></div>
                           {/* All Content in Single Glass Box */}
                           <div
                             style={{
@@ -214,6 +229,8 @@ export default function ThemesSettings() {
                               borderRadius: "14px",
                               width: "100%",
                               boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.15)",
+                              position: "relative",
+                              zIndex: 1,
                             }}
                           >
                           {/* Hanger Icon */}
