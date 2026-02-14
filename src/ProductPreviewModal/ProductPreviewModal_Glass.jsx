@@ -491,9 +491,10 @@ export default function ProductPreviewModal_Glass({
                           borderRadius: "6px",
                           marginTop: 4,
                           width: "100%",
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        {currencySymbol}{catalogueData[priceField] || product[priceField]} {(() => {
+                        {currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
                           const config = getFieldConfig(priceField);
                           const unitsEnabled = config ? config.unitsEnabled : true;
                           if (!unitsEnabled) return "";
@@ -502,7 +503,7 @@ export default function ProductPreviewModal_Glass({
                             ? catalogueData[priceUnitField]
                             : (product[priceUnitField] || "/ piece");
 
-                          return unit !== "None" ? unit : "";
+                          return unit !== "None" ? ` ${unit}` : "";
                         })()}
                       </div>
                     )}
