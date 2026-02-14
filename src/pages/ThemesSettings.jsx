@@ -1,36 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
+import { useTheme } from "../context/ThemeContext";
+import { getAllThemes } from "../config/themeConfig";
 
 export default function ThemesSettings() {
   const navigate = useNavigate();
-  const [selectedTheme, setSelectedTheme] = useState(() => {
-    return localStorage.getItem("selectedTheme") || "classic";
-  });
+  const { selectedThemeId, setTheme } = useTheme();
 
-  // List of available themes
-  const themes = [
-    {
-      id: "classic",
-      name: "Classic",
-      description: "The default product card layout. Clean and minimalist design.",
-      isDefault: true,
-      status: "Active",
-    },
-    {
-      id: "glass",
-      name: "Glass",
-      description: "Modern frosted glass design with transparency and blur effects.",
-      isDefault: false,
-      status: "Active",
-    },
-    // More themes will be added in the future
-  ];
+  // Get all available themes from theme config
+  const themes = getAllThemes();
 
   const handleThemeSelect = (themeId) => {
-    setSelectedTheme(themeId);
-    localStorage.setItem("selectedTheme", themeId);
-    window.dispatchEvent(new CustomEvent("themeChanged", { detail: { theme: themeId } }));
+    setTheme(themeId);
+    console.log(`🎨 Theme selected: ${themeId}`);
   };
 
   // Sample products for different themes
@@ -279,7 +262,7 @@ export default function ThemesSettings() {
                           {/* Price Badge at Bottom */}
                           <div
                             style={{
-                              backgroundColor: "#a0714f",
+                              backgroundColor: "#dc2626",
                               color: "white",
                               padding: "8px 12px",
                               textAlign: "center",
@@ -297,7 +280,19 @@ export default function ThemesSettings() {
                       </div>
                     ) : (
                       // Classic Theme
-                      <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
+                      <div
+                        style={{
+                          width: "100%",
+                          maxWidth: "280px",
+                          backgroundColor: "white",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          border: "1px solid rgb(229, 231, 235)",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                         {/* Image Section */}
                         <div
                           style={{
@@ -422,12 +417,12 @@ export default function ThemesSettings() {
                     <button
                       onClick={() => handleThemeSelect(theme.id)}
                       className={`px-8 py-3 rounded-lg font-semibold transition ${
-                        selectedTheme === theme.id
+                        selectedThemeId === theme.id
                           ? "bg-red-600 text-white shadow-lg"
                           : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
                       }`}
                     >
-                      {selectedTheme === theme.id ? "✓ Selected" : "Select"} {theme.name}
+                      {selectedThemeId === theme.id ? "✓ Selected" : "Select"} {theme.name}
                     </button>
                   </div>
 

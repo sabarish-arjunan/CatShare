@@ -6,13 +6,14 @@ import { FiX, FiShare2, FiCheckCircle, FiAlertCircle, FiEdit3, FiPackage, FiArch
 import { MdInventory2 } from "react-icons/md";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
-import { useToast } from "./context/ToastContext";
-import { getCatalogueData } from "./config/catalogueProductUtils";
-import { getAllCatalogues } from "./config/catalogueConfig";
-import { getFieldConfig, getAllFields } from "./config/fieldConfig";
-import { safeGetFromStorage } from "./utils/safeStorage";
-import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
-import { getPriceUnits } from "./utils/priceUnitsUtils";
+import { useToast } from "../context/ToastContext";
+import { useTheme } from "../context/ThemeContext";
+import { getCatalogueData } from "../config/catalogueProductUtils";
+import { getAllCatalogues } from "../config/catalogueConfig";
+import { getFieldConfig, getAllFields } from "../config/fieldConfig";
+import { safeGetFromStorage } from "../utils/safeStorage";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
+import { getPriceUnits } from "../utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -333,7 +334,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
 };
 
 // Main ProductPreviewModal Component
-export default function ProductPreviewModal({
+export default function ProductPreviewModal_Classic({
   product,
   tab,
   catalogueId: externalCatalogueId,
@@ -346,6 +347,7 @@ export default function ProductPreviewModal({
   filteredProducts = [],
 }) {
   const { showToast } = useToast();
+  const { currentTheme } = useTheme();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
@@ -776,8 +778,8 @@ export default function ProductPreviewModal({
             {/* Details Section */}
             <div
               style={{
-                backgroundColor: getLighterColor(product.bgColor),
-                color: product.fontColor || "white",
+                backgroundColor: currentTheme.styles.lightBgColor,
+                color: currentTheme.styles.fontColor,
                 padding: "12px 12px",
                 fontSize: 17,
                 flex: 1,
@@ -835,8 +837,8 @@ export default function ProductPreviewModal({
             {hasPriceValue && (
               <div
                 style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
+                  backgroundColor: currentTheme.styles.bgColor,
+                  color: currentTheme.styles.fontColor,
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
@@ -844,7 +846,7 @@ export default function ProductPreviewModal({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]} {(() => {
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
                   const config = getFieldConfig(priceField);
                   // Price fields should always have units enabled unless explicitly disabled in config
                   const unitsEnabled = config ? config.unitsEnabled : true;
@@ -854,7 +856,7 @@ export default function ProductPreviewModal({
                     ? catalogueData[priceUnitField]
                     : (product[priceUnitField] || "/ piece");
 
-                  return unit !== "None" ? unit : "";
+                  return unit !== "None" ? ` ${unit}` : "";
                 })()}
               </div>
             )}

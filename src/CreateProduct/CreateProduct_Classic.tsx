@@ -5,14 +5,15 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import { getCroppedImg } from "./cropUtils";
-import { getPalette } from "./colorUtils";
-import { saveRenderedImage } from "./Save";
-import { useToast } from "./context/ToastContext";
-import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
-import { migrateProductToNewFormat } from "./config/fieldMigration";
-import { getProductFieldValue, getProductUnitValue } from "./config/fieldMigration";
-import { safeGetFromStorage } from "./utils/safeStorage";
+import { getCroppedImg } from "../cropUtils";
+import { getPalette } from "../colorUtils";
+import { saveRenderedImage } from "../Save";
+import { useToast } from "../context/ToastContext";
+import { useTheme } from "../context/ThemeContext";
+import { getAllCatalogues, type Catalogue } from "../config/catalogueConfig";
+import { migrateProductToNewFormat } from "../config/fieldMigration";
+import { getProductFieldValue, getProductUnitValue } from "../config/fieldMigration";
+import { safeGetFromStorage } from "../utils/safeStorage";
 import {
   initializeCatalogueData,
   getCatalogueData,
@@ -21,10 +22,10 @@ import {
   setProductEnabledForCatalogue,
   type CatalogueData,
   type ProductWithCatalogueData
-} from "./config/catalogueProductUtils";
-import { getFieldConfig, getAllFields } from "./config/fieldConfig";
-import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
-import { getPriceUnits } from "./utils/priceUnitsUtils";
+} from "../config/catalogueProductUtils";
+import { getFieldConfig, getAllFields } from "../config/fieldConfig";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
+import { getPriceUnits } from "../utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -278,6 +279,7 @@ export default function CreateProduct() {
   const catalogueParam = searchParams.get("catalogue");
   const fromParam = searchParams.get("from");
   const { showToast } = useToast();
+  const { currentTheme } = useTheme();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
@@ -295,6 +297,9 @@ export default function CreateProduct() {
   // Derived values for hardware-accelerated animations
   // Preview scale state must be declared before useTransform
   const [previewScale, setPreviewScale] = useState(1);
+
+  // Initialize overrideColor from current theme instead of hardcoded value
+  const [overrideColor, setOverrideColor] = useState(() => currentTheme.styles.bgColor);
 
   const sheetHeight = useTransform(y, [0, DRAG_RANGE], [MAX_HEIGHT, MIN_HEIGHT]);
   const imageScale = useTransform(y, [0, DRAG_RANGE], [0.4, 1]);
@@ -404,7 +409,6 @@ export default function CreateProduct() {
   }, []);
 
   const [originalBase64, setOriginalBase64] = useState(null);
-  const [overrideColor, setOverrideColor] = useState("#d1b3c4");
   const [fontColor, setFontColor] = useState("black");
   const [imageBgOverride, setImageBgOverride] = useState("white");
   const [suggestedColors, setSuggestedColors] = useState([]);
@@ -415,6 +419,17 @@ export default function CreateProduct() {
   const [ageGroupUnit, setAgeGroupUnit] = useState("months");
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [, setFieldDefinitionsUpdated] = useState(0);
+
+  // Update preview colors when theme changes (unless user has customized them)
+  useEffect(() => {
+    // Only update if user hasn't explicitly set a color (i.e., still using theme default)
+    if (!editingId) {
+      setOverrideColor(currentTheme.styles.bgColor);
+      setFontColor(currentTheme.styles.fontColor);
+      setImageBgOverride(currentTheme.styles.imageBgColor);
+      console.log(`🎨 Updated preview colors for theme: ${currentTheme.id}`);
+    }
+  }, [currentTheme.id, editingId]);
 
   // Initialize catalogues on mount
   useEffect(() => {
@@ -1065,9 +1080,9 @@ export default function CreateProduct() {
               ref={previewCardRef}
               style={{
                 width: "95%",
-                maxWidth: "330px",
+                maxWidth: `${currentTheme.rendering.cardWidth}px`,
                 backgroundColor: "white",
-                borderRadius: "12px",
+                borderRadius: `${currentTheme.rendering.cardBorderRadius}px`,
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
                 scale: finalScale,
@@ -1145,8 +1160,8 @@ export default function CreateProduct() {
                 <>
                   <div
                     style={{
-                      backgroundColor: getLighterColor(overrideColor),
-                      color: fontColor,
+                      backgroundColor: currentTheme.styles.lightBgColor,
+                      color: currentTheme.styles.fontColor,
                       padding: "10px",
                     }}
                   >
@@ -1184,8 +1199,8 @@ export default function CreateProduct() {
                   {getSelectedCataloguePrice() && (
                     <div
                       style={{
-                        backgroundColor: overrideColor,
-                        color: fontColor,
+                        backgroundColor: currentTheme.styles.bgColor,
+                        color: currentTheme.styles.fontColor,
                         padding: "8px 6px",
                         textAlign: "center",
                         fontWeight: "600",
