@@ -64,8 +64,8 @@ export default function ThemesSettings() {
     inStock: true,
     badge: "MUSLIM",
     imageBgColor: "white",
-    bgColor: "#0d9488", // Teal/turquoise background
-    lightBgColor: "#99f6e4", // Light teal for gradient
+    bgColor: "#dc2626", // Dark red background (same as Classic)
+    lightBgColor: "#fca5a5", // Light red for gradient
     fontColor: "white",
     cropAspectRatio: 1,
   };
@@ -192,7 +192,7 @@ export default function ThemesSettings() {
                         {/* Card Container for Details */}
                         <div
                           style={{
-                            backgroundColor: "#d1f2f5",
+                            backgroundColor: "#fce4e6",
                             borderRadius: "0 0 12px 12px",
                             padding: "16px",
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -211,7 +211,7 @@ export default function ThemesSettings() {
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              style={{ color: "#0f766e" }}
+                              style={{ color: "#991b1b" }}
                             >
                               <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
                               <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
@@ -226,13 +226,13 @@ export default function ThemesSettings() {
                                 fontWeight: "600",
                                 fontSize: 20,
                                 margin: "0 0 4px 0",
-                                color: "#0f766e",
+                                color: "#991b1b",
                               }}
                             >
                               {sampleProduct.name}
                             </p>
                             {sampleProduct.subtitle && (
-                              <p style={{ fontStyle: "italic", fontSize: 15, margin: 0, color: "#0f766e" }}>
+                              <p style={{ fontStyle: "italic", fontSize: 15, margin: 0, color: "#991b1b" }}>
                                 ({sampleProduct.subtitle})
                               </p>
                             )}
@@ -240,8 +240,8 @@ export default function ThemesSettings() {
 
                           {/* Fields */}
                           <div style={{ flex: 1, marginBottom: 8 }}>
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#0f766e", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e" }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#991b1b" }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <circle cx="12" cy="12" r="10" />
                                   <path d="M12 2a10 10 0 0 1 0 20" />
@@ -253,8 +253,8 @@ export default function ThemesSettings() {
                               </div>
                             </div>
 
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#0f766e", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e" }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#991b1b" }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" />
                                   <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
@@ -267,8 +267,8 @@ export default function ThemesSettings() {
                               </div>
                             </div>
 
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#0f766e", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e" }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#991b1b" }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <circle cx="12" cy="8" r="4" />
                                   <path d="M12 12c-3.31 0-6 2.69-6 6v2h12v-2c0-3.31-2.69-6-6-6z" />
@@ -419,19 +419,19 @@ export default function ThemesSettings() {
                           <>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Modern frosted glass effect with red accent</span>
+                              <span>Modern glass effect with red gradient background</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Semi-transparent with blur backdrop</span>
+                              <span>Card-style layout with premium appearance</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Elegant and contemporary design</span>
+                              <span>Elegant hanger icon and field indicators</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Premium glass morphism style</span>
+                              <span>Premium glass morphism with red color scheme</span>
                             </li>
                           </>
                         ) : (
