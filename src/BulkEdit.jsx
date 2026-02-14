@@ -698,17 +698,21 @@ useEffect(() => {
                   className="border rounded px-2 py-1 w-28"
                   placeholder="Price"
                 />
-                {getFieldConfig(priceField)?.unitsEnabled && (
-                  <select
-                    value={item[priceUnitField] ?? getPriceUnits()[0]}
-                    onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
-                    className="border rounded px-2 py-1 pr-8 w-16"
-                  >
-                    {getPriceUnits().map(unit => (
-                      <option key={unit} value={unit}>{unit}</option>
-                    ))}
-                  </select>
-                )}
+                {(() => {
+                  const config = getFieldConfig(priceField);
+                  // Price fields should always have units enabled unless explicitly disabled
+                  return (config ? config.unitsEnabled : true) && (
+                    <select
+                      value={item[priceUnitField] ?? getPriceUnits()[0]}
+                      onChange={(e) => handleFieldChange(item.id, priceUnitField, e.target.value)}
+                      className="border rounded px-2 py-1 pr-8 w-16"
+                    >
+                      {getPriceUnits().map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  );
+                })()}
               </div>
             )}
 
