@@ -321,9 +321,28 @@ export async function generateProductPDF(
     const fieldKeys = ["field1", "field2", "field3", "field4", "field5", "field6", "field7", "field8", "field9", "field10"];
     const activeFields = fieldKeys.filter(f => product[f]);
     const useColumns = activeFields.length > 5;
+    const pRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
+
+    // Calculate total height of details for vertical centering
+    let totalDetailsHeight = 0;
+    if (activeFields.length > 0) {
+      totalDetailsHeight += pRows * 6;
+    }
+    if (product.price) {
+      if (activeFields.length > 0) {
+        totalDetailsHeight += 6 + 5; // Spacing + half of pill height (since priceY is center)
+      } else {
+        totalDetailsHeight += 10; // Pill height
+      }
+    } else if (activeFields.length > 0) {
+      totalDetailsHeight -= 1.5; // Adjust for last row text baseline
+    }
 
     let detailsY = innerY;
-    
+    if (totalDetailsHeight < imageHeight) {
+      detailsY = innerY + (imageHeight - totalDetailsHeight) / 2 + 2;
+    }
+
     // Fields Grid
     pdf.setFontSize(8.5);
     for (let idx = 0; idx < activeFields.length; idx++) {
@@ -348,9 +367,8 @@ export async function generateProductPDF(
 
     // --- Price (Floating Glass Label Style) ---
     if (product.price) {
-      const pRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
       const priceY = detailsY + (activeFields.length > 0 ? pRows * 6 + 6 : 0);
-      
+
       const pUnit = product.priceUnit || "";
       const pText = `${currencySymbol}${product.price}${pUnit ? " " + pUnit : ""}`.trim();
       
