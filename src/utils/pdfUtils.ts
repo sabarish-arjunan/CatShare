@@ -357,11 +357,12 @@ export async function generateProductPDF(
 
       pdf.setFont(undefined, "bold");
       pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-      pdf.text(label.toUpperCase(), fX, fY);
+      const labelText = label.toUpperCase() + ":";
+      pdf.text(labelText, fX, fY);
 
       pdf.setFont(undefined, "normal");
       pdf.setTextColor(textDark[0], textDark[1], textDark[2]);
-      const lWidth = pdf.getTextWidth(label.toUpperCase()) + 3;
+      const lWidth = pdf.getTextWidth(labelText) + 3;
       pdf.text(`${val}${unit && unit !== "None" ? " " + unit : ""}`, fX + lWidth, fY);
     }
 
@@ -370,7 +371,7 @@ export async function generateProductPDF(
       const priceY = detailsY + (activeFields.length > 0 ? pRows * 6 + 6 : 0);
 
       const pUnit = product.priceUnit || "";
-      const pText = `${currencySymbol}${product.price}${pUnit ? " " + pUnit : ""}`.trim();
+      const pText = `PRICE : ${currencySymbol}${product.price}${pUnit ? " " + pUnit : ""}`.trim();
       
       // Price background pill
       pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
