@@ -324,6 +324,33 @@ export default function ThemesSettings() {
                               margin: "0 auto",
                             }}
                           />
+
+                          {/* Badge - Bottom Right */}
+                          {sampleProduct.badge && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: 10,
+                                right: 10,
+                                backgroundColor: "#666666",
+                                color: "white",
+                                fontSize: 12,
+                                fontWeight: 400,
+                                padding: "5px 10px",
+                                borderRadius: "999px",
+                                opacity: 0.95,
+                                boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                                border: "1px solid rgba(0,0,0,0.2)",
+                                letterSpacing: "0.4px",
+                                pointerEvents: "none",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {sampleProduct.badge.toUpperCase()}
+                            </div>
+                          )}
                         </div>
 
                         {/* Details Section */}
