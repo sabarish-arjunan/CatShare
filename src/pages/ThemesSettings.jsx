@@ -225,10 +225,10 @@ export default function ThemesSettings() {
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "center",
-                              border: "1px solid rgba(255, 255, 255, 0.9)",
+                              border: "2px solid rgba(255, 255, 255, 1)",
                               borderRadius: "14px",
                               width: "100%",
-                              boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.15)",
+                              boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 12px 40px rgba(220, 38, 38, 0.3), 0 20px 50px rgba(0, 0, 0, 0.25)",
                               position: "relative",
                               zIndex: 1,
                             }}
