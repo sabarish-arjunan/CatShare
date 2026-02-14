@@ -425,7 +425,7 @@ export default function ProductPreviewModal_Glass({
                         ...getGlassThemeWatermarkPosition(watermarkPosition),
                         fontSize: "10px",
                         letterSpacing: "0.3px",
-                        color: "rgba(0, 0, 0, 0.25)",
+                        color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
                       }}
                     >
                       {watermarkText}
