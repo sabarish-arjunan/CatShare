@@ -47,7 +47,7 @@ const getGlassThemeWatermarkPosition = (position) => {
     zIndex: 10
   };
 
-  // Map bottom positions to top positions to avoid glass box overlap
+  // Keep bottom positions at the bottom of image container (above glass box)
   const glassPositionMap = {
     "top-left": { top: 10, left: 10, transform: "none" },
     "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
@@ -55,10 +55,10 @@ const getGlassThemeWatermarkPosition = (position) => {
     "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
     "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
     "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
-    // Bottom positions adjusted to top to avoid glass box
-    "bottom-left": { top: 10, left: 10, transform: "none" },
-    "bottom-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
-    "bottom-right": { top: 10, right: 10, left: "auto", transform: "none" }
+    // Bottom positions use bottom positioning to place at bottom of image container
+    "bottom-left": { bottom: 10, left: 10, transform: "none" },
+    "bottom-center": { bottom: 10, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
   const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-center"];
