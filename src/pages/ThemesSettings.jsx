@@ -148,35 +148,38 @@ export default function ThemesSettings() {
                       </div>
 
                       {/* Product Details Section - Red Background */}
-                      <div className="bg-red-100 dark:bg-red-900/30 px-6 py-6 text-center">
-                        {/* Product Name */}
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                          {sampleProduct.name}
-                        </h3>
+                      <div className="bg-red-100 dark:bg-red-900/30">
+                        {/* Content Area */}
+                        <div className="px-6 py-6 text-center">
+                          {/* Product Name */}
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                            {sampleProduct.name}
+                          </h3>
 
-                        {/* Subtitle */}
-                        <p className="text-sm italic text-gray-700 dark:text-gray-300 mb-4">
-                          ({sampleProduct.subtitle})
-                        </p>
+                          {/* Subtitle */}
+                          <p className="text-sm italic text-gray-700 dark:text-gray-300 mb-4">
+                            ({sampleProduct.subtitle})
+                          </p>
 
-                        {/* Details Section */}
-                        <div className="space-y-1 text-sm mb-4">
-                          <div className="flex justify-between text-gray-800 dark:text-gray-200">
-                            <span>Colour</span>
-                            <span className="font-medium">: {sampleProduct.color}</span>
-                          </div>
-                          <div className="flex justify-between text-gray-800 dark:text-gray-200">
-                            <span>Package</span>
-                            <span className="font-medium">: {sampleProduct.package}</span>
-                          </div>
-                          <div className="flex justify-between text-gray-800 dark:text-gray-200">
-                            <span>Age Group</span>
-                            <span className="font-medium">: {sampleProduct.ageGroup}</span>
+                          {/* Details Section */}
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between text-gray-800 dark:text-gray-200">
+                              <span>Colour</span>
+                              <span className="font-medium">: {sampleProduct.color}</span>
+                            </div>
+                            <div className="flex justify-between text-gray-800 dark:text-gray-200">
+                              <span>Package</span>
+                              <span className="font-medium">: {sampleProduct.package}</span>
+                            </div>
+                            <div className="flex justify-between text-gray-800 dark:text-gray-200">
+                              <span>Age Group</span>
+                              <span className="font-medium">: {sampleProduct.ageGroup}</span>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Price Bar - Dark Red */}
-                        <div className="bg-red-700 dark:bg-red-800 text-white py-3 px-4 rounded">
+                        {/* Price Bar - Dark Red (No Gap) */}
+                        <div className="bg-red-700 dark:bg-red-800 text-white text-center py-3 px-6">
                           <p className="text-base font-bold">
                             Price : {sampleProduct.price} {sampleProduct.priceUnit}
                           </p>
