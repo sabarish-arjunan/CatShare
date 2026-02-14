@@ -43,6 +43,7 @@ export interface ProductWithCatalogueData {
   id: string;
   name: string;
   subtitle?: string;
+  privateNotes?: string;
   imagePath?: string;
   image?: string;
   fontColor?: string;

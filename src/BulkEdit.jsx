@@ -10,6 +10,7 @@ const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
     { key: "name", label: "Name" },
     { key: "subtitle", label: "Subtitle" },
+    { key: "privateNotes", label: "Private Notes" },
   ];
 
   // Add all enabled product fields
@@ -91,6 +92,7 @@ useEffect(() => {
       // Keep product identity
       name: p.name || "",
       subtitle: p.subtitle || "",
+      privateNotes: p.privateNotes || "",
       badge: catData.badge || p.badge || "",
       category: p.category || [],
       // Store original badge for fallback
@@ -130,6 +132,7 @@ useEffect(() => {
     // Store master values for fallback/fill from master
     normalized.masterName = p.name || "";
     normalized.masterSubtitle = p.subtitle || "";
+    normalized.masterPrivateNotes = p.privateNotes || "";
     normalized.masterCategory = p.category || [];
     normalized.masterWholesale = p.wholesale || "";
     normalized.masterWholesaleUnit = p.wholesaleUnit || "/ piece";
@@ -150,6 +153,7 @@ useEffect(() => {
       id: item.id,
       name: item.name ?? "",
       subtitle: item.subtitle ?? "",
+      privateNotes: item.privateNotes ?? "",
       badge: item.badge ?? "",
       category: item.category ?? [],
       wholesale: item.wholesale ?? "",
@@ -232,6 +236,8 @@ useEffect(() => {
             updates.name = "";
           } else if (fieldKey === "subtitle") {
             updates.subtitle = "";
+          } else if (fieldKey === "privateNotes") {
+            updates.privateNotes = "";
           } else if (fieldKey === "category") {
             updates.category = [];
           } else if (fieldKey === "stock") {
@@ -272,6 +278,8 @@ useEffect(() => {
           updates.name = item.masterName || "";
         } else if (fieldKey === "subtitle") {
           updates.subtitle = item.masterSubtitle || "";
+        } else if (fieldKey === "privateNotes") {
+          updates.privateNotes = item.masterPrivateNotes || "";
         } else if (fieldKey === "category") {
           updates.category = item.masterCategory || [];
         } else if (fieldKey === "stock") {
@@ -604,7 +612,7 @@ useEffect(() => {
           {selectedFields.map((field) => {
             const fieldLabel = FIELD_OPTIONS.find((f) => f.key === field)?.label;
             const isFilledFromMaster = !!filledFromMaster[field];
-            const hideFillBox = field === "name" || field === "subtitle";
+            const hideFillBox = field === "name" || field === "subtitle" || field === "privateNotes";
 
             return (
               <div key={field} className="flex items-center gap-1">
@@ -658,6 +666,15 @@ useEffect(() => {
                 value={item.subtitle ?? ""}
                 onChange={(e) => handleFieldChange(item.id, "subtitle", e.target.value)}
                 className="border rounded px-2 py-1"
+              />
+            )}
+
+            {selectedFields.includes("privateNotes") && (
+              <input
+                value={item.privateNotes ?? ""}
+                onChange={(e) => handleFieldChange(item.id, "privateNotes", e.target.value)}
+                className="border rounded px-2 py-1"
+                placeholder="Private Notes"
               />
             )}
 

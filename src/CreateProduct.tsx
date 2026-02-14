@@ -338,6 +338,7 @@ export default function CreateProduct() {
     id: "",
     name: "",
     subtitle: "",
+    privateNotes: "",
     category: [],
     catalogueData: {},
   });
@@ -517,6 +518,7 @@ export default function CreateProduct() {
           id: migratedProduct.id || "",
           name: migratedProduct.name || "",
           subtitle: migratedProduct.subtitle || "",
+          privateNotes: migratedProduct.privateNotes || "",
           category: Array.isArray(migratedProduct.category)
             ? migratedProduct.category
             : migratedProduct.category
@@ -822,7 +824,7 @@ export default function CreateProduct() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const commonFields = ['id', 'name', 'subtitle', 'category'];
+    const commonFields = ['id', 'name', 'subtitle', 'category', 'privateNotes'];
 
     if (commonFields.includes(name)) {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -1448,6 +1450,19 @@ export default function CreateProduct() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Private Notes */}
+              <div className="mb-5">
+                <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Private Notes (Secret)</label>
+                <textarea
+                  name="privateNotes"
+                  value={formData.privateNotes}
+                  onChange={handleChange}
+                  placeholder="Add secret notes about this product..."
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 min-h-[100px] resize-none"
+                />
+                <p className="text-[10px] text-gray-400 mt-1.5 italic">These notes are only visible to you and won't be shared or shown on previews.</p>
               </div>
             </>
           )}
