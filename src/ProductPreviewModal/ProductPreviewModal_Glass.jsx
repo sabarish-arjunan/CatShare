@@ -215,6 +215,7 @@ export default function ProductPreviewModal_Glass({
 
   const badgeBg = isWhiteBg ? "#fff" : "#666666";
   const badgeText = isWhiteBg ? "#000" : "#fff";
+  const badgeBorder = isWhiteBg ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
 
   const getAllStockStatus = () => {
     const allCatalogues = getAllCatalogues();
