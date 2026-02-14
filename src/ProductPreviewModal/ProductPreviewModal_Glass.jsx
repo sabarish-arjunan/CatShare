@@ -464,7 +464,7 @@ export default function ProductPreviewModal_Glass({
                   {/* Glass Morphism Content Box */}
                   <div
                     style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.6)",
+                      backgroundColor: "rgba(255, 255, 255, 0.45)",
                       backdropFilter: "blur(20px) saturate(180%)",
                       WebkitBackdropFilter: "blur(20px) saturate(180%)",
                       padding: "16px 12px",
