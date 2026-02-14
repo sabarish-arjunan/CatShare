@@ -53,6 +53,34 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
+// Helper function to adjust watermark position for Glass theme to avoid overlap with glass box
+const getGlassThemeWatermarkPosition = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none",
+    zIndex: 10
+  };
+
+  // Keep bottom positions at the bottom of image container (above glass box)
+  const glassPositionMap = {
+    "top-left": { top: 10, left: 10, transform: "none" },
+    "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 10, right: 10, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
+    // Bottom positions use bottom positioning to place at bottom of image container (above glass box)
+    "bottom-left": { bottom: 30, left: 10, transform: "none" },
+    "bottom-center": { bottom: 30, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 30, right: 10, left: "auto", transform: "none" }
+  };
+
+  const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-center"];
+  return { ...baseStyles, ...selectedPosition };
+};
+
 // Helper: Convert any color string to RGB array
 const parseToRgb = (str) => {
   if (!str) return [255, 255, 255];
@@ -1164,6 +1192,20 @@ export default function CreateProduct() {
                       }}
                     >
                       {getCatalogueFormData().badge}
+                    </div>
+                  )}
+
+                  {/* Watermark - Adaptive color based on background */}
+                  {showWatermark && (
+                    <div
+                      style={{
+                        ...getGlassThemeWatermarkPosition(watermarkPosition),
+                        fontSize: "10px",
+                        letterSpacing: "0.3px",
+                        color: "rgba(0, 0, 0, 0.25)",
+                      }}
+                    >
+                      {watermarkText}
                     </div>
                   )}
                 </div>
