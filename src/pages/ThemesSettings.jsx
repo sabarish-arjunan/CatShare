@@ -250,7 +250,7 @@ export default function ThemesSettings() {
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              style={{ color: "#0f8577" }}
+                              style={{ color: "#000000" }}
                             >
                               <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
                               <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
@@ -265,21 +265,21 @@ export default function ThemesSettings() {
                                 fontWeight: "600",
                                 fontSize: 18,
                                 margin: "0 0 4px 0",
-                                color: "#0f8577",
+                                color: "#000000",
                               }}
                             >
                               {sampleProduct.name}
                             </p>
                             {sampleProduct.subtitle && (
-                              <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#0f8577" }}>
+                              <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#000000" }}>
                                 ({sampleProduct.subtitle})
                               </p>
                             )}
                           </div>
                           {/* Fields */}
-                          <div style={{ flex: 1, marginBottom: 8, color: "#0f8577", fontSize: 13, width: "100%" }}>
+                          <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%" }}>
                             <div style={{ marginBottom: 8, display: "flex", alignItems: "center" }}>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0, color: "#000000" }}>
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M12 2a10 10 0 0 1 0 20" />
                               </svg>
@@ -288,7 +288,7 @@ export default function ThemesSettings() {
                             </div>
 
                             <div style={{ marginBottom: 8, display: "flex", alignItems: "center" }}>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0, color: "#000000" }}>
                                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" />
                                 <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                                 <line x1="12" y1="22.08" x2="12" y2="12" />
@@ -298,7 +298,7 @@ export default function ThemesSettings() {
                             </div>
 
                             <div style={{ display: "flex", alignItems: "center" }}>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0, color: "#000000" }}>
                                 <circle cx="12" cy="8" r="4" />
                                 <path d="M12 12c-3.31 0-6 2.69-6 6v2h12v-2c0-3.31-2.69-6-6-6z" />
                               </svg>
