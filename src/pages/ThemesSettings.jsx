@@ -47,6 +47,7 @@ export default function ThemesSettings() {
     badge: null,
     imageBgColor: "white",
     bgColor: "#dc2626", // Dark red background
+    lightBgColor: "#fca5a5", // Light red for classic
     fontColor: "white",
     cropAspectRatio: 1,
   };
@@ -63,9 +64,15 @@ export default function ThemesSettings() {
     inStock: true,
     badge: null,
     imageBgColor: "white",
-    bgColor: "rgba(220, 38, 38, 0.8)", // Red with transparency for glass effect
+    bgColor: "#b91c1c", // Dark red background
+    lightBgColor: "#fca5a5", // Light red for gradient
     fontColor: "white",
     cropAspectRatio: 1,
+  };
+
+  // Helper function to get card style colors
+  const getGlassGradient = (bgColor, lightColor) => {
+    return `linear-gradient(to bottom, ${bgColor}, ${lightColor})`;
   };
 
   // Helper function to get lighter color for details section
@@ -117,110 +124,252 @@ export default function ThemesSettings() {
                 <div key={theme.id} className="space-y-3">
                   {/* Theme Preview Card */}
                   <div className="flex justify-center">
-                    <div
-                      className={`w-full sm:w-96 rounded-lg overflow-hidden shadow-md flex flex-col ${
-                        isGlassTheme
-                          ? "bg-gradient-to-br from-red-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 border border-red-200 dark:border-red-800"
-                          : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-                      }`}
-                    >
-                      {/* Image Section */}
+                    {isGlassTheme ? (
+                      // Glass Theme - Card Style Design
                       <div
                         style={{
-                          backgroundColor: sampleProduct.imageBgColor || "white",
-                          textAlign: "center",
-                          padding: 0,
-                          position: "relative",
-                          boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                          cursor: "pointer",
+                          background: getGlassGradient(sampleProduct.bgColor, sampleProduct.lightBgColor),
+                          padding: "16px",
                           display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          aspectRatio: sampleProduct.cropAspectRatio || 1,
+                          flexDirection: "column",
+                          height: "auto",
                           width: "100%",
+                          maxWidth: "384px",
+                          borderRadius: "16px",
+                          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
                         }}
                       >
-                        <img
-                          src={sampleProductImage}
-                          alt={sampleProduct.name}
+                        {/* Image Section */}
+                        <div
                           style={{
+                            backgroundColor: sampleProduct.imageBgColor || "white",
+                            textAlign: "center",
+                            padding: 0,
+                            position: "relative",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                            borderRadius: "12px 12px 0 0",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            aspectRatio: sampleProduct.cropAspectRatio || 1,
                             width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                            margin: "0 auto",
                           }}
-                        />
-                      </div>
-
-                      {/* Details Section */}
-                      <div
-                        style={{
-                          backgroundColor: getLighterColor(sampleProduct.bgColor, theme.id),
-                          color: sampleProduct.fontColor || "white",
-                          padding: "12px 12px",
-                          fontSize: 17,
-                          flex: 1,
-                          backdropFilter: isGlassTheme ? "blur(10px)" : "none",
-                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
-                          borderRadius: isGlassTheme ? "8px" : "0px",
-                          margin: isGlassTheme ? "8px" : "0px",
-                        }}
-                      >
-                        <div style={{ textAlign: "center", marginBottom: 6 }}>
-                          <p
+                        >
+                          <img
+                            src={sampleProductImage}
+                            alt={sampleProduct.name}
                             style={{
-                              fontWeight: "normal",
-                              textShadow: isGlassTheme ? "none" : "3px 3px 5px rgba(0,0,0,0.2)",
-                              fontSize: 28,
-                              margin: "0 0 3px 0",
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              margin: "0 auto",
+                            }}
+                          />
+                        </div>
+
+                        {/* White Card Container for Details */}
+                        <div
+                          style={{
+                            backgroundColor: "white",
+                            borderRadius: "0 0 12px 12px",
+                            padding: "16px",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          {/* Hanger Icon */}
+                          <div style={{ textAlign: "center", marginBottom: 8 }}>
+                            <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{ color: "#4a5568" }}
+                            >
+                              <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
+                              <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
+                              <path d="M12 7v4" />
+                            </svg>
+                          </div>
+
+                          {/* Product Name and Subtitle */}
+                          <div style={{ textAlign: "center", marginBottom: 12 }}>
+                            <p
+                              style={{
+                                fontWeight: "600",
+                                fontSize: 20,
+                                margin: "0 0 4px 0",
+                                color: "#2d3748",
+                              }}
+                            >
+                              {sampleProduct.name}
+                            </p>
+                            {sampleProduct.subtitle && (
+                              <p style={{ fontStyle: "italic", fontSize: 15, margin: 0, color: "#718096" }}>
+                                ({sampleProduct.subtitle})
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Fields */}
+                          <div style={{ flex: 1, marginBottom: 8 }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#4a5568", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#718096" }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <circle cx="12" cy="12" r="10" />
+                                  <path d="M12 2a10 10 0 0 1 0 20" />
+                                </svg>
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <span style={{ fontWeight: "500" }}>Colour: </span>
+                                <span>{sampleProduct.color}</span>
+                              </div>
+                            </div>
+
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#4a5568", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#718096" }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" />
+                                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                                </svg>
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <span style={{ fontWeight: "500" }}>Package: </span>
+                                <span>{sampleProduct.package}</span>
+                              </div>
+                            </div>
+
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#4a5568", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#718096" }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <circle cx="12" cy="8" r="4" />
+                                  <path d="M12 12c-3.31 0-6 2.69-6 6v2h12v-2c0-3.31-2.69-6-6-6z" />
+                                </svg>
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <span style={{ fontWeight: "500" }}>Age Group: </span>
+                                <span>{sampleProduct.ageGroup}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Price Badge at Bottom */}
+                          <div
+                            style={{
+                              backgroundColor: "#a0522d",
+                              color: "white",
+                              padding: "10px 16px",
+                              textAlign: "center",
+                              fontWeight: "500",
+                              fontSize: 16,
+                              borderRadius: "8px",
+                              boxShadow: "0 2px 6px rgba(160, 82, 45, 0.3)",
                             }}
                           >
-                            {sampleProduct.name}
-                          </p>
-                          {sampleProduct.subtitle && (
-                            <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
-                              ({sampleProduct.subtitle})
-                            </p>
-                          )}
-                        </div>
-                        <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
-                          <p style={{ margin: "2px 0", display: "flex" }}>
-                            <span style={{ width: "90px" }}>Colour</span>
-                            <span>:</span>
-                            <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
-                          </p>
-                          <p style={{ margin: "2px 0", display: "flex" }}>
-                            <span style={{ width: "90px" }}>Package</span>
-                            <span>:</span>
-                            <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
-                          </p>
-                          <p style={{ margin: "2px 0", display: "flex" }}>
-                            <span style={{ width: "90px" }}>Age Group</span>
-                            <span>:</span>
-                            <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
-                          </p>
+                            {sampleProduct.price} {sampleProduct.priceUnit}
+                          </div>
                         </div>
                       </div>
+                    ) : (
+                      // Classic Theme
+                      <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
+                        {/* Image Section */}
+                        <div
+                          style={{
+                            backgroundColor: sampleProduct.imageBgColor || "white",
+                            textAlign: "center",
+                            padding: 0,
+                            position: "relative",
+                            boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            aspectRatio: sampleProduct.cropAspectRatio || 1,
+                            width: "100%",
+                          }}
+                        >
+                          <img
+                            src={sampleProductImage}
+                            alt={sampleProduct.name}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              margin: "0 auto",
+                            }}
+                          />
+                        </div>
 
-                      {/* Bottom Bar - Price */}
-                      <div
-                        style={{
-                          backgroundColor: sampleProduct.bgColor || "#add8e6",
-                          color: sampleProduct.fontColor || "white",
-                          padding: "6px 8px",
-                          textAlign: "center",
-                          fontWeight: "normal",
-                          fontSize: 19,
-                          flexShrink: 0,
-                          backdropFilter: isGlassTheme ? "blur(10px)" : "none",
-                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
-                          borderRadius: isGlassTheme ? "8px" : "0px",
-                          margin: isGlassTheme ? "0 8px 8px 8px" : "0px",
-                        }}
-                      >
-                        Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
+                        {/* Details Section */}
+                        <div
+                          style={{
+                            backgroundColor: getLighterColor(sampleProduct.bgColor, theme.id),
+                            color: sampleProduct.fontColor || "white",
+                            padding: "12px 12px",
+                            fontSize: 17,
+                            flex: 1,
+                          }}
+                        >
+                          <div style={{ textAlign: "center", marginBottom: 6 }}>
+                            <p
+                              style={{
+                                fontWeight: "normal",
+                                textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
+                                fontSize: 28,
+                                margin: "0 0 3px 0",
+                              }}
+                            >
+                              {sampleProduct.name}
+                            </p>
+                            {sampleProduct.subtitle && (
+                              <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
+                                ({sampleProduct.subtitle})
+                              </p>
+                            )}
+                          </div>
+                          <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                            <p style={{ margin: "2px 0", display: "flex" }}>
+                              <span style={{ width: "90px" }}>Colour</span>
+                              <span>:</span>
+                              <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
+                            </p>
+                            <p style={{ margin: "2px 0", display: "flex" }}>
+                              <span style={{ width: "90px" }}>Package</span>
+                              <span>:</span>
+                              <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
+                            </p>
+                            <p style={{ margin: "2px 0", display: "flex" }}>
+                              <span style={{ width: "90px" }}>Age Group</span>
+                              <span>:</span>
+                              <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Bottom Bar - Price */}
+                        <div
+                          style={{
+                            backgroundColor: sampleProduct.bgColor || "#add8e6",
+                            color: sampleProduct.fontColor || "white",
+                            padding: "6px 8px",
+                            textAlign: "center",
+                            fontWeight: "normal",
+                            fontSize: 19,
+                            flexShrink: 0,
+                          }}
+                        >
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Select Button */}
