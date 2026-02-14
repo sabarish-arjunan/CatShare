@@ -1183,15 +1183,20 @@ export default function CreateProduct() {
                         right: 12,
                         backgroundColor: badgeBg,
                         color: badgeText,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        padding: "6px 14px",
-                        borderRadius: "20px",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        fontSize: 13,
+                        fontWeight: 400,
+                        padding: "6px 10px",
+                        borderRadius: "999px",
+                        opacity: 0.95,
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                        border: `1px solid ${badgeBorder}`,
                         letterSpacing: "0.5px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      {getCatalogueFormData().badge}
+                      {getCatalogueFormData().badge.toUpperCase()}
                     </div>
                   )}
 
