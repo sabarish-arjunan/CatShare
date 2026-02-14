@@ -517,9 +517,10 @@ export default function ProductPreviewModal_Glass({
       {/* Action Buttons */}
       {tab === "products" && (
         <div
-          className="fixed bottom-0 left-0 right-0 z-40 flex gap-2 p-4 bg-white/50 backdrop-blur-md border-t border-gray-200"
+          className="fixed bottom-0 left-0 right-0 z-[60] flex gap-2 p-4 bg-white/80 backdrop-blur-md border-t border-gray-200"
           style={{
             justifyContent: "center",
+            gap: "12px",
           }}
         >
           <motion.button
