@@ -146,8 +146,8 @@ export default function ThemesSettings() {
                             textAlign: "center",
                             padding: 0,
                             position: "relative",
-                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                            borderRadius: "12px 12px 0 0",
+                            borderBottom: "4px solid #dc2626",
+                            borderRadius: "0",
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
@@ -193,11 +193,13 @@ export default function ThemesSettings() {
                         <div
                           style={{
                             backgroundColor: "#fce4e6",
-                            borderRadius: "0 0 12px 12px",
+                            borderRadius: "12px",
                             padding: "16px",
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                             display: "flex",
                             flexDirection: "column",
+                            margin: "12px",
+                            marginTop: "-8px",
                           }}
                         >
                           {/* Hanger Icon */}
