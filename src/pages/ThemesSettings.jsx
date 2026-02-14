@@ -54,15 +54,15 @@ export default function ThemesSettings() {
 
   const glassProduct = {
     id: "sample-glass",
-    name: "Knot Top (S)",
-    subtitle: "Muslim Spl. P",
-    color: "Multiprint",
-    package: "12 pcs / dozen",
-    ageGroup: "0-3 months",
-    price: "₹37",
+    name: "Frock",
+    subtitle: "Fancy wear",
+    color: "Red",
+    package: "5 pcs / set",
+    ageGroup: "5 years",
+    price: "₹200",
     priceUnit: "/ piece",
     inStock: true,
-    badge: "MUSLIM",
+    badge: null,
     imageBgColor: "white",
     bgColor: "#0f8577", // Teal/turquoise dark
     lightBgColor: "#7fdcc7", // Teal light for gradient
