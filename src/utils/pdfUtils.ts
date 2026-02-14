@@ -85,6 +85,99 @@ function renderTextToImage(text: string, fontSize: number = 40, color: string = 
   };
 }
 
+// --- Helper Functions for Glass Theme ---
+
+const drawGlassBackground = (pdf: jsPDF, pageWidth: number, pageHeight: number, accentBlue: number[]) => {
+  // Soft gradient-like blobs
+  pdf.setFillColor(240, 249, 255); // Sky-50
+  pdf.rect(0, 0, pageWidth, pageHeight, "F");
+
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 0.15 }));
+  }
+  
+  // Abstract shapes in the background to show through the glass
+  pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
+  pdf.circle(pageWidth, 0, 80, "F");
+  
+  pdf.setFillColor(147, 197, 253); // Blue-300
+  pdf.circle(0, pageHeight / 2, 60, "F");
+  
+  pdf.setFillColor(191, 219, 254); // Blue-200
+  pdf.circle(pageWidth, pageHeight, 100, "F");
+  
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+  }
+};
+
+const addHeader = (pdf: jsPDF, title: string, pageWidth: number, margin: number, accentBlue: number[], textDark: number[], textMuted: number[]) => {
+  // Glass bar background
+  pdf.setFillColor(255, 255, 255);
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 0.7 }));
+  }
+  pdf.rect(0, 0, pageWidth, 30, "F");
+  
+  // Bottom border for glass bar
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 0.3 }));
+  }
+  pdf.setDrawColor(255, 255, 255);
+  pdf.setLineWidth(0.5);
+  pdf.line(0, 30, pageWidth, 30);
+  
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+  }
+
+  // Branding / Accent line
+  pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
+  pdf.rect(margin, 10, 2, 12, "F");
+
+  // Title
+  pdf.setTextColor(textDark[0], textDark[1], textDark[2]);
+  pdf.setFont(undefined, "bold");
+  pdf.setFontSize(22);
+  pdf.text(title, margin + 5, 18);
+
+  // Date
+  pdf.setFont(undefined, "normal");
+  pdf.setFontSize(8);
+  pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
+  const dateStr = new Date().toLocaleDateString("en-US", { 
+    year: 'numeric', month: 'long', day: 'numeric' 
+  });
+  pdf.text(dateStr.toUpperCase(), margin + 5, 23);
+};
+
+const addFooter = (pdf: jsPDF, pageNum: number, pageWidth: number, pageHeight: number, textMuted: number[]) => {
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 0.5 }));
+  }
+  pdf.setFontSize(7);
+  pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
+  pdf.text(`CATSHARE OFFICIAL CATALOGUE • PAGE ${pageNum}`, pageWidth / 2, pageHeight - 10, { align: "center" });
+  
+  // @ts-ignore
+  if (pdf.GState) {
+    // @ts-ignore
+    pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+  }
+};
+
 /**
  * Generate a PDF with a modern "Glass" theme
  */
@@ -114,78 +207,8 @@ export async function generateProductPDF(
   const textDark = [15, 23, 42]; // Slate-900
   const textMuted = [100, 116, 139]; // Slate-500
 
-  /**
-   * Draw the background for glassmorphism context
-   */
-  const drawGlassBackground = (doc: jsPDF) => {
-    // Soft gradient-like blobs
-    doc.setFillColor(240, 249, 255); // Sky-50
-    doc.rect(0, 0, pageWidth, pageHeight, "F");
-
-    doc.setGState(new (doc as any).GState({ opacity: 0.15 }));
-    
-    // Abstract shapes in the background to show through the glass
-    doc.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
-    doc.circle(pageWidth, 0, 80, "F");
-    
-    doc.setFillColor(147, 197, 253); // Blue-300
-    doc.circle(0, pageHeight / 2, 60, "F");
-    
-    doc.setFillColor(191, 219, 254); // Blue-200
-    doc.circle(pageWidth, pageHeight, 100, "F");
-    
-    doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
-  };
-
-  /**
-   * Add modern header with glass effect
-   */
-  const addHeader = (doc: jsPDF, title: string) => {
-    // Glass bar background
-    doc.setFillColor(255, 255, 255);
-    doc.setGState(new (doc as any).GState({ opacity: 0.7 }));
-    doc.rect(0, 0, pageWidth, 30, "F");
-    
-    // Bottom border for glass bar
-    doc.setGState(new (doc as any).GState({ opacity: 0.3 }));
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(0.5);
-    doc.line(0, 30, pageWidth, 30);
-    doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
-
-    // Branding / Accent line
-    doc.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
-    doc.rect(margin, 10, 2, 12, "F");
-
-    // Title
-    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
-    doc.setFont(undefined, "bold");
-    doc.setFontSize(22);
-    doc.text(title, margin + 5, 18);
-
-    // Date
-    doc.setFont(undefined, "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-    const dateStr = new Date().toLocaleDateString("en-US", { 
-      year: 'numeric', month: 'long', day: 'numeric' 
-    });
-    doc.text(dateStr.toUpperCase(), margin + 5, 23);
-  };
-
-  /**
-   * Add footer
-   */
-  const addFooter = (doc: jsPDF, pageNum: number) => {
-    doc.setGState(new (doc as any).GState({ opacity: 0.5 }));
-    doc.setFontSize(7);
-    doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-    doc.text(`CATSHARE OFFICIAL CATALOGUE • PAGE ${pageNum}`, pageWidth / 2, pageHeight - 10, { align: "center" });
-    doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
-  };
-
-  drawGlassBackground(pdf);
-  addHeader(pdf, catalogueName);
+  drawGlassBackground(pdf, pageWidth, pageHeight, accentBlue);
+  addHeader(pdf, catalogueName, pageWidth, margin, accentBlue, textDark, textMuted);
 
   let currentY = 40;
 
@@ -195,8 +218,8 @@ export async function generateProductPDF(
     // Check for page break
     if (currentY > pageHeight - 85) {
       pdf.addPage();
-      drawGlassBackground(pdf);
-      addHeader(pdf, catalogueName);
+      drawGlassBackground(pdf, pageWidth, pageHeight, accentBlue);
+      addHeader(pdf, catalogueName, pageWidth, margin, accentBlue, textDark, textMuted);
       currentY = 40;
     }
 
@@ -204,23 +227,39 @@ export async function generateProductPDF(
     const cardHeight = 72;
     
     // 1. Subtle card shadow (simulated)
-    pdf.setGState(new (pdf as any).GState({ opacity: 0.03 }));
+    // @ts-ignore
+    if (pdf.GState) {
+      // @ts-ignore
+      pdf.setGState(new pdf.GState({ opacity: 0.03 }));
+    }
     pdf.setFillColor(0, 0, 0);
     (pdf as any).roundedRect(margin + 1, currentY + 1, contentWidth, cardHeight, 4, 4, "F");
 
     // 2. Glass Background
-    pdf.setGState(new (pdf as any).GState({ opacity: 0.6 }));
+    // @ts-ignore
+    if (pdf.GState) {
+      // @ts-ignore
+      pdf.setGState(new pdf.GState({ opacity: 0.6 }));
+    }
     pdf.setFillColor(255, 255, 255);
     (pdf as any).roundedRect(margin, currentY, contentWidth, cardHeight, 4, 4, "F");
 
     // 3. Glass Highlight Border (Thin white)
-    pdf.setGState(new (pdf as any).GState({ opacity: 0.8 }));
+    // @ts-ignore
+    if (pdf.GState) {
+      // @ts-ignore
+      pdf.setGState(new pdf.GState({ opacity: 0.8 }));
+    }
     pdf.setDrawColor(255, 255, 255);
     pdf.setLineWidth(0.4);
     (pdf as any).roundedRect(margin, currentY, contentWidth, cardHeight, 4, 4, "S");
 
     // Reset state
-    pdf.setGState(new (pdf as any).GState({ opacity: 1.0 }));
+    // @ts-ignore
+    if (pdf.GState) {
+      // @ts-ignore
+      pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+    }
 
     // --- Content Layout ---
     let innerY = currentY + 8;
@@ -233,9 +272,17 @@ export async function generateProductPDF(
     
     // Index badge (top right of card)
     pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
-    pdf.setGState(new (doc as any).GState({ opacity: 0.1 }));
+    // @ts-ignore
+    if (pdf.GState) {
+      // @ts-ignore
+      pdf.setGState(new pdf.GState({ opacity: 0.1 }));
+    }
     (pdf as any).roundedRect(pageWidth - margin - 15, currentY + 4, 10, 6, 2, 2, "F");
-    pdf.setGState(new (doc as any).GState({ opacity: 1.0 }));
+    // @ts-ignore
+    if (pdf.GState) {
+      // @ts-ignore
+      pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+    }
     pdf.setFontSize(8);
     pdf.setTextColor(accentBlue[0], accentBlue[1], accentBlue[2]);
     pdf.text(`#${i + 1}`, pageWidth - margin - 10, currentY + 8.5, { align: "center" });
@@ -309,9 +356,17 @@ export async function generateProductPDF(
       
       // Price background pill
       pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
-      pdf.setGState(new (pdf as any).GState({ opacity: 0.05 }));
+      // @ts-ignore
+      if (pdf.GState) {
+        // @ts-ignore
+        pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+      }
       (pdf as any).roundedRect(detailsX - 2, priceY - 5, detailsMaxWidth, 10, 2, 2, "F");
-      pdf.setGState(new (pdf as any).GState({ opacity: 1.0 }));
+      // @ts-ignore
+      if (pdf.GState) {
+        // @ts-ignore
+        pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+      }
 
       // Render price via Canvas
       const priceImage = renderTextToImage(pText, 44, "#2563eb");
@@ -327,7 +382,7 @@ export async function generateProductPDF(
   const pageCount = (pdf as any).internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     pdf.setPage(i);
-    addFooter(pdf, i);
+    addFooter(pdf, i, pageWidth, pageHeight, textMuted);
   }
 
   return pdf.output("blob") as Blob;
