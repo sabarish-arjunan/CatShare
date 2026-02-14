@@ -391,7 +391,7 @@ export default function ProductPreviewModal_Glass({
                     }}
                   />
 
-                  {product.badge && (
+                  {(catalogueData.badge || product.badge) && (
                     <div
                       style={{
                         position: "absolute",
@@ -400,14 +400,20 @@ export default function ProductPreviewModal_Glass({
                         backgroundColor: badgeBg,
                         color: badgeText,
                         fontSize: 12,
-                        fontWeight: 600,
-                        padding: "6px 14px",
-                        borderRadius: "20px",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                        letterSpacing: "0.5px",
+                        fontWeight: 400,
+                        padding: "5px 10px",
+                        borderRadius: "999px",
+                        opacity: 0.95,
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                        border: `1px solid ${badgeBorder}`,
+                        letterSpacing: "0.4px",
+                        pointerEvents: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      {product.badge}
+                      {(catalogueData.badge || product.badge).toUpperCase()}
                     </div>
                   )}
 
