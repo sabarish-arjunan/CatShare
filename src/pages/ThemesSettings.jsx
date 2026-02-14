@@ -399,7 +399,7 @@ export default function ThemesSettings() {
                       onClick={() => handleThemeSelect(theme.id)}
                       className={`px-8 py-3 rounded-lg font-semibold transition ${
                         selectedTheme === theme.id
-                          ? "bg-blue-600 text-white shadow-lg"
+                          ? "bg-red-600 text-white shadow-lg"
                           : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
                       }`}
                     >
