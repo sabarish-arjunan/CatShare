@@ -54,18 +54,18 @@ export default function ThemesSettings() {
 
   const glassProduct = {
     id: "sample-glass",
-    name: "Frock",
-    subtitle: "Fancy wear",
-    color: "Red",
-    package: "5 pcs / set",
-    ageGroup: "5 years",
-    price: "₹200",
+    name: "Knot Top (S)",
+    subtitle: "Muslim Spl. P",
+    color: "Multiprint",
+    package: "12 pcs / dozen",
+    ageGroup: "0-3 months",
+    price: "₹37",
     priceUnit: "/ piece",
     inStock: true,
-    badge: null,
+    badge: "MUSLIM",
     imageBgColor: "white",
-    bgColor: "#b91c1c", // Dark red background
-    lightBgColor: "#fca5a5", // Light red for gradient
+    bgColor: "#0d9488", // Teal/turquoise background
+    lightBgColor: "#99f6e4", // Light teal for gradient
     fontColor: "white",
     cropAspectRatio: 1,
   };
@@ -166,12 +166,33 @@ export default function ThemesSettings() {
                               margin: "0 auto",
                             }}
                           />
+
+                          {/* Badge - Top Right */}
+                          {sampleProduct.badge && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: 12,
+                                right: 12,
+                                backgroundColor: "#666666",
+                                color: "white",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                padding: "6px 14px",
+                                borderRadius: "20px",
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              {sampleProduct.badge}
+                            </div>
+                          )}
                         </div>
 
-                        {/* White Card Container for Details */}
+                        {/* Card Container for Details */}
                         <div
                           style={{
-                            backgroundColor: "white",
+                            backgroundColor: "#d1f2f5",
                             borderRadius: "0 0 12px 12px",
                             padding: "16px",
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -190,7 +211,7 @@ export default function ThemesSettings() {
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              style={{ color: "#4a5568" }}
+                              style={{ color: "#0f766e" }}
                             >
                               <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
                               <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
@@ -205,13 +226,13 @@ export default function ThemesSettings() {
                                 fontWeight: "600",
                                 fontSize: 20,
                                 margin: "0 0 4px 0",
-                                color: "#2d3748",
+                                color: "#0f766e",
                               }}
                             >
                               {sampleProduct.name}
                             </p>
                             {sampleProduct.subtitle && (
-                              <p style={{ fontStyle: "italic", fontSize: 15, margin: 0, color: "#718096" }}>
+                              <p style={{ fontStyle: "italic", fontSize: 15, margin: 0, color: "#0f766e" }}>
                                 ({sampleProduct.subtitle})
                               </p>
                             )}
@@ -219,8 +240,8 @@ export default function ThemesSettings() {
 
                           {/* Fields */}
                           <div style={{ flex: 1, marginBottom: 8 }}>
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#4a5568", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#718096" }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#0f766e", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e" }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <circle cx="12" cy="12" r="10" />
                                   <path d="M12 2a10 10 0 0 1 0 20" />
@@ -232,8 +253,8 @@ export default function ThemesSettings() {
                               </div>
                             </div>
 
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#4a5568", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#718096" }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#0f766e", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e" }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" />
                                   <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
@@ -246,8 +267,8 @@ export default function ThemesSettings() {
                               </div>
                             </div>
 
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#4a5568", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#718096" }}>
+                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#0f766e", fontSize: 14 }}>
+                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#0f766e" }}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <circle cx="12" cy="8" r="4" />
                                   <path d="M12 12c-3.31 0-6 2.69-6 6v2h12v-2c0-3.31-2.69-6-6-6z" />
@@ -263,14 +284,14 @@ export default function ThemesSettings() {
                           {/* Price Badge at Bottom */}
                           <div
                             style={{
-                              backgroundColor: "#a0522d",
+                              backgroundColor: "#a0714f",
                               color: "white",
                               padding: "10px 16px",
                               textAlign: "center",
                               fontWeight: "500",
                               fontSize: 16,
                               borderRadius: "8px",
-                              boxShadow: "0 2px 6px rgba(160, 82, 45, 0.3)",
+                              boxShadow: "0 2px 6px rgba(160, 113, 79, 0.3)",
                             }}
                           >
                             {sampleProduct.price} {sampleProduct.priceUnit}
