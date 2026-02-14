@@ -508,6 +508,20 @@ export default function ProductPreviewModal_Glass({
                       </div>
                     )}
                   </div>
+
+                  {/* Watermark - Adaptive color based on background */}
+                  {showWatermark && (
+                    <div
+                      style={{
+                        ...getWatermarkPositionStyles(watermarkPosition),
+                        fontSize: "10px",
+                        letterSpacing: "0.3px",
+                        color: "rgba(0, 0, 0, 0.25)"
+                      }}
+                    >
+                      {watermarkText}
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
