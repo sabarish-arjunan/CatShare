@@ -32,10 +32,14 @@ export default function ThemesSettings() {
 
   const selectedThemeDetails = getThemeDetails(selectedTheme);
 
-  // Sample product for preview
+  // Sample product for preview - same as watermark page
   const sampleProduct = {
     id: "sample-preview",
-    name: "Premium Knot Top",
+    name: "Knot Top (S)",
+    subtitle: "Muslim Spl. P",
+    color: "Multiprint",
+    package: "12 pcs / dozen",
+    ageGroup: "0-3 months",
     price: "₹37",
     priceUnit: "/ piece",
     inStock: true,
@@ -43,9 +47,9 @@ export default function ThemesSettings() {
     imageBgColor: "white",
   };
 
-  // Sample product image - using a placeholder data URI
+  // Sample product image - same as used in watermark settings
   const sampleProductImage =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%23f0f0f0' width='400' height='400'/%3E%3Ctext x='50%25' y='50%25' font-size='32' font-weight='bold' text-anchor='middle' dy='.3em' fill='%23999' font-family='Arial'%3EProduct Image%3C/text%3E%3Crect x='120' y='120' width='160' height='160' fill='%23ddd' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='14' text-anchor='middle' dy='.3em' fill='%23666' font-family='Arial'%3E400x400px%3C/text%3E%3C/svg%3E";
+    "https://cdn.builder.io/api/v1/image/assets%2F9de8f88039f043c2bb2e12760a839fad%2F7f2e888f655c4a6d8e8d286a6b93b85a?format=webp&width=800&height=1200";
 
   return (
     <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950 relative">
@@ -130,14 +134,11 @@ export default function ThemesSettings() {
                   Here's how your product cards will look in the {selectedThemeDetails?.name} theme:
                 </p>
 
-                {/* Product Card Preview Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Classic Card 1 - Info Visible */}
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 ml-1">
-                      With info displayed
-                    </p>
-                    <div className="relative group">
+                {/* Product Card Preview */}
+                <div className="space-y-4">
+                  {/* Single Large Product Card */}
+                  <div className="flex justify-center">
+                    <div className="w-full sm:w-80">
                       <div className="bg-white dark:bg-gray-800 rounded-sm shadow-sm overflow-hidden cursor-pointer transition-all duration-200">
                         <div className="relative aspect-square overflow-hidden bg-gray-100">
                           <img
@@ -146,7 +147,7 @@ export default function ThemesSettings() {
                             className="w-full h-full object-cover"
                           />
                           {/* Price Badge */}
-                          <div className="absolute top-1.5 left-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md z-10">
+                          <div className="absolute top-1.5 left-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.5 rounded-full shadow-md z-10">
                             {sampleProduct.price}
                           </div>
                           {/* Name Below Image */}
@@ -164,30 +165,41 @@ export default function ThemesSettings() {
                     </div>
                   </div>
 
-                  {/* Classic Card 2 - Clean Look */}
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 ml-1">
-                      Clean display
-                    </p>
-                    <div className="relative group">
-                      <div className="bg-white dark:bg-gray-800 rounded-sm shadow-sm overflow-hidden cursor-pointer transition-all duration-200">
-                        <div className="relative aspect-square overflow-hidden bg-gray-100">
-                          <img
-                            src={sampleProductImage}
-                            alt={sampleProduct.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Name Below Image */}
-                          <div
-                            className="absolute bottom-0 left-0 w-full px-1 py-1 text-center font-medium text-white text-[11px] sm:text-[12px] truncate"
-                            style={{
-                              backgroundColor: "rgba(0, 0, 0, 0.45)",
-                              backdropFilter: "blur(1px)",
-                            }}
-                          >
-                            {sampleProduct.name}
-                          </div>
-                        </div>
+                  {/* Product Details Below Card */}
+                  <div className="space-y-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                        {sampleProduct.name}
+                      </h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        ({sampleProduct.subtitle})
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Colour</p>
+                        <p className="text-xs font-medium text-gray-900 dark:text-white">
+                          {sampleProduct.color}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Package</p>
+                        <p className="text-xs font-medium text-gray-900 dark:text-white">
+                          {sampleProduct.package}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Age Group</p>
+                        <p className="text-xs font-medium text-gray-900 dark:text-white">
+                          {sampleProduct.ageGroup}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Price</p>
+                        <p className="text-xs font-medium text-green-700 dark:text-green-400">
+                          {sampleProduct.price} {sampleProduct.priceUnit}
+                        </p>
                       </div>
                     </div>
                   </div>
