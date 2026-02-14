@@ -778,8 +778,8 @@ export default function ProductPreviewModal({
             {/* Details Section */}
             <div
               style={{
-                backgroundColor: product.bgColor ? getLighterColor(product.bgColor) : currentTheme.styles.lightBgColor,
-                color: product.fontColor || currentTheme.styles.fontColor,
+                backgroundColor: currentTheme.styles.lightBgColor,
+                color: currentTheme.styles.fontColor,
                 padding: "12px 12px",
                 fontSize: 17,
                 flex: 1,
@@ -837,8 +837,8 @@ export default function ProductPreviewModal({
             {hasPriceValue && (
               <div
                 style={{
-                  backgroundColor: product.bgColor || currentTheme.styles.bgColor,
-                  color: product.fontColor || currentTheme.styles.fontColor,
+                  backgroundColor: currentTheme.styles.bgColor,
+                  color: currentTheme.styles.fontColor,
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
