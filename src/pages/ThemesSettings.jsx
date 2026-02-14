@@ -17,6 +17,13 @@ export default function ThemesSettings() {
       isDefault: true,
       status: "Active",
     },
+    {
+      id: "glass",
+      name: "Glass",
+      description: "Modern frosted glass design with transparency and blur effects.",
+      isDefault: false,
+      status: "Active",
+    },
     // More themes will be added in the future
   ];
 
@@ -26,15 +33,9 @@ export default function ThemesSettings() {
     window.dispatchEvent(new CustomEvent("themeChanged", { detail: { theme: themeId } }));
   };
 
-  const getThemeDetails = (themeId) => {
-    return themes.find((theme) => theme.id === themeId);
-  };
-
-  const selectedThemeDetails = getThemeDetails(selectedTheme);
-
-  // Sample product for preview
-  const sampleProduct = {
-    id: "sample-preview",
+  // Sample products for different themes
+  const classicProduct = {
+    id: "sample-classic",
     name: "Frock",
     subtitle: "Fancy wear",
     color: "Red",
@@ -50,9 +51,29 @@ export default function ThemesSettings() {
     cropAspectRatio: 1,
   };
 
+  const glassProduct = {
+    id: "sample-glass",
+    name: "Frock",
+    subtitle: "Fancy wear",
+    color: "Red",
+    package: "5 pcs / set",
+    ageGroup: "5 years",
+    price: "₹200",
+    priceUnit: "/ piece",
+    inStock: true,
+    badge: null,
+    imageBgColor: "#f3f4f6",
+    bgColor: "rgba(255, 255, 255, 0.9)", // Glass background
+    fontColor: "#1f2937",
+    cropAspectRatio: 1,
+  };
+
   // Helper function to get lighter color for details section
-  const getLighterColor = (color) => {
-    return "#fca5a5"; // Light red for details section
+  const getLighterColor = (color, theme) => {
+    if (theme === "glass") {
+      return "rgba(255, 255, 255, 0.7)"; // Semi-transparent white for glass theme
+    }
+    return "#fca5a5"; // Light red for classic theme
   };
 
   // Sample product image - same as used in watermark settings
@@ -87,145 +108,188 @@ export default function ThemesSettings() {
 
           {/* Theme Cards - Each card is a selectable theme */}
           <div className="space-y-6">
-            {themes.map((theme) => (
-              <div key={theme.id} className="space-y-3">
-                {/* Theme Preview Card */}
-                <div className="flex justify-center">
-                  <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
-                    {/* Image Section */}
+            {themes.map((theme) => {
+              // Get product specific to this theme
+              const sampleProduct = theme.id === "classic" ? classicProduct : glassProduct;
+              const isGlassTheme = theme.id === "glass";
+
+              return (
+                <div key={theme.id} className="space-y-3">
+                  {/* Theme Preview Card */}
+                  <div className="flex justify-center">
                     <div
-                      style={{
-                        backgroundColor: sampleProduct.imageBgColor || "white",
-                        textAlign: "center",
-                        padding: 0,
-                        position: "relative",
-                        boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        aspectRatio: sampleProduct.cropAspectRatio || 1,
-                        width: "100%",
-                      }}
+                      className={`w-full sm:w-96 rounded-lg overflow-hidden shadow-md flex flex-col ${
+                        isGlassTheme
+                          ? "bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border border-blue-200 dark:border-blue-800"
+                          : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                      }`}
                     >
-                      <img
-                        src={sampleProductImage}
-                        alt={sampleProduct.name}
+                      {/* Image Section */}
+                      <div
                         style={{
+                          backgroundColor: sampleProduct.imageBgColor || "white",
+                          textAlign: "center",
+                          padding: 0,
+                          position: "relative",
+                          boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          aspectRatio: sampleProduct.cropAspectRatio || 1,
                           width: "100%",
-                          height: "100%",
-                          objectFit: "contain",
-                          margin: "0 auto",
                         }}
-                      />
-                    </div>
-
-                    {/* Details Section */}
-                    <div
-                      style={{
-                        backgroundColor: getLighterColor(sampleProduct.bgColor),
-                        color: sampleProduct.fontColor || "white",
-                        padding: "12px 12px",
-                        fontSize: 17,
-                        flex: 1,
-                      }}
-                    >
-                      <div style={{ textAlign: "center", marginBottom: 6 }}>
-                        <p
+                      >
+                        <img
+                          src={sampleProductImage}
+                          alt={sampleProduct.name}
                           style={{
-                            fontWeight: "normal",
-                            textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                            fontSize: 28,
-                            margin: "0 0 3px 0",
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            margin: "0 auto",
                           }}
-                        >
-                          {sampleProduct.name}
-                        </p>
-                        {sampleProduct.subtitle && (
-                          <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
-                            ({sampleProduct.subtitle})
+                        />
+                      </div>
+
+                      {/* Details Section */}
+                      <div
+                        style={{
+                          backgroundColor: getLighterColor(sampleProduct.bgColor, theme.id),
+                          color: sampleProduct.fontColor || "white",
+                          padding: "12px 12px",
+                          fontSize: 17,
+                          flex: 1,
+                          backdropFilter: isGlassTheme ? "blur(10px)" : "none",
+                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.2)" : "none",
+                          borderRadius: isGlassTheme ? "8px" : "0px",
+                          margin: isGlassTheme ? "8px" : "0px",
+                        }}
+                      >
+                        <div style={{ textAlign: "center", marginBottom: 6 }}>
+                          <p
+                            style={{
+                              fontWeight: "normal",
+                              textShadow: isGlassTheme ? "none" : "3px 3px 5px rgba(0,0,0,0.2)",
+                              fontSize: 28,
+                              margin: "0 0 3px 0",
+                            }}
+                          >
+                            {sampleProduct.name}
                           </p>
-                        )}
+                          {sampleProduct.subtitle && (
+                            <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
+                              ({sampleProduct.subtitle})
+                            </p>
+                          )}
+                        </div>
+                        <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                          <p style={{ margin: "2px 0", display: "flex" }}>
+                            <span style={{ width: "90px" }}>Colour</span>
+                            <span>:</span>
+                            <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
+                          </p>
+                          <p style={{ margin: "2px 0", display: "flex" }}>
+                            <span style={{ width: "90px" }}>Package</span>
+                            <span>:</span>
+                            <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
+                          </p>
+                          <p style={{ margin: "2px 0", display: "flex" }}>
+                            <span style={{ width: "90px" }}>Age Group</span>
+                            <span>:</span>
+                            <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
+                          </p>
+                        </div>
                       </div>
-                      <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
-                        <p style={{ margin: "2px 0", display: "flex" }}>
-                          <span style={{ width: "90px" }}>Colour</span>
-                          <span>:</span>
-                          <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
-                        </p>
-                        <p style={{ margin: "2px 0", display: "flex" }}>
-                          <span style={{ width: "90px" }}>Package</span>
-                          <span>:</span>
-                          <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
-                        </p>
-                        <p style={{ margin: "2px 0", display: "flex" }}>
-                          <span style={{ width: "90px" }}>Age Group</span>
-                          <span>:</span>
-                          <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
-                        </p>
+
+                      {/* Bottom Bar - Price */}
+                      <div
+                        style={{
+                          backgroundColor: sampleProduct.bgColor || "#add8e6",
+                          color: sampleProduct.fontColor || "white",
+                          padding: "6px 8px",
+                          textAlign: "center",
+                          fontWeight: "normal",
+                          fontSize: 19,
+                          flexShrink: 0,
+                          backdropFilter: isGlassTheme ? "blur(10px)" : "none",
+                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.2)" : "none",
+                          borderRadius: isGlassTheme ? "8px" : "0px",
+                          margin: isGlassTheme ? "0 8px 8px 8px" : "0px",
+                        }}
+                      >
+                        Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Bottom Bar - Price */}
-                    <div
-                      style={{
-                        backgroundColor: sampleProduct.bgColor || "#add8e6",
-                        color: sampleProduct.fontColor || "white",
-                        padding: "6px 8px",
-                        textAlign: "center",
-                        fontWeight: "normal",
-                        fontSize: 19,
-                        flexShrink: 0,
-                      }}
+                  {/* Select Button */}
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => handleThemeSelect(theme.id)}
+                      className={`px-8 py-3 rounded-lg font-semibold transition ${
+                        selectedTheme === theme.id
+                          ? "bg-blue-600 text-white shadow-lg"
+                          : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                      }`}
                     >
-                      Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
+                      {selectedTheme === theme.id ? "✓ Selected" : "Select"} {theme.name}
+                    </button>
+                  </div>
+
+                  {/* Theme Description & Features */}
+                  <div className="space-y-3">
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">{theme.description}</p>
+                      <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
+                        Features
+                      </h4>
+                      <ul className="text-xs text-gray-700 dark:text-gray-400 space-y-1">
+                        {isGlassTheme ? (
+                          <>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                              <span>Modern frosted glass effect</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                              <span>Transparency with blur backdrop</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                              <span>Elegant and contemporary look</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                              <span>Premium visual experience</span>
+                            </li>
+                          </>
+                        ) : (
+                          <>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                              <span>Clean, minimalist product display</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                              <span>Colored background sections</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                              <span>All product details visible</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                              <span>Easy to customize colors</span>
+                            </li>
+                          </>
+                        )}
+                      </ul>
                     </div>
                   </div>
                 </div>
-
-                {/* Select Button */}
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => handleThemeSelect(theme.id)}
-                    className={`px-8 py-3 rounded-lg font-semibold transition ${
-                      selectedTheme === theme.id
-                        ? "bg-blue-600 text-white shadow-lg"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    {selectedTheme === theme.id ? "✓ Selected" : "Select"} {theme.name}
-                  </button>
-                </div>
-
-                {/* Theme Description & Features */}
-                <div className="space-y-3">
-                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">{theme.description}</p>
-                    <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
-                      Features
-                    </h4>
-                    <ul className="text-xs text-gray-700 dark:text-gray-400 space-y-1">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                        <span>Clean, minimalist product display</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                        <span>Colored background sections</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                        <span>All product details visible</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                        <span>Easy to customize colors</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Coming Soon Info */}
