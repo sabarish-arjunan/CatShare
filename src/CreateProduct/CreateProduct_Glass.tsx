@@ -1172,7 +1172,7 @@ export default function CreateProduct() {
                 {hasDataToDisplay() && (
                   <div
                     style={{
-                      background: `linear-gradient(135deg, ${overrideColor} 0%, ${darkenColor(overrideColor, -40)} 50%, ${overrideColor} 100%)`,
+                      backgroundImage: `linear-gradient(135deg, ${overrideColor} 0%, ${darkenColor(overrideColor, -40)} 50%, ${overrideColor} 100%)`,
                       backgroundSize: "400% 400%",
                       width: "100%",
                       padding: "8px",

@@ -387,7 +387,7 @@ export default function ProductPreviewModal_Glass({
                 {/* Red Gradient Background */}
                 <div
                   style={{
-                    background: `linear-gradient(135deg, ${product.bgColor || currentTheme.styles.bgColor} 0%, ${darkenColor(product.bgColor || currentTheme.styles.bgColor, -40)} 50%, ${product.bgColor || currentTheme.styles.bgColor} 100%)`,
+                    backgroundImage: `linear-gradient(135deg, ${product.bgColor || currentTheme.styles.bgColor} 0%, ${darkenColor(product.bgColor || currentTheme.styles.bgColor, -40)} 50%, ${product.bgColor || currentTheme.styles.bgColor} 100%)`,
                     backgroundSize: "400% 400%",
                     width: "100%",
                     padding: "8px",
