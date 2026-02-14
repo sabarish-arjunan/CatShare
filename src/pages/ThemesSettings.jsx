@@ -62,16 +62,16 @@ export default function ThemesSettings() {
     priceUnit: "/ piece",
     inStock: true,
     badge: null,
-    imageBgColor: "#f3f4f6",
-    bgColor: "rgba(255, 255, 255, 0.9)", // Glass background
-    fontColor: "#1f2937",
+    imageBgColor: "white",
+    bgColor: "rgba(220, 38, 38, 0.8)", // Red with transparency for glass effect
+    fontColor: "white",
     cropAspectRatio: 1,
   };
 
   // Helper function to get lighter color for details section
   const getLighterColor = (color, theme) => {
     if (theme === "glass") {
-      return "rgba(255, 255, 255, 0.7)"; // Semi-transparent white for glass theme
+      return "rgba(252, 165, 165, 0.8)"; // Light red with transparency for glass theme
     }
     return "#fca5a5"; // Light red for classic theme
   };
@@ -120,7 +120,7 @@ export default function ThemesSettings() {
                     <div
                       className={`w-full sm:w-96 rounded-lg overflow-hidden shadow-md flex flex-col ${
                         isGlassTheme
-                          ? "bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border border-blue-200 dark:border-blue-800"
+                          ? "bg-gradient-to-br from-red-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 border border-red-200 dark:border-red-800"
                           : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                       }`}
                     >
@@ -161,7 +161,7 @@ export default function ThemesSettings() {
                           fontSize: 17,
                           flex: 1,
                           backdropFilter: isGlassTheme ? "blur(10px)" : "none",
-                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.2)" : "none",
+                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
                           borderRadius: isGlassTheme ? "8px" : "0px",
                           margin: isGlassTheme ? "8px" : "0px",
                         }}
@@ -213,7 +213,7 @@ export default function ThemesSettings() {
                           fontSize: 19,
                           flexShrink: 0,
                           backdropFilter: isGlassTheme ? "blur(10px)" : "none",
-                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.2)" : "none",
+                          border: isGlassTheme ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
                           borderRadius: isGlassTheme ? "8px" : "0px",
                           margin: isGlassTheme ? "0 8px 8px 8px" : "0px",
                         }}
@@ -248,20 +248,20 @@ export default function ThemesSettings() {
                         {isGlassTheme ? (
                           <>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
-                              <span>Modern frosted glass effect</span>
+                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
+                              <span>Modern frosted glass effect with red accent</span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
-                              <span>Transparency with blur backdrop</span>
+                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
+                              <span>Semi-transparent with blur backdrop</span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
-                              <span>Elegant and contemporary look</span>
+                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
+                              <span>Elegant and contemporary design</span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
-                              <span>Premium visual experience</span>
+                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
+                              <span>Premium glass morphism style</span>
                             </li>
                           </>
                         ) : (
