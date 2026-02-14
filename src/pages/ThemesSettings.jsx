@@ -239,45 +239,20 @@ export default function ThemesSettings() {
                           </div>
 
                           {/* Fields */}
-                          <div style={{ flex: 1, marginBottom: 8 }}>
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#991b1b" }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <circle cx="12" cy="12" r="10" />
-                                  <path d="M12 2a10 10 0 0 1 0 20" />
-                                </svg>
-                              </div>
-                              <div style={{ flex: 1 }}>
-                                <span style={{ fontWeight: "500" }}>Colour: </span>
-                                <span>{sampleProduct.color}</span>
-                              </div>
+                          <div style={{ flex: 1, marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
+                            <div style={{ marginBottom: 8 }}>
+                              <span style={{ fontWeight: "500" }}>Colour: </span>
+                              <span>{sampleProduct.color}</span>
                             </div>
 
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#991b1b" }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" />
-                                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                                </svg>
-                              </div>
-                              <div style={{ flex: 1 }}>
-                                <span style={{ fontWeight: "500" }}>Package: </span>
-                                <span>{sampleProduct.package}</span>
-                              </div>
+                            <div style={{ marginBottom: 8 }}>
+                              <span style={{ fontWeight: "500" }}>Package: </span>
+                              <span>{sampleProduct.package}</span>
                             </div>
 
-                            <div style={{ display: "flex", alignItems: "center", marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
-                              <div style={{ marginRight: 10, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", color: "#991b1b" }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <circle cx="12" cy="8" r="4" />
-                                  <path d="M12 12c-3.31 0-6 2.69-6 6v2h12v-2c0-3.31-2.69-6-6-6z" />
-                                </svg>
-                              </div>
-                              <div style={{ flex: 1 }}>
-                                <span style={{ fontWeight: "500" }}>Age Group: </span>
-                                <span>{sampleProduct.ageGroup}</span>
-                              </div>
+                            <div style={{ marginBottom: 8 }}>
+                              <span style={{ fontWeight: "500" }}>Age Group: </span>
+                              <span>{sampleProduct.ageGroup}</span>
                             </div>
                           </div>
 
