@@ -56,9 +56,9 @@ const getGlassThemeWatermarkPosition = (position) => {
     "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
     "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
     // Bottom positions use bottom positioning to place at bottom of image container (above glass box)
-    "bottom-left": { bottom: 15, left: 10, transform: "none" },
-    "bottom-center": { bottom: 15, left: "50%", transform: "translateX(-50%)" },
-    "bottom-right": { bottom: 15, right: 10, left: "auto", transform: "none" }
+    "bottom-left": { bottom: 30, left: 10, transform: "none" },
+    "bottom-center": { bottom: 30, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: 30, right: 10, left: "auto", transform: "none" }
   };
 
   const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-center"];
