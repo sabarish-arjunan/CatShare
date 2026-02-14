@@ -166,7 +166,7 @@ export default function ThemesSettings() {
                             <p style={{ margin: "2px 0", display: "flex" }}>
                               <span style={{ width: "90px" }}>Colour</span>
                               <span>:</span>
-                              <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.color}</span>
                             </p>
                             <p style={{ margin: "2px 0", display: "flex" }}>
                               <span style={{ width: "90px" }}>Package</span>
