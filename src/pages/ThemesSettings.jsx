@@ -45,6 +45,14 @@ export default function ThemesSettings() {
     inStock: true,
     badge: null,
     imageBgColor: "white",
+    bgColor: "#dc2626", // Dark red background
+    fontColor: "white",
+    cropAspectRatio: 1,
+  };
+
+  // Helper function to get lighter color for details section
+  const getLighterColor = (color) => {
+    return "#fca5a5"; // Light red for details section
   };
 
   // Sample product image - same as used in watermark settings
@@ -138,61 +146,93 @@ export default function ThemesSettings() {
                 <div className="space-y-4">
                   <div className="flex justify-center">
                     <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
-                      {/* Product Image */}
-                      <div className="aspect-square overflow-hidden bg-gray-100">
+                      {/* Image Section - Click to open full screen */}
+                      <div
+                        style={{
+                          backgroundColor: sampleProduct.imageBgColor || "white",
+                          textAlign: "center",
+                          padding: 0,
+                          position: "relative",
+                          boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          aspectRatio: sampleProduct.cropAspectRatio || 1,
+                          width: "100%",
+                        }}
+                      >
                         <img
                           src={sampleProductImage}
                           alt={sampleProduct.name}
-                          className="w-full h-full object-cover"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            margin: "0 auto",
+                          }}
                         />
                       </div>
 
-                      {/* Product Details Section - Red Background */}
-                      <div className="bg-red-100 dark:bg-red-900/30 flex flex-col flex-1">
-                        {/* Content Area */}
-                        <div className="px-5 py-5 text-center flex-1">
-                          {/* Product Name */}
-                          <h3 style={{ fontSize: "22px", fontWeight: "normal", margin: "0 0 8px 0", color: "#1f2937" }}>
+                      {/* Details Section */}
+                      <div
+                        style={{
+                          backgroundColor: getLighterColor(sampleProduct.bgColor),
+                          color: sampleProduct.fontColor || "white",
+                          padding: "12px 12px",
+                          fontSize: 17,
+                          flex: 1,
+                        }}
+                      >
+                        <div style={{ textAlign: "center", marginBottom: 6 }}>
+                          <p
+                            style={{
+                              fontWeight: "normal",
+                              textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
+                              fontSize: 28,
+                              margin: "0 0 3px 0",
+                            }}
+                          >
                             {sampleProduct.name}
-                          </h3>
-
-                          {/* Subtitle */}
-                          <p style={{ fontStyle: "italic", fontSize: "14px", margin: "0 0 12px 0", color: "#6b7280" }}>
-                            ({sampleProduct.subtitle})
                           </p>
-
-                          {/* Details Section - Left aligned */}
-                          <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: "12px", paddingRight: "8px" }}>
-                            <p style={{ margin: "2px 0", display: "flex" }}>
-                              <span style={{ width: "90px" }}>Colour</span>
-                              <span>:</span>
-                              <span style={{ marginLeft: "8px", fontWeight: "normal" }}>{sampleProduct.color}</span>
+                          {sampleProduct.subtitle && (
+                            <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
+                              ({sampleProduct.subtitle})
                             </p>
-                            <p style={{ margin: "2px 0", display: "flex" }}>
-                              <span style={{ width: "90px" }}>Package</span>
-                              <span>:</span>
-                              <span style={{ marginLeft: "8px", fontWeight: "normal" }}>{sampleProduct.package}</span>
-                            </p>
-                            <p style={{ margin: "2px 0", display: "flex" }}>
-                              <span style={{ width: "90px" }}>Age Group</span>
-                              <span>:</span>
-                              <span style={{ marginLeft: "8px", fontWeight: "normal" }}>{sampleProduct.ageGroup}</span>
-                            </p>
-                          </div>
+                          )}
                         </div>
+                        <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                          <p style={{ margin: "2px 0", display: "flex" }}>
+                            <span style={{ width: "90px" }}>Colour</span>
+                            <span>:</span>
+                            <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
+                          </p>
+                          <p style={{ margin: "2px 0", display: "flex" }}>
+                            <span style={{ width: "90px" }}>Package</span>
+                            <span>:</span>
+                            <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
+                          </p>
+                          <p style={{ margin: "2px 0", display: "flex" }}>
+                            <span style={{ width: "90px" }}>Age Group</span>
+                            <span>:</span>
+                            <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
+                          </p>
+                        </div>
+                      </div>
 
-                        {/* Price Bar - Dark Red (No Gap) */}
-                        <div style={{
-                          backgroundColor: "#b91c1c",
-                          color: "white",
+                      {/* Bottom Bar - Show price based on catalogue-specific data */}
+                      <div
+                        style={{
+                          backgroundColor: sampleProduct.bgColor || "#add8e6",
+                          color: sampleProduct.fontColor || "white",
                           padding: "6px 8px",
                           textAlign: "center",
                           fontWeight: "normal",
-                          fontSize: "19px",
-                          flexShrink: 0
-                        }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style={{ fontWeight: "normal" }}>{sampleProduct.price} {sampleProduct.priceUnit}</span>
-                        </div>
+                          fontSize: 19,
+                          flexShrink: 0,
+                        }}
+                      >
+                        Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
                       </div>
                     </div>
                   </div>
