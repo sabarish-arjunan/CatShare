@@ -73,6 +73,24 @@ export async function generateProductPDF(
     fieldLabels = {},
   } = options;
 
+  // Sanitize currency symbol for PDF (standard fonts don't support some symbols like ₹)
+  let safeCurrencySymbol = currencySymbol;
+  const supportedSymbols = ["$", "€", "£", "¥", "A$", "C$", "S$", "HK$", "R", "Rs."];
+
+  if (!supportedSymbols.includes(currencySymbol)) {
+    if (currencySymbol === "₹") {
+      safeCurrencySymbol = "Rs.";
+    } else if (currencySymbol === "د.إ") {
+      safeCurrencySymbol = "AED";
+    } else if (currencySymbol === "฿") {
+      safeCurrencySymbol = "THB";
+    } else if (currencySymbol === "₫") {
+      safeCurrencySymbol = "VND";
+    }
+    // If it's still not supported and we have a custom symbol, we might just keep it
+    // but at least we fixed the most common ones.
+  }
+
   // Create PDF document with landscape orientation for better image layout
   const pdf = new jsPDF({
     orientation: "portrait",
@@ -241,35 +259,17 @@ export async function generateProductPDF(
       detailsY += 3; // Add spacing before price
     }
 
-    // Add price section with distinct styling
+    // Add price section
     if (product.price) {
-      // Price box background
-      const priceBoxHeight = 11;
-      const priceBoxY = detailsY - 1;
-      pdf.setFillColor(245, 250, 245); // Light green background
-      pdf.rect(detailsX - 1, priceBoxY, detailsMaxWidth + 2, priceBoxHeight, "F");
-
-      // Price border
-      pdf.setDrawColor(34, 139, 34); // Forest green
-      pdf.setLineWidth(0.5);
-      pdf.rect(detailsX - 1, priceBoxY, detailsMaxWidth + 2, priceBoxHeight);
-
-      // Price label
-      pdf.setFontSize(9);
-      pdf.setFont(undefined, "bold");
-      pdf.setTextColor(34, 139, 34);
-      pdf.text("Price:", detailsX + 1, detailsY + 3);
-
       // Price value
       const priceUnit = product.priceUnit || "";
-      const priceText = `${currencySymbol}${product.price}${priceUnit ? " " + priceUnit : ""}`.trim();
-      pdf.setFontSize(11);
+      const priceText = `${safeCurrencySymbol}${product.price}${priceUnit ? " " + priceUnit : ""}`.trim();
+      pdf.setFontSize(12);
       pdf.setFont(undefined, "bold");
       pdf.setTextColor(0, 100, 0);
-      const priceValueX = detailsX + pdf.getTextWidth("Price: ") + 1;
-      pdf.text(priceText, priceValueX, detailsY + 3);
+      pdf.text(priceText, detailsX, detailsY + 3);
 
-      detailsY += priceBoxHeight + 2;
+      detailsY += 8;
     }
 
     // Move to next product with some spacing
