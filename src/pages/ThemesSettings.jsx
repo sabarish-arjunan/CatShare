@@ -152,7 +152,7 @@ export default function ThemesSettings() {
                         {/* Content Area */}
                         <div className="px-5 py-5 text-center flex-1">
                           {/* Product Name */}
-                          <h3 style={{ fontSize: "22px", fontWeight: "bold", margin: "0 0 8px 0", color: "#1f2937" }}>
+                          <h3 style={{ fontSize: "22px", fontWeight: "normal", margin: "0 0 8px 0", color: "#1f2937" }}>
                             {sampleProduct.name}
                           </h3>
 
@@ -166,17 +166,17 @@ export default function ThemesSettings() {
                             <p style={{ margin: "2px 0", display: "flex" }}>
                               <span style={{ width: "90px" }}>Colour</span>
                               <span>:</span>
-                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.color}</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "normal" }}>{sampleProduct.color}</span>
                             </p>
                             <p style={{ margin: "2px 0", display: "flex" }}>
                               <span style={{ width: "90px" }}>Package</span>
                               <span>:</span>
-                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.package}</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "normal" }}>{sampleProduct.package}</span>
                             </p>
                             <p style={{ margin: "2px 0", display: "flex" }}>
                               <span style={{ width: "90px" }}>Age Group</span>
                               <span>:</span>
-                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.ageGroup}</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "normal" }}>{sampleProduct.ageGroup}</span>
                             </p>
                           </div>
                         </div>
@@ -191,7 +191,7 @@ export default function ThemesSettings() {
                           fontSize: "19px",
                           flexShrink: 0
                         }}>
-                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style={{ fontWeight: "bold" }}>{sampleProduct.price} {sampleProduct.priceUnit}</span>
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style={{ fontWeight: "normal" }}>{sampleProduct.price} {sampleProduct.priceUnit}</span>
                         </div>
                       </div>
                     </div>
