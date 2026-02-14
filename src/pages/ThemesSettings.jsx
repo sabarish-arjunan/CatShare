@@ -189,88 +189,59 @@ export default function ThemesSettings() {
                           )}
                         </div>
 
-                        {/* Hanger Icon - Glass Box */}
+                        {/* All Content in Single Glass Box */}
                         <div
                           style={{
                             backgroundColor: "rgba(255, 255, 255, 0.7)",
-                            backdropFilter: "blur(10px)",
-                            padding: "12px",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            border: "1px solid rgba(255, 255, 255, 0.8)",
-                            margin: "8px",
-                            marginBottom: "4px",
-                            borderRadius: "12px",
-                          }}
-                        >
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            style={{ color: "#0f8577" }}
-                          >
-                            <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
-                            <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
-                            <path d="M12 7v4" />
-                          </svg>
-                        </div>
-
-                        {/* Product Name and Subtitle - Glass Box */}
-                        <div
-                          style={{
-                            backgroundColor: "rgba(255, 255, 255, 0.7)",
-                            backdropFilter: "blur(10px)",
-                            padding: "12px",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            border: "1px solid rgba(255, 255, 255, 0.8)",
-                            margin: "0 8px 4px 8px",
-                            borderRadius: "12px",
-                            textAlign: "center",
-                          }}
-                        >
-                          <p
-                            style={{
-                              fontWeight: "600",
-                              fontSize: 18,
-                              margin: "0 0 4px 0",
-                              color: "#0f8577",
-                            }}
-                          >
-                            {sampleProduct.name}
-                          </p>
-                          {sampleProduct.subtitle && (
-                            <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#0f8577" }}>
-                              ({sampleProduct.subtitle})
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Teal Gradient Section with Fields */}
-                        <div
-                          style={{
-                            background: getGlassGradient(sampleProduct.bgColor, sampleProduct.lightBgColor),
                             backdropFilter: "blur(10px)",
                             padding: "16px 12px",
                             display: "flex",
                             flexDirection: "column",
-                            color: sampleProduct.fontColor,
-                            fontSize: 13,
-                            border: "1px solid rgba(255, 255, 255, 0.3)",
-                            margin: "0 8px 8px 8px",
+                            alignItems: "center",
+                            border: "1px solid rgba(255, 255, 255, 0.8)",
+                            margin: "8px",
                             borderRadius: "12px",
                           }}
                         >
+                          {/* Hanger Icon */}
+                          <div style={{ marginBottom: 8 }}>
+                            <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{ color: "#0f8577" }}
+                            >
+                              <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
+                              <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
+                              <path d="M12 7v4" />
+                            </svg>
+                          </div>
+
+                          {/* Product Name and Subtitle */}
+                          <div style={{ textAlign: "center", marginBottom: 12 }}>
+                            <p
+                              style={{
+                                fontWeight: "600",
+                                fontSize: 18,
+                                margin: "0 0 4px 0",
+                                color: "#0f8577",
+                              }}
+                            >
+                              {sampleProduct.name}
+                            </p>
+                            {sampleProduct.subtitle && (
+                              <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#0f8577" }}>
+                                ({sampleProduct.subtitle})
+                              </p>
+                            )}
+                          </div>
                           {/* Fields */}
-                          <div style={{ flex: 1, marginBottom: 8 }}>
+                          <div style={{ flex: 1, marginBottom: 8, color: "#0f8577", fontSize: 13, width: "100%" }}>
                             <div style={{ marginBottom: 8, display: "flex", alignItems: "center" }}>
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
                                 <circle cx="12" cy="12" r="10" />
@@ -311,6 +282,7 @@ export default function ThemesSettings() {
                               fontSize: 14,
                               borderRadius: "6px",
                               marginTop: 4,
+                              width: "100%",
                             }}
                           >
                             {sampleProduct.price} {sampleProduct.priceUnit}
