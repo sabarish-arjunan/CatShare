@@ -441,6 +441,7 @@ useEffect(() => {
           return {
             id: product.id,
             name: product.name || "Unnamed Product",
+            subtitle: product.subtitle || "",
             image: imageData,
             price: catalogueData.price,
             priceUnit: catalogueData.priceUnit,

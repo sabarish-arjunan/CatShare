@@ -5,6 +5,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 interface ProductWithImage {
   id: string | number;
   name: string;
+  subtitle?: string;
   image?: string; // base64 image data
   price?: string | number;
   priceUnit?: string;
@@ -268,8 +269,17 @@ export async function generateProductPDF(
     pdf.setFontSize(13);
     pdf.setFont(undefined, "bold");
     pdf.setTextColor(textDark[0], textDark[1], textDark[2]);
-    pdf.text(product.name || "Unnamed Product", margin + 8, innerY);
-    
+    const pName = product.name || "Unnamed Product";
+    pdf.text(pName, margin + 8, innerY);
+
+    if (product.subtitle) {
+      const nameWidth = pdf.getTextWidth(pName);
+      pdf.setFont(undefined, "italic");
+      pdf.setFontSize(10);
+      pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
+      pdf.text(`(${product.subtitle})`, margin + 8 + nameWidth + 2, innerY);
+    }
+
     // Index badge (top right of card)
     pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
     // @ts-ignore
