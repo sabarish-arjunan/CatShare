@@ -284,14 +284,14 @@ export default function ThemesSettings() {
                           {/* Price Badge at Bottom */}
                           <div
                             style={{
-                              backgroundColor: "#a0714f",
+                              backgroundColor: "#dc2626",
                               color: "white",
                               padding: "10px 16px",
                               textAlign: "center",
                               fontWeight: "500",
                               fontSize: 16,
                               borderRadius: "8px",
-                              boxShadow: "0 2px 6px rgba(160, 113, 79, 0.3)",
+                              boxShadow: "0 2px 6px rgba(220, 38, 38, 0.3)",
                             }}
                           >
                             {sampleProduct.price} {sampleProduct.priceUnit}
