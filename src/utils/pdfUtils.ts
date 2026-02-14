@@ -73,10 +73,10 @@ export async function generateProductPDF(
     fieldLabels = {},
   } = options;
 
-  // Sanitize currency symbol for PDF (standard fonts don't support some symbols like ₹)
+  // Sanitize currency symbol for PDF
   let safeCurrencySymbol = currencySymbol;
   const supportedSymbols = ["$", "€", "£", "¥", "A$", "C$", "S$", "HK$", "R", "Rs."];
-
+  
   if (!supportedSymbols.includes(currencySymbol)) {
     if (currencySymbol === "₹") {
       safeCurrencySymbol = "Rs.";
@@ -87,11 +87,8 @@ export async function generateProductPDF(
     } else if (currencySymbol === "₫") {
       safeCurrencySymbol = "VND";
     }
-    // If it's still not supported and we have a custom symbol, we might just keep it
-    // but at least we fixed the most common ones.
   }
 
-  // Create PDF document with landscape orientation for better image layout
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -100,70 +97,129 @@ export async function generateProductPDF(
 
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
+  const margin = 12;
   const contentWidth = pageWidth - 2 * margin;
+  const primaryColor = [59, 130, 246]; // #3b82f6
 
-  let currentY = margin;
+  /**
+   * Add header to current page
+   */
+  const addHeader = (doc: jsPDF, title: string) => {
+    // Top bar
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, pageWidth, 25, "F");
 
-  // Add title
-  pdf.setFontSize(18);
-  pdf.setTextColor(40, 40, 40);
-  pdf.text(catalogueName, margin, currentY);
-  currentY += 12;
+    // Title in header
+    doc.setTextColor(255, 255, 255);
+    doc.setFont(undefined, "bold");
+    doc.setFontSize(20);
+    doc.text(title.toUpperCase(), margin, 16);
 
-  // Add date
-  pdf.setFontSize(10);
-  pdf.setTextColor(100, 100, 100);
-  const dateStr = new Date().toLocaleDateString();
-  pdf.text(`Generated on: ${dateStr}`, margin, currentY);
-  currentY += 8;
+    // Subtitle / Date
+    doc.setFont(undefined, "normal");
+    doc.setFontSize(9);
+    const dateStr = new Date().toLocaleDateString("en-US", { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    doc.text(`CATALOGUE GENERATED ON: ${dateStr.toUpperCase()}`, margin, 21);
+  };
 
-  pdf.setDrawColor(200, 200, 200);
-  pdf.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 8;
+  /**
+   * Add footer to current page
+   */
+  const addFooter = (doc: jsPDF, pageNum: number, totalPages: number) => {
+    doc.setDrawColor(230, 230, 230);
+    doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.setFont(undefined, "normal");
+    
+    // Left: Branding
+    doc.text("POWERED BY CATSHARE", margin, pageHeight - 10);
+    
+    // Right: Page number
+    const pageStr = `PAGE ${pageNum}`;
+    const pageTextWidth = doc.getTextWidth(pageStr);
+    doc.text(pageStr, pageWidth - margin - pageTextWidth, pageHeight - 10);
+  };
+
+  addHeader(pdf, catalogueName);
+
+  let currentY = 35;
 
   // Process each product
   for (let i = 0; i < products.length; i++) {
     const product = products[i];
 
-    // Check if we need a new page
-    if (currentY > pageHeight - 80) {
+    // Estimated height check for new page
+    // (Header/Footer + Image + Spacing)
+    if (currentY > pageHeight - 75) {
       pdf.addPage();
-      currentY = margin;
+      addHeader(pdf, catalogueName);
+      currentY = 35;
     }
 
-    // Product name
-    pdf.setFontSize(14);
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(`${i + 1}. ${product.name || "Unnamed Product"}`, margin, currentY);
-    currentY += 8;
+    // --- Product Card Container ---
+    const startOfCardY = currentY;
+    
+    // Product Header Strip
+    pdf.setFillColor(248, 250, 252); // Very light slate background
+    pdf.rect(margin, currentY, contentWidth, 10, "F");
+    pdf.setDrawColor(226, 232, 240); // Slate-200 border
+    pdf.line(margin, currentY, pageWidth - margin, currentY); // Top line
+    pdf.line(margin, currentY + 10, pageWidth - margin, currentY + 10); // Bottom line
+    
+    // Product number and name
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, "bold");
+    pdf.setTextColor(30, 41, 59); // Slate-800
+    pdf.text(`${i + 1}. ${product.name || "Unnamed Product"}`, margin + 3, currentY + 6.5);
+    
+    currentY += 14;
 
-    // Calculate image dimensions maintaining aspect ratio
-    let imageWidth = 50;
-    let imageHeight = 50;
+    // --- Image Section ---
+    let imageWidth = 55;
+    let imageHeight = 55;
 
     if (product.image) {
       try {
-        // Get original image dimensions
         const imgDimensions = await getImageDimensions(product.image);
         const aspectRatio = imgDimensions.width / imgDimensions.height;
 
-        // Set a max width of 50mm for the image
-        imageWidth = 50;
-
-        // Calculate height based on aspect ratio
-        if (aspectRatio >= 1) {
-          // Wider images (1:1, 3:2, etc.) - use full width
-          imageHeight = imageWidth / aspectRatio;
-        } else {
-          // Taller images (3:4, etc.) - maintain proportion
-          imageHeight = imageWidth / aspectRatio;
-          // Cap max height at 70mm for page space
-          if (imageHeight > 70) {
-            imageHeight = 70;
-            imageWidth = imageHeight * aspectRatio;
-          }
+        imageWidth = 55;
+        imageHeight = imageWidth / aspectRatio;
+        
+        // Cap height to keep things on page
+        if (imageHeight > 75) {
+          imageHeight = 75;
+          imageWidth = imageHeight * aspectRatio;
         }
+
+        // Check again for page break after image size calculation
+        if (currentY + imageHeight > pageHeight - 20) {
+          pdf.addPage();
+          addHeader(pdf, catalogueName);
+          currentY = 35;
+          
+          // Re-draw product header on new page if it was split
+          pdf.setFillColor(248, 250, 252);
+          pdf.rect(margin, currentY, contentWidth, 10, "F");
+          pdf.setDrawColor(226, 232, 240);
+          pdf.line(margin, currentY, pageWidth - margin, currentY);
+          pdf.line(margin, currentY + 10, pageWidth - margin, currentY + 10);
+          pdf.setFont(undefined, "bold");
+          pdf.setTextColor(30, 41, 59);
+          pdf.text(`${i + 1}. ${product.name || "Unnamed Product"} (CONT.)`, margin + 3, currentY + 6.5);
+          currentY += 14;
+        }
+
+        // Subtle image border/shadow effect
+        pdf.setDrawColor(241, 245, 249);
+        pdf.setLineWidth(0.2);
+        pdf.rect(margin - 0.5, currentY - 0.5, imageWidth + 1, imageHeight + 1);
 
         pdf.addImage(
           product.image,
@@ -175,137 +231,103 @@ export async function generateProductPDF(
         );
       } catch (e) {
         console.warn(`Failed to add image for product ${product.id}:`, e);
-        // Fallback to default size if image fails
-        imageWidth = 50;
-        imageHeight = 50;
+        imageWidth = 55;
+        imageHeight = 55;
       }
     }
 
-    // Add product details on the right side of image
-    const detailsX = margin + imageWidth + 6;
-    const detailsMaxWidth = contentWidth - imageWidth - 6;
-
-    let detailsY = currentY;
-
-    // Collect non-empty fields
+    // --- Details Section ---
+    const detailsX = margin + imageWidth + 8;
+    const detailsMaxWidth = contentWidth - imageWidth - 8;
+    
     const fieldKeys = [
-      "field1",
-      "field2",
-      "field3",
-      "field4",
-      "field5",
-      "field6",
-      "field7",
-      "field8",
-      "field9",
-      "field10",
+      "field1", "field2", "field3", "field4", "field5",
+      "field6", "field7", "field8", "field9", "field10",
     ];
 
     const activeFields = fieldKeys.filter(fieldKey => product[fieldKey]);
-
-    // Calculate total details height for vertical centering
-    const useColumns = activeFields.length > 4;
+    const useColumns = activeFields.length > 5;
+    
+    // Height calculation for centering
     let totalDetailsHeight = 0;
     if (activeFields.length > 0) {
       const fieldRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
-      totalDetailsHeight += fieldRows * 4.5;
+      totalDetailsHeight += fieldRows * 6;
     }
     if (product.price) {
-      if (activeFields.length > 0) totalDetailsHeight += 3; // Spacing before price
-      totalDetailsHeight += 8; // Price section height
+      totalDetailsHeight += (activeFields.length > 0 ? 6 : 0) + 10;
     }
 
-    // Adjust detailsY for vertical centering relative to image
+    let detailsY = currentY;
     if (totalDetailsHeight < imageHeight) {
       detailsY = currentY + (imageHeight - totalDetailsHeight) / 2;
     }
 
-    // Add field details with professional layout
+    // Render Fields
     if (activeFields.length > 0) {
-      pdf.setFontSize(8);
-      pdf.setTextColor(80, 80, 80);
-
-      // Calculate column width for a 2-column layout if there are many fields
-      const col1Width = useColumns ? detailsMaxWidth / 2 - 2 : detailsMaxWidth;
-      const col2X = useColumns ? detailsX + detailsMaxWidth / 2 : detailsX;
-
-      let col1Y = detailsY;
-      let col2Y = detailsY;
-      const startY = detailsY;
-
+      const colWidth = useColumns ? detailsMaxWidth / 2 - 2 : detailsMaxWidth;
+      
       for (let idx = 0; idx < activeFields.length; idx++) {
         const fieldKey = activeFields[idx];
         const label = fieldLabels[fieldKey] || fieldKey;
         const unit = product[`${fieldKey}Unit`] || "";
         const value = product[fieldKey];
 
-        // Use 2 columns if many fields
-        const currentX = useColumns && idx >= Math.ceil(activeFields.length / 2) ? col2X : detailsX;
-        const currentMaxWidth = useColumns ? detailsMaxWidth / 2 - 3 : detailsMaxWidth;
+        const isCol2 = useColumns && idx >= Math.ceil(activeFields.length / 2);
+        const fieldX = isCol2 ? detailsX + colWidth + 4 : detailsX;
+        const fieldY = detailsY + (isCol2 ? idx - Math.ceil(activeFields.length / 2) : idx) * 6;
 
-        // Determine current Y based on which column
-        let currentY_field = useColumns && idx >= Math.ceil(activeFields.length / 2) ? col2Y : col1Y;
-
-        // Label in bold
-        pdf.setFont(undefined, "bold");
-        pdf.setTextColor(50, 50, 50);
+        // Label
         pdf.setFontSize(8);
-        const labelText = `${label}:`;
-        pdf.text(labelText, currentX, currentY_field);
+        pdf.setFont(undefined, "bold");
+        pdf.setTextColor(100, 116, 139); // Slate-500
+        pdf.text(`${label.toUpperCase()}:`, fieldX, fieldY);
 
-        // Value on same line
+        // Value
         pdf.setFont(undefined, "normal");
-        pdf.setTextColor(100, 100, 100);
+        pdf.setTextColor(30, 41, 59); // Slate-800
+        const labelWidth = pdf.getTextWidth(`${label.toUpperCase()}: `);
         const valueText = `${value}${unit && unit !== "None" ? " " + unit : ""}`.trim();
-        const labelWidth = pdf.getTextWidth(labelText) + 2;
-        pdf.text(valueText, currentX + labelWidth, currentY_field);
-
-        currentY_field += 4.5;
-
-        // Update appropriate column Y
-        if (useColumns && idx >= Math.ceil(activeFields.length / 2)) {
-          col2Y = currentY_field;
-        } else {
-          col1Y = currentY_field;
-        }
+        pdf.text(valueText, fieldX + labelWidth, fieldY);
       }
-
-      // Update detailsY to the maximum of both columns
-      detailsY = useColumns ? Math.max(col1Y, col2Y) : col1Y;
-      detailsY += 3; // Add spacing before price
+      
+      const rows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
+      detailsY += rows * 6 + 4;
     }
 
-    // Add price section
+    // Render Price
     if (product.price) {
-      // Price value
       const priceUnit = product.priceUnit || "";
       const priceText = `${safeCurrencySymbol}${product.price}${priceUnit ? " " + priceUnit : ""}`.trim();
-      pdf.setFontSize(12);
+      
+      // Price background accent
+      pdf.setFillColor(240, 249, 255); // Light blue background
+      pdf.rect(detailsX - 2, detailsY, detailsMaxWidth + 2, 10, "F");
+      
+      pdf.setFontSize(14);
       pdf.setFont(undefined, "bold");
-      pdf.setTextColor(0, 100, 0);
-      pdf.text(priceText, detailsX, detailsY + 3);
-
-      detailsY += 8;
+      pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      pdf.text(priceText, detailsX + 2, detailsY + 7);
+      
+      detailsY += 14;
     }
 
-    // Move to next product with some spacing
-    currentY = Math.max(currentY + imageHeight, detailsY) + 8;
-
-    // Add separator line
-    pdf.setDrawColor(220, 220, 220);
-    pdf.line(margin, currentY, pageWidth - margin, currentY);
-    currentY += 6;
+    // Update global Y
+    currentY = Math.max(currentY + imageHeight, detailsY) + 15;
   }
 
-  // Return PDF as blob
-  const pdfBlob = pdf.output("blob");
-  return pdfBlob as Blob;
+  // Add footers to all pages
+  const totalPages = (pdf as any).internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    addFooter(pdf, i, totalPages);
+  }
+
+  return pdf.output("blob") as Blob;
 }
 
 /**
  * Download PDF to user's device
- * @param blob The PDF blob
- * @param filename The filename for the PDF
  */
 export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
   const url = URL.createObjectURL(blob);
@@ -320,9 +342,6 @@ export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
 
 /**
  * Share PDF using native share or fallback to download
- * @param blob The PDF blob
- * @param filename The filename for the PDF
- * @param title The title for sharing
  */
 export async function sharePDF(
   blob: Blob,
@@ -330,7 +349,6 @@ export async function sharePDF(
   title: string = "Share Products PDF"
 ) {
   try {
-    // Try Capacitor Share first (for native mobile)
     const base64Data = await blobToBase64(blob);
     try {
       await Share.share({
@@ -341,12 +359,9 @@ export async function sharePDF(
       });
       return true;
     } catch (err: any) {
-      if (err.name !== "AbortError") {
-        console.warn("Capacitor Share failed:", err);
-      }
+      if (err.name !== "AbortError") console.warn("Capacitor Share failed:", err);
     }
 
-    // Try using Web Share API if available
     if (navigator.share && navigator.canShare({ files: [new File([blob], filename, { type: "application/pdf" })] })) {
       await navigator.share({
         files: [new File([blob], filename, { type: "application/pdf" })],
@@ -355,20 +370,15 @@ export async function sharePDF(
       return true;
     }
   } catch (err: any) {
-    if (err.name !== "AbortError") {
-      console.warn("Share API failed:", err);
-    }
+    if (err.name !== "AbortError") console.warn("Share API failed:", err);
   }
 
-  // Fallback to download
   downloadPDF(blob, filename);
   return false;
 }
 
 /**
  * Convert blob to base64 string
- * @param blob The blob to convert
- * @returns Promise<string> The base64 string
  */
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
