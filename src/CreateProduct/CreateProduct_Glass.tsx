@@ -1081,137 +1081,189 @@ export default function CreateProduct() {
               style={{
                 width: "95%",
                 maxWidth: `${currentTheme.rendering.cardWidth}px`,
-                backgroundColor: "white",
-                borderRadius: `${currentTheme.rendering.cardBorderRadius}px`,
-                overflow: "hidden",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+                height: "auto",
+                borderRadius: "16px",
+                overflow: "visible",
                 scale: finalScale,
                 transformOrigin: "center",
               }}
             >
-              {/* Product Image */}
+              {/* White Card Container */}
               <div
                 style={{
-                  position: "relative",
-                  backgroundColor: imageBgOverride,
-                  textAlign: "center",
+                  background: "white",
                   padding: 0,
-                  aspectRatio: appliedAspectRatio,
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
+                  flexDirection: "column",
+                  borderRadius: "16px",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+                  overflow: "visible",
                 }}
               >
-                <img
-                  src={imagePreview}
-                  alt="Preview"
+                {/* Image Section */}
+                <div
                   style={{
+                    backgroundColor: imageBgOverride,
+                    textAlign: "center",
+                    padding: 0,
+                    position: "relative",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    aspectRatio: appliedAspectRatio,
                     width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    margin: "0 auto",
                   }}
-                />
-
-                {showWatermark && (
-                  <div
+                >
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
                     style={{
-                      ...getWatermarkPositionStyles(watermarkPosition),
-                      fontSize: "10px",
-                      color: imageBgOverride?.toLowerCase() === "white" || imageBgOverride?.toLowerCase() === "#ffffff"
-                        ? "rgba(0, 0, 0, 0.25)"
-                        : "rgba(255, 255, 255, 0.4)",
-                      letterSpacing: "0.3px"
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      margin: "0 auto",
+                      padding: "16px",
                     }}
-                  >
-                    {watermarkText}
-                  </div>
-                )}
+                  />
 
-                {getCatalogueFormData().badge && (
+                  {getCatalogueFormData().badge && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 12,
+                        right: 12,
+                        backgroundColor: badgeBg,
+                        color: badgeText,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: "6px 14px",
+                        borderRadius: "20px",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      {getCatalogueFormData().badge}
+                    </div>
+                  )}
+                </div>
+
+                {/* Gradient Background with Glass Content */}
+                {hasDataToDisplay() && (
                   <div
                     style={{
-                      position: "absolute",
-                      bottom: 12,
-                      right: 12,
-                      backgroundColor: badgeBg,
-                      color: badgeText,
-                      fontSize: 13,
-                      fontWeight: 400,
-                      padding: "6px 10px",
-                      borderRadius: "999px",
-                      opacity: 0.95,
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                      border: `1px solid ${badgeBorder}`,
-                      letterSpacing: "0.5px",
+                      background: `linear-gradient(135deg, ${currentTheme.styles.gradientStart} 0%, ${currentTheme.styles.gradientEnd} 50%, ${currentTheme.styles.gradientStart} 100%)`,
+                      backgroundSize: "400% 400%",
+                      width: "100%",
+                      padding: "8px",
+                      paddingTop: "0",
                       display: "flex",
+                      flexDirection: "column",
                       alignItems: "center",
-                      justifyContent: "center",
+                      position: "relative",
+                      overflow: "visible",
                     }}
                   >
-                    {getCatalogueFormData().badge.toUpperCase()}
+                    {/* Decorative gradient overlay */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%)",
+                        pointerEvents: "none",
+                        zIndex: 0,
+                      }}
+                    ></div>
+
+                    {/* Glass Morphism Content Box */}
+                    <div
+                      style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.6)",
+                        backdropFilter: "blur(20px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                        padding: "16px 12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        border: "2px solid rgba(255, 255, 255, 1)",
+                        borderRadius: "14px",
+                        width: "calc(100% - 16px)",
+                        marginTop: "-30px",
+                        marginLeft: "8px",
+                        marginRight: "8px",
+                        marginBottom: "8px",
+                        boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 12px 40px rgba(220, 38, 38, 0.3), 0 20px 50px rgba(0, 0, 0, 0.25)",
+                        position: "relative",
+                        zIndex: 2,
+                      }}
+                    >
+                      {/* Product Name and Subtitle */}
+                      <div style={{ textAlign: "center", marginBottom: 12 }}>
+                        <p
+                          style={{
+                            fontWeight: "600",
+                            fontSize: 18,
+                            margin: "0 0 4px 0",
+                            color: "#000000",
+                          }}
+                        >
+                          {formData.name || "Product Name"}
+                        </p>
+                        {formData.subtitle && (
+                          <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#000000" }}>
+                            ({formData.subtitle})
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Fields */}
+                      <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%" }}>
+                        {getAllFields()
+                          .filter(f => f.enabled && f.key.startsWith('field'))
+                          .map(field => {
+                            const catData = getCatalogueFormData();
+                            const val = catData[field.key];
+                            const visibilityKey = `${field.key}Visible`;
+                            const isVisible = catData[visibilityKey] !== false;
+
+                            if (!val || !isVisible) return null;
+                            const unit = catData[`${field.key}Unit`];
+                            const displayUnit = unit && unit !== "None" ? unit : "";
+
+                            return (
+                              <div key={field.key} style={{ marginBottom: 8 }}>
+                                <span style={{ fontWeight: "500" }}>{field.label}: </span>
+                                <span style={{ marginLeft: 4 }}>{val} {displayUnit}</span>
+                              </div>
+                            );
+                          })}
+                      </div>
+
+                      {/* Price Badge */}
+                      {getSelectedCataloguePrice() && (
+                        <div
+                          style={{
+                            backgroundColor: currentTheme.styles.priceBoxBg,
+                            color: "white",
+                            padding: "8px 12px",
+                            textAlign: "center",
+                            fontWeight: "500",
+                            fontSize: 14,
+                            borderRadius: "6px",
+                            marginTop: 4,
+                            width: "100%",
+                          }}
+                        >
+                          {currencySymbol}{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Product Details Section */}
-              {hasDataToDisplay() && (
-                <>
-                  <div
-                    style={{
-                      backgroundColor: currentTheme.styles.lightBgColor,
-                      color: currentTheme.styles.fontColor,
-                      padding: "10px",
-                    }}
-                  >
-                    {formData.name && (
-                      <h2 className="text-lg font-semibold text-center">{formData.name}</h2>
-                    )}
-                    {formData.subtitle && (
-                      <p className="text-center italic text-xs mt-0.5">({formData.subtitle})</p>
-                    )}
-                    <div className="text-sm mt-2 space-y-1">
-                      {getAllFields()
-                        .filter(f => f.enabled && f.key.startsWith('field'))
-                        .map(field => {
-                          const catData = getCatalogueFormData();
-                          const val = catData[field.key];
-                          const visibilityKey = `${field.key}Visible`;
-                          const isVisible = catData[visibilityKey] !== false;
-
-                          if (!val || !isVisible) return null;
-                          const unit = catData[`${field.key}Unit`];
-                          const displayUnit = unit && unit !== "None" ? unit : "";
-
-                          return (
-                            <p key={field.key} className="flex gap-2">
-                              <span className="min-w-[80px]">{field.label}</span>
-                              <span>:</span>
-                              <span>{val} {displayUnit}</span>
-                            </p>
-                          );
-                        })}
-                    </div>
-                  </div>
-
-                  {/* Price Section */}
-                  {getSelectedCataloguePrice() && (
-                    <div
-                      style={{
-                        backgroundColor: currentTheme.styles.bgColor,
-                        color: currentTheme.styles.fontColor,
-                        padding: "8px 6px",
-                        textAlign: "center",
-                        fontWeight: "600",
-                        fontSize: "16px",
-                      }}
-                    >
-                      Price: {currencySymbol}{getSelectedCataloguePrice()} {getSelectedCataloguePriceUnit() !== "None" && getSelectedCataloguePriceUnit()}
-                    </div>
-                  )}
-                </>
-              )}
             </motion.div>
           )}
 
