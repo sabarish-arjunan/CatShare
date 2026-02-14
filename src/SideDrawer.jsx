@@ -351,6 +351,8 @@ const handleBackup = async () => {
   // Fetch price units
   const priceUnits = getPriceUnits();
 
+  const privateNotesCount = products.filter(p => p.privateNotes).length;
+
   const backupMetadata = {
     template: backupFieldsDefinition.industry || 'General Products (Custom)',
     fieldNames: backupFieldsDefinition.fields?.map(f => ({
@@ -361,6 +363,7 @@ const handleBackup = async () => {
       unitsEnabled: f.unitsEnabled || false,
       unitOptions: f.unitOptions || [],
     })) || [],
+    privateNotesCount,
     customFieldLabelsCount: customFieldLabels.length,
     enabledFieldsCount: enabledFields.length,
     watermarkSettings: {
@@ -382,6 +385,9 @@ const handleBackup = async () => {
   if (backupMetadata.customFieldLabelsCount > 0) {
     console.log(`   Custom Field Labels: ${backupMetadata.customFieldLabelsCount}`);
     customFieldLabels.forEach(f => console.log(`      • ${f.key}: "${f.label}"`));
+  }
+  if (privateNotesCount > 0) {
+    console.log(`   Private Notes: Found in ${privateNotesCount} products`);
   }
   if (enabledFields.some(f => f.unitsEnabled)) {
     console.log(`   Fields with Units:`);
@@ -901,6 +907,9 @@ const exportProductsToCSV = (products) => {
         console.log(`   ✅ Enabled Fields: ${enabledFields.length} (of ${parsed.metadata.fieldNames?.length || 0} total)`);
         if (parsed.metadata.customFieldLabelsCount > 0) {
           console.log(`   ✅ Custom Field Names: ${parsed.metadata.customFieldLabelsCount}`);
+        }
+        if (parsed.metadata.privateNotesCount > 0) {
+          console.log(`   ✅ Private Notes: ${parsed.metadata.privateNotesCount} product(s)`);
         }
         if (enabledFields.some(f => f.unitsEnabled)) {
           console.log(`   ✅ Fields with Units: ${enabledFields.filter(f => f.unitsEnabled).length}`);
