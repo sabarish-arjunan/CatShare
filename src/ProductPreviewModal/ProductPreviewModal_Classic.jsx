@@ -6,14 +6,14 @@ import { FiX, FiShare2, FiCheckCircle, FiAlertCircle, FiEdit3, FiPackage, FiArch
 import { MdInventory2 } from "react-icons/md";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
-import { useToast } from "./context/ToastContext";
-import { useTheme } from "./context/ThemeContext";
-import { getCatalogueData } from "./config/catalogueProductUtils";
-import { getAllCatalogues } from "./config/catalogueConfig";
-import { getFieldConfig, getAllFields } from "./config/fieldConfig";
-import { safeGetFromStorage } from "./utils/safeStorage";
-import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
-import { getPriceUnits } from "./utils/priceUnitsUtils";
+import { useToast } from "../context/ToastContext";
+import { useTheme } from "../context/ThemeContext";
+import { getCatalogueData } from "../config/catalogueProductUtils";
+import { getAllCatalogues } from "../config/catalogueConfig";
+import { getFieldConfig, getAllFields } from "../config/fieldConfig";
+import { safeGetFromStorage } from "../utils/safeStorage";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
+import { getPriceUnits } from "../utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -334,7 +334,7 @@ const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWat
 };
 
 // Main ProductPreviewModal Component
-export default function ProductPreviewModal({
+export default function ProductPreviewModal_Classic({
   product,
   tab,
   catalogueId: externalCatalogueId,

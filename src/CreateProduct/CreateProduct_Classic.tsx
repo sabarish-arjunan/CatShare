@@ -5,15 +5,15 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import { getCroppedImg } from "./cropUtils";
-import { getPalette } from "./colorUtils";
-import { saveRenderedImage } from "./Save";
-import { useToast } from "./context/ToastContext";
-import { useTheme } from "./context/ThemeContext";
-import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
-import { migrateProductToNewFormat } from "./config/fieldMigration";
-import { getProductFieldValue, getProductUnitValue } from "./config/fieldMigration";
-import { safeGetFromStorage } from "./utils/safeStorage";
+import { getCroppedImg } from "../cropUtils";
+import { getPalette } from "../colorUtils";
+import { saveRenderedImage } from "../Save";
+import { useToast } from "../context/ToastContext";
+import { useTheme } from "../context/ThemeContext";
+import { getAllCatalogues, type Catalogue } from "../config/catalogueConfig";
+import { migrateProductToNewFormat } from "../config/fieldMigration";
+import { getProductFieldValue, getProductUnitValue } from "../config/fieldMigration";
+import { safeGetFromStorage } from "../utils/safeStorage";
 import {
   initializeCatalogueData,
   getCatalogueData,
@@ -22,10 +22,10 @@ import {
   setProductEnabledForCatalogue,
   type CatalogueData,
   type ProductWithCatalogueData
-} from "./config/catalogueProductUtils";
-import { getFieldConfig, getAllFields } from "./config/fieldConfig";
-import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
-import { getPriceUnits } from "./utils/priceUnitsUtils";
+} from "../config/catalogueProductUtils";
+import { getFieldConfig, getAllFields } from "../config/fieldConfig";
+import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
+import { getPriceUnits } from "../utils/priceUnitsUtils";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
