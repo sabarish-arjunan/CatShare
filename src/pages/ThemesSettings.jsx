@@ -64,9 +64,9 @@ export default function ThemesSettings() {
     inStock: true,
     badge: "MUSLIM",
     imageBgColor: "white",
-    bgColor: "#dc2626", // Dark red background (same as Classic)
-    lightBgColor: "#fca5a5", // Light red for gradient
-    fontColor: "white",
+    bgColor: "#0f8577", // Teal/turquoise dark
+    lightBgColor: "#7fdcc7", // Teal light for gradient
+    fontColor: "#0f8577",
     cropAspectRatio: 1,
   };
 
@@ -128,15 +128,16 @@ export default function ThemesSettings() {
                       // Glass Theme - Card Style Design
                       <div
                         style={{
-                          background: getGlassGradient(sampleProduct.bgColor, sampleProduct.lightBgColor),
-                          padding: "16px",
+                          background: "white",
+                          padding: 0,
                           display: "flex",
                           flexDirection: "column",
                           height: "auto",
                           width: "100%",
-                          maxWidth: "384px",
+                          maxWidth: "280px",
                           borderRadius: "16px",
                           boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+                          overflow: "hidden",
                         }}
                       >
                         {/* Image Section */}
@@ -146,8 +147,6 @@ export default function ThemesSettings() {
                             textAlign: "center",
                             padding: 0,
                             position: "relative",
-                            borderBottom: "4px solid #dc2626",
-                            borderRadius: "0",
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
@@ -164,6 +163,7 @@ export default function ThemesSettings() {
                               height: "100%",
                               objectFit: "contain",
                               margin: "0 auto",
+                              padding: "16px",
                             }}
                           />
 
@@ -189,21 +189,18 @@ export default function ThemesSettings() {
                           )}
                         </div>
 
-                        {/* Card Container for Details */}
+                        {/* White Details Section with Hanger */}
                         <div
                           style={{
-                            backgroundColor: "#fce4e6",
-                            borderRadius: "12px",
-                            padding: "16px",
-                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                            backgroundColor: "white",
+                            padding: "16px 12px",
                             display: "flex",
                             flexDirection: "column",
-                            margin: "12px",
-                            marginTop: "-8px",
+                            alignItems: "center",
                           }}
                         >
                           {/* Hanger Icon */}
-                          <div style={{ textAlign: "center", marginBottom: 8 }}>
+                          <div style={{ marginBottom: 8 }}>
                             <svg
                               width="24"
                               height="24"
@@ -213,7 +210,7 @@ export default function ThemesSettings() {
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              style={{ color: "#991b1b" }}
+                              style={{ color: "#0f8577" }}
                             >
                               <path d="M12 2a3 3 0 0 0-3 3v1.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V5a3 3 0 0 0-3-3z" />
                               <path d="M3 12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1z" />
@@ -222,53 +219,78 @@ export default function ThemesSettings() {
                           </div>
 
                           {/* Product Name and Subtitle */}
-                          <div style={{ textAlign: "center", marginBottom: 12 }}>
+                          <div style={{ textAlign: "center" }}>
                             <p
                               style={{
                                 fontWeight: "600",
-                                fontSize: 20,
+                                fontSize: 18,
                                 margin: "0 0 4px 0",
-                                color: "#991b1b",
+                                color: "#0f8577",
                               }}
                             >
                               {sampleProduct.name}
                             </p>
                             {sampleProduct.subtitle && (
-                              <p style={{ fontStyle: "italic", fontSize: 15, margin: 0, color: "#991b1b" }}>
+                              <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#0f8577" }}>
                                 ({sampleProduct.subtitle})
                               </p>
                             )}
                           </div>
+                        </div>
 
+                        {/* Teal Gradient Section with Fields */}
+                        <div
+                          style={{
+                            background: getGlassGradient(sampleProduct.bgColor, sampleProduct.lightBgColor),
+                            padding: "16px 12px",
+                            display: "flex",
+                            flexDirection: "column",
+                            color: sampleProduct.fontColor,
+                            fontSize: 13,
+                          }}
+                        >
                           {/* Fields */}
-                          <div style={{ flex: 1, marginBottom: 8, color: "#991b1b", fontSize: 14 }}>
-                            <div style={{ marginBottom: 8 }}>
+                          <div style={{ flex: 1, marginBottom: 8 }}>
+                            <div style={{ marginBottom: 8, display: "flex", alignItems: "center" }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 2a10 10 0 0 1 0 20" />
+                              </svg>
                               <span style={{ fontWeight: "500" }}>Colour: </span>
-                              <span>{sampleProduct.color}</span>
+                              <span style={{ marginLeft: 4 }}>{sampleProduct.color}</span>
                             </div>
 
-                            <div style={{ marginBottom: 8 }}>
+                            <div style={{ marginBottom: 8, display: "flex", alignItems: "center" }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
+                                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" />
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                <line x1="12" y1="22.08" x2="12" y2="12" />
+                              </svg>
                               <span style={{ fontWeight: "500" }}>Package: </span>
-                              <span>{sampleProduct.package}</span>
+                              <span style={{ marginLeft: 4 }}>{sampleProduct.package}</span>
                             </div>
 
-                            <div style={{ marginBottom: 8 }}>
-                              <span style={{ fontWeight: "500" }}>Age Group: </span>
-                              <span>{sampleProduct.ageGroup}</span>
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, flexShrink: 0 }}>
+                                <circle cx="12" cy="8" r="4" />
+                                <path d="M12 12c-3.31 0-6 2.69-6 6v2h12v-2c0-3.31-2.69-6-6-6z" />
+                              </svg>
+                              <span style={{ fontWeight: "500" }}>Colour: </span>
+                              <span style={{ marginLeft: 4 }}>{sampleProduct.color}</span>
                             </div>
                           </div>
 
                           {/* Price Badge at Bottom */}
                           <div
                             style={{
-                              backgroundColor: "#dc2626",
+                              backgroundColor: "#a0714f",
                               color: "white",
-                              padding: "10px 16px",
+                              padding: "8px 12px",
                               textAlign: "center",
                               fontWeight: "500",
-                              fontSize: 16,
-                              borderRadius: "8px",
-                              boxShadow: "0 2px 6px rgba(220, 38, 38, 0.3)",
+                              fontSize: 14,
+                              borderRadius: "6px",
+                              marginTop: 4,
                             }}
                           >
                             {sampleProduct.price} {sampleProduct.priceUnit}
