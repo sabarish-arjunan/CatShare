@@ -297,7 +297,19 @@ export default function ThemesSettings() {
                       </div>
                     ) : (
                       // Classic Theme
-                      <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
+                      <div
+                        style={{
+                          width: "100%",
+                          maxWidth: "280px",
+                          backgroundColor: "white",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          border: "1px solid rgb(229, 231, 235)",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                         {/* Image Section */}
                         <div
                           style={{
