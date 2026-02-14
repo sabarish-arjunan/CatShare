@@ -203,13 +203,29 @@ export async function generateProductPDF(
 
     const activeFields = fieldKeys.filter(fieldKey => product[fieldKey]);
 
+    // Calculate total details height for vertical centering
+    const useColumns = activeFields.length > 4;
+    let totalDetailsHeight = 0;
+    if (activeFields.length > 0) {
+      const fieldRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
+      totalDetailsHeight += fieldRows * 4.5;
+    }
+    if (product.price) {
+      if (activeFields.length > 0) totalDetailsHeight += 3; // Spacing before price
+      totalDetailsHeight += 8; // Price section height
+    }
+
+    // Adjust detailsY for vertical centering relative to image
+    if (totalDetailsHeight < imageHeight) {
+      detailsY = currentY + (imageHeight - totalDetailsHeight) / 2;
+    }
+
     // Add field details with professional layout
     if (activeFields.length > 0) {
       pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
 
       // Calculate column width for a 2-column layout if there are many fields
-      const useColumns = activeFields.length > 4;
       const col1Width = useColumns ? detailsMaxWidth / 2 - 2 : detailsMaxWidth;
       const col2X = useColumns ? detailsX + detailsMaxWidth / 2 : detailsX;
 
