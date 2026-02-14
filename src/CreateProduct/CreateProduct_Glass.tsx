@@ -492,6 +492,26 @@ export default function CreateProduct() {
     return color;
   };
 
+  // Helper function to darken color for gradient
+  const darkenColor = (color: string, amount: number) => {
+    if (color.startsWith("#") && color.length === 7) {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      const darken = (c: number) => Math.max(0, c + amount);
+      return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
+    }
+    const rgbMatch = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1], 10);
+      const g = parseInt(rgbMatch[2], 10);
+      const b = parseInt(rgbMatch[3], 10);
+      const darken = (c: number) => Math.max(0, c + amount);
+      return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
+    }
+    return color;
+  };
+
   // Helper function to check if there's any data to display in the preview
   const hasDataToDisplay = () => {
     const catData = getCatalogueFormData();
@@ -1152,7 +1172,7 @@ export default function CreateProduct() {
                 {hasDataToDisplay() && (
                   <div
                     style={{
-                      background: `linear-gradient(135deg, ${currentTheme.styles.gradientStart} 0%, ${currentTheme.styles.gradientEnd} 50%, ${currentTheme.styles.gradientStart} 100%)`,
+                      background: `linear-gradient(135deg, ${overrideColor} 0%, ${darkenColor(overrideColor, -40)} 50%, ${overrideColor} 100%)`,
                       backgroundSize: "400% 400%",
                       width: "100%",
                       padding: "8px",

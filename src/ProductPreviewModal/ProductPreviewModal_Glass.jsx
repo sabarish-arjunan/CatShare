@@ -56,6 +56,27 @@ export default function ProductPreviewModal_Glass({
 }) {
   const { showToast } = useToast();
   const { currentTheme } = useTheme();
+
+  // Helper to darken color for gradient
+  const darkenColor = (color, amount) => {
+    if (color.startsWith("#") && color.length === 7) {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      const darken = (c) => Math.max(0, c + amount);
+      return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
+    }
+    const rgbMatch = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1], 10);
+      const g = parseInt(rgbMatch[2], 10);
+      const b = parseInt(rgbMatch[3], 10);
+      const darken = (c) => Math.max(0, c + amount);
+      return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
+    }
+    return color;
+  };
+
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
@@ -366,7 +387,7 @@ export default function ProductPreviewModal_Glass({
                 {/* Red Gradient Background */}
                 <div
                   style={{
-                    background: `linear-gradient(135deg, ${currentTheme.styles.gradientStart} 0%, ${currentTheme.styles.gradientEnd} 50%, ${currentTheme.styles.gradientStart} 100%)`,
+                    background: `linear-gradient(135deg, ${product.bgColor || currentTheme.styles.bgColor} 0%, ${darkenColor(product.bgColor || currentTheme.styles.bgColor, -40)} 50%, ${product.bgColor || currentTheme.styles.bgColor} 100%)`,
                     backgroundSize: "400% 400%",
                     width: "100%",
                     padding: "8px",
