@@ -80,207 +80,153 @@ export default function ThemesSettings() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="space-y-4 max-w-2xl mx-auto">
+        <div className="space-y-6 max-w-2xl mx-auto">
           <p className="text-gray-600 dark:text-gray-400 text-sm">
             Choose how your product cards are displayed
           </p>
 
-          {/* Themes List */}
-          <div className="space-y-3">
+          {/* Theme Cards - Each card is a selectable theme */}
+          <div className="space-y-6">
             {themes.map((theme) => (
-              <button
-                key={theme.id}
-                onClick={() => handleThemeSelect(theme.id)}
-                className={`w-full text-left p-4 rounded-lg border-2 transition ${
-                  selectedTheme === theme.id
-                    ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
-                    : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold dark:text-white">{theme.name}</h3>
-                      {theme.isDefault && (
-                        <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-full">
-                          Default
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">{theme.description}</p>
-                  </div>
-
-                  {/* Radio Button */}
-                  <div className="flex-shrink-0 mt-1">
+              <div key={theme.id} className="space-y-3">
+                {/* Theme Preview Card */}
+                <div className="flex justify-center">
+                  <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
+                    {/* Image Section */}
                     <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                        selectedTheme === theme.id
-                          ? "border-blue-600 bg-blue-600"
-                          : "border-gray-300 dark:border-gray-600"
-                      }`}
+                      style={{
+                        backgroundColor: sampleProduct.imageBgColor || "white",
+                        textAlign: "center",
+                        padding: 0,
+                        position: "relative",
+                        boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        aspectRatio: sampleProduct.cropAspectRatio || 1,
+                        width: "100%",
+                      }}
                     >
-                      {selectedTheme === theme.id && (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Theme Preview Section */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
-              Preview
-            </h3>
-
-            {/* Classic Theme Preview */}
-            {selectedTheme === "classic" && (
-              <div className="space-y-4">
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Here's how your product cards will look in the {selectedThemeDetails?.name} theme:
-                </p>
-
-                {/* Product Listing Preview - Shows how preview images will look */}
-                <div className="space-y-4">
-                  <div className="flex justify-center">
-                    <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
-                      {/* Image Section - Click to open full screen */}
-                      <div
+                      <img
+                        src={sampleProductImage}
+                        alt={sampleProduct.name}
                         style={{
-                          backgroundColor: sampleProduct.imageBgColor || "white",
-                          textAlign: "center",
-                          padding: 0,
-                          position: "relative",
-                          boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          aspectRatio: sampleProduct.cropAspectRatio || 1,
                           width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          margin: "0 auto",
                         }}
-                      >
-                        <img
-                          src={sampleProductImage}
-                          alt={sampleProduct.name}
+                      />
+                    </div>
+
+                    {/* Details Section */}
+                    <div
+                      style={{
+                        backgroundColor: getLighterColor(sampleProduct.bgColor),
+                        color: sampleProduct.fontColor || "white",
+                        padding: "12px 12px",
+                        fontSize: 17,
+                        flex: 1,
+                      }}
+                    >
+                      <div style={{ textAlign: "center", marginBottom: 6 }}>
+                        <p
                           style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                            margin: "0 auto",
+                            fontWeight: "normal",
+                            textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
+                            fontSize: 28,
+                            margin: "0 0 3px 0",
                           }}
-                        />
+                        >
+                          {sampleProduct.name}
+                        </p>
+                        {sampleProduct.subtitle && (
+                          <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
+                            ({sampleProduct.subtitle})
+                          </p>
+                        )}
                       </div>
-
-                      {/* Details Section */}
-                      <div
-                        style={{
-                          backgroundColor: getLighterColor(sampleProduct.bgColor),
-                          color: sampleProduct.fontColor || "white",
-                          padding: "12px 12px",
-                          fontSize: 17,
-                          flex: 1,
-                        }}
-                      >
-                        <div style={{ textAlign: "center", marginBottom: 6 }}>
-                          <p
-                            style={{
-                              fontWeight: "normal",
-                              textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                              fontSize: 28,
-                              margin: "0 0 3px 0",
-                            }}
-                          >
-                            {sampleProduct.name}
-                          </p>
-                          {sampleProduct.subtitle && (
-                            <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
-                              ({sampleProduct.subtitle})
-                            </p>
-                          )}
-                        </div>
-                        <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
-                          <p style={{ margin: "2px 0", display: "flex" }}>
-                            <span style={{ width: "90px" }}>Colour</span>
-                            <span>:</span>
-                            <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
-                          </p>
-                          <p style={{ margin: "2px 0", display: "flex" }}>
-                            <span style={{ width: "90px" }}>Package</span>
-                            <span>:</span>
-                            <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
-                          </p>
-                          <p style={{ margin: "2px 0", display: "flex" }}>
-                            <span style={{ width: "90px" }}>Age Group</span>
-                            <span>:</span>
-                            <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Bottom Bar - Show price based on catalogue-specific data */}
-                      <div
-                        style={{
-                          backgroundColor: sampleProduct.bgColor || "#add8e6",
-                          color: sampleProduct.fontColor || "white",
-                          padding: "6px 8px",
-                          textAlign: "center",
-                          fontWeight: "normal",
-                          fontSize: 19,
-                          flexShrink: 0,
-                        }}
-                      >
-                        Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
+                      <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                        <p style={{ margin: "2px 0", display: "flex" }}>
+                          <span style={{ width: "90px" }}>Colour</span>
+                          <span>:</span>
+                          <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
+                        </p>
+                        <p style={{ margin: "2px 0", display: "flex" }}>
+                          <span style={{ width: "90px" }}>Package</span>
+                          <span>:</span>
+                          <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
+                        </p>
+                        <p style={{ margin: "2px 0", display: "flex" }}>
+                          <span style={{ width: "90px" }}>Age Group</span>
+                          <span>:</span>
+                          <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
+                        </p>
                       </div>
                     </div>
-                  </div>
 
-                  <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-                    This is how preview images will display with the Classic theme
-                  </p>
+                    {/* Bottom Bar - Price */}
+                    <div
+                      style={{
+                        backgroundColor: sampleProduct.bgColor || "#add8e6",
+                        color: sampleProduct.fontColor || "white",
+                        padding: "6px 8px",
+                        textAlign: "center",
+                        fontWeight: "normal",
+                        fontSize: 19,
+                        flexShrink: 0,
+                      }}
+                    >
+                      Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Theme Details */}
-                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mt-4">
-                  <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
-                    Classic Theme Features
-                  </h4>
-                  <ul className="text-xs text-gray-700 dark:text-gray-400 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                      <span>Clean, minimalist card design</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                      <span>Product name overlay on image</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                      <span>Price badge with green highlight</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                      <span>Stock status indicator</span>
-                    </li>
-                  </ul>
+                {/* Select Button */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => handleThemeSelect(theme.id)}
+                    className={`px-8 py-3 rounded-lg font-semibold transition ${
+                      selectedTheme === theme.id
+                        ? "bg-blue-600 text-white shadow-lg"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    {selectedTheme === theme.id ? "✓ Selected" : "Select"} {theme.name}
+                  </button>
+                </div>
+
+                {/* Theme Description & Features */}
+                <div className="space-y-3">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">{theme.description}</p>
+                    <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
+                      Features
+                    </h4>
+                    <ul className="text-xs text-gray-700 dark:text-gray-400 space-y-1">
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                        <span>Clean, minimalist product display</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                        <span>Colored background sections</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                        <span>All product details visible</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                        <span>Easy to customize colors</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
-
-          {/* Current Selection Info */}
-          {selectedThemeDetails && (
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mt-6">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 text-sm mb-2">
-                Current Theme: {selectedThemeDetails.name}
-              </h3>
-              <p className="text-xs text-blue-800 dark:text-blue-200">
-                {selectedThemeDetails.description}
-              </p>
-            </div>
-          )}
 
           {/* Coming Soon Info */}
           <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
