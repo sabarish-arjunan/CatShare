@@ -186,7 +186,24 @@ export function setFieldsDefinition(definition: FieldsDefinition): void {
  */
 export function getFieldConfig(key: string): FieldConfig | undefined {
   const definition = getFieldsDefinition();
-  return definition.fields.find(f => f.key === key);
+  const config = definition.fields.find(f => f.key === key);
+
+  // If no config found but it's a price field, provide a virtual default config
+  // This prevents UI glitches where units disappear for custom price fields
+  if (!config && key.startsWith('price')) {
+    return {
+      key: key,
+      label: 'Price',
+      type: 'number',
+      enabled: true,
+      unitsEnabled: true,
+      unitField: `${key}Unit`,
+      unitOptions: ['/ piece', '/ dozen', '/ set', '/ kg'],
+      defaultUnit: '/ piece',
+    };
+  }
+
+  return config;
 }
 
 /**

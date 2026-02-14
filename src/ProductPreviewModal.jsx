@@ -844,7 +844,18 @@ export default function ProductPreviewModal({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]} {(() => { const config = getFieldConfig(priceField); if (!config?.unitsEnabled) return ""; const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null ? catalogueData[priceUnitField] : (product[priceUnitField] || "/ piece"); return unit !== "None" ? unit : ""; })()}
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]} {(() => {
+                  const config = getFieldConfig(priceField);
+                  // Price fields should always have units enabled unless explicitly disabled in config
+                  const unitsEnabled = config ? config.unitsEnabled : true;
+                  if (!unitsEnabled) return "";
+
+                  const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null
+                    ? catalogueData[priceUnitField]
+                    : (product[priceUnitField] || "/ piece");
+
+                  return unit !== "None" ? unit : "";
+                })()}
               </div>
             )}
 

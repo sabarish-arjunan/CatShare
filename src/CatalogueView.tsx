@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
 import { FiPlus, FiEdit } from "react-icons/fi";
+import { FaRegFilePdf } from "react-icons/fa6";
 import { MdLayers } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -440,6 +441,7 @@ useEffect(() => {
           return {
             id: product.id,
             name: product.name || "Unnamed Product",
+            subtitle: product.subtitle || "",
             image: imageData,
             price: catalogueData.price,
             priceUnit: catalogueData.priceUnit,
@@ -913,23 +915,8 @@ useEffect(() => {
                 className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
                 title="Share as PDF"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5H21m-7.5 7.5H21m-7.5 7.5H21M3 7.5h.008v.008H3V7.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3 14.25h.008v.008H3v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3 21h.008v.008H3V21zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
+                <FaRegFilePdf className="w-4 h-4" />
                 Share as PDF
-              </button>
-
-              <button
-                onClick={() => {
-                  handleGeneratePDF('download');
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-2"
-                title="Download PDF"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download PDF
               </button>
             </>
           )}
