@@ -137,7 +137,7 @@ export default function ThemesSettings() {
                 {/* Product Listing Preview - Shows how preview images will look */}
                 <div className="space-y-4">
                   <div className="flex justify-center">
-                    <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700">
+                    <div className="w-full sm:w-96 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 flex flex-col">
                       {/* Product Image */}
                       <div className="aspect-square overflow-hidden bg-gray-100">
                         <img
@@ -148,41 +148,50 @@ export default function ThemesSettings() {
                       </div>
 
                       {/* Product Details Section - Red Background */}
-                      <div className="bg-red-100 dark:bg-red-900/30">
+                      <div className="bg-red-100 dark:bg-red-900/30 flex flex-col flex-1">
                         {/* Content Area */}
-                        <div className="px-6 py-6 text-center">
+                        <div className="px-5 py-5 text-center flex-1">
                           {/* Product Name */}
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                          <h3 style={{ fontSize: "22px", fontWeight: "bold", margin: "0 0 8px 0", color: "#1f2937" }}>
                             {sampleProduct.name}
                           </h3>
 
                           {/* Subtitle */}
-                          <p className="text-sm italic text-gray-700 dark:text-gray-300 mb-4">
+                          <p style={{ fontStyle: "italic", fontSize: "14px", margin: "0 0 12px 0", color: "#6b7280" }}>
                             ({sampleProduct.subtitle})
                           </p>
 
-                          {/* Details Section */}
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between text-gray-800 dark:text-gray-200">
-                              <span>Colour</span>
-                              <span className="font-medium">: {sampleProduct.color}</span>
-                            </div>
-                            <div className="flex justify-between text-gray-800 dark:text-gray-200">
-                              <span>Package</span>
-                              <span className="font-medium">: {sampleProduct.package}</span>
-                            </div>
-                            <div className="flex justify-between text-gray-800 dark:text-gray-200">
-                              <span>Age Group</span>
-                              <span className="font-medium">: {sampleProduct.ageGroup}</span>
-                            </div>
+                          {/* Details Section - Left aligned */}
+                          <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: "12px", paddingRight: "8px" }}>
+                            <p style={{ margin: "2px 0", display: "flex" }}>
+                              <span style={{ width: "90px" }}>Colour</span>
+                              <span>:</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.color}</span>
+                            </p>
+                            <p style={{ margin: "2px 0", display: "flex" }}>
+                              <span style={{ width: "90px" }}>Package</span>
+                              <span>:</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.package}</span>
+                            </p>
+                            <p style={{ margin: "2px 0", display: "flex" }}>
+                              <span style={{ width: "90px" }}>Age Group</span>
+                              <span>:</span>
+                              <span style={{ marginLeft: "8px", fontWeight: "bold" }}>{sampleProduct.ageGroup}</span>
+                            </p>
                           </div>
                         </div>
 
                         {/* Price Bar - Dark Red (No Gap) */}
-                        <div className="bg-red-700 dark:bg-red-800 text-white text-center py-3 px-6">
-                          <p className="text-base font-bold">
-                            Price : {sampleProduct.price} {sampleProduct.priceUnit}
-                          </p>
+                        <div style={{
+                          backgroundColor: "#b91c1c",
+                          color: "white",
+                          padding: "6px 8px",
+                          textAlign: "center",
+                          fontWeight: "normal",
+                          fontSize: "19px",
+                          flexShrink: 0
+                        }}>
+                          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style={{ fontWeight: "bold" }}>{sampleProduct.price} {sampleProduct.priceUnit}</span>
                         </div>
                       </div>
                     </div>
