@@ -203,15 +203,17 @@ export default function ThemesSettings() {
                           {/* All Content in Single Glass Box */}
                           <div
                             style={{
-                              backgroundColor: "rgba(255, 255, 255, 0.7)",
-                              backdropFilter: "blur(10px)",
+                              backgroundColor: "rgba(255, 255, 255, 0.6)",
+                              backdropFilter: "blur(20px) saturate(180%)",
+                              WebkitBackdropFilter: "blur(20px) saturate(180%)",
                               padding: "16px 12px",
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "center",
-                              border: "1px solid rgba(255, 255, 255, 0.8)",
-                              borderRadius: "12px",
+                              border: "1px solid rgba(255, 255, 255, 0.9)",
+                              borderRadius: "14px",
                               width: "100%",
+                              boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 8px 32px rgba(0, 0, 0, 0.15)",
                             }}
                           >
                           {/* Hanger Icon */}
