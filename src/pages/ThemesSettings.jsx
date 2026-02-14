@@ -192,11 +192,15 @@ export default function ThemesSettings() {
                         {/* White Details Section with Hanger */}
                         <div
                           style={{
-                            backgroundColor: "white",
+                            backgroundColor: "rgba(255, 255, 255, 0.7)",
+                            backdropFilter: "blur(10px)",
                             padding: "16px 12px",
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
+                            border: "1px solid rgba(255, 255, 255, 0.8)",
+                            margin: "8px",
+                            borderRadius: "12px",
                           }}
                         >
                           {/* Hanger Icon */}
@@ -242,11 +246,15 @@ export default function ThemesSettings() {
                         <div
                           style={{
                             background: getGlassGradient(sampleProduct.bgColor, sampleProduct.lightBgColor),
+                            backdropFilter: "blur(10px)",
                             padding: "16px 12px",
                             display: "flex",
                             flexDirection: "column",
                             color: sampleProduct.fontColor,
                             fontSize: 13,
+                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                            margin: "0 8px 8px 8px",
+                            borderRadius: "12px",
                           }}
                         >
                           {/* Fields */}
