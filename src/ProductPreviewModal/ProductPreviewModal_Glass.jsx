@@ -382,6 +382,21 @@ export default function ProductPreviewModal_Glass({
                       {product.badge}
                     </div>
                   )}
+
+                  {/* Watermark - Adaptive color based on background */}
+                  {showWatermark && (
+                    <div
+                      style={{
+                        ...getWatermarkPositionStyles(watermarkPosition),
+                        fontSize: "10px",
+                        letterSpacing: "0.3px",
+                        color: "rgba(0, 0, 0, 0.25)",
+                        zIndex: 10,
+                      }}
+                    >
+                      {watermarkText}
+                    </div>
+                  )}
                 </div>
 
                 {/* Red Gradient Background */}
@@ -508,20 +523,6 @@ export default function ProductPreviewModal_Glass({
                       </div>
                     )}
                   </div>
-
-                  {/* Watermark - Adaptive color based on background */}
-                  {showWatermark && (
-                    <div
-                      style={{
-                        ...getWatermarkPositionStyles(watermarkPosition),
-                        fontSize: "10px",
-                        letterSpacing: "0.3px",
-                        color: "rgba(0, 0, 0, 0.25)"
-                      }}
-                    >
-                      {watermarkText}
-                    </div>
-                  )}
                 </div>
               </div>
             </motion.div>
