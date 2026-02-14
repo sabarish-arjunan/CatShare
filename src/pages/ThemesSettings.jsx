@@ -147,8 +147,8 @@ export default function ThemesSettings() {
                         />
                       </div>
 
-                      {/* Product Details Section - Beige Background */}
-                      <div className="bg-amber-100 dark:bg-amber-900/30 px-6 py-5 text-center">
+                      {/* Product Details Section - Red Background */}
+                      <div className="bg-red-100 dark:bg-red-900/30 px-6 py-6 text-center">
                         {/* Product Name */}
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                           {sampleProduct.name}
@@ -159,8 +159,8 @@ export default function ThemesSettings() {
                           ({sampleProduct.subtitle})
                         </p>
 
-                        {/* Details Grid */}
-                        <div className="space-y-2 text-sm">
+                        {/* Details Section */}
+                        <div className="space-y-1 text-sm mb-4">
                           <div className="flex justify-between text-gray-800 dark:text-gray-200">
                             <span>Colour</span>
                             <span className="font-medium">: {sampleProduct.color}</span>
@@ -175,9 +175,9 @@ export default function ThemesSettings() {
                           </div>
                         </div>
 
-                        {/* Price - Highlighted */}
-                        <div className="mt-4 pt-4 border-t border-amber-300 dark:border-amber-700">
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                        {/* Price Bar - Dark Red */}
+                        <div className="bg-red-700 dark:bg-red-800 text-white py-3 px-4 rounded">
+                          <p className="text-base font-bold">
                             Price : {sampleProduct.price} {sampleProduct.priceUnit}
                           </p>
                         </div>
