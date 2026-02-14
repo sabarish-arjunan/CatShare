@@ -44,7 +44,7 @@ export default function ThemesSettings() {
     price: "₹200",
     priceUnit: "/ piece",
     inStock: true,
-    badge: null,
+    badge: "PREMIUM",
     imageBgColor: "white",
     bgColor: "#dc2626", // Dark red background
     lightBgColor: "#fca5a5", // Light red for classic
@@ -62,7 +62,7 @@ export default function ThemesSettings() {
     price: "₹200",
     priceUnit: "/ piece",
     inStock: true,
-    badge: null,
+    badge: "PREMIUM",
     imageBgColor: "white",
     bgColor: "#0f8577", // Teal/turquoise dark
     lightBgColor: "#7fdcc7", // Teal light for gradient
