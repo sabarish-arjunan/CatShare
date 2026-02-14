@@ -189,29 +189,31 @@ export default function ThemesSettings() {
                           )}
                         </div>
 
-                        {/* Red Background Section */}
+                        {/* Red Background behind glass box */}
                         <div
                           style={{
                             backgroundColor: "#dc2626",
                             width: "100%",
-                            height: "12px",
-                          }}
-                        ></div>
-
-                        {/* All Content in Single Glass Box */}
-                        <div
-                          style={{
-                            backgroundColor: "rgba(255, 255, 255, 0.7)",
-                            backdropFilter: "blur(10px)",
-                            padding: "16px 12px",
+                            padding: "8px",
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            border: "1px solid rgba(255, 255, 255, 0.8)",
-                            margin: "8px",
-                            borderRadius: "12px",
                           }}
                         >
+                          {/* All Content in Single Glass Box */}
+                          <div
+                            style={{
+                              backgroundColor: "rgba(255, 255, 255, 0.7)",
+                              backdropFilter: "blur(10px)",
+                              padding: "16px 12px",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              border: "1px solid rgba(255, 255, 255, 0.8)",
+                              borderRadius: "12px",
+                              width: "100%",
+                            }}
+                          >
                           {/* Hanger Icon */}
                           <div style={{ marginBottom: 8 }}>
                             <svg
@@ -296,6 +298,7 @@ export default function ThemesSettings() {
                           >
                             {sampleProduct.price} {sampleProduct.priceUnit}
                           </div>
+                        </div>
                         </div>
                       </div>
                     ) : (
