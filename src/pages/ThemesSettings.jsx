@@ -189,6 +189,15 @@ export default function ThemesSettings() {
                           )}
                         </div>
 
+                        {/* Red Background Section */}
+                        <div
+                          style={{
+                            backgroundColor: "#dc2626",
+                            width: "100%",
+                            height: "12px",
+                          }}
+                        ></div>
+
                         {/* All Content in Single Glass Box */}
                         <div
                           style={{
