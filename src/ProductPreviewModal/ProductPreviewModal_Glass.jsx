@@ -482,7 +482,7 @@ export default function ProductPreviewModal_Glass({
                     {hasPriceValue && (
                       <div
                         style={{
-                          backgroundColor: currentTheme.styles.priceBoxBg,
+                          backgroundColor: product.bgColor || currentTheme.styles.bgColor,
                           color: "white",
                           padding: "8px 12px",
                           textAlign: "center",

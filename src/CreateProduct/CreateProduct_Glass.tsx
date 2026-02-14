@@ -1266,7 +1266,7 @@ export default function CreateProduct() {
                       {getSelectedCataloguePrice() && (
                         <div
                           style={{
-                            backgroundColor: currentTheme.styles.priceBoxBg,
+                            backgroundColor: overrideColor,
                             color: "white",
                             padding: "8px 12px",
                             textAlign: "center",
