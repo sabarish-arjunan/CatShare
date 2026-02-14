@@ -23,6 +23,7 @@ import Shelf from "./Shelf";
 import Retail from "./Retail";
 import Settings from "./Settings";
 import AppearanceSettings from "./pages/AppearanceSettings";
+import ThemesSettings from "./pages/ThemesSettings";
 import WatermarkSettings from "./pages/WatermarkSettings";
 import FieldsSettings from "./pages/FieldsSettings";
 import CurrencySettings from "./pages/CurrencySettings";
@@ -598,6 +599,10 @@ function AppWithBackHandler() {
         <Route
           path="/settings/appearance"
           element={<AppearanceSettings darkMode={darkMode} setDarkMode={setDarkMode as any} />}
+        />
+        <Route
+          path="/settings/themes"
+          element={<ThemesSettings />}
         />
         <Route
           path="/settings/watermark"
