@@ -32,6 +32,21 @@ export default function ThemesSettings() {
 
   const selectedThemeDetails = getThemeDetails(selectedTheme);
 
+  // Sample product for preview
+  const sampleProduct = {
+    id: "sample-preview",
+    name: "Premium Knot Top",
+    price: "₹37",
+    priceUnit: "/ piece",
+    inStock: true,
+    badge: null,
+    imageBgColor: "white",
+  };
+
+  // Sample product image - using a placeholder data URI
+  const sampleProductImage =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%23f0f0f0' width='400' height='400'/%3E%3Ctext x='50%25' y='50%25' font-size='32' font-weight='bold' text-anchor='middle' dy='.3em' fill='%23999' font-family='Arial'%3EProduct Image%3C/text%3E%3Crect x='120' y='120' width='160' height='160' fill='%23ddd' rx='8'/%3E%3Ctext x='50%25' y='50%25' font-size='14' text-anchor='middle' dy='.3em' fill='%23666' font-family='Arial'%3E400x400px%3C/text%3E%3C/svg%3E";
+
   return (
     <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950 relative">
       {/* Status bar placeholder */}
@@ -102,9 +117,113 @@ export default function ThemesSettings() {
             ))}
           </div>
 
+          {/* Theme Preview Section */}
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+              Preview
+            </h3>
+
+            {/* Classic Theme Preview */}
+            {selectedTheme === "classic" && (
+              <div className="space-y-4">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Here's how your product cards will look in the {selectedThemeDetails?.name} theme:
+                </p>
+
+                {/* Product Card Preview Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Classic Card 1 - Info Visible */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 ml-1">
+                      With info displayed
+                    </p>
+                    <div className="relative group">
+                      <div className="bg-white dark:bg-gray-800 rounded-sm shadow-sm overflow-hidden cursor-pointer transition-all duration-200">
+                        <div className="relative aspect-square overflow-hidden bg-gray-100">
+                          <img
+                            src={sampleProductImage}
+                            alt={sampleProduct.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Price Badge */}
+                          <div className="absolute top-1.5 left-1.5 bg-green-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md z-10">
+                            {sampleProduct.price}
+                          </div>
+                          {/* Name Below Image */}
+                          <div
+                            className="absolute bottom-0 left-0 w-full px-1 py-1 text-center font-medium text-white text-[11px] sm:text-[12px] truncate"
+                            style={{
+                              backgroundColor: "rgba(0, 0, 0, 0.45)",
+                              backdropFilter: "blur(1px)",
+                            }}
+                          >
+                            {sampleProduct.name}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Classic Card 2 - Clean Look */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 ml-1">
+                      Clean display
+                    </p>
+                    <div className="relative group">
+                      <div className="bg-white dark:bg-gray-800 rounded-sm shadow-sm overflow-hidden cursor-pointer transition-all duration-200">
+                        <div className="relative aspect-square overflow-hidden bg-gray-100">
+                          <img
+                            src={sampleProductImage}
+                            alt={sampleProduct.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Name Below Image */}
+                          <div
+                            className="absolute bottom-0 left-0 w-full px-1 py-1 text-center font-medium text-white text-[11px] sm:text-[12px] truncate"
+                            style={{
+                              backgroundColor: "rgba(0, 0, 0, 0.45)",
+                              backdropFilter: "blur(1px)",
+                            }}
+                          >
+                            {sampleProduct.name}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Theme Details */}
+                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mt-4">
+                  <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
+                    Classic Theme Features
+                  </h4>
+                  <ul className="text-xs text-gray-700 dark:text-gray-400 space-y-1">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Clean, minimalist card design</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Product name overlay on image</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Price badge with green highlight</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Stock status indicator</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Current Selection Info */}
           {selectedThemeDetails && (
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mt-6">
               <h3 className="font-semibold text-blue-900 dark:text-blue-100 text-sm mb-2">
                 Current Theme: {selectedThemeDetails.name}
               </h3>
