@@ -37,6 +37,34 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
+// Helper function to adjust watermark position for Glass theme to avoid overlap with glass box
+const getGlassThemeWatermarkPosition = (position) => {
+  const baseStyles = {
+    position: "absolute",
+    fontFamily: "Arial, sans-serif",
+    fontWeight: 500,
+    pointerEvents: "none",
+    zIndex: 10
+  };
+
+  // Map bottom positions to top positions to avoid glass box overlap
+  const glassPositionMap = {
+    "top-left": { top: 10, left: 10, transform: "none" },
+    "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "top-right": { top: 10, right: 10, left: "auto", transform: "none" },
+    "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
+    "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
+    "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
+    // Bottom positions adjusted to top to avoid glass box
+    "bottom-left": { top: 10, left: 10, transform: "none" },
+    "bottom-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { top: 10, right: 10, left: "auto", transform: "none" }
+  };
+
+  const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-center"];
+  return { ...baseStyles, ...selectedPosition };
+};
+
 /**
  * ProductPreviewModal_Glass
  * Glass theme version with glass morphism card design
@@ -387,11 +415,10 @@ export default function ProductPreviewModal_Glass({
                   {showWatermark && (
                     <div
                       style={{
-                        ...getWatermarkPositionStyles(watermarkPosition),
+                        ...getGlassThemeWatermarkPosition(watermarkPosition),
                         fontSize: "10px",
                         letterSpacing: "0.3px",
                         color: "rgba(0, 0, 0, 0.25)",
-                        zIndex: 10,
                       }}
                     >
                       {watermarkText}
