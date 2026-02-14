@@ -279,7 +279,7 @@ export default function ThemesSettings() {
                           {/* Price Badge at Bottom */}
                           <div
                             style={{
-                              backgroundColor: "#a0714f",
+                              backgroundColor: "#dc2626",
                               color: "white",
                               padding: "8px 12px",
                               textAlign: "center",
