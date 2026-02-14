@@ -846,7 +846,7 @@ export default function ProductPreviewModal_Classic({
                   flexShrink: 0,
                 }}
               >
-                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]} {(() => {
+                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
                   const config = getFieldConfig(priceField);
                   // Price fields should always have units enabled unless explicitly disabled in config
                   const unitsEnabled = config ? config.unitsEnabled : true;
@@ -856,7 +856,7 @@ export default function ProductPreviewModal_Classic({
                     ? catalogueData[priceUnitField]
                     : (product[priceUnitField] || "/ piece");
 
-                  return unit !== "None" ? unit : "";
+                  return unit !== "None" ? ` ${unit}` : "";
                 })()}
               </div>
             )}
