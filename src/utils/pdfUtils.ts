@@ -42,8 +42,6 @@ interface PDFGenerationOptions {
 
 /**
  * Get dimensions of an image from base64 data
- * @param base64Image The base64 encoded image
- * @returns Promise<{width: number, height: number}> The image dimensions
  */
 function getImageDimensions(base64Image: string): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
@@ -59,9 +57,38 @@ function getImageDimensions(base64Image: string): Promise<{ width: number; heigh
 }
 
 /**
+ * Render text (especially currency symbols like ₹) to a high-resolution base64 image
+ * This bypasses jsPDF's lack of built-in UTF-8 support for standard fonts.
+ */
+function renderTextToImage(text: string, fontSize: number = 40, color: string = "#166534"): { dataUrl: string; width: number; height: number } {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return { dataUrl: "", width: 0, height: 0 };
+  
+  const font = `bold ${fontSize}px Arial, sans-serif`;
+  ctx.font = font;
+  const metrics = ctx.measureText(text);
+  
+  // Use a high-DPI scaling for sharpness
+  const scale = 2;
+  canvas.width = (metrics.width + 20) * scale;
+  canvas.height = (fontSize * 1.5) * scale;
+  
+  ctx.scale(scale, scale);
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 10, (fontSize * 1.5) / 2);
+  
+  return {
+    dataUrl: canvas.toDataURL('image/png'),
+    width: metrics.width + 20,
+    height: fontSize * 1.5
+  };
+}
+
+/**
  * Generate a PDF with selected product images and details
- * @param options PDF generation options
- * @returns Promise<Blob> The generated PDF as a blob
  */
 export async function generateProductPDF(
   options: PDFGenerationOptions
@@ -72,22 +99,6 @@ export async function generateProductPDF(
     currencySymbol = "₹",
     fieldLabels = {},
   } = options;
-
-  // Sanitize currency symbol for PDF
-  let safeCurrencySymbol = currencySymbol;
-  const supportedSymbols = ["$", "€", "£", "¥", "A$", "C$", "S$", "HK$", "R", "Rs."];
-  
-  if (!supportedSymbols.includes(currencySymbol)) {
-    if (currencySymbol === "₹") {
-      safeCurrencySymbol = "Rs.";
-    } else if (currencySymbol === "د.إ") {
-      safeCurrencySymbol = "AED";
-    } else if (currencySymbol === "฿") {
-      safeCurrencySymbol = "THB";
-    } else if (currencySymbol === "₫") {
-      safeCurrencySymbol = "VND";
-    }
-  }
 
   const pdf = new jsPDF({
     orientation: "portrait",
@@ -100,235 +111,188 @@ export async function generateProductPDF(
   const margin = 12;
   const contentWidth = pageWidth - 2 * margin;
   const primaryColor = [59, 130, 246]; // #3b82f6
+  const slate800 = [30, 41, 59];
+  const slate500 = [100, 116, 139];
 
   /**
    * Add header to current page
    */
   const addHeader = (doc: jsPDF, title: string) => {
-    // Top bar
+    // Top accent bar
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.rect(0, 0, pageWidth, 25, "F");
+    doc.rect(0, 0, pageWidth, 28, "F");
 
-    // Title in header
+    // Decorative circle in header
+    doc.setFillColor(255, 255, 255);
+    doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+    doc.circle(pageWidth - 20, 10, 30, "F");
+    doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+
+    // Title
     doc.setTextColor(255, 255, 255);
     doc.setFont(undefined, "bold");
-    doc.setFontSize(20);
-    doc.text(title.toUpperCase(), margin, 16);
+    doc.setFontSize(22);
+    doc.text(title.toUpperCase(), margin, 18);
 
-    // Subtitle / Date
+    // Date
     doc.setFont(undefined, "normal");
     doc.setFontSize(9);
     const dateStr = new Date().toLocaleDateString("en-US", { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+      year: 'numeric', month: 'long', day: 'numeric' 
     });
-    doc.text(`CATALOGUE GENERATED ON: ${dateStr.toUpperCase()}`, margin, 21);
+    doc.text(`CATALOGUE GENERATED: ${dateStr.toUpperCase()}`, margin, 23);
   };
 
   /**
    * Add footer to current page
    */
-  const addFooter = (doc: jsPDF, pageNum: number, totalPages: number) => {
+  const addFooter = (doc: jsPDF, pageNum: number) => {
     doc.setDrawColor(230, 230, 230);
     doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
     
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.setFont(undefined, "normal");
+    doc.text("POWERED BY CATSHARE • WWW.CATSHARE.APP", margin, pageHeight - 10);
     
-    // Left: Branding
-    doc.text("POWERED BY CATSHARE", margin, pageHeight - 10);
-    
-    // Right: Page number
     const pageStr = `PAGE ${pageNum}`;
-    const pageTextWidth = doc.getTextWidth(pageStr);
-    doc.text(pageStr, pageWidth - margin - pageTextWidth, pageHeight - 10);
+    doc.text(pageStr, pageWidth - margin - doc.getTextWidth(pageStr), pageHeight - 10);
   };
 
   addHeader(pdf, catalogueName);
 
-  let currentY = 35;
+  let currentY = 38;
 
-  // Process each product
   for (let i = 0; i < products.length; i++) {
     const product = products[i];
 
-    // Estimated height check for new page
-    // (Header/Footer + Image + Spacing)
-    if (currentY > pageHeight - 75) {
+    // Page break check
+    if (currentY > pageHeight - 80) {
       pdf.addPage();
       addHeader(pdf, catalogueName);
-      currentY = 35;
+      currentY = 38;
     }
 
-    // --- Product Card Container ---
-    const startOfCardY = currentY;
+    // --- Product Card Layout ---
+    const cardHeight = 70; // Base height, will adjust
+    const cardMargin = 4;
     
-    // Product Header Strip
-    pdf.setFillColor(248, 250, 252); // Very light slate background
-    pdf.rect(margin, currentY, contentWidth, 10, "F");
-    pdf.setDrawColor(226, 232, 240); // Slate-200 border
-    pdf.line(margin, currentY, pageWidth - margin, currentY); // Top line
-    pdf.line(margin, currentY + 10, pageWidth - margin, currentY + 10); // Bottom line
+    // Subtle background for the card
+    pdf.setFillColor(248, 250, 252); // Slate-50
+    (pdf as any).roundedRect(margin, currentY, contentWidth, cardHeight, 3, 3, "F");
     
-    // Product number and name
+    // Card border
+    pdf.setDrawColor(226, 232, 240); // Slate-200
+    pdf.setLineWidth(0.3);
+    (pdf as any).roundedRect(margin, currentY, contentWidth, cardHeight, 3, 3, "S");
+
+    // Product Header within card
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(margin + 0.5, currentY + 0.5, contentWidth - 1, 10, "F");
+    pdf.line(margin, currentY + 10, pageWidth - margin, currentY + 10);
+    
     pdf.setFontSize(12);
     pdf.setFont(undefined, "bold");
-    pdf.setTextColor(30, 41, 59); // Slate-800
-    pdf.text(`${i + 1}. ${product.name || "Unnamed Product"}`, margin + 3, currentY + 6.5);
-    
-    currentY += 14;
+    pdf.setTextColor(slate800[0], slate800[1], slate800[2]);
+    pdf.text(`${i + 1}. ${product.name || "Unnamed Product"}`, margin + 5, currentY + 7);
 
-    // --- Image Section ---
-    let imageWidth = 55;
-    let imageHeight = 55;
+    let innerY = currentY + 15;
+
+    // --- Image ---
+    let imageWidth = 45;
+    let imageHeight = 45;
 
     if (product.image) {
       try {
         const imgDimensions = await getImageDimensions(product.image);
         const aspectRatio = imgDimensions.width / imgDimensions.height;
-
-        imageWidth = 55;
         imageHeight = imageWidth / aspectRatio;
         
-        // Cap height to keep things on page
-        if (imageHeight > 75) {
-          imageHeight = 75;
+        if (imageHeight > 50) {
+          imageHeight = 50;
           imageWidth = imageHeight * aspectRatio;
         }
 
-        // Check again for page break after image size calculation
-        if (currentY + imageHeight > pageHeight - 20) {
-          pdf.addPage();
-          addHeader(pdf, catalogueName);
-          currentY = 35;
-          
-          // Re-draw product header on new page if it was split
-          pdf.setFillColor(248, 250, 252);
-          pdf.rect(margin, currentY, contentWidth, 10, "F");
-          pdf.setDrawColor(226, 232, 240);
-          pdf.line(margin, currentY, pageWidth - margin, currentY);
-          pdf.line(margin, currentY + 10, pageWidth - margin, currentY + 10);
-          pdf.setFont(undefined, "bold");
-          pdf.setTextColor(30, 41, 59);
-          pdf.text(`${i + 1}. ${product.name || "Unnamed Product"} (CONT.)`, margin + 3, currentY + 6.5);
-          currentY += 14;
-        }
-
-        // Subtle image border/shadow effect
-        pdf.setDrawColor(241, 245, 249);
-        pdf.setLineWidth(0.2);
-        pdf.rect(margin - 0.5, currentY - 0.5, imageWidth + 1, imageHeight + 1);
-
-        pdf.addImage(
-          product.image,
-          "JPEG",
-          margin,
-          currentY,
-          imageWidth,
-          imageHeight
-        );
+        // Image background/border
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(margin + 5, innerY, imageWidth, imageHeight, "F");
+        
+        pdf.addImage(product.image, "JPEG", margin + 5, innerY, imageWidth, imageHeight);
       } catch (e) {
-        console.warn(`Failed to add image for product ${product.id}:`, e);
-        imageWidth = 55;
-        imageHeight = 55;
+        console.warn("Image failed", e);
       }
     }
 
-    // --- Details Section ---
-    const detailsX = margin + imageWidth + 8;
-    const detailsMaxWidth = contentWidth - imageWidth - 8;
+    // --- Details ---
+    const detailsX = margin + imageWidth + 12;
+    const detailsMaxWidth = contentWidth - imageWidth - 18;
     
-    const fieldKeys = [
-      "field1", "field2", "field3", "field4", "field5",
-      "field6", "field7", "field8", "field9", "field10",
-    ];
-
-    const activeFields = fieldKeys.filter(fieldKey => product[fieldKey]);
+    const fieldKeys = ["field1", "field2", "field3", "field4", "field5", "field6", "field7", "field8", "field9", "field10"];
+    const activeFields = fieldKeys.filter(f => product[f]);
     const useColumns = activeFields.length > 5;
+
+    // Calculate details vertical center
+    let totalDetailsHeight = (useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length) * 6;
+    if (product.price) totalDetailsHeight += 12;
     
-    // Height calculation for centering
-    let totalDetailsHeight = 0;
-    if (activeFields.length > 0) {
-      const fieldRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
-      totalDetailsHeight += fieldRows * 6;
-    }
-    if (product.price) {
-      totalDetailsHeight += (activeFields.length > 0 ? 6 : 0) + 10;
-    }
-
-    let detailsY = currentY;
+    let detailsY = innerY;
     if (totalDetailsHeight < imageHeight) {
-      detailsY = currentY + (imageHeight - totalDetailsHeight) / 2;
+      detailsY = innerY + (imageHeight - totalDetailsHeight) / 2;
     }
 
-    // Render Fields
-    if (activeFields.length > 0) {
-      const colWidth = useColumns ? detailsMaxWidth / 2 - 2 : detailsMaxWidth;
-      
-      for (let idx = 0; idx < activeFields.length; idx++) {
-        const fieldKey = activeFields[idx];
-        const label = fieldLabels[fieldKey] || fieldKey;
-        const unit = product[`${fieldKey}Unit`] || "";
-        const value = product[fieldKey];
+    // Fields
+    pdf.setFontSize(8);
+    for (let idx = 0; idx < activeFields.length; idx++) {
+      const fieldKey = activeFields[idx];
+      const label = fieldLabels[fieldKey] || fieldKey;
+      const val = product[fieldKey];
+      const unit = product[`${fieldKey}Unit`] || "";
 
-        const isCol2 = useColumns && idx >= Math.ceil(activeFields.length / 2);
-        const fieldX = isCol2 ? detailsX + colWidth + 4 : detailsX;
-        const fieldY = detailsY + (isCol2 ? idx - Math.ceil(activeFields.length / 2) : idx) * 6;
+      const isCol2 = useColumns && idx >= Math.ceil(activeFields.length / 2);
+      const fX = isCol2 ? detailsX + detailsMaxWidth / 2 + 4 : detailsX;
+      const fY = detailsY + (isCol2 ? idx - Math.ceil(activeFields.length / 2) : idx) * 6;
 
-        // Label
-        pdf.setFontSize(8);
-        pdf.setFont(undefined, "bold");
-        pdf.setTextColor(100, 116, 139); // Slate-500
-        pdf.text(`${label.toUpperCase()}:`, fieldX, fieldY);
-
-        // Value
-        pdf.setFont(undefined, "normal");
-        pdf.setTextColor(30, 41, 59); // Slate-800
-        const labelWidth = pdf.getTextWidth(`${label.toUpperCase()}: `);
-        const valueText = `${value}${unit && unit !== "None" ? " " + unit : ""}`.trim();
-        pdf.text(valueText, fieldX + labelWidth, fieldY);
-      }
-      
-      const rows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
-      detailsY += rows * 6 + 4;
-    }
-
-    // Render Price
-    if (product.price) {
-      const priceUnit = product.priceUnit || "";
-      const priceText = `${safeCurrencySymbol}${product.price}${priceUnit ? " " + priceUnit : ""}`.trim();
-      
-      // Price background accent
-      pdf.setFillColor(240, 249, 255); // Light blue background
-      pdf.rect(detailsX - 2, detailsY, detailsMaxWidth + 2, 10, "F");
-      
-      pdf.setFontSize(14);
       pdf.setFont(undefined, "bold");
-      pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      pdf.text(priceText, detailsX + 2, detailsY + 7);
-      
-      detailsY += 14;
+      pdf.setTextColor(slate500[0], slate500[1], slate500[2]);
+      pdf.text(`${label.toUpperCase()}:`, fX, fY);
+
+      pdf.setFont(undefined, "normal");
+      pdf.setTextColor(slate800[0], slate800[1], slate800[2]);
+      const lWidth = pdf.getTextWidth(`${label.toUpperCase()}: `);
+      pdf.text(`${val}${unit && unit !== "None" ? " " + unit : ""}`, fX + lWidth, fY);
     }
 
-    // Update global Y
-    currentY = Math.max(currentY + imageHeight, detailsY) + 15;
+    // Price
+    if (product.price) {
+      const pRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
+      const priceY = detailsY + (activeFields.length > 0 ? pRows * 6 + 5 : 0);
+      
+      const pUnit = product.priceUnit || "";
+      const pText = `${currencySymbol}${product.price}${pUnit ? " " + pUnit : ""}`.trim();
+      
+      // Render price via Canvas for perfect symbol support
+      const priceImage = renderTextToImage(pText, 48, "#1d4ed8"); // Brand blue for price
+      
+      // Convert canvas width to mm (approx 1px = 0.264583mm at 96dpi, but we use a scale factor)
+      // We'll just use a fixed height and proportional width
+      const imgH = 8;
+      const imgW = (priceImage.width / priceImage.height) * imgH;
+      
+      pdf.addImage(priceImage.dataUrl, "PNG", detailsX - 2, priceY, imgW, imgH);
+    }
+
+    currentY += Math.max(cardHeight, imageHeight + 25) + 6;
   }
 
-  // Add footers to all pages
-  const totalPages = (pdf as any).internal.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
+  // Finalize footers
+  const pageCount = (pdf as any).internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
     pdf.setPage(i);
-    addFooter(pdf, i, totalPages);
+    addFooter(pdf, i);
   }
 
   return pdf.output("blob") as Blob;
 }
 
-/**
- * Download PDF to user's device
- */
 export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -340,53 +304,33 @@ export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
   URL.revokeObjectURL(url);
 }
 
-/**
- * Share PDF using native share or fallback to download
- */
-export async function sharePDF(
-  blob: Blob,
-  filename: string = "products.pdf",
-  title: string = "Share Products PDF"
-) {
+export async function sharePDF(blob: Blob, filename: string = "products.pdf", title: string = "Share Products PDF") {
   try {
     const base64Data = await blobToBase64(blob);
     try {
       await Share.share({
-        title: title,
-        text: "Check out these products",
+        title,
+        text: "Product Catalogue",
         files: [`data:application/pdf;base64,${base64Data}`],
         dialogTitle: title,
       });
       return true;
     } catch (err: any) {
-      if (err.name !== "AbortError") console.warn("Capacitor Share failed:", err);
+      if (err.name !== "AbortError") console.warn("Share failed", err);
     }
-
-    if (navigator.share && navigator.canShare({ files: [new File([blob], filename, { type: "application/pdf" })] })) {
-      await navigator.share({
-        files: [new File([blob], filename, { type: "application/pdf" })],
-        title: title,
-      });
-      return true;
-    }
-  } catch (err: any) {
-    if (err.name !== "AbortError") console.warn("Share API failed:", err);
+  } catch (err) {
+    console.warn("Share logic failed", err);
   }
-
   downloadPDF(blob, filename);
   return false;
 }
 
-/**
- * Convert blob to base64 string
- */
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const result = reader.result as string;
-      const base64 = result.split(",")[1];
-      resolve(base64);
+      const res = reader.result as string;
+      resolve(res.split(",")[1]);
     };
     reader.onerror = reject;
     reader.readAsDataURL(blob);
