@@ -9,6 +9,7 @@ import { getCroppedImg } from "./cropUtils";
 import { getPalette } from "./colorUtils";
 import { saveRenderedImage } from "./Save";
 import { useToast } from "./context/ToastContext";
+import { useTheme } from "./context/ThemeContext";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
 import { getProductFieldValue, getProductUnitValue } from "./config/fieldMigration";
@@ -278,6 +279,7 @@ export default function CreateProduct() {
   const catalogueParam = searchParams.get("catalogue");
   const fromParam = searchParams.get("from");
   const { showToast } = useToast();
+  const { currentTheme } = useTheme();
 
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
 
@@ -1065,9 +1067,9 @@ export default function CreateProduct() {
               ref={previewCardRef}
               style={{
                 width: "95%",
-                maxWidth: "330px",
+                maxWidth: `${currentTheme.rendering.cardWidth}px`,
                 backgroundColor: "white",
-                borderRadius: "12px",
+                borderRadius: `${currentTheme.rendering.cardBorderRadius}px`,
                 overflow: "hidden",
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
                 scale: finalScale,
@@ -1145,8 +1147,8 @@ export default function CreateProduct() {
                 <>
                   <div
                     style={{
-                      backgroundColor: getLighterColor(overrideColor),
-                      color: fontColor,
+                      backgroundColor: overrideColor ? getLighterColor(overrideColor) : currentTheme.styles.lightBgColor,
+                      color: fontColor || currentTheme.styles.fontColor,
                       padding: "10px",
                     }}
                   >
@@ -1184,8 +1186,8 @@ export default function CreateProduct() {
                   {getSelectedCataloguePrice() && (
                     <div
                       style={{
-                        backgroundColor: overrideColor,
-                        color: fontColor,
+                        backgroundColor: overrideColor || currentTheme.styles.bgColor,
+                        color: fontColor || currentTheme.styles.fontColor,
                         padding: "8px 6px",
                         textAlign: "center",
                         fontWeight: "600",

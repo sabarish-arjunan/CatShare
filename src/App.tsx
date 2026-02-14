@@ -39,6 +39,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { saveRenderedImage } from "./Save";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { getAllCatalogues } from "./config/catalogueConfig";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function AppWithBackHandler() {
   const navigate = useNavigate();
@@ -631,11 +632,13 @@ function AppWithBackHandler() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <ToastProvider>
-        <Router>
-          <AppWithBackHandler />
-        </Router>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <Router>
+            <AppWithBackHandler />
+          </Router>
+        </ToastProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

@@ -3,6 +3,7 @@ import { renderProductToCanvas, canvasToBase64 } from "./canvasRenderer";
 import { getCatalogueData } from "../config/catalogueProductUtils";
 import { safeGetFromStorage } from "./safeStorage";
 import { getAllFields } from "../config/fieldConfig";
+import { getThemeById } from "../config/themeConfig";
 
 /**
  * Retrieve a rendered image from localStorage or filesystem
@@ -46,11 +47,16 @@ export async function getRenderedImage(
 
 /**
  * Render a product image on-the-fly and return as base64 data URL
+ * @param product The product object to render
+ * @param catalogueLabel The catalogue label for the product
+ * @param catalogueId The catalogue ID for getting catalogue-specific data
+ * @param themeId The theme ID to use for rendering (optional, defaults to stored theme)
  */
 export async function renderProductImageOnTheFly(
   product: any,
   catalogueLabel: string,
-  catalogueId?: string
+  catalogueId?: string,
+  themeId?: string
 ): Promise<string | null> {
   try {
     if (!product.image && product.imagePath) {
@@ -74,13 +80,17 @@ export async function renderProductImageOnTheFly(
       catalogueData = { ...product, ...catData };
     }
 
-    const cropAspectRatio = product.cropAspectRatio || 1;
-    const baseWidth = 330;
+    // Get theme configuration
+    const storedThemeId = themeId || localStorage.getItem("selectedTheme") || "classic";
+    const theme = getThemeById(storedThemeId);
 
-    // Get styling settings
-    const fontColor = product.fontColor || "white";
-    const bgColor = product.bgColor || "#add8e6";
-    const imageBg = product.imageBgColor || "white";
+    const cropAspectRatio = product.cropAspectRatio || theme.rendering.cropAspectRatio;
+    const baseWidth = theme.rendering.cardWidth;
+
+    // Get styling settings - use product colors if set, otherwise use theme defaults
+    const fontColor = product.fontColor || theme.styles.fontColor;
+    const bgColor = product.bgColor || theme.styles.bgColor;
+    const imageBg = product.imageBgColor || theme.styles.imageBgColor;
 
     // Get price field
     const priceField = catalogueId === "cat2" ? "price2" : catalogueId === "cat1" ? "price1" : "price1";
@@ -114,6 +124,7 @@ export async function renderProductImageOnTheFly(
       });
 
     console.log(`🎨 On-the-fly rendering product: ${product.name || product.id}`);
+    console.log(`🎨 Theme: ${storedThemeId}, Colors - BG: ${bgColor}, Font: ${fontColor}, Image BG: ${imageBg}`);
 
     const canvas = await renderProductToCanvas(
       productData,

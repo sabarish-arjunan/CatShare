@@ -219,6 +219,7 @@ export interface ProductData {
 }
 
 import { getFieldConfig, getAllFields } from '../config/fieldConfig';
+import { getThemeById } from '../config/themeConfig';
 
 /**
  * Draw detailed product card to canvas

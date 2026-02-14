@@ -7,6 +7,7 @@ import { MdInventory2 } from "react-icons/md";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import { useToast } from "./context/ToastContext";
+import { useTheme } from "./context/ThemeContext";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
@@ -346,6 +347,7 @@ export default function ProductPreviewModal({
   filteredProducts = [],
 }) {
   const { showToast } = useToast();
+  const { currentTheme } = useTheme();
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
@@ -776,8 +778,8 @@ export default function ProductPreviewModal({
             {/* Details Section */}
             <div
               style={{
-                backgroundColor: getLighterColor(product.bgColor),
-                color: product.fontColor || "white",
+                backgroundColor: product.bgColor ? getLighterColor(product.bgColor) : currentTheme.styles.lightBgColor,
+                color: product.fontColor || currentTheme.styles.fontColor,
                 padding: "12px 12px",
                 fontSize: 17,
                 flex: 1,
@@ -835,8 +837,8 @@ export default function ProductPreviewModal({
             {hasPriceValue && (
               <div
                 style={{
-                  backgroundColor: product.bgColor || "#add8e6",
-                  color: product.fontColor || "white",
+                  backgroundColor: product.bgColor || currentTheme.styles.bgColor,
+                  color: product.fontColor || currentTheme.styles.fontColor,
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
