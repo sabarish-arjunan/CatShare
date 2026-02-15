@@ -234,39 +234,40 @@ export async function renderProductToCanvasGlass(
   const cardHeight = detailsHeight * scale + 40 * scale;
   const cardPadding = 16 * scale;
 
-  // Create multiple blur layers to simulate frosted glass effect
-  // Layer 1: Base frosted white with high opacity
+  // Create multiple blur layers to simulate frosted glass effect with transparency
+  // Layer 1: Base frosted white with balanced transparency
   ctx.save();
   const blurGradient1 = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  blurGradient1.addColorStop(0, 'rgba(255, 255, 255, 0.92)');
-  blurGradient1.addColorStop(0.5, 'rgba(245, 245, 245, 0.88)');
-  blurGradient1.addColorStop(1, 'rgba(255, 255, 255, 0.90)');
+  blurGradient1.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
+  blurGradient1.addColorStop(0.5, 'rgba(245, 245, 245, 0.58)');
+  blurGradient1.addColorStop(1, 'rgba(255, 255, 255, 0.62)');
   ctx.fillStyle = blurGradient1;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Layer 2: Subtle noise/texture effect for blur appearance (multiple thin strokes)
-  for (let i = 0; i < 3; i++) {
+  // Layer 2: Blur texture/frosted effect (multiple thin gradient layers)
+  for (let i = 0; i < 4; i++) {
     ctx.save();
-    ctx.globalAlpha = 0.04;
-    const noiseGradient = ctx.createLinearGradient(cardX + i * 50 * scale, cardY, cardX + (i + 2) * 50 * scale, cardY + cardHeight);
-    noiseGradient.addColorStop(0, 'rgba(200, 200, 200, 0.3)');
-    noiseGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.2)');
-    noiseGradient.addColorStop(1, 'rgba(200, 200, 200, 0.3)');
+    ctx.globalAlpha = 0.08;
+    const noiseGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
+    noiseGradient.addColorStop(0, 'rgba(200, 200, 200, 0.4)');
+    noiseGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.3)');
+    noiseGradient.addColorStop(1, 'rgba(200, 200, 200, 0.4)');
     ctx.fillStyle = noiseGradient;
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
     ctx.fill();
     ctx.restore();
   }
 
-  // Layer 3: Bright highlight at top for glass depth
+  // Layer 3: Bright highlight at top for glass depth and luminosity
   ctx.save();
-  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  ctx.globalAlpha = 0.6;
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.25);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight * 0.3, 16 * scale);
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight * 0.25, 16 * scale);
   ctx.fill();
   ctx.restore();
 
