@@ -2,6 +2,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getCatalogueData } from "./config/catalogueProductUtils";
 import { safeGetFromStorage } from "./utils/safeStorage";
 import { renderProductToCanvas, canvasToBase64 } from "./utils/canvasRenderer";
+import { renderProductToCanvasGlass } from "./utils/canvasRenderer-glass";
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getAllFields } from "./config/fieldConfig";
 import { getCurrentCurrencySymbol } from "./utils/currencyUtils";
@@ -312,10 +313,13 @@ export async function saveRenderedImage(product, type, units = {}) {
       productName: product.name
     });
 
-    // Render using Canvas API
+    // Render using Canvas API - Choose renderer based on theme
     let canvas;
     try {
-      canvas = await renderProductToCanvas(productData, {
+      const isGlassTheme = product.renderingType === "glass";
+      console.log(`🎨 Using ${isGlassTheme ? "Glass" : "Classic"} theme renderer for: ${product.name}`);
+
+      const renderOptions = {
         width: baseWidth,
         scale: renderScale,
         bgColor: bgColor,
@@ -323,11 +327,19 @@ export async function saveRenderedImage(product, type, units = {}) {
         fontColor: fontColor,
         backgroundColor: "#ffffff",
         currencySymbol: getCurrentCurrencySymbol(),
-      }, {
+      };
+
+      const watermarkOptions = {
         enabled: isWatermarkEnabled,
         text: watermarkText,
         position: watermarkPosition,
-      });
+      };
+
+      if (isGlassTheme) {
+        canvas = await renderProductToCanvasGlass(productData, renderOptions, watermarkOptions);
+      } else {
+        canvas = await renderProductToCanvas(productData, renderOptions, watermarkOptions);
+      }
       console.log(`✅ Canvas rendered successfully. Size: ${canvas.width}x${canvas.height}`);
     } catch (renderErr) {
       console.error(`❌ Canvas rendering failed:`, renderErr);
