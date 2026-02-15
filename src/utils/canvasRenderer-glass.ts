@@ -199,7 +199,7 @@ export async function renderProductToCanvasGlass(
     const badgeHeight = badgeFontSize + badgePaddingV * 2;
 
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
-    const badgeY = currentY + imageHeight - badgeHeight - 12 * scale;
+    const badgeY = currentY + 12 * scale;
 
     // Draw glass badge background
     ctx.save();
@@ -227,30 +227,41 @@ export async function renderProductToCanvasGlass(
   currentY += imageHeight;
 
   // ===== GLASS CARD DETAILS SECTION =====
-  const cardMargin = 8 * scale;
+  const cardMargin = 12 * scale;
   const cardX = cardMargin;
-  const cardY = currentY - 30 * scale;
+  const cardY = currentY - 20 * scale;  // Overlap slightly for glass morphism effect
   const cardWidth = canvasWidth - 2 * cardMargin;
   const cardPadding = 16 * scale;
 
-  // Glass card background with blur effect simulation
-  ctx.save();
-  ctx.globalAlpha = 0.45;
-  ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, detailsHeight * scale + 40 * scale, 14 * scale);
+  // Draw gradient background behind glass card for blur effect simulation
+  const glassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + detailsHeight * scale + 40 * scale);
+  glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+  glassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.75)');
+  ctx.fillStyle = glassGradient;
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, detailsHeight * scale + 40 * scale, 16 * scale);
   ctx.fill();
-  ctx.restore();
 
-  // Glass card border
-  ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+  // Glass card border with blur effect appearance
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.lineWidth = 2 * scale;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, detailsHeight * scale + 40 * scale, 14 * scale);
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, detailsHeight * scale + 40 * scale, 16 * scale);
   ctx.stroke();
 
-  // Draw content inside glass card
-  currentY = cardY + 30 * scale;
+  // Draw decorative gradient overlay for glass morphism
+  const overlayGradient = ctx.createLinearGradient(0, cardY, cardWidth, 0);
+  overlayGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+  overlayGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+  overlayGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+  ctx.fillStyle = overlayGradient;
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, (detailsHeight * scale + 40 * scale) / 2, 16 * scale);
+  ctx.fill();
 
-  ctx.fillStyle = '#000000';
+  // Draw content inside glass card
+  currentY = cardY + 25 * scale;
+
+  // Use product's font color or fall back to black
+  const textColor = options.fontColor || '#000000';
+  ctx.fillStyle = textColor;
   ctx.textAlign = 'center';
 
   // Title
@@ -279,6 +290,7 @@ export async function renderProductToCanvasGlass(
 
   ctx.font = fieldFont;
   ctx.textAlign = 'center';
+  ctx.fillStyle = textColor;
 
   const activeFields = allEnabledFields.filter(f => !!product[f.key]);
   activeFields.forEach(field => {
@@ -298,32 +310,41 @@ export async function renderProductToCanvasGlass(
 
   currentY += spacingAfterFields * scale;
 
-  // ===== PRICE BAR =====
+  // ===== PRICE BUTTON =====
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
     const priceBgColor = options.bgColor;
-    ctx.fillStyle = priceBgColor;
-
-    // Draw price bar inside card or as separate element
     const priceBarHeight = priceBarHeightBase * scale;
-    const priceBarY = currentY;
+    const priceBarY = currentY + spacingAfterFields * scale;
+    const priceButtonWidth = cardWidth - 2 * cardPadding;
+    const priceButtonX = cardX + cardPadding;
+    const priceButtonRadius = 10 * scale;
 
-    ctx.fillRect(cardX, priceBarY - 4 * scale, cardWidth, priceBarHeight + 8 * scale);
+    // Draw price button with rounded corners (like a button, not a bar)
+    ctx.fillStyle = priceBgColor;
+    drawRoundedRect(ctx, priceButtonX, priceBarY, priceButtonWidth, priceBarHeight, priceButtonRadius);
+    ctx.fill();
+
+    // Button border
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.lineWidth = 1 * scale;
+    drawRoundedRect(ctx, priceButtonX, priceBarY, priceButtonWidth, priceBarHeight, priceButtonRadius);
+    ctx.stroke();
 
     const priceFontSize = Math.floor(18 * scale);
     const priceFont = `600 ${priceFontSize}px Arial, sans-serif`;
     ctx.font = priceFont;
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = options.fontColor === 'white' ? '#fff' : '#000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     const currencySymbol = options.currencySymbol || '₹';
-    const priceText = product.priceUnit && product.priceUnit !== 'None' 
-      ? `₹${product.price} ${product.priceUnit}` 
-      : `₹${product.price}`;
-    
-    ctx.fillText(priceText, canvasWidth / 2, priceBarY + priceBarHeight / 2);
+    const priceText = product.priceUnit && product.priceUnit !== 'None'
+      ? `${currencySymbol}${product.price} ${product.priceUnit}`
+      : `${currencySymbol}${product.price}`;
 
-    currentY += priceBarHeight;
+    ctx.fillText(priceText, priceButtonX + priceButtonWidth / 2, priceBarY + priceBarHeight / 2);
+
+    currentY += priceBarHeight + spacingAfterFields * scale;
   }
 
   // ===== WATERMARK =====
