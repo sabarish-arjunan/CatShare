@@ -289,6 +289,29 @@ export function migrateFromTwoCataloguesToOne(): void {
 }
 
 /**
+ * Migration: Ensure watermark is enabled by default for existing users
+ * if they haven't explicitly set it or if it was the old default false.
+ */
+export function migrateWatermarkDefault(): void {
+  try {
+    const showWatermark = localStorage.getItem("showWatermark");
+    const hasMigrated = localStorage.getItem("hasMigratedWatermarkDefault");
+
+    if (!hasMigrated) {
+      // If never set OR if set to false (old default), force to true for migration
+      // This ensures existing users who were on the old 'false' default get the new 'true' default once.
+      if (showWatermark === null || showWatermark === "false") {
+        localStorage.setItem("showWatermark", "true");
+        console.log("✅ Migrated watermark default to enabled");
+      }
+      localStorage.setItem("hasMigratedWatermarkDefault", "true");
+    }
+  } catch (err) {
+    console.error("❌ Failed to migrate watermark default:", err);
+  }
+}
+
+/**
  * Run all migration and validation steps
  * Should be called on app startup
  */
@@ -304,10 +327,13 @@ export async function runMigrations(): Promise<void> {
   // Step 2: Migrate from old 2-catalogue to 1-catalogue system if applicable
   migrateFromTwoCataloguesToOne();
 
-  // Step 3: Ensure all products have required fields
+  // Step 3: Migrate watermark default
+  migrateWatermarkDefault();
+
+  // Step 4: Ensure all products have required fields
   ensureProductsHaveStockFields();
 
-  // Step 4: Validate configuration
+  // Step 5: Validate configuration
   const isValid = validateCatalogueConfig();
 
   if (isValid) {

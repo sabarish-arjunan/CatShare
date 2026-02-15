@@ -445,7 +445,7 @@ export default function ProductPreviewModal_Classic({
 
   // Check if watermark should be shown
   const [showWatermark, setShowWatermark] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
 
   // Get custom watermark text

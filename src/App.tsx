@@ -347,7 +347,7 @@ function AppWithBackHandler() {
     const watermarkPosition = localStorage.getItem("watermarkPosition");
 
     if (showWatermark === null) {
-      safeSetInStorage("showWatermark", false); // Default: disabled
+      safeSetInStorage("showWatermark", true); // Default: enabled
     }
     if (watermarkText === null) {
       safeSetInStorage("watermarkText", "Created using CatShare");

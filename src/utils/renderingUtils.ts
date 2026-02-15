@@ -99,7 +99,7 @@ export async function renderProductImageOnTheFly(
     const priceUnit = catalogueData[priceUnitField] || "/ piece";
 
     // Get watermark settings
-    const isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
+    const isWatermarkEnabled = safeGetFromStorage("showWatermark", true);
     const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
     const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 

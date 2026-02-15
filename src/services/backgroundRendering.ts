@@ -91,7 +91,7 @@ export async function startBackgroundRendering(
     const isNative = Capacitor.getPlatform() !== 'web';
 
     // Get watermark settings
-    const isWatermarkEnabled = safeGetFromStorage('showWatermark', false);
+    const isWatermarkEnabled = safeGetFromStorage('showWatermark', true);
     const watermarkText = safeGetFromStorage('watermarkText', 'Created using CatShare');
     const watermarkPosition = safeGetFromStorage('watermarkPosition', 'bottom-center');
 

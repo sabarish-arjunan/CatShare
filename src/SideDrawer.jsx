@@ -663,7 +663,7 @@ const exportProductsToCSV = (products) => {
         // For v3 backups, restore from metadata; otherwise keep current settings
         showWatermark: isV3Backup && parsed.metadata?.watermarkSettings
           ? parsed.metadata.watermarkSettings.showWatermark
-          : safeGetFromStorage('showWatermark', false),
+          : safeGetFromStorage('showWatermark', true),
         watermarkText: isV3Backup && parsed.metadata?.watermarkSettings
           ? parsed.metadata.watermarkSettings.watermarkText
           : safeGetFromStorage('watermarkText', 'Created using CatShare'),
