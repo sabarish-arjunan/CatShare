@@ -49,7 +49,7 @@ export default function ThemesSettings() {
     imageBgColor: "white",
     bgColor: "#0f8577", // Teal/turquoise dark
     lightBgColor: "#7fdcc7", // Teal light for gradient
-    fontColor: "#0f8577",
+    fontColor: "white",
     cropAspectRatio: 1,
   };
 
@@ -249,19 +249,19 @@ export default function ThemesSettings() {
                                 fontWeight: "600",
                                 fontSize: 18,
                                 margin: "0 0 4px 0",
-                                color: "#000000",
+                                color: "white",
                               }}
                             >
                               {sampleProduct.name}
                             </p>
                             {sampleProduct.subtitle && (
-                              <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#000000" }}>
+                              <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "white" }}>
                                 ({sampleProduct.subtitle})
                               </p>
                             )}
                           </div>
                           {/* Fields */}
-                          <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
+                          <div style={{ flex: 1, marginBottom: 8, color: "white", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
                             <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
                               <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Colour</span>
                               <span style={{ fontWeight: "500" }}>:</span>
@@ -275,9 +275,9 @@ export default function ThemesSettings() {
                             </div>
 
                             <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                              <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Material</span>
+                              <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Age Group</span>
                               <span style={{ fontWeight: "500" }}>:</span>
-                              <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.material}</span>
+                              <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.ageGroup}</span>
                             </div>
                           </div>
 
