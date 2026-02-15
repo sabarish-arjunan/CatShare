@@ -179,12 +179,10 @@ export async function renderProductToCanvasGlass(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge with glass morphism effect
+  // Draw badge with glass morphism effect (matching glass theme)
   if (product.badge) {
     const isWhiteBg = isLightColor(imageBg);
-    const badgeBg = isWhiteBg ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.50)';
-    const badgeText = isWhiteBg ? 'rgba(255, 255, 255, 0.95)' : '#000';
-    const badgeBorder = isWhiteBg ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.8)';
+    const badgeText = isWhiteBg ? '#ffffff' : '#000000';
 
     const badgeText_str = product.badge.toUpperCase();
     const badgeFontSize = Math.floor(13 * scale);
@@ -201,17 +199,36 @@ export async function renderProductToCanvasGlass(
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
     const badgeY = currentY + 12 * scale;
 
-    // Draw glass badge background
+    // Apply blur filter to badge background for glass morphism
     ctx.save();
-    ctx.globalAlpha = 0.45;
-    ctx.fillStyle = badgeBg;
+    const badgeBlurAmount = 15; // Slightly less blur than card for badge visibility
+    (ctx as any).filter = `blur(${badgeBlurAmount}px)`;
+
+    // Draw blurred background for badge
+    const badgeBgGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+    badgeBgGradient.addColorStop(0, options.bgColor);
+    badgeBgGradient.addColorStop(1, lightenColor(options.bgColor, -15));
+    ctx.fillStyle = badgeBgGradient;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
-    ctx.globalAlpha = 1;
     ctx.restore();
 
-    // Badge border
-    ctx.strokeStyle = badgeBorder;
+    // Reset filter
+    (ctx as any).filter = 'none';
+
+    // Layer 1: Semi-transparent white overlay for badge
+    ctx.save();
+    ctx.globalAlpha = 0.32;
+    const badgeGlassGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+    badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.6)');
+    ctx.fillStyle = badgeGlassGradient;
+    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
+    ctx.fill();
+    ctx.restore();
+
+    // Badge border - enhanced for visibility
+    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.7)';
     ctx.lineWidth = 1.5 * scale;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
