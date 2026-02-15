@@ -234,27 +234,48 @@ export async function renderProductToCanvasGlass(
   const cardHeight = detailsHeight * scale + 40 * scale;
   const cardPadding = 16 * scale;
 
-  // Create multiple blur layers to simulate frosted glass effect with transparency
-  // Layer 1: Base frosted white with balanced transparency
+  // Create proper blurred frosted glass effect by applying blur filter to canvas context
+  // This creates an actual blur effect instead of just transparency
+
+  // Apply blur filter to the canvas context for the glass card background
   ctx.save();
+  const blurAmount = 25; // Blur radius in pixels - simulates backdrop-filter: blur(20px)
+  (ctx as any).filter = `blur(${blurAmount}px)`;
+
+  // Draw blurred gradient background that represents the blurred content behind glass
   const blurGradient1 = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  blurGradient1.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
-  blurGradient1.addColorStop(0.5, 'rgba(245, 245, 245, 0.58)');
-  blurGradient1.addColorStop(1, 'rgba(255, 255, 255, 0.62)');
+  blurGradient1.addColorStop(0, options.bgColor);
+  blurGradient1.addColorStop(0.5, lightenColor(options.bgColor, -20));
+  blurGradient1.addColorStop(1, options.bgColor);
   ctx.fillStyle = blurGradient1;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Layer 2: Blur texture/frosted effect (multiple thin gradient layers)
-  for (let i = 0; i < 5; i++) {
+  // Reset filter for subsequent drawing operations
+  (ctx as any).filter = 'none';
+
+  // Layer 1: Semi-transparent white overlay (glass morphism base) with saturation boost
+  ctx.save();
+  ctx.globalAlpha = 0.45;
+  const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(245, 245, 245, 0.7)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.75)');
+  ctx.fillStyle = baseGlassGradient;
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
+  ctx.fill();
+  ctx.restore();
+
+  // Layer 2: Subtle texture/frosted effect (reduced opacity for better transparency)
+  for (let i = 0; i < 3; i++) {
     ctx.save();
-    ctx.globalAlpha = 0.18;
-    const noiseGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
-    noiseGradient.addColorStop(0, 'rgba(200, 200, 200, 0.4)');
-    noiseGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.3)');
-    noiseGradient.addColorStop(1, 'rgba(200, 200, 200, 0.4)');
-    ctx.fillStyle = noiseGradient;
+    ctx.globalAlpha = 0.08;
+    const textureGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
+    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.4)');
+    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.3)');
+    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.4)');
+    ctx.fillStyle = textureGradient;
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
     ctx.fill();
     ctx.restore();
@@ -262,12 +283,12 @@ export async function renderProductToCanvasGlass(
 
   // Layer 3: Bright highlight at top for glass depth and luminosity
   ctx.save();
-  ctx.globalAlpha = 0.6;
-  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.25);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+  ctx.globalAlpha = 0.5;
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight * 0.25, 16 * scale);
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
