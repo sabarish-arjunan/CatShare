@@ -362,7 +362,7 @@ export async function renderProductToCanvasGlass(
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
     const priceBgColor = options.bgColor;
     const priceBarHeight = priceBarHeightBase * scale;
-    const priceBarY = currentY + spacingAfterFields * scale;
+    const priceBarY = currentY + 8 * scale;  // Small spacing before price bar
     const priceButtonWidth = cardWidth - 2 * cardPadding;
     const priceButtonX = cardX + cardPadding;
     const priceButtonRadius = 10 * scale;
@@ -392,7 +392,7 @@ export async function renderProductToCanvasGlass(
 
     ctx.fillText(priceText, priceButtonX + priceButtonWidth / 2, priceBarY + priceBarHeight / 2);
 
-    currentY += priceBarHeight + spacingAfterFields * scale;
+    currentY += priceBarHeight + 8 * scale;  // Reduced spacing after price bar to fit inside card
   }
 
   // ===== WATERMARK =====
