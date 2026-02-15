@@ -71,42 +71,88 @@ export default function ThemesSettings() {
     "https://cdn.builder.io/api/v1/image/assets%2F9de8f88039f043c2bb2e12760a839fad%2F7f2e888f655c4a6d8e8d286a6b93b85a?format=webp&width=800&height=1200";
 
   return (
-    <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950 relative">
+    <div className="w-full h-screen flex flex-col bg-slate-50 dark:bg-slate-950 relative selection:bg-red-100 dark:selection:bg-red-900/30">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/10 blur-[100px] rounded-full"></div>
+        <div className="absolute bottom-[-5%] left-[-5%] w-[30%] h-[30%] bg-red-100/30 dark:bg-red-900/10 blur-[80px] rounded-full"></div>
+      </div>
+
       {/* Status bar placeholder */}
       <div className="sticky top-0 h-[40px] bg-black z-50"></div>
 
       {/* Header */}
-      <header className="sticky top-[40px] z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 h-14 flex items-center gap-3 px-4 relative">
+      <header className="sticky top-[40px] z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 h-16 flex items-center gap-4 px-5 relative">
         <button
           onClick={() => navigate("/settings")}
-          className="w-8 h-8 shrink-0 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition"
+          className="w-10 h-10 shrink-0 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-95 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
           aria-label="Back"
           title="Back to Settings"
         >
-          <MdArrowBack size={24} />
+          <MdArrowBack size={22} />
         </button>
-        <h1 className="text-xl font-bold flex-1 text-center dark:text-white">Themes</h1>
-        <div className="w-8"></div>
+        <div className="flex flex-col flex-1 items-center">
+          <h1 className="text-lg font-bold text-slate-900 dark:text-white leading-tight tracking-tight">Themes</h1>
+          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-[0.2em] ml-1">Appearance</span>
+        </div>
+        <div className="w-10"></div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
-        <div className="space-y-6 max-w-2xl mx-auto">
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Choose how your product cards are displayed
-          </p>
+      <main className="flex-1 overflow-y-auto px-5 py-8 pb-32 z-10">
+        <div className="max-w-xl mx-auto space-y-12">
+          <div className="text-center space-y-3">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Choose Style</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto font-medium">
+              Pick the perfect aesthetic to showcase your unique product catalog
+            </p>
+          </div>
 
           {/* Theme Cards - Each card is a selectable theme */}
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-16">
             {themes.map((theme) => {
               // Get product specific to this theme
               const sampleProduct = theme.id === "classic" ? classicProduct : glassProduct;
               const isGlassTheme = theme.id === "glass";
 
               return (
-                <div key={theme.id} className="space-y-3">
-                  {/* Theme Preview Card */}
-                  <div className="flex justify-center">
+                <div key={theme.id} className="group flex flex-col">
+                  {/* Theme Header Info */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
+                      selectedThemeId === theme.id 
+                        ? "bg-red-600 text-white scale-110 rotate-3" 
+                        : "bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700"
+                    }`}>
+                      <span className="text-sm font-black uppercase tracking-tighter">
+                        {theme.id === "classic" ? "CL" : "GL"}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">{theme.name} Edition</h3>
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${isGlassTheme ? "bg-blue-400" : "bg-emerald-400"}`}></span>
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest">
+                          {isGlassTheme ? "Ultra Modern" : "Universal Clean"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Theme Preview Card Wrapper */}
+                  <div className={`relative p-8 rounded-[2rem] transition-all duration-700 border-2 ${
+                    selectedThemeId === theme.id
+                      ? "bg-white dark:bg-slate-900 border-red-500/20 dark:border-red-500/20 shadow-2xl shadow-red-500/10 ring-1 ring-red-500/5"
+                      : "bg-white/40 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/50 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
+                  }`}>
+                    {/* Visual selection indicator */}
+                    {selectedThemeId === theme.id && (
+                      <div className="absolute -top-4 -right-4 w-10 h-10 bg-red-600 text-white rounded-2xl flex items-center justify-center shadow-xl border-4 border-slate-50 dark:border-slate-950 z-30 transform rotate-12">
+                        <span className="text-lg font-bold">✓</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-center mb-10 transform transition-transform duration-500 group-hover:scale-[1.02]">
                     {isGlassTheme ? (
                       // Glass Theme - Card Style Design
                       <div
@@ -434,88 +480,111 @@ export default function ThemesSettings() {
                         </div>
                       </div>
                     )}
-                  </div>
+                    </div>
 
-                  {/* Select Button */}
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => handleThemeSelect(theme.id)}
-                      className={`px-8 py-3 rounded-lg font-semibold transition ${
-                        selectedThemeId === theme.id
-                          ? "bg-red-600 text-white shadow-lg"
-                          : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-                      }`}
-                    >
-                      {selectedThemeId === theme.id ? "✓ Selected" : "Select"} {theme.name}
-                    </button>
-                  </div>
+                    {/* Select Action and Description */}
+                    <div className="mt-8 space-y-6">
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => handleThemeSelect(theme.id)}
+                          className={`group/btn relative px-10 py-4 rounded-2xl font-black transition-all duration-300 active:scale-95 flex items-center gap-3 shadow-xl ${
+                            selectedThemeId === theme.id
+                              ? "bg-red-600 text-white shadow-red-500/30 ring-4 ring-red-500/10"
+                              : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
+                          }`}
+                        >
+                          <span className="relative z-10 flex items-center gap-2">
+                            {selectedThemeId === theme.id ? "Applied Style" : `Use ${theme.name}`}
+                            {selectedThemeId === theme.id && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
+                            )}
+                          </span>
+                        </button>
+                      </div>
 
-                  {/* Theme Description & Features */}
-                  <div className="space-y-3">
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">{theme.description}</p>
-                      <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
-                        Features
-                      </h4>
-                      <ul className="text-xs text-gray-700 dark:text-gray-400 space-y-1">
-                        {isGlassTheme ? (
-                          <>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Modern glass effect with red gradient background</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Card-style layout with premium appearance</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Elegant hanger icon and field indicators</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-red-600 dark:text-red-400 mt-0.5">✓</span>
-                              <span>Premium glass morphism with red color scheme</span>
-                            </li>
-                          </>
-                        ) : (
-                          <>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                              <span>Clean, minimalist product display</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                              <span>Colored background sections</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                              <span>All product details visible</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                              <span>Easy to customize colors</span>
-                            </li>
-                          </>
-                        )}
-                      </ul>
+                      <div className="p-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm space-y-4">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                          {theme.description}
+                        </p>
+                        
+                        <div className="pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
+                          <h4 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-4">
+                            Key Features
+                          </h4>
+                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {isGlassTheme ? (
+                              <>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>Frosted Glass</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>3D Depth Effect</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>Vibrant Gradients</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>Premium Polish</span>
+                                </li>
+                              </>
+                            ) : (
+                              <>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>Minimalist Grid</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>High Readability</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>Fast Rendering</span>
+                                </li>
+                                <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                  <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <span>Custom Colors</span>
+                                </li>
+                              </>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          {/* Coming Soon Info */}
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-100 text-sm mb-2">
-              More Themes Coming Soon
-            </h3>
-            <p className="text-xs text-amber-800 dark:text-amber-200">
-              We're working on additional product card layouts to give you more customization options for your product displays.
-            </p>
+            {/* Coming Soon Section */}
+            <div className="relative group p-1 rounded-[2.5rem] bg-gradient-to-br from-amber-400 via-orange-500 to-red-600 shadow-2xl">
+              <div className="bg-white dark:bg-slate-900 rounded-[2.4rem] p-8 space-y-5 text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-3xl rounded-full"></div>
+                
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-3xl mb-2 text-3xl shadow-inner border border-amber-200/50">
+                  ✨
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">More Themes Coming</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed px-4">
+                    We're crafting new breathtaking layouts to give your products the spotlight they deserve.
+                  </p>
+                </div>
+                
+                <div className="pt-2">
+                  <span className="px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                    Stay Tuned
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );
+        </main>
+      </div>
+    );
 }
