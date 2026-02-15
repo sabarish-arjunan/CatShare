@@ -381,6 +381,7 @@ export default function ProductPreviewModal_Glass({
                     justifyContent: "center",
                     aspectRatio: product.cropAspectRatio || currentTheme.rendering.cropAspectRatio,
                     width: "100%",
+                    overflow: "hidden",
                   }}
                   onClick={handleImageClick}
                 >
