@@ -248,7 +248,7 @@ export async function renderProductToCanvasGlass(
   const cardX = cardMargin;
   const cardY = currentY - 20 * scale;  // Overlap slightly for glass morphism effect
   const cardWidth = canvasWidth - 2 * cardMargin;
-  const cardHeight = detailsHeight * scale + 40 * scale;  // Extra height for proper bottom padding around price bar
+  const cardHeight = detailsHeight * scale + 28 * scale;  // Balanced padding to fit inside card without touching edges
   const cardPadding = 16 * scale;
 
   // Create proper blurred frosted glass effect by applying blur filter to canvas context
