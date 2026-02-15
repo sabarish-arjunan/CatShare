@@ -402,15 +402,16 @@ export default function ProductPreviewModal_Glass({
                         position: "absolute",
                         top: 12,
                         right: 12,
-                        backgroundColor: badgeBg,
-                        color: badgeText,
+                        backgroundColor: isWhiteBg ? "rgba(255, 255, 255, 0.32)" : "rgba(255, 255, 255, 0.32)",
+                        backdropFilter: "blur(15px)",
+                        WebkitBackdropFilter: "blur(15px)",
+                        color: isWhiteBg ? "#ffffff" : "#000000",
                         fontSize: 12,
-                        fontWeight: 400,
-                        padding: "5px 10px",
+                        fontWeight: "600",
+                        padding: "8px 14px",
                         borderRadius: "999px",
-                        opacity: 0.95,
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                        border: `1px solid ${badgeBorder}`,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        border: `1px solid ${isWhiteBg ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 0.7)"}`,
                         letterSpacing: "0.4px",
                         pointerEvents: "none",
                         display: "flex",
@@ -476,7 +477,7 @@ export default function ProductPreviewModal_Glass({
                     overflow: "visible",
                   }}
                 >
-                  {/* Decorative gradient overlay */}
+                  {/* Decorative gradient overlay - minimal for glass effect */}
                   <div
                     style={{
                       position: "absolute",
@@ -484,7 +485,7 @@ export default function ProductPreviewModal_Glass({
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      background: "radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%)",
+                      background: "radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.06) 0%, transparent 50%)",
                       pointerEvents: "none",
                       zIndex: 0,
                     }}
@@ -493,21 +494,21 @@ export default function ProductPreviewModal_Glass({
                   {/* Glass Morphism Content Box */}
                   <div
                     style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.45)",
-                      backdropFilter: "blur(20px) saturate(180%)",
-                      WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                      backgroundColor: "rgba(255, 255, 255, 0.28)",
+                      backdropFilter: "blur(25px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(25px) saturate(180%)",
                       padding: "16px 12px",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      border: "2px solid rgba(255, 255, 255, 1)",
+                      border: "2px solid rgba(255, 255, 255, 0.8)",
                       borderRadius: "14px",
                       width: "calc(100% - 16px)",
                       marginTop: "-30px",
-                      marginLeft: "8px",
-                      marginRight: "8px",
-                      marginBottom: "8px",
-                      boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 12px 40px rgba(220, 38, 38, 0.3), 0 20px 50px rgba(0, 0, 0, 0.25)",
+                      marginLeft: "16px",
+                      marginRight: "16px",
+                      marginBottom: "24px",
+                      boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.1)",
                       position: "relative",
                       zIndex: 2,
                     }}
@@ -531,8 +532,8 @@ export default function ProductPreviewModal_Glass({
                       )}
                     </div>
 
-                    {/* Fields */}
-                    <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || "#000000", fontSize: 13, width: "100%" }}>
+                    {/* Fields - Aligned layout */}
+                    <div style={{ flex: 1, marginBottom: 12, color: product.fontColor || "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
                       {enabledFields.map((field) => {
                         const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                         const hasValue = hasFieldValue(fieldValue);
@@ -547,9 +548,10 @@ export default function ProductPreviewModal_Glass({
                         const unitDisplay = (field.unitsEnabled && unitValue !== "None") ? unitValue : "";
 
                         return (
-                          <div key={field.key} style={{ marginBottom: 8 }}>
-                            <span style={{ fontWeight: "500" }}>{field.label}: </span>
-                            <span style={{ marginLeft: 4 }}>{fieldValue} {unitDisplay}</span>
+                          <div key={field.key} style={{ marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+                            <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>{field.label}</span>
+                            <span style={{ fontWeight: "500" }}>:</span>
+                            <span style={{ textAlign: "left", flex: 1 }}>{fieldValue} {unitDisplay}</span>
                           </div>
                         );
                       })}
@@ -561,14 +563,15 @@ export default function ProductPreviewModal_Glass({
                         style={{
                           backgroundColor: product.bgColor || currentTheme.styles.bgColor,
                           color: product.fontColor || "white",
-                          padding: "8px 12px",
+                          padding: "12px 16px",
                           textAlign: "center",
-                          fontWeight: "500",
-                          fontSize: 14,
-                          borderRadius: "6px",
-                          marginTop: 4,
-                          width: "100%",
+                          fontWeight: "600",
+                          fontSize: 16,
+                          borderRadius: "10px",
+                          marginTop: 8,
+                          width: "calc(100% - 32px)",
                           whiteSpace: "nowrap",
+                          border: "1px solid rgba(0, 0, 0, 0.1)",
                         }}
                       >
                         {currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
