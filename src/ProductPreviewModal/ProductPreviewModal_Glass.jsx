@@ -550,7 +550,7 @@ export default function ProductPreviewModal_Glass({
                         if (!hasValue || !isVisible) return null;
 
                         const unitKey = `${field.key}Unit`;
-                        const unitValue = catalogueData[unitKey] !== undefined && catalogueData[unitKey] !== null ? catalogueData[unitKey] : (product[unitKey] || "None");
+                        const unitValue = (catalogueData[unitKey] && catalogueData[unitKey] !== "") ? catalogueData[unitKey] : (product[unitKey] || "None");
                         const unitDisplay = (field.unitsEnabled && unitValue !== "None") ? unitValue : "";
 
                         return (
@@ -585,7 +585,7 @@ export default function ProductPreviewModal_Glass({
                           const unitsEnabled = config ? config.unitsEnabled : true;
                           if (!unitsEnabled) return "";
 
-                          const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null
+                          const unit = (catalogueData[priceUnitField] && catalogueData[priceUnitField] !== "")
                             ? catalogueData[priceUnitField]
                             : (product[priceUnitField] || "/ piece");
 
