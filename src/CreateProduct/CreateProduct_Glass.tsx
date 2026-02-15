@@ -1281,20 +1281,20 @@ export default function CreateProduct() {
                             fontWeight: "600",
                             fontSize: 18,
                             margin: "0 0 4px 0",
-                            color: "#000000",
+                            color: fontColor,
                           }}
                         >
                           {formData.name || "Product Name"}
                         </p>
                         {formData.subtitle && (
-                          <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#000000" }}>
+                          <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: fontColor }}>
                             ({formData.subtitle})
                           </p>
                         )}
                       </div>
 
                       {/* Fields */}
-                      <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%" }}>
+                      <div style={{ flex: 1, marginBottom: 8, color: fontColor, fontSize: 13, width: "100%" }}>
                         {getAllFields()
                           .filter(f => f.enabled && f.key.startsWith('field'))
                           .map(field => {
@@ -1321,7 +1321,7 @@ export default function CreateProduct() {
                         <div
                           style={{
                             backgroundColor: overrideColor,
-                            color: "white",
+                            color: fontColor === "white" ? "white" : "black",
                             padding: "8px 12px",
                             textAlign: "center",
                             fontWeight: "500",
