@@ -787,7 +787,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                             <div {...provided.dragHandleProps} className="text-gray-400 shrink-0">
                               ☰
                             </div>
-                            <div className="w-14 h-14 rounded border bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                            <div className="relative w-14 h-14 rounded border bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                               {imageMap[p.id] ? (
                                 <img
                                   src={imageMap[p.id]}
@@ -801,6 +801,26 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
                                 />
                               ) : (
                                 <span className="text-[10px] text-gray-400">Loading...</span>
+                              )}
+                              {!catalogues.every((cat) => (p as any)[cat.stockField]) && (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%) rotate(-30deg)",
+                                    width: "140%",
+                                    backgroundColor: "rgba(220, 38, 38, 0.7)",
+                                    color: "white",
+                                    textAlign: "center",
+                                    padding: "4px 0",
+                                    fontSize: "10px",
+                                    fontWeight: "bold",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  OUT OF STOCK
+                                </div>
                               )}
                             </div>
 
