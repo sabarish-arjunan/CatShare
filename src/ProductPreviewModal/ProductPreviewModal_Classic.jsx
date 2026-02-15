@@ -557,10 +557,6 @@ export default function ProductPreviewModal_Classic({
   const priceField = catalogueConfig?.priceField || "price1";
   const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
 
-  // Check if product is out of stock in the current catalogue
-  const stockField = catalogueConfig?.stockField || "wholesaleStock";
-  const isCurrentCatalogueOutOfStock = !product[stockField];
-
   // Check if product has a valid price for this catalogue
   const priceValue = catalogueData[priceField] || product[priceField];
   const hasPriceValue = priceValue !== undefined && priceValue !== null && priceValue !== "" && priceValue !== 0;
@@ -729,7 +725,7 @@ export default function ProductPreviewModal_Classic({
                 </div>
               )}
 
-              {(isCurrentCatalogueOutOfStock || bothOut) && (
+              {bothOut && (
                 <div
                   style={{
                     position: "absolute",
