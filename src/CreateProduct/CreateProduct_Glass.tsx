@@ -931,6 +931,7 @@ export default function CreateProduct() {
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
       cropAspectRatio: appliedAspectRatio,
+      renderingType: "glass",
     };
 
     if (newItem.image) {
@@ -1180,19 +1181,26 @@ export default function CreateProduct() {
                         position: "absolute",
                         top: 12,
                         right: 12,
-                        backgroundColor: badgeBg,
-                        color: badgeText,
+                        backgroundColor: isWhiteBg
+                          ? "rgba(0, 0, 0, 0.35)"
+                          : "rgba(255, 255, 255, 0.50)",
+                        backdropFilter: "blur(20px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                        color: isWhiteBg ? "rgba(255, 255, 255, 0.95)" : badgeText,
                         fontSize: 13,
-                        fontWeight: 400,
-                        padding: "6px 10px",
+                        fontWeight: 600,
+                        padding: "8px 14px",
                         borderRadius: "999px",
-                        opacity: 0.95,
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                        border: `1px solid ${badgeBorder}`,
+                        border: isWhiteBg
+                          ? `1.5px solid rgba(255, 255, 255, 0.4)`
+                          : `1.5px solid rgba(255, 255, 255, 0.8)`,
                         letterSpacing: "0.5px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        boxShadow: isWhiteBg
+                          ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
+                          : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
                       }}
                     >
                       {getCatalogueFormData().badge.toUpperCase()}

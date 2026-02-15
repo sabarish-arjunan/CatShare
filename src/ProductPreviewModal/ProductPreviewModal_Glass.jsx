@@ -252,6 +252,10 @@ export default function ProductPreviewModal_Glass({
   const priceField = catalogueConfig?.priceField || "price1";
   const priceUnitField = catalogueConfig?.priceUnitField || "price1Unit";
 
+  // Check if product is out of stock in the current catalogue
+  const stockField = catalogueConfig?.stockField || "wholesaleStock";
+  const isCurrentCatalogueOutOfStock = !product[stockField];
+
   const priceValue = catalogueData[priceField] || product[priceField];
   const hasPriceValue = priceValue !== undefined && priceValue !== null && priceValue !== "" && priceValue !== 0;
 
@@ -377,6 +381,7 @@ export default function ProductPreviewModal_Glass({
                     justifyContent: "center",
                     aspectRatio: product.cropAspectRatio || currentTheme.rendering.cropAspectRatio,
                     width: "100%",
+                    overflow: "hidden",
                   }}
                   onClick={handleImageClick}
                 >
@@ -428,6 +433,30 @@ export default function ProductPreviewModal_Glass({
                       }}
                     >
                       {watermarkText}
+                    </div>
+                  )}
+
+                  {/* Out of Stock Bar */}
+                  {(isCurrentCatalogueOutOfStock || bothOut) && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%) rotate(-30deg)",
+                        width: "140%",
+                        backgroundColor: "rgba(220, 38, 38, 0.6)",
+                        color: "white",
+                        textAlign: "center",
+                        padding: "10px 0",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                        zIndex: 10,
+                        pointerEvents: "none"
+                      }}
+                    >
+                      OUT OF STOCK
                     </div>
                   )}
                 </div>

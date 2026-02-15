@@ -883,6 +883,7 @@ export default function CreateProduct() {
       imageBgColor: imageBgOverride || "white",
       bgColor: overrideColor || "#add8e6",
       cropAspectRatio: appliedAspectRatio,
+      renderingType: "classic",
     };
 
     if (newItem.image) {
