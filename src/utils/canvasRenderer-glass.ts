@@ -83,7 +83,7 @@ export async function renderProductToCanvasGlass(
   const subtitleFontSizeBase = 17;
   const fieldFontSizeBase = 16;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 28 : 0;
+  const priceBarHeightBase = product.price ? 40 : 0;
 
   const spacingAfterTitle = 12;
   const spacingAfterSubtitle = 10;
@@ -114,9 +114,11 @@ export async function renderProductToCanvasGlass(
   detailsHeight += detailsPaddingBase;
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
+  const cardMarginSides = 16;  // Side margins in design pixels
+  const cardMarginBottom = 24;  // Bottom margin in design pixels (larger than sides)
 
   const canvasWidth = baseWidth * scale;
-  const canvasHeight = baseHeight * scale;
+  const canvasHeight = (baseHeight + cardMarginBottom) * scale;  // Add larger bottom margin
 
   const canvas = document.createElement('canvas');
   canvas.width = canvasWidth;
@@ -179,12 +181,10 @@ export async function renderProductToCanvasGlass(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge with glass morphism effect
+  // Draw badge with glass morphism effect (matching glass theme)
   if (product.badge) {
     const isWhiteBg = isLightColor(imageBg);
-    const badgeBg = isWhiteBg ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.50)';
-    const badgeText = isWhiteBg ? 'rgba(255, 255, 255, 0.95)' : '#000';
-    const badgeBorder = isWhiteBg ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.8)';
+    const badgeText = isWhiteBg ? '#ffffff' : '#000000';
 
     const badgeText_str = product.badge.toUpperCase();
     const badgeFontSize = Math.floor(13 * scale);
@@ -201,17 +201,36 @@ export async function renderProductToCanvasGlass(
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
     const badgeY = currentY + 12 * scale;
 
-    // Draw glass badge background
+    // Apply blur filter to badge background for glass morphism
     ctx.save();
-    ctx.globalAlpha = 0.45;
-    ctx.fillStyle = badgeBg;
+    const badgeBlurAmount = 15; // Slightly less blur than card for badge visibility
+    (ctx as any).filter = `blur(${badgeBlurAmount}px)`;
+
+    // Draw blurred background for badge
+    const badgeBgGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+    badgeBgGradient.addColorStop(0, options.bgColor);
+    badgeBgGradient.addColorStop(1, lightenColor(options.bgColor, -15));
+    ctx.fillStyle = badgeBgGradient;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
-    ctx.globalAlpha = 1;
     ctx.restore();
 
-    // Badge border
-    ctx.strokeStyle = badgeBorder;
+    // Reset filter
+    (ctx as any).filter = 'none';
+
+    // Layer 1: Semi-transparent white overlay for badge
+    ctx.save();
+    ctx.globalAlpha = 0.32;
+    const badgeGlassGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+    badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.6)');
+    ctx.fillStyle = badgeGlassGradient;
+    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
+    ctx.fill();
+    ctx.restore();
+
+    // Badge border - enhanced for visibility
+    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.7)';
     ctx.lineWidth = 1.5 * scale;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
@@ -227,47 +246,68 @@ export async function renderProductToCanvasGlass(
   currentY += imageHeight;
 
   // ===== GLASS CARD DETAILS SECTION =====
-  const cardMargin = 12 * scale;
+  const cardMargin = cardMarginSides * scale;  // Use side margins for left/right
   const cardX = cardMargin;
   const cardY = currentY - 20 * scale;  // Overlap slightly for glass morphism effect
   const cardWidth = canvasWidth - 2 * cardMargin;
-  const cardHeight = detailsHeight * scale + 40 * scale;
+  const cardHeight = detailsHeight * scale + 28 * scale;  // Balanced padding to fit inside card without touching edges
   const cardPadding = 16 * scale;
 
-  // Create multiple blur layers to simulate frosted glass effect with transparency
-  // Layer 1: Base frosted white with balanced transparency
+  // Create proper blurred frosted glass effect by applying blur filter to canvas context
+  // This creates an actual blur effect instead of just transparency
+
+  // Apply blur filter to the canvas context for the glass card background
   ctx.save();
+  const blurAmount = 25; // Blur radius in pixels - simulates backdrop-filter: blur(20px)
+  (ctx as any).filter = `blur(${blurAmount}px)`;
+
+  // Draw blurred gradient background that represents the blurred content behind glass
   const blurGradient1 = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  blurGradient1.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
-  blurGradient1.addColorStop(0.5, 'rgba(245, 245, 245, 0.58)');
-  blurGradient1.addColorStop(1, 'rgba(255, 255, 255, 0.62)');
+  blurGradient1.addColorStop(0, options.bgColor);
+  blurGradient1.addColorStop(0.5, lightenColor(options.bgColor, -20));
+  blurGradient1.addColorStop(1, options.bgColor);
   ctx.fillStyle = blurGradient1;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Layer 2: Blur texture/frosted effect (multiple thin gradient layers)
-  for (let i = 0; i < 5; i++) {
+  // Reset filter for subsequent drawing operations
+  (ctx as any).filter = 'none';
+
+  // Layer 1: Highly transparent white overlay (glass morphism base) for realistic glass look
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.5)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.55)');
+  ctx.fillStyle = baseGlassGradient;
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
+  ctx.fill();
+  ctx.restore();
+
+  // Layer 2: Very subtle frosted texture (minimal opacity for ultra-transparent look)
+  for (let i = 0; i < 2; i++) {
     ctx.save();
-    ctx.globalAlpha = 0.18;
-    const noiseGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
-    noiseGradient.addColorStop(0, 'rgba(200, 200, 200, 0.4)');
-    noiseGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.3)');
-    noiseGradient.addColorStop(1, 'rgba(200, 200, 200, 0.4)');
-    ctx.fillStyle = noiseGradient;
+    ctx.globalAlpha = 0.04;
+    const textureGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
+    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.3)');
+    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.2)');
+    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.3)');
+    ctx.fillStyle = textureGradient;
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
     ctx.fill();
     ctx.restore();
   }
 
-  // Layer 3: Bright highlight at top for glass depth and luminosity
+  // Layer 3: Subtle highlight for glass depth (reduced for transparency)
   ctx.save();
-  ctx.globalAlpha = 0.6;
-  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.25);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+  ctx.globalAlpha = 0.25;
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight * 0.25, 16 * scale);
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
@@ -310,13 +350,14 @@ export async function renderProductToCanvasGlass(
 
   currentY += spacingBeforeFields * scale;
 
-  // Fields
+  // Fields - Aligned layout: label on left, colon center, value on right
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
-  const fieldFont = `${renderFieldFontSize}px Arial, sans-serif`;
+  const fieldFont = `500 ${renderFieldFontSize}px Arial, sans-serif`;
   const renderFieldLineHeight = renderFieldFontSize * 1.4;
+  const fieldPadding = 20 * scale;  // Padding from edges
+  const fieldWidth = cardWidth - 2 * cardPadding - 2 * fieldPadding;
 
   ctx.font = fieldFont;
-  ctx.textAlign = 'center';
   ctx.fillStyle = textColor;
 
   const activeFields = allEnabledFields.filter(f => !!product[f.key]);
@@ -329,9 +370,26 @@ export async function renderProductToCanvasGlass(
     const unitKey = `${field.key}Unit`;
     const val = product[field.key];
     const unit = product[unitKey];
-    const displayText = unit && unit !== 'None' ? `${field.label}: ${val} ${unit}` : `${field.label}: ${val}`;
+    const displayValue = unit && unit !== 'None' ? `${val} ${unit}` : `${val}`;
 
-    ctx.fillText(displayText, canvasWidth / 2, currentY + renderFieldFontSize * 0.8);
+    const fieldLineY = currentY + renderFieldFontSize * 0.8;
+    const leftX = cardX + cardPadding + fieldPadding;
+    const rightX = cardX + cardWidth - cardPadding - fieldPadding;
+    const centerX = canvasWidth / 2;
+    const colonSpacing = 20 * scale;  // Space from colon to label/value
+
+    // Draw field label on the right (before colon)
+    ctx.textAlign = 'right';
+    ctx.fillText(field.label, centerX - colonSpacing, fieldLineY);
+
+    // Draw value on the left (after colon)
+    ctx.textAlign = 'left';
+    ctx.fillText(displayValue, centerX + colonSpacing, fieldLineY);
+
+    // Draw colon in center
+    ctx.textAlign = 'center';
+    ctx.fillText(':', centerX, fieldLineY);
+
     currentY += renderFieldLineHeight + 2 * scale;
   });
 
@@ -341,7 +399,7 @@ export async function renderProductToCanvasGlass(
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
     const priceBgColor = options.bgColor;
     const priceBarHeight = priceBarHeightBase * scale;
-    const priceBarY = currentY + spacingAfterFields * scale;
+    const priceBarY = currentY + 8 * scale;  // Small spacing before price bar
     const priceButtonWidth = cardWidth - 2 * cardPadding;
     const priceButtonX = cardX + cardPadding;
     const priceButtonRadius = 10 * scale;
@@ -357,7 +415,7 @@ export async function renderProductToCanvasGlass(
     drawRoundedRect(ctx, priceButtonX, priceBarY, priceButtonWidth, priceBarHeight, priceButtonRadius);
     ctx.stroke();
 
-    const priceFontSize = Math.floor(18 * scale);
+    const priceFontSize = Math.floor(20 * scale);
     const priceFont = `600 ${priceFontSize}px Arial, sans-serif`;
     ctx.font = priceFont;
     ctx.fillStyle = options.fontColor === 'white' ? '#fff' : '#000';
@@ -371,7 +429,7 @@ export async function renderProductToCanvasGlass(
 
     ctx.fillText(priceText, priceButtonX + priceButtonWidth / 2, priceBarY + priceBarHeight / 2);
 
-    currentY += priceBarHeight + spacingAfterFields * scale;
+    currentY += priceBarHeight + 8 * scale;  // Reduced spacing after price bar to fit inside card
   }
 
   // ===== WATERMARK =====
