@@ -255,37 +255,37 @@ export async function renderProductToCanvasGlass(
   // Reset filter for subsequent drawing operations
   (ctx as any).filter = 'none';
 
-  // Layer 1: Semi-transparent white overlay (glass morphism base) with saturation boost
+  // Layer 1: Highly transparent white overlay (glass morphism base) for realistic glass look
   ctx.save();
-  ctx.globalAlpha = 0.45;
+  ctx.globalAlpha = 0.28;
   const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-  baseGlassGradient.addColorStop(0.5, 'rgba(245, 245, 245, 0.7)');
-  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.75)');
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.5)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.55)');
   ctx.fillStyle = baseGlassGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Layer 2: Subtle texture/frosted effect (reduced opacity for better transparency)
-  for (let i = 0; i < 3; i++) {
+  // Layer 2: Very subtle frosted texture (minimal opacity for ultra-transparent look)
+  for (let i = 0; i < 2; i++) {
     ctx.save();
-    ctx.globalAlpha = 0.08;
+    ctx.globalAlpha = 0.04;
     const textureGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
-    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.4)');
-    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.3)');
-    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.4)');
+    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.3)');
+    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.2)');
+    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.3)');
     ctx.fillStyle = textureGradient;
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
     ctx.fill();
     ctx.restore();
   }
 
-  // Layer 3: Bright highlight at top for glass depth and luminosity
+  // Layer 3: Subtle highlight for glass depth (reduced for transparency)
   ctx.save();
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.25;
   const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
