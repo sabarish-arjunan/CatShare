@@ -231,30 +231,56 @@ export async function renderProductToCanvasGlass(
   const cardX = cardMargin;
   const cardY = currentY - 20 * scale;  // Overlap slightly for glass morphism effect
   const cardWidth = canvasWidth - 2 * cardMargin;
+  const cardHeight = detailsHeight * scale + 40 * scale;
   const cardPadding = 16 * scale;
 
-  // Draw gradient background behind glass card for blur effect simulation
-  const glassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + detailsHeight * scale + 40 * scale);
-  glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
-  glassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.75)');
-  ctx.fillStyle = glassGradient;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, detailsHeight * scale + 40 * scale, 16 * scale);
+  // Create multiple blur layers to simulate frosted glass effect
+  // Layer 1: Base frosted white with high opacity
+  ctx.save();
+  const blurGradient1 = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
+  blurGradient1.addColorStop(0, 'rgba(255, 255, 255, 0.92)');
+  blurGradient1.addColorStop(0.5, 'rgba(245, 245, 245, 0.88)');
+  blurGradient1.addColorStop(1, 'rgba(255, 255, 255, 0.90)');
+  ctx.fillStyle = blurGradient1;
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
+  ctx.restore();
 
-  // Glass card border with blur effect appearance
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  // Layer 2: Subtle noise/texture effect for blur appearance (multiple thin strokes)
+  for (let i = 0; i < 3; i++) {
+    ctx.save();
+    ctx.globalAlpha = 0.04;
+    const noiseGradient = ctx.createLinearGradient(cardX + i * 50 * scale, cardY, cardX + (i + 2) * 50 * scale, cardY + cardHeight);
+    noiseGradient.addColorStop(0, 'rgba(200, 200, 200, 0.3)');
+    noiseGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.2)');
+    noiseGradient.addColorStop(1, 'rgba(200, 200, 200, 0.3)');
+    ctx.fillStyle = noiseGradient;
+    drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Layer 3: Bright highlight at top for glass depth
+  ctx.save();
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = highlightGradient;
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight * 0.3, 16 * scale);
+  ctx.fill();
+  ctx.restore();
+
+  // Glass card border - white with good visibility
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
   ctx.lineWidth = 2 * scale;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, detailsHeight * scale + 40 * scale, 16 * scale);
+  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.stroke();
 
-  // Draw decorative gradient overlay for glass morphism
-  const overlayGradient = ctx.createLinearGradient(0, cardY, cardWidth, 0);
-  overlayGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
-  overlayGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-  overlayGradient.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
-  ctx.fillStyle = overlayGradient;
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, (detailsHeight * scale + 40 * scale) / 2, 16 * scale);
-  ctx.fill();
+  // Inset shadow effect for depth
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+  ctx.lineWidth = 1.5 * scale;
+  drawRoundedRect(ctx, cardX + 1.5 * scale, cardY + 1.5 * scale, cardWidth - 3 * scale, cardHeight - 3 * scale, 14 * scale);
+  ctx.stroke();
 
   // Draw content inside glass card
   currentY = cardY + 25 * scale;
