@@ -112,6 +112,7 @@ export async function renderProductToCanvasGlass(
   detailsHeight += spacingAfterFields;
   detailsHeight += priceBarHeightBase;
   detailsHeight += detailsPaddingBase;
+  detailsHeight += 20;  // Extra bottom margin to prevent glass box from touching canvas edge
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
 
