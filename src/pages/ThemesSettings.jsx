@@ -157,17 +157,36 @@ export default function ThemesSettings() {
                                 position: "absolute",
                                 top: 12,
                                 right: 12,
-                                backgroundColor: "#666666",
-                                color: "white",
-                                fontSize: 12,
+                                backgroundColor:
+                                  (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "rgba(0, 0, 0, 0.35)"
+                                    : "rgba(255, 255, 255, 0.50)",
+                                backdropFilter: "blur(20px) saturate(180%)",
+                                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                                color: (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "rgba(255, 255, 255, 0.95)"
+                                    : "#ffffff",
+                                fontSize: 13,
                                 fontWeight: 600,
-                                padding: "6px 14px",
-                                borderRadius: "20px",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                padding: "8px 14px",
+                                borderRadius: "999px",
+                                boxShadow: (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
+                                    : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
+                                border: (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "1.5px solid rgba(255, 255, 255, 0.4)"
+                                    : "1.5px solid rgba(255, 255, 255, 0.8)",
                                 letterSpacing: "0.5px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
                             >
-                              {sampleProduct.badge}
+                              {sampleProduct.badge.toUpperCase()}
                             </div>
                           )}
                         </div>

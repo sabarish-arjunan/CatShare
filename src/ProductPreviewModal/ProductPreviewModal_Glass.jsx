@@ -402,17 +402,23 @@ export default function ProductPreviewModal_Glass({
                         position: "absolute",
                         top: 12,
                         right: 12,
-                        backgroundColor: isWhiteBg ? "rgba(255, 255, 255, 0.32)" : "rgba(255, 255, 255, 0.32)",
-                        backdropFilter: "blur(15px)",
-                        WebkitBackdropFilter: "blur(15px)",
-                        color: isWhiteBg ? "#ffffff" : "#000000",
-                        fontSize: 12,
+                        backgroundColor: isWhiteBg
+                          ? "rgba(0, 0, 0, 0.35)"
+                          : "rgba(255, 255, 255, 0.50)",
+                        backdropFilter: "blur(20px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                        color: isWhiteBg ? "rgba(255, 255, 255, 0.95)" : badgeText,
+                        fontSize: 13,
                         fontWeight: "600",
                         padding: "8px 14px",
                         borderRadius: "999px",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                        border: `1px solid ${isWhiteBg ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 0.7)"}`,
-                        letterSpacing: "0.4px",
+                        boxShadow: isWhiteBg
+                          ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
+                          : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
+                        border: isWhiteBg
+                          ? "1.5px solid rgba(255, 255, 255, 0.4)"
+                          : "1.5px solid rgba(255, 255, 255, 0.8)",
+                        letterSpacing: "0.5px",
                         pointerEvents: "none",
                         display: "flex",
                         alignItems: "center",
