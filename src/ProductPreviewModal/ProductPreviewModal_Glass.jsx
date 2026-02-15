@@ -519,20 +519,20 @@ export default function ProductPreviewModal_Glass({
                           fontWeight: "600",
                           fontSize: 18,
                           margin: "0 0 4px 0",
-                          color: "#000000",
+                          color: product.fontColor || "#000000",
                         }}
                       >
                         {product.name}
                       </p>
                       {product.subtitle && (
-                        <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "#000000" }}>
+                        <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: product.fontColor || "#000000" }}>
                           ({product.subtitle})
                         </p>
                       )}
                     </div>
 
                     {/* Fields */}
-                    <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%" }}>
+                    <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || "#000000", fontSize: 13, width: "100%" }}>
                       {enabledFields.map((field) => {
                         const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                         const hasValue = hasFieldValue(fieldValue);
@@ -560,7 +560,7 @@ export default function ProductPreviewModal_Glass({
                       <div
                         style={{
                           backgroundColor: product.bgColor || currentTheme.styles.bgColor,
-                          color: "white",
+                          color: product.fontColor || "white",
                           padding: "8px 12px",
                           textAlign: "center",
                           fontWeight: "500",

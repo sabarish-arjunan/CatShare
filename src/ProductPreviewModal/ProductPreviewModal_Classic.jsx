@@ -778,8 +778,10 @@ export default function ProductPreviewModal_Classic({
             {/* Details Section */}
             <div
               style={{
-                backgroundColor: currentTheme.styles.lightBgColor,
-                color: currentTheme.styles.fontColor,
+                backgroundColor: product.bgColor ? (product.bgColor.startsWith("#") && product.bgColor.length === 7 ?
+                  `rgb(${Math.min(255, parseInt(product.bgColor.slice(1, 3), 16) + 40)}, ${Math.min(255, parseInt(product.bgColor.slice(3, 5), 16) + 40)}, ${Math.min(255, parseInt(product.bgColor.slice(5, 7), 16) + 40)})` :
+                  currentTheme.styles.lightBgColor) : currentTheme.styles.lightBgColor,
+                color: product.fontColor || currentTheme.styles.fontColor,
                 padding: "12px 12px",
                 fontSize: 17,
                 flex: 1,
@@ -837,8 +839,8 @@ export default function ProductPreviewModal_Classic({
             {hasPriceValue && (
               <div
                 style={{
-                  backgroundColor: currentTheme.styles.bgColor,
-                  color: currentTheme.styles.fontColor,
+                  backgroundColor: product.bgColor || currentTheme.styles.bgColor,
+                  color: product.fontColor || currentTheme.styles.fontColor,
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
