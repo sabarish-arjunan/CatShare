@@ -918,7 +918,7 @@ const exportProductsToCSV = (products) => {
         console.log(`   ✅ Products: ${rebuilt.length} product(s)`);
         console.log(`   ✅ Deleted Items: ${Array.isArray(parsed.deleted) ? parsed.deleted.length : 0}`);
         console.log(`   ✅ Categories: ${Array.isArray(parsed.categories) ? parsed.categories.length : 0}`);
-        console.log(`   ✅ Catalogues: ${cataloguesDefinition?.catalogues?.length || 0}`);
+        console.log(`   ✅ Catalogues: ${getCataloguesDefinition()?.catalogues?.length || 0}`);
         console.log(`   ✅ Watermark Settings: Restored`);
         console.log(`   ✅ Backup Date: ${parsed.backupDate}`);
         console.log(`   ✅ App Version: ${parsed.appVersion}`);
