@@ -115,7 +115,7 @@ export default function ProductPreviewModal_Glass({
 
   // Check if watermark should be shown
   const [showWatermark, setShowWatermark] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
 
   // Get custom watermark text
@@ -337,8 +337,8 @@ export default function ProductPreviewModal_Glass({
                 display: "flex",
                 flexDirection: "column",
                 height: "auto",
-                width: "95%",
-                maxWidth: `${currentTheme.rendering.cardWidth}px`,
+                width: "85vw",
+                maxWidth: "380px",
                 borderRadius: `${currentTheme.rendering.cardBorderRadius}px`,
                 overflow: "visible",
                 scale: imageScale,
@@ -402,17 +402,23 @@ export default function ProductPreviewModal_Glass({
                         position: "absolute",
                         top: 12,
                         right: 12,
-                        backgroundColor: isWhiteBg ? "rgba(255, 255, 255, 0.32)" : "rgba(255, 255, 255, 0.32)",
-                        backdropFilter: "blur(15px)",
-                        WebkitBackdropFilter: "blur(15px)",
-                        color: isWhiteBg ? "#ffffff" : "#000000",
-                        fontSize: 12,
+                        backgroundColor: isWhiteBg
+                          ? "rgba(0, 0, 0, 0.35)"
+                          : "rgba(255, 255, 255, 0.50)",
+                        backdropFilter: "blur(20px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                        color: isWhiteBg ? "rgba(255, 255, 255, 0.95)" : badgeText,
+                        fontSize: 13,
                         fontWeight: "600",
                         padding: "8px 14px",
                         borderRadius: "999px",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                        border: `1px solid ${isWhiteBg ? "rgba(255, 255, 255, 0.6)" : "rgba(255, 255, 255, 0.7)"}`,
-                        letterSpacing: "0.4px",
+                        boxShadow: isWhiteBg
+                          ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
+                          : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
+                        border: isWhiteBg
+                          ? "1.5px solid rgba(255, 255, 255, 0.4)"
+                          : "1.5px solid rgba(255, 255, 255, 0.8)",
+                        letterSpacing: "0.5px",
                         pointerEvents: "none",
                         display: "flex",
                         alignItems: "center",
@@ -497,7 +503,7 @@ export default function ProductPreviewModal_Glass({
                       backgroundColor: "rgba(255, 255, 255, 0.28)",
                       backdropFilter: "blur(25px) saturate(180%)",
                       WebkitBackdropFilter: "blur(25px) saturate(180%)",
-                      padding: "16px 12px",
+                      padding: "12px 12px",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
@@ -507,14 +513,14 @@ export default function ProductPreviewModal_Glass({
                       marginTop: "-30px",
                       marginLeft: "16px",
                       marginRight: "16px",
-                      marginBottom: "24px",
+                      marginBottom: "16px",
                       boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.1)",
                       position: "relative",
                       zIndex: 2,
                     }}
                   >
                     {/* Product Name and Subtitle */}
-                    <div style={{ textAlign: "center", marginBottom: 12 }}>
+                    <div style={{ textAlign: "center", marginBottom: 8 }}>
                       <p
                         style={{
                           fontWeight: "600",
@@ -533,7 +539,7 @@ export default function ProductPreviewModal_Glass({
                     </div>
 
                     {/* Fields - Aligned layout */}
-                    <div style={{ flex: 1, marginBottom: 12, color: product.fontColor || "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
+                    <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
                       {enabledFields.map((field) => {
                         const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                         const hasValue = hasFieldValue(fieldValue);
@@ -544,11 +550,11 @@ export default function ProductPreviewModal_Glass({
                         if (!hasValue || !isVisible) return null;
 
                         const unitKey = `${field.key}Unit`;
-                        const unitValue = catalogueData[unitKey] !== undefined && catalogueData[unitKey] !== null ? catalogueData[unitKey] : (product[unitKey] || "None");
+                        const unitValue = (catalogueData[unitKey] && catalogueData[unitKey] !== "") ? catalogueData[unitKey] : (product[unitKey] || "None");
                         const unitDisplay = (field.unitsEnabled && unitValue !== "None") ? unitValue : "";
 
                         return (
-                          <div key={field.key} style={{ marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+                          <div key={field.key} style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
                             <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>{field.label}</span>
                             <span style={{ fontWeight: "500" }}>:</span>
                             <span style={{ textAlign: "left", flex: 1 }}>{fieldValue} {unitDisplay}</span>
@@ -563,7 +569,7 @@ export default function ProductPreviewModal_Glass({
                         style={{
                           backgroundColor: product.bgColor || currentTheme.styles.bgColor,
                           color: product.fontColor || "white",
-                          padding: "12px 16px",
+                          padding: "6px 16px",
                           textAlign: "center",
                           fontWeight: "600",
                           fontSize: 16,
@@ -579,7 +585,7 @@ export default function ProductPreviewModal_Glass({
                           const unitsEnabled = config ? config.unitsEnabled : true;
                           if (!unitsEnabled) return "";
 
-                          const unit = catalogueData[priceUnitField] !== undefined && catalogueData[priceUnitField] !== null
+                          const unit = (catalogueData[priceUnitField] && catalogueData[priceUnitField] !== "")
                             ? catalogueData[priceUnitField]
                             : (product[priceUnitField] || "/ piece");
 
@@ -598,7 +604,7 @@ export default function ProductPreviewModal_Glass({
       {/* Action Buttons */}
       {tab === "products" && (
         <div
-          className="fixed bottom-0 left-0 right-0 z-[60] flex gap-2 p-4 bg-white/80 backdrop-blur-md border-t border-gray-200"
+          className="fixed bottom-0 left-0 right-0 z-[60] flex gap-2 p-2 bg-white/80 backdrop-blur-md border-t border-gray-200"
           style={{
             justifyContent: "center",
             gap: "12px",
@@ -607,7 +613,7 @@ export default function ProductPreviewModal_Glass({
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={onEdit}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 active:bg-blue-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-1.5 rounded-xl bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 active:bg-blue-600 transition-colors"
           >
             <FiEdit3 size={14} />
             <span>Edit</span>
@@ -616,7 +622,7 @@ export default function ProductPreviewModal_Glass({
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => onToggleMasterStock()}
-            className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm shadow-lg transition-all border ${
+            className={`flex items-center justify-center gap-2 px-6 py-1.5 rounded-xl font-semibold text-sm shadow-lg transition-all border ${
               getAllStockStatus()
                 ? "bg-emerald-500 text-white border-transparent shadow-emerald-500/20"
                 : "bg-white text-gray-400 border-gray-200 shadow-none"
@@ -629,7 +635,7 @@ export default function ProductPreviewModal_Glass({
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => setShowShelfModal(true)}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-rose-500 text-white font-semibold text-sm shadow-lg shadow-rose-500/20 active:bg-rose-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-1.5 rounded-xl bg-rose-500 text-white font-semibold text-sm shadow-lg shadow-rose-500/20 active:bg-rose-600 transition-colors"
           >
             <FiArchive size={14} />
             <span>Shelf</span>

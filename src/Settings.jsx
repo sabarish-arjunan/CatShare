@@ -21,7 +21,7 @@ export default function Settings({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
     const stored = localStorage.getItem("showWatermark");
-    return stored !== null ? JSON.parse(stored) : false; // Default: false (disabled for new users)
+    return stored !== null ? JSON.parse(stored) : true; // Default: true (enabled for new users)
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     const stored = localStorage.getItem("watermarkText");

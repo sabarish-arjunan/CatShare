@@ -157,17 +157,36 @@ export default function ThemesSettings() {
                                 position: "absolute",
                                 top: 12,
                                 right: 12,
-                                backgroundColor: "#666666",
-                                color: "white",
-                                fontSize: 12,
+                                backgroundColor:
+                                  (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "rgba(0, 0, 0, 0.35)"
+                                    : "rgba(255, 255, 255, 0.50)",
+                                backdropFilter: "blur(20px) saturate(180%)",
+                                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                                color: (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "rgba(255, 255, 255, 0.95)"
+                                    : "#ffffff",
+                                fontSize: 13,
                                 fontWeight: 600,
-                                padding: "6px 14px",
-                                borderRadius: "20px",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                padding: "8px 14px",
+                                borderRadius: "999px",
+                                boxShadow: (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
+                                    : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
+                                border: (sampleProduct.imageBgColor?.toLowerCase() === "white" ||
+                                  sampleProduct.imageBgColor?.toLowerCase() === "#ffffff")
+                                    ? "1.5px solid rgba(255, 255, 255, 0.4)"
+                                    : "1.5px solid rgba(255, 255, 255, 0.8)",
                                 letterSpacing: "0.5px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
                             >
-                              {sampleProduct.badge}
+                              {sampleProduct.badge.toUpperCase()}
                             </div>
                           )}
                         </div>
@@ -203,28 +222,28 @@ export default function ThemesSettings() {
                           {/* All Content in Single Glass Box */}
                           <div
                             style={{
-                              backgroundColor: "rgba(255, 255, 255, 0.6)",
-                              backdropFilter: "blur(20px) saturate(180%)",
-                              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                              padding: "16px 12px",
+                              backgroundColor: "rgba(255, 255, 255, 0.28)",
+                              backdropFilter: "blur(25px) saturate(180%)",
+                              WebkitBackdropFilter: "blur(25px) saturate(180%)",
+                              padding: "12px 12px",
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "center",
-                              border: "2px solid rgba(255, 255, 255, 1)",
+                              border: "2px solid rgba(255, 255, 255, 0.8)",
                               borderRadius: "14px",
                               width: "calc(100% - 16px)",
                               marginTop: "-30px",
-                              marginLeft: "8px",
-                              marginRight: "8px",
-                              marginBottom: "8px",
-                              boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 12px 40px rgba(220, 38, 38, 0.3), 0 20px 50px rgba(0, 0, 0, 0.25)",
+                              marginLeft: "16px",
+                              marginRight: "16px",
+                              marginBottom: "16px",
+                              boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.1)",
                               position: "relative",
                               zIndex: 2,
                             }}
                           >
 
                           {/* Product Name and Subtitle */}
-                          <div style={{ textAlign: "center", marginBottom: 12 }}>
+                          <div style={{ textAlign: "center", marginBottom: 8 }}>
                             <p
                               style={{
                                 fontWeight: "600",
@@ -242,20 +261,23 @@ export default function ThemesSettings() {
                             )}
                           </div>
                           {/* Fields */}
-                          <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%" }}>
-                            <div style={{ marginBottom: 8 }}>
-                              <span style={{ fontWeight: "500" }}>Colour: </span>
-                              <span style={{ marginLeft: 4 }}>{sampleProduct.color}</span>
+                          <div style={{ flex: 1, marginBottom: 8, color: "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
+                            <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                              <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Colour</span>
+                              <span style={{ fontWeight: "500" }}>:</span>
+                              <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.color}</span>
                             </div>
 
-                            <div style={{ marginBottom: 8 }}>
-                              <span style={{ fontWeight: "500" }}>Package: </span>
-                              <span style={{ marginLeft: 4 }}>{sampleProduct.package}</span>
+                            <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                              <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Package</span>
+                              <span style={{ fontWeight: "500" }}>:</span>
+                              <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.package}</span>
                             </div>
 
-                            <div>
-                              <span style={{ fontWeight: "500" }}>Colour: </span>
-                              <span style={{ marginLeft: 4 }}>{sampleProduct.color}</span>
+                            <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                              <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Material</span>
+                              <span style={{ fontWeight: "500" }}>:</span>
+                              <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.material}</span>
                             </div>
                           </div>
 
@@ -264,13 +286,15 @@ export default function ThemesSettings() {
                             style={{
                               backgroundColor: "#dc2626",
                               color: "white",
-                              padding: "8px 12px",
+                              padding: "6px 16px",
                               textAlign: "center",
-                              fontWeight: "500",
-                              fontSize: 14,
-                              borderRadius: "6px",
-                              marginTop: 4,
-                              width: "100%",
+                              fontWeight: "600",
+                              fontSize: 16,
+                              borderRadius: "10px",
+                              marginTop: 8,
+                              width: "calc(100% - 32px)",
+                              whiteSpace: "nowrap",
+                              border: "1px solid rgba(0, 0, 0, 0.1)",
                             }}
                           >
                             {sampleProduct.price} {sampleProduct.priceUnit}

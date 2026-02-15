@@ -298,7 +298,7 @@ export async function saveRenderedImage(product, type, units = {}) {
       });
 
     // Get watermark settings with proper fallbacks
-    let isWatermarkEnabled = safeGetFromStorage("showWatermark", false);
+    let isWatermarkEnabled = safeGetFromStorage("showWatermark", true);
     let watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
     let watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
 

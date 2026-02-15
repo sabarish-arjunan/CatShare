@@ -354,7 +354,7 @@ export default function CreateProduct() {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFilePath, setImageFilePath] = useState(null);
   const [showWatermark, setShowWatermarkLocal] = useState(() => {
-    return safeGetFromStorage("showWatermark", false);
+    return safeGetFromStorage("showWatermark", true);
   });
   const [watermarkText, setWatermarkText] = useState(() => {
     return safeGetFromStorage("watermarkText", "Created using CatShare");

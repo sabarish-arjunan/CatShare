@@ -31,15 +31,8 @@ export default function WatermarkSettings() {
   const renderBoxRef = useRef(null);
   const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 
-  // Initialize watermark to enabled on first load
+  // Migration logic handled in dataMigration.ts
   useEffect(() => {
-    const storedValue = localStorage.getItem("showWatermark");
-    // If there's a stored false value, override it with true (enabled by default)
-    if (storedValue === "false") {
-      safeSetInStorage("showWatermark", true);
-      setShowWatermark(true);
-    }
-
     // Update watermark position from bottom-center to bottom-left
     const positionValue = localStorage.getItem("watermarkPosition");
     if (positionValue === '"bottom-center"') {
