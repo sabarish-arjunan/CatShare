@@ -83,7 +83,7 @@ export async function renderProductToCanvasGlass(
   const subtitleFontSizeBase = 17;
   const fieldFontSizeBase = 16;
   const fieldLineHeightBase = fieldFontSizeBase * 1.4;
-  const priceBarHeightBase = product.price ? 28 : 0;
+  const priceBarHeightBase = product.price ? 40 : 0;
 
   const spacingAfterTitle = 12;
   const spacingAfterSubtitle = 10;
@@ -331,13 +331,14 @@ export async function renderProductToCanvasGlass(
 
   currentY += spacingBeforeFields * scale;
 
-  // Fields
+  // Fields - Aligned layout: label on left, colon center, value on right
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
-  const fieldFont = `${renderFieldFontSize}px Arial, sans-serif`;
+  const fieldFont = `500 ${renderFieldFontSize}px Arial, sans-serif`;
   const renderFieldLineHeight = renderFieldFontSize * 1.4;
+  const fieldPadding = 20 * scale;  // Padding from edges
+  const fieldWidth = cardWidth - 2 * cardPadding - 2 * fieldPadding;
 
   ctx.font = fieldFont;
-  ctx.textAlign = 'center';
   ctx.fillStyle = textColor;
 
   const activeFields = allEnabledFields.filter(f => !!product[f.key]);
@@ -350,9 +351,25 @@ export async function renderProductToCanvasGlass(
     const unitKey = `${field.key}Unit`;
     const val = product[field.key];
     const unit = product[unitKey];
-    const displayText = unit && unit !== 'None' ? `${field.label}: ${val} ${unit}` : `${field.label}: ${val}`;
+    const displayValue = unit && unit !== 'None' ? `${val} ${unit}` : `${val}`;
 
-    ctx.fillText(displayText, canvasWidth / 2, currentY + renderFieldFontSize * 0.8);
+    const fieldLineY = currentY + renderFieldFontSize * 0.8;
+    const leftX = cardX + cardPadding + fieldPadding;
+    const rightX = cardX + cardWidth - cardPadding - fieldPadding;
+    const centerX = canvasWidth / 2;
+
+    // Draw field label on the left
+    ctx.textAlign = 'left';
+    ctx.fillText(field.label, leftX, fieldLineY);
+
+    // Draw value on the right
+    ctx.textAlign = 'right';
+    ctx.fillText(displayValue, rightX, fieldLineY);
+
+    // Draw colon in center
+    ctx.textAlign = 'center';
+    ctx.fillText(':', centerX, fieldLineY);
+
     currentY += renderFieldLineHeight + 2 * scale;
   });
 
@@ -378,7 +395,7 @@ export async function renderProductToCanvasGlass(
     drawRoundedRect(ctx, priceButtonX, priceBarY, priceButtonWidth, priceBarHeight, priceButtonRadius);
     ctx.stroke();
 
-    const priceFontSize = Math.floor(18 * scale);
+    const priceFontSize = Math.floor(20 * scale);
     const priceFont = `600 ${priceFontSize}px Arial, sans-serif`;
     ctx.font = priceFont;
     ctx.fillStyle = options.fontColor === 'white' ? '#fff' : '#000';
