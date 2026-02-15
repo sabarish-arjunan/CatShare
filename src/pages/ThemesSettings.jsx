@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
+import { FiEdit3, FiPackage, FiArchive, FiCheckCircle, FiX } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import { getAllThemes } from "../config/themeConfig";
 
@@ -330,129 +331,162 @@ export default function ThemesSettings() {
                                     }}
                                   >
                                     {sampleProduct.price} {sampleProduct.priceUnit}
-                                  </div>
-                                </div>
                               </div>
                             </div>
-                          ) : (
-                            <div
+
+                            {/* Action Buttons Preview */}
+                            <div className="w-full flex gap-2 p-3 mt-4 border-t border-white/20">
+                              <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-blue-500/90 text-white font-semibold text-[10px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all backdrop-blur-sm border border-white/20">
+                                <FiEdit3 size={12} />
+                                <span>Edit</span>
+                              </div>
+                              <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/90 text-white font-semibold text-[10px] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all backdrop-blur-sm border border-white/20">
+                                <FiPackage size={12} />
+                                <span>In Stock</span>
+                              </div>
+                              <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-rose-500/90 text-white font-semibold text-[10px] shadow-lg shadow-rose-500/20 active:scale-95 transition-all backdrop-blur-sm border border-white/20">
+                                <FiArchive size={12} />
+                                <span>Shelf</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            width: "100%",
+                            maxWidth: "280px",
+                            backgroundColor: "white",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                            border: "1px solid rgb(229, 231, 235)",
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          {/* ... card content ... */}
+                          <div
+                            style={{
+                              backgroundColor: sampleProduct.imageBgColor || "white",
+                              textAlign: "center",
+                              padding: 0,
+                              position: "relative",
+                              boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              aspectRatio: sampleProduct.cropAspectRatio || 1,
+                              width: "100%",
+                            }}
+                          >
+                            <img
+                              src={sampleProductImage}
+                              alt={sampleProduct.name}
                               style={{
                                 width: "100%",
-                                maxWidth: "280px",
-                                backgroundColor: "white",
-                                borderRadius: "8px",
-                                overflow: "hidden",
-                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                border: "1px solid rgb(229, 231, 235)",
-                                display: "flex",
-                                flexDirection: "column",
+                                height: "100%",
+                                objectFit: "contain",
+                                margin: "0 auto",
                               }}
-                            >
+                            />
+                            {sampleProduct.badge && (
                               <div
                                 style={{
-                                  backgroundColor: sampleProduct.imageBgColor || "white",
-                                  textAlign: "center",
-                                  padding: 0,
-                                  position: "relative",
-                                  boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
-                                  cursor: "pointer",
+                                  position: "absolute",
+                                  bottom: 10,
+                                  right: 10,
+                                  backgroundColor: "#666666",
+                                  color: "white",
+                                  fontSize: 12,
+                                  fontWeight: 400,
+                                  padding: "5px 10px",
+                                  borderRadius: "999px",
+                                  opacity: 0.95,
+                                  boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                                  border: "1px solid rgba(0,0,0,0.2)",
+                                  letterSpacing: "0.4px",
+                                  pointerEvents: "none",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  aspectRatio: sampleProduct.cropAspectRatio || 1,
-                                  width: "100%",
                                 }}
                               >
-                                <img
-                                  src={sampleProductImage}
-                                  alt={sampleProduct.name}
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "contain",
-                                    margin: "0 auto",
-                                  }}
-                                />
-                                {sampleProduct.badge && (
-                                  <div
-                                    style={{
-                                      position: "absolute",
-                                      bottom: 10,
-                                      right: 10,
-                                      backgroundColor: "#666666",
-                                      color: "white",
-                                      fontSize: 12,
-                                      fontWeight: 400,
-                                      padding: "5px 10px",
-                                      borderRadius: "999px",
-                                      opacity: 0.95,
-                                      boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                                      border: "1px solid rgba(0,0,0,0.2)",
-                                      letterSpacing: "0.4px",
-                                      pointerEvents: "none",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    {sampleProduct.badge.toUpperCase()}
-                                  </div>
-                                )}
+                                {sampleProduct.badge.toUpperCase()}
                               </div>
+                            )}
+                          </div>
 
-                              <div
-                                style={{
-                                  backgroundColor: getLighterColor(sampleProduct.bgColor, theme.id),
-                                  color: sampleProduct.fontColor || "white",
-                                  padding: "12px 12px",
-                                  fontSize: 17,
-                                  flex: 1,
-                                }}
-                              >
-                                <div style={{ textAlign: "center", marginBottom: 6 }}>
-                                  <p style={{ fontWeight: "normal", textShadow: "3px 3px 5px rgba(0,0,0,0.2)", fontSize: 28, margin: "0 0 3px 0" }}>
-                                    {sampleProduct.name}
-                                  </p>
-                                  {sampleProduct.subtitle && (
-                                    <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
-                                      ({sampleProduct.subtitle})
-                                    </p>
-                                  )}
-                                </div>
-                                <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
-                                  <p style={{ margin: "2px 0", display: "flex" }}>
-                                    <span style={{ width: "90px" }}>Colour</span>
-                                    <span>:</span>
-                                    <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
-                                  </p>
-                                  <p style={{ margin: "2px 0", display: "flex" }}>
-                                    <span style={{ width: "90px" }}>Package</span>
-                                    <span>:</span>
-                                    <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
-                                  </p>
-                                  <p style={{ margin: "2px 0", display: "flex" }}>
-                                    <span style={{ width: "90px" }}>Age Group</span>
-                                    <span>:</span>
-                                    <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div
-                                style={{
-                                  backgroundColor: sampleProduct.bgColor || "#add8e6",
-                                  color: sampleProduct.fontColor || "white",
-                                  padding: "6px 8px",
-                                  textAlign: "center",
-                                  fontWeight: "normal",
-                                  fontSize: 19,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
-                              </div>
+                          <div
+                            style={{
+                              backgroundColor: getLighterColor(sampleProduct.bgColor, theme.id),
+                              color: sampleProduct.fontColor || "white",
+                              padding: "12px 12px",
+                              fontSize: 17,
+                              flex: 1,
+                            }}
+                          >
+                            <div style={{ textAlign: "center", marginBottom: 6 }}>
+                              <p style={{ fontWeight: "normal", textShadow: "3px 3px 5px rgba(0,0,0,0.2)", fontSize: 28, margin: "0 0 3px 0" }}>
+                                {sampleProduct.name}
+                              </p>
+                              {sampleProduct.subtitle && (
+                                <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
+                                  ({sampleProduct.subtitle})
+                                </p>
+                              )}
                             </div>
-                          )}
+                            <div style={{ textAlign: "left", lineHeight: 1.3, paddingLeft: 12, paddingRight: 8 }}>
+                              <p style={{ margin: "2px 0", display: "flex" }}>
+                                <span style={{ width: "90px" }}>Colour</span>
+                                <span>:</span>
+                                <span style={{ marginLeft: "8px" }}>{sampleProduct.color}</span>
+                              </p>
+                              <p style={{ margin: "2px 0", display: "flex" }}>
+                                <span style={{ width: "90px" }}>Package</span>
+                                <span>:</span>
+                                <span style={{ marginLeft: "8px" }}>{sampleProduct.package}</span>
+                              </p>
+                              <p style={{ margin: "2px 0", display: "flex" }}>
+                                <span style={{ width: "90px" }}>Age Group</span>
+                                <span>:</span>
+                                <span style={{ marginLeft: "8px" }}>{sampleProduct.ageGroup}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              backgroundColor: sampleProduct.bgColor || "#add8e6",
+                              color: sampleProduct.fontColor || "white",
+                              padding: "6px 8px",
+                              textAlign: "center",
+                              fontWeight: "normal",
+                              fontSize: 19,
+                              flexShrink: 0,
+                            }}
+                          >
+                            Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
+                          </div>
+
+                          {/* Action Buttons Preview for Classic */}
+                          <div className="flex gap-1 p-2 bg-slate-50 border-t border-slate-200">
+                            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-blue-500 text-white font-bold text-[10px] shadow-sm">
+                              <FiEdit3 size={10} />
+                              <span>Edit</span>
+                            </div>
+                            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-500 text-white font-bold text-[10px] shadow-sm">
+                              <FiPackage size={10} />
+                              <span>In Stock</span>
+                            </div>
+                            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-rose-500 text-white font-bold text-[10px] shadow-sm">
+                              <FiArchive size={10} />
+                              <span>Shelf</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                         </div>
 
                         <div className="p-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm space-y-4">
