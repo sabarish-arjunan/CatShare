@@ -6,6 +6,7 @@ import { renderProductToCanvasGlass } from "./utils/canvasRenderer-glass";
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getAllFields } from "./config/fieldConfig";
 import { getCurrentCurrencySymbol } from "./utils/currencyUtils";
+import { getThemeById } from "./config/themeConfig";
 
 /**
  * Delete all rendered images for a specific product
@@ -316,7 +317,20 @@ export async function saveRenderedImage(product, type, units = {}) {
     // Render using Canvas API - Choose renderer based on theme
     let canvas;
     try {
-      const isGlassTheme = product.renderingType === "glass";
+      // Determine if using glass theme from either product's renderingType or current theme setting
+      // Priority: product.renderingType (if set) > current theme > fallback to classic
+      let isGlassTheme = false;
+
+      if (product.renderingType !== undefined) {
+        // Use product's renderingType if explicitly set
+        isGlassTheme = product.renderingType === "glass";
+      } else {
+        // Fall back to current theme setting from localStorage
+        const selectedThemeId = safeGetFromStorage("selectedTheme", "classic");
+        const currentTheme = getThemeById(selectedThemeId);
+        isGlassTheme = currentTheme.styles.layout === "glass";
+      }
+
       console.log(`🎨 Using ${isGlassTheme ? "Glass" : "Classic"} theme renderer for: ${product.name}`);
 
       const renderOptions = {
