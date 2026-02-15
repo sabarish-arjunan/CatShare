@@ -112,12 +112,12 @@ export async function renderProductToCanvasGlass(
   detailsHeight += spacingAfterFields;
   detailsHeight += priceBarHeightBase;
   detailsHeight += detailsPaddingBase;
-  detailsHeight += 20;  // Extra bottom margin to prevent glass box from touching canvas edge
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
+  const cardMarginBase = 12;  // Base margin in design pixels (will be multiplied by scale)
 
   const canvasWidth = baseWidth * scale;
-  const canvasHeight = baseHeight * scale;
+  const canvasHeight = (baseHeight + cardMarginBase) * scale;  // Add bottom margin equal to left/right margins
 
   const canvas = document.createElement('canvas');
   canvas.width = canvasWidth;
@@ -245,7 +245,7 @@ export async function renderProductToCanvasGlass(
   currentY += imageHeight;
 
   // ===== GLASS CARD DETAILS SECTION =====
-  const cardMargin = 12 * scale;
+  const cardMargin = cardMarginBase * scale;  // Use consistent margin for all sides
   const cardX = cardMargin;
   const cardY = currentY - 20 * scale;  // Overlap slightly for glass morphism effect
   const cardWidth = canvasWidth - 2 * cardMargin;
