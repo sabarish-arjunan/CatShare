@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdKeyboardArrowDown } from "react-icons/md";
+import { MdArrowBack } from "react-icons/md";
 import { useTheme } from "../context/ThemeContext";
 import { getAllThemes } from "../config/themeConfig";
 
@@ -159,17 +159,6 @@ export default function ThemesSettings() {
                       >
                         {selectedThemeId === theme.id ? "Selected" : "Select"}
                         {selectedThemeId === theme.id && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>}
-                      </button>
-
-                      <button
-                        onClick={() => setExpandedThemeId(isExpanded ? null : theme.id)}
-                        className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ${
-                          isExpanded
-                            ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rotate-180"
-                            : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                        }`}
-                      >
-                        <MdKeyboardArrowDown size={24} />
                       </button>
                     </div>
                   </div>
