@@ -247,9 +247,9 @@ export async function renderProductToCanvasGlass(
   ctx.restore();
 
   // Layer 2: Blur texture/frosted effect (multiple thin gradient layers)
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     ctx.save();
-    ctx.globalAlpha = 0.08;
+    ctx.globalAlpha = 0.18;
     const noiseGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
     noiseGradient.addColorStop(0, 'rgba(200, 200, 200, 0.4)');
     noiseGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.3)');
