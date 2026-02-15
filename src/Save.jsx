@@ -314,22 +314,13 @@ export async function saveRenderedImage(product, type, units = {}) {
       productName: product.name
     });
 
-    // Render using Canvas API - Choose renderer based on theme
+    // Render using Canvas API - Choose renderer based on CURRENT theme
     let canvas;
     try {
-      // Determine if using glass theme from either product's renderingType or current theme setting
-      // Priority: product.renderingType (if set) > current theme > fallback to classic
-      let isGlassTheme = false;
-
-      if (product.renderingType !== undefined) {
-        // Use product's renderingType if explicitly set
-        isGlassTheme = product.renderingType === "glass";
-      } else {
-        // Fall back to current theme setting from localStorage
-        const selectedThemeId = safeGetFromStorage("selectedTheme", "classic");
-        const currentTheme = getThemeById(selectedThemeId);
-        isGlassTheme = currentTheme.styles.layout === "glass";
-      }
+      // Always use the currently selected theme for rendering
+      const selectedThemeId = safeGetFromStorage("selectedTheme", "classic");
+      const currentTheme = getThemeById(selectedThemeId);
+      const isGlassTheme = currentTheme.styles.layout === "glass";
 
       console.log(`🎨 Using ${isGlassTheme ? "Glass" : "Classic"} theme renderer for: ${product.name}`);
 
