@@ -119,7 +119,7 @@ function colorToRgb(color: string): { r: number; g: number; b: number } {
 /**
  * Check if color is light or dark
  */
-function isLightColor(color: string): boolean {
+export function isLightColor(color: string): boolean {
   if (color.toLowerCase() === 'white' || color === '#ffffff') return true;
   const rgb = colorToRgb(color);
   const luminance = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
@@ -129,7 +129,7 @@ function isLightColor(color: string): boolean {
 /**
  * Lighten a color by specified amount
  */
-function lightenColor(color: string, amount: number): string {
+export function lightenColor(color: string, amount: number): string {
   const rgb = colorToRgb(color);
   return `rgb(${Math.min(255, rgb.r + amount)}, ${Math.min(255, rgb.g + amount)}, ${Math.min(255, rgb.b + amount)})`;
 }

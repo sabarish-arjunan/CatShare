@@ -1161,8 +1161,8 @@ export default function CreateProduct() {
                 <>
                   <div
                     style={{
-                      backgroundColor: currentTheme.styles.lightBgColor,
-                      color: currentTheme.styles.fontColor,
+                      backgroundColor: getLighterColor(overrideColor),
+                      color: fontColor,
                       padding: "10px",
                     }}
                   >
@@ -1200,8 +1200,8 @@ export default function CreateProduct() {
                   {getSelectedCataloguePrice() && (
                     <div
                       style={{
-                        backgroundColor: currentTheme.styles.bgColor,
-                        color: currentTheme.styles.fontColor,
+                        backgroundColor: overrideColor,
+                        color: fontColor === "white" ? "white" : "black",
                         padding: "8px 6px",
                         textAlign: "center",
                         fontWeight: "600",

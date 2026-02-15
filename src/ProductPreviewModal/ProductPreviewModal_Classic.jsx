@@ -41,6 +41,32 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
+// Helper: Lighten a color by a specified amount
+const lightenColor = (color, amount = 40) => {
+  if (!color) return "white";
+
+  // Handle hex colors
+  if (color.startsWith("#") && color.length === 7) {
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    const lighten = (c) => Math.min(255, c + amount);
+    return `rgb(${lighten(r)}, ${lighten(g)}, ${lighten(b)})`;
+  }
+
+  // Handle rgb colors
+  const rgbMatch = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  if (rgbMatch) {
+    const r = parseInt(rgbMatch[1], 10);
+    const g = parseInt(rgbMatch[2], 10);
+    const b = parseInt(rgbMatch[3], 10);
+    const lighten = (c) => Math.min(255, c + amount);
+    return `rgb(${lighten(r)}, ${lighten(g)}, ${lighten(b)})`;
+  }
+
+  return color;
+};
+
 // Full Screen Image Viewer Component
 const FullScreenImageViewer = ({ imageUrl, productName, isOpen, onClose, showWatermark, watermarkText, watermarkPosition }) => {
   const containerRef = useRef(null);
@@ -348,6 +374,16 @@ export default function ProductPreviewModal_Classic({
 }) {
   const { showToast } = useToast();
   const { currentTheme } = useTheme();
+
+  // Debug: Log product colors
+  useEffect(() => {
+    console.log(`[ProductPreviewModal_Classic] Product colors:`, {
+      name: product?.name,
+      bgColor: product?.bgColor,
+      fontColor: product?.fontColor,
+      imageBgColor: product?.imageBgColor,
+    });
+  }, [product?.id]);
   const [direction, setDirection] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [showFullScreenImage, setShowFullScreenImage] = useState(false);
@@ -778,8 +814,8 @@ export default function ProductPreviewModal_Classic({
             {/* Details Section */}
             <div
               style={{
-                backgroundColor: currentTheme.styles.lightBgColor,
-                color: currentTheme.styles.fontColor,
+                backgroundColor: product.bgColor ? lightenColor(product.bgColor) : currentTheme.styles.lightBgColor,
+                color: product.fontColor || currentTheme.styles.fontColor,
                 padding: "12px 12px",
                 fontSize: 17,
                 flex: 1,
@@ -837,8 +873,8 @@ export default function ProductPreviewModal_Classic({
             {hasPriceValue && (
               <div
                 style={{
-                  backgroundColor: currentTheme.styles.bgColor,
-                  color: currentTheme.styles.fontColor,
+                  backgroundColor: product.bgColor || currentTheme.styles.bgColor,
+                  color: product.fontColor || currentTheme.styles.fontColor,
                   padding: "6px 8px",
                   textAlign: "center",
                   fontWeight: "normal",
