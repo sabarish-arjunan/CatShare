@@ -186,7 +186,7 @@ export default function ThemesSettings() {
                                 maxWidth: "280px",
                                 borderRadius: "16px",
                                 boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
-                                overflow: "visible",
+                                overflow: "hidden",
                               }}
                             >
                               <div
@@ -331,27 +331,27 @@ export default function ThemesSettings() {
                                     }}
                                   >
                                     {sampleProduct.price} {sampleProduct.priceUnit}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
 
-                            {/* Action Buttons Preview */}
-                            <div className="w-full flex gap-2 p-3 mt-4 border-t border-white/20">
-                              <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-blue-500/90 text-white font-semibold text-[10px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all backdrop-blur-sm border border-white/20">
-                                <FiEdit3 size={12} />
-                                <span>Edit</span>
-                              </div>
-                              <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/90 text-white font-semibold text-[10px] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all backdrop-blur-sm border border-white/20">
-                                <FiPackage size={12} />
-                                <span>In Stock</span>
-                              </div>
-                              <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-rose-500/90 text-white font-semibold text-[10px] shadow-lg shadow-rose-500/20 active:scale-95 transition-all backdrop-blur-sm border border-white/20">
-                                <FiArchive size={12} />
-                                <span>Shelf</span>
+                              {/* Action Buttons Preview - Exactly same like classic */}
+                              <div className="flex gap-1 p-2 bg-slate-50 border-t border-slate-200">
+                                <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-blue-500 text-white font-bold text-[10px] shadow-sm">
+                                  <FiEdit3 size={10} />
+                                  <span>Edit</span>
+                                </div>
+                                <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-500 text-white font-bold text-[10px] shadow-sm">
+                                  <FiPackage size={10} />
+                                  <span>In Stock</span>
+                                </div>
+                                <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-rose-500 text-white font-bold text-[10px] shadow-sm">
+                                  <FiArchive size={10} />
+                                  <span>Shelf</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      ) : (
+                          ) : (
                         <div
                           style={{
                             width: "100%",
