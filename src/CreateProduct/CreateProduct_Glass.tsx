@@ -1180,20 +1180,26 @@ export default function CreateProduct() {
                         position: "absolute",
                         top: 12,
                         right: 12,
-                        backgroundColor: "rgba(255, 255, 255, 0.45)",
+                        backgroundColor: isWhiteBg
+                          ? "rgba(255, 255, 255, 0.50)"
+                          : "rgba(0, 0, 0, 0.35)",
                         backdropFilter: "blur(20px) saturate(180%)",
                         WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                        color: badgeText,
+                        color: isWhiteBg ? badgeText : "rgba(255, 255, 255, 0.95)",
                         fontSize: 13,
                         fontWeight: 600,
                         padding: "8px 14px",
                         borderRadius: "999px",
-                        border: `1.5px solid rgba(255, 255, 255, 0.8)`,
+                        border: isWhiteBg
+                          ? `1.5px solid rgba(255, 255, 255, 0.8)`
+                          : `1.5px solid rgba(255, 255, 255, 0.4)`,
                         letterSpacing: "0.5px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
+                        boxShadow: isWhiteBg
+                          ? "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)"
+                          : "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)",
                       }}
                     >
                       {getCatalogueFormData().badge.toUpperCase()}
