@@ -595,53 +595,58 @@ export default function ProductPreviewModal_Glass({
                     )}
                   </div>
                 </div>
+
+                {/* Action Buttons - Exactly same like classic */}
+                {tab === "products" && (
+                  <div
+                    className="px-4 py-3 border-t backdrop-blur-md"
+                    style={{
+                      flexShrink: 0,
+                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      borderColor: 'rgba(0, 0, 0, 0.05)'
+                    }}
+                  >
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
+                        onClick={onEdit}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-500 text-white font-semibold text-xs shadow-lg shadow-blue-500/20 active:bg-blue-600 transition-colors"
+                      >
+                        <FiEdit3 size={14} />
+                        <span>Edit</span>
+                      </motion.button>
+
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => onToggleMasterStock()}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-xs shadow-lg transition-all border ${
+                          getAllStockStatus()
+                            ? "bg-emerald-500 text-white border-transparent shadow-emerald-500/20"
+                            : "bg-white text-gray-400 border-gray-200 shadow-none"
+                        }`}
+                        title="Toggle all catalogues"
+                      >
+                        {getAllStockStatus() ? <FiPackage size={14} /> : <FiX size={14} />}
+                        <span>{getAllStockStatus() ? "In Stock" : "Out of Stock"}</span>
+                      </motion.button>
+
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => setShowShelfModal(true)}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-500 text-white font-semibold text-xs shadow-lg shadow-rose-500/20 active:bg-rose-600 transition-colors"
+                        title="Shelf Item"
+                      >
+                        <FiArchive size={14} />
+                        <span>Shelf</span>
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Action Buttons */}
-      {tab === "products" && (
-        <div
-          className="fixed bottom-0 left-0 right-0 z-[60] flex gap-2 p-2 bg-white/80 backdrop-blur-md border-t border-gray-200"
-          style={{
-            justifyContent: "center",
-            gap: "12px",
-          }}
-        >
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={onEdit}
-            className="flex items-center justify-center gap-2 px-6 py-1.5 rounded-xl bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 active:bg-blue-600 transition-colors"
-          >
-            <FiEdit3 size={14} />
-            <span>Edit</span>
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => onToggleMasterStock()}
-            className={`flex items-center justify-center gap-2 px-6 py-1.5 rounded-xl font-semibold text-sm shadow-lg transition-all border ${
-              getAllStockStatus()
-                ? "bg-emerald-500 text-white border-transparent shadow-emerald-500/20"
-                : "bg-white text-gray-400 border-gray-200 shadow-none"
-            }`}
-          >
-            {getAllStockStatus() ? <FiPackage size={14} /> : <FiX size={14} />}
-            <span>{getAllStockStatus() ? "In Stock" : "Out of Stock"}</span>
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setShowShelfModal(true)}
-            className="flex items-center justify-center gap-2 px-6 py-1.5 rounded-xl bg-rose-500 text-white font-semibold text-sm shadow-lg shadow-rose-500/20 active:bg-rose-600 transition-colors"
-          >
-            <FiArchive size={14} />
-            <span>Shelf</span>
-          </motion.button>
-        </div>
-      )}
 
       {/* Share Result Modal */}
       {shareResult && (

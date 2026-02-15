@@ -518,6 +518,9 @@ const exportProductsToCSV = (products) => {
       const jsonText = await jsonFile.async("text");
       const parsed = JSON.parse(jsonText);
 
+      // Check if this is a v3 backup with comprehensive metadata
+      const isV3Backup = parsed.version === 3 && parsed.metadata;
+
       // Validate backup format
       if (!parsed.products || !Array.isArray(parsed.products)) {
         throw new Error("Invalid backup format: missing products array");
@@ -652,8 +655,6 @@ const exportProductsToCSV = (products) => {
       // BUT preserve critical settings that shouldn't be lost during restore
       console.log("🗑️ Clearing old data to free up maximum space...");
 
-      // Check if this is a v3 backup with comprehensive metadata
-      const isV3Backup = parsed.version === 3 && parsed.metadata;
       console.log(`📦 Backup format: v${parsed.version}${isV3Backup ? ' (comprehensive)' : ''}`);
 
       // Preserve critical settings before clearing
@@ -917,7 +918,7 @@ const exportProductsToCSV = (products) => {
         console.log(`   ✅ Products: ${rebuilt.length} product(s)`);
         console.log(`   ✅ Deleted Items: ${Array.isArray(parsed.deleted) ? parsed.deleted.length : 0}`);
         console.log(`   ✅ Categories: ${Array.isArray(parsed.categories) ? parsed.categories.length : 0}`);
-        console.log(`   ✅ Catalogues: ${cataloguesDefinition?.catalogues?.length || 0}`);
+        console.log(`   ✅ Catalogues: ${getCataloguesDefinition()?.catalogues?.length || 0}`);
         console.log(`   ✅ Watermark Settings: Restored`);
         console.log(`   ✅ Backup Date: ${parsed.backupDate}`);
         console.log(`   ✅ App Version: ${parsed.appVersion}`);
