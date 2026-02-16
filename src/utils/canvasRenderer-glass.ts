@@ -247,7 +247,8 @@ export async function renderProductToCanvasGlass(
   // Draw badge
   if (product.badge) {
     const isWhiteBg = isLightColor(imageBg);
-    const badgeTextColor = isWhiteBg ? '#ffffff' : '#000000';
+    // For glass theme, badge text should always be white for contrast over frosted glass
+    const badgeTextColor = '#ffffff';
 
     const badgeText_str = product.badge.toUpperCase();
     const badgeFontSize = Math.floor(13 * scale);
@@ -278,19 +279,19 @@ export async function renderProductToCanvasGlass(
       ctx.drawImage(badgeTempCanvas, 0, 0, badgeWidth, badgeHeight, badgeX, badgeY, badgeWidth, badgeHeight);
     }
 
-    // Badge glass overlay - matching card style
+    // Badge glass overlay - enhanced for better visibility
     ctx.save();
-    ctx.globalAlpha = 0.20;
+    ctx.globalAlpha = 0.3;
     const badgeGlassGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
-    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-    badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
+    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.6)');
     ctx.fillStyle = badgeGlassGradient;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
     ctx.restore();
 
-    // Badge border
-    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.7)';
+    // Badge border - more visible
+    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.9)';
     ctx.lineWidth = 1.8 * scale;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
