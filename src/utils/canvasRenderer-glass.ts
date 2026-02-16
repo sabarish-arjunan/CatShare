@@ -445,6 +445,7 @@ export async function renderProductToCanvasGlass(
     const imageWrapHeight = baseWidth / cropAspectRatio * scale;
     const imageWrapOffsetTop = 0;
     const padding = 10 * scale;
+    const bottomPadding = 18 * scale;
 
     let watermarkX = canvasWidth / 2;
     let watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
@@ -488,20 +489,20 @@ export async function renderProductToCanvasGlass(
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
         watermarkX = padding;
-        watermarkY = canvasHeight - padding;
+        watermarkY = canvasHeight - bottomPadding;
         break;
       case 'bottom-right':
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
         watermarkX = imageWrapWidth - padding;
-        watermarkY = canvasHeight - padding;
+        watermarkY = canvasHeight - bottomPadding;
         break;
       case 'bottom-center':
       default:
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         watermarkX = imageWrapWidth / 2;
-        watermarkY = canvasHeight - padding;
+        watermarkY = canvasHeight - bottomPadding;
         break;
     }
 
