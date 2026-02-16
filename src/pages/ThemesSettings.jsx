@@ -335,21 +335,6 @@ export default function ThemesSettings() {
                                 </div>
                               </div>
 
-                              {/* Action Buttons Preview - Exactly same like classic */}
-                              <div className="flex gap-1 p-2 bg-slate-50 border-t border-slate-200">
-                                <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-blue-500 text-white font-bold text-[10px] shadow-sm">
-                                  <FiEdit3 size={10} />
-                                  <span>Edit</span>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-500 text-white font-bold text-[10px] shadow-sm">
-                                  <FiPackage size={10} />
-                                  <span>In Stock</span>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-rose-500 text-white font-bold text-[10px] shadow-sm">
-                                  <FiArchive size={10} />
-                                  <span>Shelf</span>
-                                </div>
-                              </div>
                             </div>
                           ) : (
                         <div
@@ -470,21 +455,6 @@ export default function ThemesSettings() {
                             Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{sampleProduct.price} {sampleProduct.priceUnit}
                           </div>
 
-                          {/* Action Buttons Preview for Classic */}
-                          <div className="flex gap-1 p-2 bg-slate-50 border-t border-slate-200">
-                            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-blue-500 text-white font-bold text-[10px] shadow-sm">
-                              <FiEdit3 size={10} />
-                              <span>Edit</span>
-                            </div>
-                            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-500 text-white font-bold text-[10px] shadow-sm">
-                              <FiPackage size={10} />
-                              <span>In Stock</span>
-                            </div>
-                            <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-rose-500 text-white font-bold text-[10px] shadow-sm">
-                              <FiArchive size={10} />
-                              <span>Shelf</span>
-                            </div>
-                          </div>
                         </div>
                       )}
                         </div>
