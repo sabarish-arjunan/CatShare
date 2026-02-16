@@ -436,6 +436,21 @@ export async function renderProductToCanvasGlass(
     const watermarkFont = `${watermarkFontSize}px Arial, sans-serif`;
     ctx.font = watermarkFont;
 
+    // MOVED: Declare and normalize position FIRST before using it
+    let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString();
+
+    if (normalizedPosition.startsWith('"') && normalizedPosition.endsWith('"')) {
+      normalizedPosition = normalizedPosition.substring(1, normalizedPosition.length - 1);
+    }
+
+    normalizedPosition = normalizedPosition
+      .replace(/_/g, '-')
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .toLowerCase();
+
+    console.log(`[Watermark Position] Config: ${watermarkConfig.position}, Normalized: ${normalizedPosition}`);
+
+    // NOW we can use normalizedPosition
     const isBottom = normalizedPosition.startsWith('bottom');
     const targetBg = isBottom ? options.bgColor : imageBg;
     const isLightBg = isLightColor(targetBg);
@@ -452,18 +467,8 @@ export async function renderProductToCanvasGlass(
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
 
-    let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString();
-
-    if (normalizedPosition.startsWith('"') && normalizedPosition.endsWith('"')) {
-      normalizedPosition = normalizedPosition.substring(1, normalizedPosition.length - 1);
-    }
-
-    normalizedPosition = normalizedPosition
-      .replace(/_/g, '-')
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      .toLowerCase();
-
-    console.log(`[Watermark Position] Config: ${watermarkConfig.position}, Normalized: ${normalizedPosition}`);
+    // REMOVE DUPLICATE CODE HERE (lines 468-477 in your version)
+    // The normalization was already done above
 
     switch (normalizedPosition) {
       case 'top-left':
