@@ -179,7 +179,7 @@ export async function renderProductToCanvasGlass(
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
   const cardMarginSides = 16;
-  const cardMarginBottom = 24;
+  const cardMarginBottom = 48;
 
   const canvasWidth = baseWidth * scale;
   const canvasHeight = (baseHeight + cardMarginBottom) * scale;
