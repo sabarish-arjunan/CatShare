@@ -1054,10 +1054,10 @@ useEffect(() => {
                   products: allProducts,
                 });
               }}
-              className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
+              className="flex flex-col items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
             >
-              <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 group-active:scale-95 transition-transform">
-                <FiImage size={24} />
+              <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 rotate-6 group-hover:rotate-0 transition-transform">
+                <FiImage size={22} className="-rotate-6 group-hover:rotate-0 transition-transform" />
               </div>
               <div className="text-center">
                 <span className="block font-bold text-slate-900 dark:text-white text-xs">Images</span>
@@ -1070,10 +1070,10 @@ useEffect(() => {
                 setShowShareOptions(false);
                 handleGeneratePDF('share');
               }}
-              className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
+              className="flex flex-col items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
             >
-              <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/20 group-active:scale-95 transition-transform">
-                <FaRegFilePdf size={24} />
+              <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500 text-white shadow-lg shadow-red-500/20 -rotate-6 group-hover:rotate-0 transition-transform">
+                <FaRegFilePdf size={22} className="rotate-6 group-hover:rotate-0 transition-transform" />
               </div>
               <div className="text-center">
                 <span className="block font-bold text-slate-900 dark:text-white text-xs">PDF Doc</span>
