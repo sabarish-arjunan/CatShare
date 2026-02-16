@@ -436,7 +436,9 @@ export async function renderProductToCanvasGlass(
     const watermarkFont = `${watermarkFontSize}px Arial, sans-serif`;
     ctx.font = watermarkFont;
 
-    const isLightBg = isLightColor(imageBg);
+    const isBottom = normalizedPosition.startsWith('bottom');
+    const targetBg = isBottom ? options.bgColor : imageBg;
+    const isLightBg = isLightColor(targetBg);
     ctx.fillStyle = isLightBg ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.4)';
 
     const imageWrapWidth = canvasWidth;
@@ -482,12 +484,24 @@ export async function renderProductToCanvasGlass(
         watermarkX = imageWrapWidth - padding;
         watermarkY = imageWrapOffsetTop + padding;
         break;
+      case 'bottom-left':
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        watermarkX = padding;
+        watermarkY = canvasHeight - padding;
+        break;
+      case 'bottom-right':
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        watermarkX = imageWrapWidth - padding;
+        watermarkY = canvasHeight - padding;
+        break;
       case 'bottom-center':
       default:
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         watermarkX = imageWrapWidth / 2;
-        watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+        watermarkY = canvasHeight - padding;
         break;
     }
 
