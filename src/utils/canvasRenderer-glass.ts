@@ -206,11 +206,8 @@ export async function renderProductToCanvasGlass(
     const badgeBlurAmount = 15; // Slightly less blur than card for badge visibility
     (ctx as any).filter = `blur(${badgeBlurAmount}px)`;
 
-    // Draw blurred background for badge
-    const badgeBgGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
-    badgeBgGradient.addColorStop(0, options.bgColor);
-    badgeBgGradient.addColorStop(1, lightenColor(options.bgColor, -15));
-    ctx.fillStyle = badgeBgGradient;
+    // Draw blurred background for badge - shows background through glass
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
     ctx.restore();
@@ -218,19 +215,19 @@ export async function renderProductToCanvasGlass(
     // Reset filter
     (ctx as any).filter = 'none';
 
-    // Layer 1: Semi-transparent white overlay for badge
+    // Layer 1: Very subtle frosted overlay for badge
     ctx.save();
-    ctx.globalAlpha = 0.32;
+    ctx.globalAlpha = 0.2;
     const badgeGlassGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
-    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-    badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.6)');
+    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+    badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
     ctx.fillStyle = badgeGlassGradient;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
     ctx.restore();
 
-    // Badge border - enhanced for visibility
-    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.7)';
+    // Badge border - subtle for transparent look
+    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.5)';
     ctx.lineWidth = 1.5 * scale;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
@@ -261,12 +258,8 @@ export async function renderProductToCanvasGlass(
   const blurAmount = 30; // Blur radius in pixels - simulates backdrop-filter: blur(30px)
   (ctx as any).filter = `blur(${blurAmount}px)`;
 
-  // Draw blurred gradient background that represents the blurred content behind glass
-  const blurGradient1 = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  blurGradient1.addColorStop(0, options.bgColor);
-  blurGradient1.addColorStop(0.5, lightenColor(options.bgColor, -20));
-  blurGradient1.addColorStop(1, options.bgColor);
-  ctx.fillStyle = blurGradient1;
+  // Draw very subtle blurred background that allows the gradient to show through
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
@@ -274,13 +267,13 @@ export async function renderProductToCanvasGlass(
   // Reset filter for subsequent drawing operations
   (ctx as any).filter = 'none';
 
-  // Layer 1: Highly transparent white overlay (glass morphism base) for realistic glass look
+  // Layer 1: Very subtle white overlay (glass morphism base) for realistic glass look
   ctx.save();
-  ctx.globalAlpha = 0.35;
+  ctx.globalAlpha = 0.15;
   const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.6)');
-  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.65)');
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.3)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.35)');
   ctx.fillStyle = baseGlassGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
@@ -289,11 +282,11 @@ export async function renderProductToCanvasGlass(
   // Layer 2: Very subtle frosted texture (minimal opacity for ultra-transparent look)
   for (let i = 0; i < 2; i++) {
     ctx.save();
-    ctx.globalAlpha = 0.04;
+    ctx.globalAlpha = 0.02;
     const textureGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
-    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.3)');
-    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.2)');
-    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.3)');
+    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.2)');
+    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.1)');
+    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.2)');
     ctx.fillStyle = textureGradient;
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
     ctx.fill();
@@ -302,17 +295,17 @@ export async function renderProductToCanvasGlass(
 
   // Layer 3: Subtle highlight for glass depth (reduced for transparency)
   ctx.save();
-  ctx.globalAlpha = 0.3;
+  ctx.globalAlpha = 0.12;
   const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Glass card border - white with good visibility
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  // Glass card border - white with subtle visibility
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.lineWidth = 1.5 * scale;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.stroke();
