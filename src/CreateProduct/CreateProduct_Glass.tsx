@@ -74,9 +74,9 @@ const getGlassThemeWatermarkPosition = (position) => {
     "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
     "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
     "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
-    "bottom-left": { bottom: isBottom ? 18 : 30, left: 10, transform: "none" },
-    "bottom-center": { bottom: isBottom ? 18 : 30, left: "50%", transform: "translateX(-50%)" },
-    "bottom-right": { bottom: isBottom ? 18 : 30, right: 10, left: "auto", transform: "none" }
+    "bottom-left": { bottom: isBottom ? 6 : 30, left: 10, transform: "none" },
+    "bottom-center": { bottom: isBottom ? 6 : 30, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: isBottom ? 6 : 30, right: 10, left: "auto", transform: "none" }
   };
 
   const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-left"];
@@ -1358,7 +1358,7 @@ export default function CreateProduct() {
                       letterSpacing: "0.3px",
                       color: isLightCardBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.45)",
                       zIndex: 30,
-                      bottom: 18,
+                      bottom: 8,
                     }}
                   >
                     {watermarkText}
