@@ -374,21 +374,19 @@ export async function renderProductToCanvasGlass(
 
     const fieldLineY = currentY + renderFieldFontSize * 0.8;
     const leftX = cardX + cardPadding + fieldPadding;
-    const rightX = cardX + cardWidth - cardPadding - fieldPadding;
-    const centerX = canvasWidth / 2;
-    const colonSpacing = 20 * scale;  // Space from colon to label/value
+    const labelWidth = 85 * scale; // Standard label width similar to classic
+    const colonX = leftX + labelWidth;
+    const valueX = colonX + 10 * scale;
 
-    // Draw field label on the right (before colon)
-    ctx.textAlign = 'right';
-    ctx.fillText(field.label, centerX - colonSpacing, fieldLineY);
-
-    // Draw value on the left (after colon)
+    // Draw field label (aligned to left)
     ctx.textAlign = 'left';
-    ctx.fillText(displayValue, centerX + colonSpacing, fieldLineY);
+    ctx.fillText(field.label, leftX, fieldLineY);
 
-    // Draw colon in center
-    ctx.textAlign = 'center';
-    ctx.fillText(':', centerX, fieldLineY);
+    // Draw colon
+    ctx.fillText(':', colonX, fieldLineY);
+
+    // Draw value
+    ctx.fillText(displayValue, valueX, fieldLineY);
 
     currentY += renderFieldLineHeight + 2 * scale;
   });

@@ -1308,10 +1308,10 @@ export default function CreateProduct() {
                             const displayUnit = unit && unit !== "None" ? unit : "";
 
                             return (
-                              <div key={field.key} style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                                <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>{field.label}</span>
+                              <div key={field.key} style={{ marginBottom: 4, display: "flex", alignItems: "flex-start" }}>
+                                <span style={{ fontWeight: "500", width: "90px", flexShrink: 0 }}>{field.label}</span>
                                 <span style={{ fontWeight: "500" }}>:</span>
-                                <span style={{ textAlign: "left", flex: 1 }}>{val} {displayUnit}</span>
+                                <span style={{ textAlign: "left", marginLeft: "8px", flex: 1 }}>{val} {displayUnit}</span>
                               </div>
                             );
                           })}
