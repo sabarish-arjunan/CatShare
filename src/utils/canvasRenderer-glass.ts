@@ -322,29 +322,29 @@ export async function renderProductToCanvasGlass(
   if (tempCtx) {
     tempCtx.drawImage(canvas, cardX, cardY, cardWidth, cardHeight, 0, 0, cardWidth, cardHeight);
     const backdropImageData = tempCtx.getImageData(0, 0, cardWidth, cardHeight);
-    const blurRadius = 18; // Slightly more blur for better frosted effect
+    const blurRadius = 22; // Increased blur for more frosted mix of colors
     const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
     tempCtx.putImageData(blurredBackdrop, 0, 0);
     ctx.drawImage(tempCanvas, 0, 0, cardWidth, cardHeight, cardX, cardY, cardWidth, cardHeight);
   }
 
-  // OPTIMIZED: More translucent glass overlay to show gradient through
+  // OPTIMIZED: Very translucent glass overlay to show purple/black gradient clearly
   ctx.save();
-  ctx.globalAlpha = 0.20; // Reduced for more translucency
+  ctx.globalAlpha = 0.12; // Much more transparent to show gradient mix
   const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
-  baseGlassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.28)');
-  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.32)');
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.18)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.22)');
   ctx.fillStyle = baseGlassGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Subtle top highlight
+  // Very subtle top highlight
   ctx.save();
-  ctx.globalAlpha = 0.10;
-  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+  ctx.globalAlpha = 0.06;
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.25);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
