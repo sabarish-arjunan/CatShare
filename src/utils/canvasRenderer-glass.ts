@@ -322,7 +322,7 @@ export async function renderProductToCanvasGlass(
   if (tempCtx) {
     tempCtx.drawImage(canvas, cardX, cardY, cardWidth, cardHeight, 0, 0, cardWidth, cardHeight);
     const backdropImageData = tempCtx.getImageData(0, 0, cardWidth, cardHeight);
-    const blurRadius = 20; // Optimal blur for frosted glass effect
+    const blurRadius = 30; // Optimal blur for frosted glass effect
     const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
     tempCtx.putImageData(blurredBackdrop, 0, 0);
     ctx.drawImage(tempCanvas, 0, 0, cardWidth, cardHeight, cardX, cardY, cardWidth, cardHeight);
