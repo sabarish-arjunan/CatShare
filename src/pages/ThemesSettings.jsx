@@ -8,14 +8,7 @@ import { getAllThemes } from "../config/themeConfig";
 export default function ThemesSettings() {
   const navigate = useNavigate();
   const { selectedThemeId, setTheme } = useTheme();
-  const [expandedThemeId, setExpandedThemeId] = useState(selectedThemeId);
-
-  // Update expanded theme if selected theme changes from outside
-  useEffect(() => {
-    if (selectedThemeId) {
-      setExpandedThemeId(selectedThemeId);
-    }
-  }, [selectedThemeId]);
+  const [expandedThemeId, setExpandedThemeId] = useState(null);
 
   // Get all available themes from theme config
   const themes = getAllThemes();
