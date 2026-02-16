@@ -1024,20 +1024,23 @@ useEffect(() => {
         initial={{ scale: 0.95, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 10 }}
-        className="relative w-full max-w-[320px] bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden"
+        className="relative w-full max-w-[340px] bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-              Share Products
+          <div className="text-center mb-8">
+            <span className="inline-block px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-2">
+              Share Selection
+            </span>
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">
+              {catalogueLabel}
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">
-              {selected.length} {selected.length === 1 ? 'item' : 'items'} from {catalogueLabel}
+              {selected.length} {selected.length === 1 ? 'item' : 'items'} ready to share
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={async () => {
                 setShowShareOptions(false);
@@ -1051,14 +1054,14 @@ useEffect(() => {
                   products: allProducts,
                 });
               }}
-              className="w-full flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
+              className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
             >
-              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-500 text-white shadow-sm group-active:scale-95 transition-transform">
-                <FiImage size={20} />
+              <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 group-active:scale-95 transition-transform">
+                <FiImage size={24} />
               </div>
-              <div className="text-left">
-                <span className="block font-bold text-slate-900 dark:text-white text-sm">Images</span>
-                <span className="block text-[10px] text-slate-400 font-medium">Instant chat sharing</span>
+              <div className="text-center">
+                <span className="block font-bold text-slate-900 dark:text-white text-xs">Images</span>
+                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Instant</span>
               </div>
             </button>
 
@@ -1067,23 +1070,23 @@ useEffect(() => {
                 setShowShareOptions(false);
                 handleGeneratePDF('share');
               }}
-              className="w-full flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
+              className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
             >
-              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500 text-white shadow-sm group-active:scale-95 transition-transform">
-                <FaRegFilePdf size={20} />
+              <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/20 group-active:scale-95 transition-transform">
+                <FaRegFilePdf size={24} />
               </div>
-              <div className="text-left">
-                <span className="block font-bold text-slate-900 dark:text-white text-sm">PDF Document</span>
-                <span className="block text-[10px] text-slate-400 font-medium">Professional catalog</span>
+              <div className="text-center">
+                <span className="block font-bold text-slate-900 dark:text-white text-xs">PDF Doc</span>
+                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Professional</span>
               </div>
             </button>
           </div>
 
           <button
             onClick={() => setShowShareOptions(false)}
-            className="mt-6 w-full py-2 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-widest hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            className="mt-8 w-full py-2 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em] hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
           >
-            Cancel
+            Dismiss
           </button>
         </div>
       </motion.div>
