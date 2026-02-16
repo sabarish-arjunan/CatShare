@@ -265,10 +265,24 @@ export async function renderProductToCanvasGlass(
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
     const badgeY = currentY + 12 * scale;
 
-    // Badge backdrop blur
-    const badgeBackdrop = ctx.getImageData(badgeX, badgeY, badgeWidth, badgeHeight);
-    const blurredBadgeBackdrop = applyBoxBlur(badgeBackdrop, badgeWidth, badgeHeight, 8);
-    ctx.putImageData(blurredBadgeBackdrop, badgeX, badgeY);
+    // Badge backdrop blur using temporary canvas
+    const badgeTempCanvas = document.createElement('canvas');
+    badgeTempCanvas.width = badgeWidth;
+    badgeTempCanvas.height = badgeHeight;
+    const badgeTempCtx = badgeTempCanvas.getContext('2d');
+    
+    if (badgeTempCtx) {
+      // Copy badge area to temp canvas
+      badgeTempCtx.drawImage(canvas, badgeX, badgeY, badgeWidth, badgeHeight, 0, 0, badgeWidth, badgeHeight);
+      
+      // Blur it
+      const badgeBackdrop = badgeTempCtx.getImageData(0, 0, badgeWidth, badgeHeight);
+      const blurredBadgeBackdrop = applyBoxBlur(badgeBackdrop, badgeWidth, badgeHeight, 8);
+      badgeTempCtx.putImageData(blurredBadgeBackdrop, 0, 0);
+      
+      // Draw back to main canvas
+      ctx.drawImage(badgeTempCanvas, 0, 0, badgeWidth, badgeHeight, badgeX, badgeY, badgeWidth, badgeHeight);
+    }
 
     // Badge glass overlay
     ctx.save();
@@ -306,15 +320,25 @@ export async function renderProductToCanvasGlass(
   const cardPadding = 16 * scale;
 
   // CRITICAL FIX: Create backdrop blur effect
-  // Extract background pixels behind the card
-  const backdropImageData = ctx.getImageData(cardX, cardY, cardWidth, cardHeight);
+  // Step 1: Create a temporary canvas for the blurred backdrop
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = cardWidth;
+  tempCanvas.height = cardHeight;
+  const tempCtx = tempCanvas.getContext('2d');
   
-  // Apply blur to create frosted glass effect
-  const blurRadius = 15;
-  const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
-  
-  // Draw blurred background
-  ctx.putImageData(blurredBackdrop, cardX, cardY);
+  if (tempCtx) {
+    // Step 2: Copy the background area to temp canvas
+    tempCtx.drawImage(canvas, cardX, cardY, cardWidth, cardHeight, 0, 0, cardWidth, cardHeight);
+    
+    // Step 3: Get and blur the pixels
+    const backdropImageData = tempCtx.getImageData(0, 0, cardWidth, cardHeight);
+    const blurRadius = 15;
+    const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
+    tempCtx.putImageData(blurredBackdrop, 0, 0);
+    
+    // Step 4: Draw the blurred backdrop back onto main canvas
+    ctx.drawImage(tempCanvas, 0, 0, cardWidth, cardHeight, cardX, cardY, cardWidth, cardHeight);
+  }
 
   // Semi-transparent white overlay
   ctx.save();
