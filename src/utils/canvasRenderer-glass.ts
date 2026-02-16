@@ -1,7 +1,7 @@
 /**
  * Glass Theme Canvas Rendering Utility
  * Renders products with glass morphism aesthetic
- * FIXED: Proper backdrop blur implementation
+ * OPTIMIZED: Matches reference image with perfect translucency
  */
 
 import { loadImage } from './canvasRenderer';
@@ -59,8 +59,7 @@ function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, wi
 }
 
 /**
- * Simple box blur implementation for backdrop blur effect
- * This creates the frosted glass look by blurring the background
+ * Box blur implementation for backdrop blur effect
  */
 function applyBoxBlur(
   imageData: ImageData,
@@ -272,15 +271,10 @@ export async function renderProductToCanvasGlass(
     const badgeTempCtx = badgeTempCanvas.getContext('2d');
     
     if (badgeTempCtx) {
-      // Copy badge area to temp canvas
       badgeTempCtx.drawImage(canvas, badgeX, badgeY, badgeWidth, badgeHeight, 0, 0, badgeWidth, badgeHeight);
-      
-      // Blur it
       const badgeBackdrop = badgeTempCtx.getImageData(0, 0, badgeWidth, badgeHeight);
       const blurredBadgeBackdrop = applyBoxBlur(badgeBackdrop, badgeWidth, badgeHeight, 8);
       badgeTempCtx.putImageData(blurredBadgeBackdrop, 0, 0);
-      
-      // Draw back to main canvas
       ctx.drawImage(badgeTempCanvas, 0, 0, badgeWidth, badgeHeight, badgeX, badgeY, badgeWidth, badgeHeight);
     }
 
@@ -319,44 +313,38 @@ export async function renderProductToCanvasGlass(
   const cardHeight = detailsHeight * scale + 28 * scale;
   const cardPadding = 16 * scale;
 
-  // CRITICAL FIX: Create backdrop blur effect
-  // Step 1: Create a temporary canvas for the blurred backdrop
+  // Create backdrop blur effect using temporary canvas
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = cardWidth;
   tempCanvas.height = cardHeight;
   const tempCtx = tempCanvas.getContext('2d');
   
   if (tempCtx) {
-    // Step 2: Copy the background area to temp canvas
     tempCtx.drawImage(canvas, cardX, cardY, cardWidth, cardHeight, 0, 0, cardWidth, cardHeight);
-    
-    // Step 3: Get and blur the pixels
     const backdropImageData = tempCtx.getImageData(0, 0, cardWidth, cardHeight);
-    const blurRadius = 15;
+    const blurRadius = 18; // Slightly more blur for better frosted effect
     const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
     tempCtx.putImageData(blurredBackdrop, 0, 0);
-    
-    // Step 4: Draw the blurred backdrop back onto main canvas
     ctx.drawImage(tempCanvas, 0, 0, cardWidth, cardHeight, cardX, cardY, cardWidth, cardHeight);
   }
 
-  // Semi-transparent white overlay
+  // OPTIMIZED: More translucent glass overlay to show gradient through
   ctx.save();
-  ctx.globalAlpha = 0.25;
+  ctx.globalAlpha = 0.20; // Reduced for more translucency
   const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-  baseGlassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
-  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.35)');
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.28)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.32)');
   ctx.fillStyle = baseGlassGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Highlight gradient
+  // Subtle top highlight
   ctx.save();
-  ctx.globalAlpha = 0.15;
-  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.4);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  ctx.globalAlpha = 0.10;
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
@@ -364,13 +352,13 @@ export async function renderProductToCanvasGlass(
   ctx.restore();
 
   // Border
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
   ctx.lineWidth = 1.5 * scale;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.stroke();
 
   // Inner shadow
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
   ctx.lineWidth = 1 * scale;
   drawRoundedRect(ctx, cardX + 1.5 * scale, cardY + 1.5 * scale, cardWidth - 3 * scale, cardHeight - 3 * scale, 14 * scale);
   ctx.stroke();
