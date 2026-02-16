@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef, useCallback, Dispatch, Set
 import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
-import { FiPlus, FiEdit } from "react-icons/fi";
+import { FiPlus, FiEdit, FiImage } from "react-icons/fi";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { MdLayers } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
@@ -96,6 +96,7 @@ export default React.memo(function CatalogueView({
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
 
   // Touch state - moved to useRef for better performance
   const touchStateRef = useRef({
@@ -762,16 +763,8 @@ useEffect(() => {
   {selected.length}
 </span>
 <button
-  onClick={async () => {
-    await handleShare({
-      selected,
-      setProcessing,
-      setProcessingIndex,
-      setProcessingTotal,
-      folder: catalogueLabel,
-      mode: catalogueId,
-      products: allProducts,
-    });
+  onClick={() => {
+    setShowShareOptions(true);
   }}
   className="w-9 h-9 flex items-center justify-center rounded-md text-green-600 hover:text-green-700 transition-colors"
   title="Share"
@@ -1011,6 +1004,94 @@ useEffect(() => {
           ))}
         </select>
       </div>
+    </div>
+  </div>
+</div>
+
+     {/* Share Options Popup */}
+<div
+  className={`fixed inset-0 z-[100] transition duration-300 ${
+    showShareOptions ? "opacity-100" : "opacity-0 pointer-events-none"
+  }`}
+>
+  {/* Backdrop */}
+  <div
+    className="absolute inset-0 z-0 bg-black/60 backdrop-blur-sm"
+    style={{
+      opacity: showShareOptions ? 1 : 0,
+      transition: "opacity 300ms ease",
+      pointerEvents: showShareOptions ? "auto" : "none",
+    }}
+    onClick={() => setShowShareOptions(false)}
+  ></div>
+
+  {/* Bottom Sheet */}
+  <div
+    className={`absolute bottom-0 left-0 right-0 w-full max-w-xl mx-auto bg-white rounded-t-[2.5rem] shadow-2xl transition-transform duration-300 ease-out z-10 ${
+      showShareOptions ? "translate-y-0" : "translate-y-full"
+    }`}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <div className="px-6 pt-4 pb-10">
+      {/* Pull handle */}
+      <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8" />
+
+      {/* Content */}
+      <div className="text-center mb-10">
+        <h3 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Share Catalogue</h3>
+        <p className="text-gray-500 text-sm font-medium">
+          {selected.length} {selected.length === 1 ? 'image' : 'images'} selected from <span className="font-bold text-gray-800 underline decoration-blue-500/30 underline-offset-4 tracking-tight">{catalogueLabel}</span>
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 px-2">
+        <button
+          onClick={async () => {
+            setShowShareOptions(false);
+            await handleShare({
+              selected,
+              setProcessing,
+              setProcessingIndex,
+              setProcessingTotal,
+              folder: catalogueLabel,
+              mode: catalogueId,
+              products: allProducts,
+            });
+          }}
+          className="flex flex-col items-center justify-center gap-4 p-7 rounded-[2rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:border-blue-200 transition-all duration-300 group"
+        >
+          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300">
+            <FiImage size={32} />
+          </div>
+          <div className="text-center">
+            <span className="block font-bold text-gray-900 text-[15px] leading-tight tracking-tight">Share Images</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 block">Best for Chat</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => {
+            setShowShareOptions(false);
+            handleGeneratePDF('share');
+          }}
+          className="flex flex-col items-center justify-center gap-4 p-7 rounded-[2rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:border-red-200 transition-all duration-300 group"
+        >
+          <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform duration-300">
+            <FaRegFilePdf size={32} />
+          </div>
+          <div className="text-center">
+            <span className="block font-bold text-gray-900 text-[15px] leading-tight tracking-tight">Share as PDF</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 block">Professional</span>
+          </div>
+        </button>
+      </div>
+
+      <button
+        onClick={() => setShowShareOptions(false)}
+        className="w-full mt-10 py-3 text-gray-400 font-bold text-xs uppercase tracking-[0.2em] hover:text-gray-600 transition-colors"
+      >
+        Cancel
+      </button>
     </div>
   </div>
 </div>
