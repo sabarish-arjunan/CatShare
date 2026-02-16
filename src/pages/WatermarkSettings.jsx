@@ -15,7 +15,7 @@ export default function WatermarkSettings() {
   });
   const [editingWatermarkText, setEditingWatermarkText] = useState(watermarkText);
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return safeGetFromStorage("watermarkPosition", "bottom-left");
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [initialShowWatermark] = useState(() => {
@@ -25,21 +25,11 @@ export default function WatermarkSettings() {
     return safeGetFromStorage("watermarkText", "Created using CatShare");
   });
   const [initialWatermarkPosition] = useState(() => {
-    return safeGetFromStorage("watermarkPosition", "bottom-left");
+    return safeGetFromStorage("watermarkPosition", "bottom-center");
   });
   const [renderBoxVisible, setRenderBoxVisible] = useState(false);
   const renderBoxRef = useRef(null);
   const [showRenderConfirm, setShowRenderConfirm] = useState(false);
-
-  // Migration logic handled in dataMigration.ts
-  useEffect(() => {
-    // Update watermark position from bottom-center to bottom-left
-    const positionValue = localStorage.getItem("watermarkPosition");
-    if (positionValue === '"bottom-center"') {
-      safeSetInStorage("watermarkPosition", "bottom-left");
-      setWatermarkPosition("bottom-left");
-    }
-  }, []);
 
   useEffect(() => {
     setEditingWatermarkText(watermarkText);
