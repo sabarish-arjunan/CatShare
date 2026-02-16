@@ -243,7 +243,7 @@ class RenderingTask(
             if (config == null || !config.optBoolean("enabled", false)) return
 
             val watermarkText = config.optString("text", "CatShare")
-            val position = config.optString("position", "bottom-center")
+            val position = config.optString("position", "bottom-left")
 
             val watermarkPaint = Paint().apply {
                 color = 0x44000000

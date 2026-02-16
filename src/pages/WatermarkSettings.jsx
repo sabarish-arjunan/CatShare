@@ -31,11 +31,11 @@ export default function WatermarkSettings() {
   const renderBoxRef = useRef(null);
   const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 
-  // Migration logic handled in dataMigration.ts
+  // Migration logic handled here to ensure it moves to bottom-left if it was bottom-center
   useEffect(() => {
     // Update watermark position from bottom-center to bottom-left
     const positionValue = localStorage.getItem("watermarkPosition");
-    if (positionValue === '"bottom-center"') {
+    if (positionValue === '"bottom-center"' || positionValue === 'bottom-center') {
       safeSetInStorage("watermarkPosition", "bottom-left");
       setWatermarkPosition("bottom-left");
     }

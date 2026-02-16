@@ -93,7 +93,7 @@ export async function startBackgroundRendering(
     // Get watermark settings
     const isWatermarkEnabled = safeGetFromStorage('showWatermark', true);
     const watermarkText = safeGetFromStorage('watermarkText', 'Created using CatShare');
-    const watermarkPosition = safeGetFromStorage('watermarkPosition', 'bottom-center');
+    const watermarkPosition = safeGetFromStorage('watermarkPosition', 'bottom-left');
 
     // Prepare render data
     const renderData = {

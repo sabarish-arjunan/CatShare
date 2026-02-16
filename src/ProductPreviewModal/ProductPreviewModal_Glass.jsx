@@ -33,7 +33,7 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  const selectedPosition = positionMap[position] || positionMap["bottom-center"];
+  const selectedPosition = positionMap[position] || positionMap["bottom-left"];
   return { ...baseStyles, ...selectedPosition };
 };
 
@@ -61,7 +61,7 @@ const getGlassThemeWatermarkPosition = (position) => {
     "bottom-right": { bottom: 30, right: 10, left: "auto", transform: "none" }
   };
 
-  const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-center"];
+  const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-left"];
   return { ...baseStyles, ...selectedPosition };
 };
 
@@ -125,7 +125,7 @@ export default function ProductPreviewModal_Glass({
 
   // Get watermark position
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return safeGetFromStorage("watermarkPosition", "bottom-center");
+    return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
 
   const handleDragEnd = (event, info) => {
@@ -170,7 +170,7 @@ export default function ProductPreviewModal_Glass({
     const handleWatermarkChange = () => {
       setShowWatermark(safeGetFromStorage("showWatermark", false));
       setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
-      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-left"));
     };
 
     window.addEventListener("watermarkTextChanged", handleWatermarkChange);

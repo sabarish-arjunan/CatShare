@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef, useCallback, Dispatch, Set
 import { flushSync } from "react-dom";
 import { handleShare } from "./Share";
 import { HiCheck } from "react-icons/hi";
-import { FiPlus, FiEdit } from "react-icons/fi";
+import { FiPlus, FiEdit, FiImage } from "react-icons/fi";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { MdLayers } from "react-icons/md";
 import { RiEdit2Line } from "react-icons/ri";
@@ -96,6 +96,7 @@ export default React.memo(function CatalogueView({
   const [showInfo, setShowInfo] = useState(false);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
 
   // Touch state - moved to useRef for better performance
   const touchStateRef = useRef({
@@ -762,16 +763,8 @@ useEffect(() => {
   {selected.length}
 </span>
 <button
-  onClick={async () => {
-    await handleShare({
-      selected,
-      setProcessing,
-      setProcessingIndex,
-      setProcessingTotal,
-      folder: catalogueLabel,
-      mode: catalogueId,
-      products: allProducts,
-    });
+  onClick={() => {
+    setShowShareOptions(true);
   }}
   className="w-9 h-9 flex items-center justify-center rounded-md text-green-600 hover:text-green-700 transition-colors"
   title="Share"
@@ -1011,6 +1004,113 @@ useEffect(() => {
           ))}
         </select>
       </div>
+    </div>
+  </div>
+</div>
+
+     {/* Share Options Popup */}
+<div
+  className={`fixed inset-0 z-[100] transition duration-300 ${
+    showShareOptions ? "opacity-100" : "opacity-0 pointer-events-none"
+  }`}
+>
+  {/* Backdrop */}
+  <div
+    className="absolute inset-0 z-0 bg-black/60 backdrop-blur-sm"
+    style={{
+      opacity: showShareOptions ? 1 : 0,
+      transition: "opacity 300ms ease",
+      pointerEvents: showShareOptions ? "auto" : "none",
+    }}
+    onClick={() => setShowShareOptions(false)}
+  ></div>
+
+  {/* Pop up Modal */}
+  <div
+    className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[360px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-white/40 dark:border-slate-800/40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-10 ${
+      showShareOptions ? "scale-100 opacity-100 translate-y-[-50%]" : "scale-90 opacity-0 pointer-events-none translate-y-[-40%]"
+    }`}
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/* Subtle Background Glow */}
+    <div className="absolute inset-0 overflow-hidden rounded-[3rem] pointer-events-none">
+      <div className="absolute top-[-20%] right-[-20%] w-1/2 h-1/2 bg-blue-500/10 blur-[60px] rounded-full"></div>
+      <div className="absolute bottom-[-20%] left-[-20%] w-1/2 h-1/2 bg-red-500/10 blur-[60px] rounded-full"></div>
+    </div>
+
+    <div className="relative px-6 pt-10 pb-12 overflow-hidden">
+      {/* Content */}
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-800/50 mb-6">
+          <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Ready to Share</span>
+        </div>
+
+        <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter leading-none px-2 break-words">
+          {catalogueLabel}
+        </h2>
+
+        <div className="flex items-center justify-center gap-2.5 mt-6">
+          <div className="flex -space-x-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+            {selected.length} {selected.length === 1 ? 'Product' : 'Products'}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 px-1">
+        <button
+          onClick={async () => {
+            setShowShareOptions(false);
+            await handleShare({
+              selected,
+              setProcessing,
+              setProcessingIndex,
+              setProcessingTotal,
+              folder: catalogueLabel,
+              mode: catalogueId,
+              products: allProducts,
+            });
+          }}
+          className="group relative flex flex-col items-center justify-center gap-4 p-6 rounded-[2.5rem] bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1.5 transition-all duration-300 active:scale-95"
+        >
+          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-600/20 group-hover:rotate-6 transition-transform">
+            <FiImage size={24} />
+          </div>
+          <div className="text-center">
+            <span className="block font-black text-slate-900 dark:text-white text-[13px] leading-tight tracking-tight">Images</span>
+            <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-1 block">Instant Chat</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => {
+            setShowShareOptions(false);
+            handleGeneratePDF('share');
+          }}
+          className="group relative flex flex-col items-center justify-center gap-4 p-6 rounded-[2.5rem] bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 hover:-translate-y-1.5 transition-all duration-300 active:scale-95"
+        >
+          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-red-600 text-white shadow-xl shadow-red-600/20 group-hover:-rotate-6 transition-transform">
+            <FaRegFilePdf size={24} />
+          </div>
+          <div className="text-center">
+            <span className="block font-black text-slate-900 dark:text-white text-[13px] leading-tight tracking-tight">PDF Doc</span>
+            <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-1 block">Professional</span>
+          </div>
+        </button>
+      </div>
+
+      <button
+        onClick={() => setShowShareOptions(false)}
+        className="w-full mt-12 py-3 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em] hover:text-red-600 dark:hover:text-red-400 transition-colors"
+      >
+        Dismiss
+      </button>
     </div>
   </div>
 </div>

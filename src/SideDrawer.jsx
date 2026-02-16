@@ -670,7 +670,7 @@ const exportProductsToCSV = (products) => {
           : safeGetFromStorage('watermarkText', 'Created using CatShare'),
         watermarkPosition: isV3Backup && parsed.metadata?.watermarkSettings
           ? parsed.metadata.watermarkSettings.watermarkPosition
-          : safeGetFromStorage('watermarkPosition', 'bottom-center'),
+          : safeGetFromStorage('watermarkPosition', 'bottom-left'),
         fieldsDefinition: backupFieldDef, // Use the newly analyzed field definition
         userId: localStorage.getItem('userId'),
       };
