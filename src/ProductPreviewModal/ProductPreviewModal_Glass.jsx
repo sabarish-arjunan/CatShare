@@ -545,22 +545,22 @@ export default function ProductPreviewModal_Glass({
                         <p
                           style={{
                             fontWeight: "600",
-                            fontSize: 18,
+                            fontSize: "18px",
                             margin: "0 0 4px 0",
-                            color: product.fontColor || "#000000",
+                            color: product.fontColor || currentTheme.styles.fontColor || "#000000",
                           }}
                         >
                           {product.name}
                         </p>
                         {product.subtitle && (
-                          <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: product.fontColor || "#000000" }}>
+                          <p style={{ fontStyle: "italic", fontSize: "13px", margin: 0, color: product.fontColor || currentTheme.styles.fontColor || "#000000" }}>
                             ({product.subtitle})
                           </p>
                         )}
                       </div>
 
                       {/* Fields - Aligned layout */}
-                      <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
+                      <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || currentTheme.styles.fontColor || "#000000", fontSize: "13px", width: "100%", paddingLeft: 20, paddingRight: 20 }}>
                         {enabledFields.map((field) => {
                           const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
                           const hasValue = hasFieldValue(fieldValue);
@@ -588,18 +588,18 @@ export default function ProductPreviewModal_Glass({
                       {hasPriceValue && (
                         <div
                           style={{
-                            backgroundColor: product.bgColor || currentTheme.styles.bgColor,
-                            color: product.fontColor || "white",
-                            padding: "6px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            fontSize: 16,
-                            borderRadius: "10px",
-                            marginTop: 8,
-                            width: "calc(100% - 32px)",
-                            whiteSpace: "nowrap",
-                            border: "1px solid rgba(0, 0, 0, 0.1)",
-                          }}
+                          backgroundColor: product.bgColor || currentTheme.styles.bgColor,
+                          color: product.fontColor || currentTheme.styles.fontColor || "white",
+                          padding: "6px 16px",
+                          textAlign: "center",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          borderRadius: "10px",
+                          marginTop: 8,
+                          width: "calc(100% - 32px)",
+                          whiteSpace: "nowrap",
+                          border: "1px solid rgba(0, 0, 0, 0.1)",
+                        }}
                         >
                           {currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
                             const config = getFieldConfig(priceField);
