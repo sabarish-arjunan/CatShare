@@ -258,7 +258,7 @@ export async function renderProductToCanvasGlass(
 
   // Apply blur filter to the canvas context for the glass card background
   ctx.save();
-  const blurAmount = 25; // Blur radius in pixels - simulates backdrop-filter: blur(20px)
+  const blurAmount = 30; // Blur radius in pixels - simulates backdrop-filter: blur(30px)
   (ctx as any).filter = `blur(${blurAmount}px)`;
 
   // Draw blurred gradient background that represents the blurred content behind glass
@@ -276,11 +276,11 @@ export async function renderProductToCanvasGlass(
 
   // Layer 1: Highly transparent white overlay (glass morphism base) for realistic glass look
   ctx.save();
-  ctx.globalAlpha = 0.28;
+  ctx.globalAlpha = 0.35;
   const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.5)');
-  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.55)');
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.6)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.65)');
   ctx.fillStyle = baseGlassGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
@@ -302,9 +302,9 @@ export async function renderProductToCanvasGlass(
 
   // Layer 3: Subtle highlight for glass depth (reduced for transparency)
   ctx.save();
-  ctx.globalAlpha = 0.25;
+  ctx.globalAlpha = 0.3;
   const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
@@ -312,8 +312,8 @@ export async function renderProductToCanvasGlass(
   ctx.restore();
 
   // Glass card border - white with good visibility
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-  ctx.lineWidth = 2 * scale;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.lineWidth = 1.5 * scale;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.stroke();
 
