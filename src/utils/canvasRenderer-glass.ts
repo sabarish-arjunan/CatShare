@@ -486,7 +486,7 @@ export async function renderProductToCanvasGlass(
     const imageWrapWidth = canvasWidth;
     const imageWrapHeight = baseWidth / cropAspectRatio * scale;
     const imageWrapOffsetTop = 0;
-    const padding = 7 * scale;
+    const padding = 5 * scale;
 
     let watermarkX = canvasWidth / 2;
     let watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
