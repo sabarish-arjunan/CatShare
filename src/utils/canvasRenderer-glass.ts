@@ -322,7 +322,7 @@ export async function renderProductToCanvasGlass(
   if (tempCtx) {
     tempCtx.drawImage(canvas, cardX, cardY, cardWidth, cardHeight, 0, 0, cardWidth, cardHeight);
     const backdropImageData = tempCtx.getImageData(0, 0, cardWidth, cardHeight);
-    const blurRadius = 70; // Optimal blur for frosted glass effect
+    const blurRadius = 90; // Optimal blur for frosted glass effect
     const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
     tempCtx.putImageData(blurredBackdrop, 0, 0);
     ctx.drawImage(tempCanvas, 0, 0, cardWidth, cardHeight, cardX, cardY, cardWidth, cardHeight);
@@ -486,7 +486,7 @@ export async function renderProductToCanvasGlass(
     const imageWrapWidth = canvasWidth;
     const imageWrapHeight = baseWidth / cropAspectRatio * scale;
     const imageWrapOffsetTop = 0;
-    const padding = 10 * scale;
+    const padding = 7 * scale;
 
     let watermarkX = canvasWidth / 2;
     let watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
