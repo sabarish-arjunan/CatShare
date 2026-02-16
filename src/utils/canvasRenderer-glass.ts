@@ -1,6 +1,7 @@
 /**
  * Glass Theme Canvas Rendering Utility
  * Renders products with glass morphism aesthetic
+ * FIXED: Proper backdrop blur implementation
  */
 
 import { loadImage } from './canvasRenderer';
@@ -57,6 +58,70 @@ function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, wi
   ctx.closePath();
 }
 
+/**
+ * Simple box blur implementation for backdrop blur effect
+ * This creates the frosted glass look by blurring the background
+ */
+function applyBoxBlur(
+  imageData: ImageData,
+  width: number,
+  height: number,
+  radius: number
+): ImageData {
+  const pixels = imageData.data;
+  const output = new ImageData(width, height);
+  const outPixels = output.data;
+
+  // Horizontal pass
+  const tempData = new Uint8ClampedArray(pixels.length);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let r = 0, g = 0, b = 0, a = 0, count = 0;
+      
+      for (let dx = -radius; dx <= radius; dx++) {
+        const nx = Math.min(Math.max(x + dx, 0), width - 1);
+        const idx = (y * width + nx) * 4;
+        r += pixels[idx];
+        g += pixels[idx + 1];
+        b += pixels[idx + 2];
+        a += pixels[idx + 3];
+        count++;
+      }
+      
+      const idx = (y * width + x) * 4;
+      tempData[idx] = r / count;
+      tempData[idx + 1] = g / count;
+      tempData[idx + 2] = b / count;
+      tempData[idx + 3] = a / count;
+    }
+  }
+
+  // Vertical pass
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      let r = 0, g = 0, b = 0, a = 0, count = 0;
+      
+      for (let dy = -radius; dy <= radius; dy++) {
+        const ny = Math.min(Math.max(y + dy, 0), height - 1);
+        const idx = (ny * width + x) * 4;
+        r += tempData[idx];
+        g += tempData[idx + 1];
+        b += tempData[idx + 2];
+        a += tempData[idx + 3];
+        count++;
+      }
+      
+      const idx = (y * width + x) * 4;
+      outPixels[idx] = r / count;
+      outPixels[idx + 1] = g / count;
+      outPixels[idx + 2] = b / count;
+      outPixels[idx + 3] = a / count;
+    }
+  }
+
+  return output;
+}
+
 export async function renderProductToCanvasGlass(
   product: ProductData,
   options: ProductRenderOptions,
@@ -76,7 +141,7 @@ export async function renderProductToCanvasGlass(
   // Get all enabled fields
   const allEnabledFields = getAllFields().filter(f => f.enabled && f.key.startsWith('field'));
 
-  // Calculate required height - similar to classic but adjusted for glass card layout
+  // Calculate required height
   const imageSectionBaseHeight = baseWidth / cropAspectRatio;
   const detailsPaddingBase = 8;
   const titleFontSizeBase = 27;
@@ -114,11 +179,11 @@ export async function renderProductToCanvasGlass(
   detailsHeight += detailsPaddingBase;
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
-  const cardMarginSides = 16;  // Side margins in design pixels
-  const cardMarginBottom = 24;  // Bottom margin in design pixels (larger than sides)
+  const cardMarginSides = 16;
+  const cardMarginBottom = 24;
 
   const canvasWidth = baseWidth * scale;
-  const canvasHeight = (baseHeight + cardMarginBottom) * scale;  // Add larger bottom margin
+  const canvasHeight = (baseHeight + cardMarginBottom) * scale;
 
   const canvas = document.createElement('canvas');
   canvas.width = canvasWidth;
@@ -132,7 +197,7 @@ export async function renderProductToCanvasGlass(
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
-  // Fill background with gradient (glass theme aesthetic)
+  // Fill background with gradient
   const gradientBg = ctx.createLinearGradient(0, 0, 0, canvasHeight);
   gradientBg.addColorStop(0, options.bgColor);
   gradientBg.addColorStop(0.5, lightenColor(options.bgColor, -20));
@@ -146,7 +211,6 @@ export async function renderProductToCanvasGlass(
   const imageBg = options.imageBgColor;
   const imageHeight = imageSectionBaseHeight * scale;
 
-  // Draw image background
   ctx.fillStyle = imageBg;
   ctx.fillRect(0, currentY, canvasWidth, imageHeight);
 
@@ -181,10 +245,10 @@ export async function renderProductToCanvasGlass(
     ctx.fillText('Image not found', canvasWidth / 2, currentY + imageHeight / 2);
   }
 
-  // Draw badge with glass morphism effect (matching glass theme)
+  // Draw badge
   if (product.badge) {
     const isWhiteBg = isLightColor(imageBg);
-    const badgeText = isWhiteBg ? '#ffffff' : '#000000';
+    const badgeTextColor = isWhiteBg ? '#ffffff' : '#000000';
 
     const badgeText_str = product.badge.toUpperCase();
     const badgeFontSize = Math.floor(13 * scale);
@@ -201,39 +265,30 @@ export async function renderProductToCanvasGlass(
     const badgeX = canvasWidth - badgeWidth - 12 * scale;
     const badgeY = currentY + 12 * scale;
 
-    // Apply blur filter to badge background for glass morphism
+    // Badge backdrop blur
+    const badgeBackdrop = ctx.getImageData(badgeX, badgeY, badgeWidth, badgeHeight);
+    const blurredBadgeBackdrop = applyBoxBlur(badgeBackdrop, badgeWidth, badgeHeight, 8);
+    ctx.putImageData(blurredBadgeBackdrop, badgeX, badgeY);
+
+    // Badge glass overlay
     ctx.save();
-    const badgeBlurAmount = 15; // Slightly less blur than card for badge visibility
-    (ctx as any).filter = `blur(${badgeBlurAmount}px)`;
-
-    // Draw minimal blurred background for badge
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
-    ctx.fill();
-    ctx.restore();
-
-    // Reset filter
-    (ctx as any).filter = 'none';
-
-    // Layer 1: Very subtle frosted overlay for badge
-    ctx.save();
-    ctx.globalAlpha = 0.12;
+    ctx.globalAlpha = 0.15;
     const badgeGlassGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
-    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+    badgeGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
     badgeGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
     ctx.fillStyle = badgeGlassGradient;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.fill();
     ctx.restore();
 
-    // Badge border - subtle for glass effect
-    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.5)';
+    // Badge border
+    ctx.strokeStyle = isWhiteBg ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 1.5 * scale;
     drawStadiumShape(ctx, badgeX, badgeY, badgeWidth, badgeHeight);
     ctx.stroke();
 
     // Badge text
-    ctx.fillStyle = badgeText;
+    ctx.fillStyle = badgeTextColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const badgeTextOffsetY = 1 * scale;
@@ -243,83 +298,62 @@ export async function renderProductToCanvasGlass(
   currentY += imageHeight;
 
   // ===== GLASS CARD DETAILS SECTION =====
-  const cardMargin = cardMarginSides * scale;  // Use side margins for left/right
+  const cardMargin = cardMarginSides * scale;
   const cardX = cardMargin;
-  const cardY = currentY - 20 * scale;  // Overlap slightly for glass morphism effect
+  const cardY = currentY - 20 * scale;
   const cardWidth = canvasWidth - 2 * cardMargin;
-  const cardHeight = detailsHeight * scale + 28 * scale;  // Balanced padding to fit inside card without touching edges
+  const cardHeight = detailsHeight * scale + 28 * scale;
   const cardPadding = 16 * scale;
 
-  // Create proper blurred frosted glass effect by applying blur filter to canvas context
-  // This creates an actual blur effect instead of just transparency
+  // CRITICAL FIX: Create backdrop blur effect
+  // Extract background pixels behind the card
+  const backdropImageData = ctx.getImageData(cardX, cardY, cardWidth, cardHeight);
+  
+  // Apply blur to create frosted glass effect
+  const blurRadius = 15;
+  const blurredBackdrop = applyBoxBlur(backdropImageData, cardWidth, cardHeight, blurRadius);
+  
+  // Draw blurred background
+  ctx.putImageData(blurredBackdrop, cardX, cardY);
 
-  // Apply blur filter to the canvas context for the glass card background
+  // Semi-transparent white overlay
   ctx.save();
-  const blurAmount = 30; // Blur radius in pixels - simulates backdrop-filter: blur(30px)
-  (ctx as any).filter = `blur(${blurAmount}px)`;
-
-  // Draw minimal blurred background - just a very subtle darkening to suggest depth
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-  drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
-  ctx.fill();
-  ctx.restore();
-
-  // Reset filter for subsequent drawing operations
-  (ctx as any).filter = 'none';
-
-  // Layer 1: Very subtle white overlay (glass morphism base) for frosted effect
-  ctx.save();
-  ctx.globalAlpha = 0.12;
+  ctx.globalAlpha = 0.25;
   const baseGlassGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight);
-  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-  baseGlassGradient.addColorStop(0.5, 'rgba(250, 250, 250, 0.2)');
-  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.25)');
+  baseGlassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+  baseGlassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+  baseGlassGradient.addColorStop(1, 'rgba(255, 255, 255, 0.35)');
   ctx.fillStyle = baseGlassGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Layer 2: Barely perceptible frosted texture
-  for (let i = 0; i < 2; i++) {
-    ctx.save();
-    ctx.globalAlpha = 0.01;
-    const textureGradient = ctx.createLinearGradient(cardX + i * 40 * scale, cardY, cardX + (i + 3) * 40 * scale, cardY + cardHeight);
-    textureGradient.addColorStop(0, 'rgba(200, 200, 200, 0.1)');
-    textureGradient.addColorStop(0.5, 'rgba(220, 220, 220, 0.05)');
-    textureGradient.addColorStop(1, 'rgba(200, 200, 200, 0.1)');
-    ctx.fillStyle = textureGradient;
-    drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // Layer 3: Minimal highlight for subtle glass depth
+  // Highlight gradient
   ctx.save();
-  ctx.globalAlpha = 0.08;
-  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.3);
-  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
+  ctx.globalAlpha = 0.15;
+  const highlightGradient = ctx.createLinearGradient(0, cardY, 0, cardY + cardHeight * 0.4);
+  highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
   highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = highlightGradient;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.fill();
   ctx.restore();
 
-  // Glass card border - white with subtle visibility
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+  // Border
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.lineWidth = 1.5 * scale;
   drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 16 * scale);
   ctx.stroke();
 
-  // Inset shadow effect for depth
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
-  ctx.lineWidth = 1.5 * scale;
+  // Inner shadow
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.lineWidth = 1 * scale;
   drawRoundedRect(ctx, cardX + 1.5 * scale, cardY + 1.5 * scale, cardWidth - 3 * scale, cardHeight - 3 * scale, 14 * scale);
   ctx.stroke();
 
-  // Draw content inside glass card
+  // Draw content
   currentY = cardY + 25 * scale;
 
-  // Use product's font color or fall back to black
   const textColor = options.fontColor || '#000000';
   ctx.fillStyle = textColor;
   ctx.textAlign = 'center';
@@ -343,12 +377,11 @@ export async function renderProductToCanvasGlass(
 
   currentY += spacingBeforeFields * scale;
 
-  // Fields - Aligned layout: label on left, colon center, value on right
+  // Fields
   const renderFieldFontSize = Math.floor(fieldFontSizeBase * scale);
   const fieldFont = `500 ${renderFieldFontSize}px Arial, sans-serif`;
   const renderFieldLineHeight = renderFieldFontSize * 1.4;
-  const fieldPadding = 20 * scale;  // Padding from edges
-  const fieldWidth = cardWidth - 2 * cardPadding - 2 * fieldPadding;
+  const fieldPadding = 20 * scale;
 
   ctx.font = fieldFont;
   ctx.fillStyle = textColor;
@@ -367,18 +400,13 @@ export async function renderProductToCanvasGlass(
 
     const fieldLineY = currentY + renderFieldFontSize * 0.8;
     const leftX = cardX + cardPadding + fieldPadding;
-    const labelWidth = 85 * scale; // Standard label width similar to classic
+    const labelWidth = 85 * scale;
     const colonX = leftX + labelWidth;
     const valueX = colonX + 10 * scale;
 
-    // Draw field label (aligned to left)
     ctx.textAlign = 'left';
     ctx.fillText(field.label, leftX, fieldLineY);
-
-    // Draw colon
     ctx.fillText(':', colonX, fieldLineY);
-
-    // Draw value
     ctx.fillText(displayValue, valueX, fieldLineY);
 
     currentY += renderFieldLineHeight + 2 * scale;
@@ -390,17 +418,15 @@ export async function renderProductToCanvasGlass(
   if (product.price !== undefined && product.price !== null && product.price !== '' && product.price !== 0) {
     const priceBgColor = options.bgColor;
     const priceBarHeight = priceBarHeightBase * scale;
-    const priceBarY = currentY + 8 * scale;  // Small spacing before price bar
+    const priceBarY = currentY + 8 * scale;
     const priceButtonWidth = cardWidth - 2 * cardPadding;
     const priceButtonX = cardX + cardPadding;
     const priceButtonRadius = 10 * scale;
 
-    // Draw price button with rounded corners (like a button, not a bar)
     ctx.fillStyle = priceBgColor;
     drawRoundedRect(ctx, priceButtonX, priceBarY, priceButtonWidth, priceBarHeight, priceButtonRadius);
     ctx.fill();
 
-    // Button border
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.lineWidth = 1 * scale;
     drawRoundedRect(ctx, priceButtonX, priceBarY, priceButtonWidth, priceBarHeight, priceButtonRadius);
@@ -420,7 +446,7 @@ export async function renderProductToCanvasGlass(
 
     ctx.fillText(priceText, priceButtonX + priceButtonWidth / 2, priceBarY + priceBarHeight / 2);
 
-    currentY += priceBarHeight + 8 * scale;  // Reduced spacing after price bar to fit inside card
+    currentY += priceBarHeight + 8 * scale;
   }
 
   // ===== WATERMARK =====
@@ -429,7 +455,6 @@ export async function renderProductToCanvasGlass(
     const watermarkFont = `${watermarkFontSize}px Arial, sans-serif`;
     ctx.font = watermarkFont;
 
-    // MOVED: Declare and normalize position FIRST before using it
     let normalizedPosition = (watermarkConfig.position || 'bottom-center').toString();
 
     if (normalizedPosition.startsWith('"') && normalizedPosition.endsWith('"')) {
@@ -441,9 +466,6 @@ export async function renderProductToCanvasGlass(
       .replace(/([a-z])([A-Z])/g, '$1-$2')
       .toLowerCase();
 
-    console.log(`[Watermark Position] Config: ${watermarkConfig.position}, Normalized: ${normalizedPosition}`);
-
-    // NOW we can use normalizedPosition
     const isBottom = normalizedPosition.startsWith('bottom');
     const targetBg = isBottom ? options.bgColor : imageBg;
     const isLightBg = isLightColor(targetBg);
@@ -459,9 +481,6 @@ export async function renderProductToCanvasGlass(
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-
-    // REMOVE DUPLICATE CODE HERE (lines 468-477 in your version)
-    // The normalization was already done above
 
     switch (normalizedPosition) {
       case 'top-left':
