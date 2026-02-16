@@ -899,18 +899,6 @@ useEffect(() => {
                 </svg>
                 Mark as Out of Stock
               </button>
-
-              <div className="border-t border-gray-200 my-1" />
-              <button
-                onClick={() => {
-                  handleGeneratePDF('share');
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
-                title="Share as PDF"
-              >
-                <FaRegFilePdf className="w-4 h-4" />
-                Share as PDF
-              </button>
             </>
           )}
         </div>
