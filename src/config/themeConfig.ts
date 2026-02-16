@@ -76,7 +76,7 @@ export const THEMES: { [key: string]: ThemeConfig } = {
     },
     rendering: {
       cropAspectRatio: 1,
-      cardWidth: 280,
+      cardWidth: 360,
       cardBorderRadius: 16,
     },
   },
