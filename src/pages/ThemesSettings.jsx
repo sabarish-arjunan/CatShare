@@ -8,14 +8,7 @@ import { getAllThemes } from "../config/themeConfig";
 export default function ThemesSettings() {
   const navigate = useNavigate();
   const { selectedThemeId, setTheme } = useTheme();
-  const [expandedThemeId, setExpandedThemeId] = useState(selectedThemeId);
-
-  // Update expanded theme if selected theme changes from outside
-  useEffect(() => {
-    if (selectedThemeId) {
-      setExpandedThemeId(selectedThemeId);
-    }
-  }, [selectedThemeId]);
+  const [expandedThemeId, setExpandedThemeId] = useState(null);
 
   // Get all available themes from theme config
   const themes = getAllThemes();
@@ -183,7 +176,7 @@ export default function ThemesSettings() {
                                 flexDirection: "column",
                                 height: "auto",
                                 width: "100%",
-                                maxWidth: "280px",
+                                maxWidth: "340px",
                                 borderRadius: "16px",
                                 boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
                                 overflow: "hidden",
@@ -299,20 +292,20 @@ export default function ThemesSettings() {
                                     )}
                                   </div>
                                   <div style={{ flex: 1, marginBottom: 8, color: "white", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
-                                    <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                                      <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Colour</span>
+                                    <div style={{ marginBottom: 4, display: "flex", alignItems: "flex-start" }}>
+                                      <span style={{ fontWeight: "500", width: "90px", flexShrink: 0 }}>Colour</span>
                                       <span style={{ fontWeight: "500" }}>:</span>
-                                      <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.color}</span>
+                                      <span style={{ textAlign: "left", marginLeft: "8px", flex: 1 }}>{sampleProduct.color}</span>
                                     </div>
-                                    <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                                      <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Package</span>
+                                    <div style={{ marginBottom: 4, display: "flex", alignItems: "flex-start" }}>
+                                      <span style={{ fontWeight: "500", width: "90px", flexShrink: 0 }}>Package</span>
                                       <span style={{ fontWeight: "500" }}>:</span>
-                                      <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.package}</span>
+                                      <span style={{ textAlign: "left", marginLeft: "8px", flex: 1 }}>{sampleProduct.package}</span>
                                     </div>
-                                    <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                                      <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>Age Group</span>
+                                    <div style={{ marginBottom: 4, display: "flex", alignItems: "flex-start" }}>
+                                      <span style={{ fontWeight: "500", width: "90px", flexShrink: 0 }}>Age Group</span>
                                       <span style={{ fontWeight: "500" }}>:</span>
-                                      <span style={{ textAlign: "left", flex: 1 }}>{sampleProduct.ageGroup}</span>
+                                      <span style={{ textAlign: "left", marginLeft: "8px", flex: 1 }}>{sampleProduct.ageGroup}</span>
                                     </div>
                                   </div>
                                   <div
@@ -340,7 +333,7 @@ export default function ThemesSettings() {
                         <div
                           style={{
                             width: "100%",
-                            maxWidth: "280px",
+                            maxWidth: "330px",
                             backgroundColor: "white",
                             borderRadius: "8px",
                             overflow: "hidden",

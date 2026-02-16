@@ -374,21 +374,19 @@ export async function renderProductToCanvasGlass(
 
     const fieldLineY = currentY + renderFieldFontSize * 0.8;
     const leftX = cardX + cardPadding + fieldPadding;
-    const rightX = cardX + cardWidth - cardPadding - fieldPadding;
-    const centerX = canvasWidth / 2;
-    const colonSpacing = 20 * scale;  // Space from colon to label/value
+    const labelWidth = 85 * scale; // Standard label width similar to classic
+    const colonX = leftX + labelWidth;
+    const valueX = colonX + 10 * scale;
 
-    // Draw field label on the right (before colon)
-    ctx.textAlign = 'right';
-    ctx.fillText(field.label, centerX - colonSpacing, fieldLineY);
-
-    // Draw value on the left (after colon)
+    // Draw field label (aligned to left)
     ctx.textAlign = 'left';
-    ctx.fillText(displayValue, centerX + colonSpacing, fieldLineY);
+    ctx.fillText(field.label, leftX, fieldLineY);
 
-    // Draw colon in center
-    ctx.textAlign = 'center';
-    ctx.fillText(':', centerX, fieldLineY);
+    // Draw colon
+    ctx.fillText(':', colonX, fieldLineY);
+
+    // Draw value
+    ctx.fillText(displayValue, valueX, fieldLineY);
 
     currentY += renderFieldLineHeight + 2 * scale;
   });
@@ -438,7 +436,9 @@ export async function renderProductToCanvasGlass(
     const watermarkFont = `${watermarkFontSize}px Arial, sans-serif`;
     ctx.font = watermarkFont;
 
-    const isLightBg = isLightColor(imageBg);
+    const isBottom = normalizedPosition.startsWith('bottom');
+    const targetBg = isBottom ? options.bgColor : imageBg;
+    const isLightBg = isLightColor(targetBg);
     ctx.fillStyle = isLightBg ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.4)';
 
     const imageWrapWidth = canvasWidth;
@@ -484,12 +484,24 @@ export async function renderProductToCanvasGlass(
         watermarkX = imageWrapWidth - padding;
         watermarkY = imageWrapOffsetTop + padding;
         break;
+      case 'bottom-left':
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        watermarkX = padding;
+        watermarkY = canvasHeight - padding;
+        break;
+      case 'bottom-right':
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        watermarkX = imageWrapWidth - padding;
+        watermarkY = canvasHeight - padding;
+        break;
       case 'bottom-center':
       default:
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         watermarkX = imageWrapWidth / 2;
-        watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
+        watermarkY = canvasHeight - padding;
         break;
     }
 

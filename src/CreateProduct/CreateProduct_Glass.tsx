@@ -53,7 +53,7 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
-// Helper function to adjust watermark position for Glass theme to avoid overlap with glass box
+// Helper function to adjust watermark position for Glass theme
 const getGlassThemeWatermarkPosition = (position) => {
   const baseStyles = {
     position: "absolute",
@@ -63,7 +63,10 @@ const getGlassThemeWatermarkPosition = (position) => {
     zIndex: 10
   };
 
-  // Keep bottom positions at the bottom of image container (above glass box)
+  const isBottom = position?.startsWith('bottom');
+
+  // For bottom positions, we place it at the very bottom of the card
+  // For other positions, we keep it in the image section
   const glassPositionMap = {
     "top-left": { top: 10, left: 10, transform: "none" },
     "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
@@ -71,10 +74,9 @@ const getGlassThemeWatermarkPosition = (position) => {
     "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
     "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
     "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
-    // Bottom positions use bottom positioning to place at bottom of image container (above glass box)
-    "bottom-left": { bottom: 30, left: 10, transform: "none" },
-    "bottom-center": { bottom: 30, left: "50%", transform: "translateX(-50%)" },
-    "bottom-right": { bottom: 30, right: 10, left: "auto", transform: "none" }
+    "bottom-left": { bottom: isBottom ? 6 : 30, left: 10, transform: "none" },
+    "bottom-center": { bottom: isBottom ? 6 : 30, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: isBottom ? 6 : 30, right: 10, left: "auto", transform: "none" }
   };
 
   const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-left"];
@@ -494,6 +496,12 @@ export default function CreateProduct() {
   const isWhiteBg =
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
+
+  const isLightCardBg =
+    overrideColor?.toLowerCase() === "white" ||
+    overrideColor?.toLowerCase() === "#ffffff" ||
+    overrideColor?.toLowerCase() === "#f8fafc" ||
+    overrideColor?.toLowerCase() === "#f1f5f9";
 
   const badgeBg = isWhiteBg ? "#fff" : "#000";
   const badgeText = isWhiteBg ? "#000" : "#fff";
@@ -1140,6 +1148,7 @@ export default function CreateProduct() {
               {/* White Card Container */}
               <div
                 style={{
+                  position: "relative",
                   background: "white",
                   padding: 0,
                   display: "flex",
@@ -1207,8 +1216,8 @@ export default function CreateProduct() {
                     </div>
                   )}
 
-                  {/* Watermark - Adaptive color based on background */}
-                  {showWatermark && (
+                  {/* Watermark - Top and Center positions remain in image section */}
+                  {showWatermark && !watermarkPosition.startsWith('bottom') && (
                     <div
                       style={{
                         ...getGlassThemeWatermarkPosition(watermarkPosition),
@@ -1308,10 +1317,10 @@ export default function CreateProduct() {
                             const displayUnit = unit && unit !== "None" ? unit : "";
 
                             return (
-                              <div key={field.key} style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                                <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>{field.label}</span>
+                              <div key={field.key} style={{ marginBottom: 4, display: "flex", alignItems: "flex-start" }}>
+                                <span style={{ fontWeight: "500", width: "90px", flexShrink: 0 }}>{field.label}</span>
                                 <span style={{ fontWeight: "500" }}>:</span>
-                                <span style={{ textAlign: "left", flex: 1 }}>{val} {displayUnit}</span>
+                                <span style={{ textAlign: "left", marginLeft: "8px", flex: 1 }}>{val} {displayUnit}</span>
                               </div>
                             );
                           })}
@@ -1338,6 +1347,21 @@ export default function CreateProduct() {
                         </div>
                       )}
                     </div>
+                  </div>
+                )}
+                {/* Watermark - Bottom positions moved to card bottom */}
+                {showWatermark && (watermarkPosition || "").startsWith('bottom') && (
+                  <div
+                    style={{
+                      ...getGlassThemeWatermarkPosition(watermarkPosition),
+                      fontSize: "10px",
+                      letterSpacing: "0.3px",
+                      color: isLightCardBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.45)",
+                      zIndex: 30,
+                      bottom: 8,
+                    }}
+                  >
+                    {watermarkText}
                   </div>
                 )}
               </div>

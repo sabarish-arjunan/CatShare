@@ -37,7 +37,7 @@ const getWatermarkPositionStyles = (position) => {
   return { ...baseStyles, ...selectedPosition };
 };
 
-// Helper function to adjust watermark position for Glass theme to avoid overlap with glass box
+// Helper function to adjust watermark position for Glass theme
 const getGlassThemeWatermarkPosition = (position) => {
   const baseStyles = {
     position: "absolute",
@@ -47,7 +47,10 @@ const getGlassThemeWatermarkPosition = (position) => {
     zIndex: 10
   };
 
-  // Keep bottom positions at the bottom of image container (above glass box)
+  const isBottom = position?.startsWith('bottom');
+
+  // For bottom positions, we place it at the very bottom of the card
+  // For other positions, we keep it in the image section
   const glassPositionMap = {
     "top-left": { top: 10, left: 10, transform: "none" },
     "top-center": { top: 10, left: "50%", transform: "translateX(-50%)" },
@@ -55,10 +58,9 @@ const getGlassThemeWatermarkPosition = (position) => {
     "middle-left": { top: "50%", left: 10, transform: "translateY(-50%)" },
     "middle-center": { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
     "middle-right": { top: "50%", right: 10, left: "auto", transform: "translateY(-50%)" },
-    // Bottom positions use bottom positioning to place at bottom of image container (above glass box)
-    "bottom-left": { bottom: 30, left: 10, transform: "none" },
-    "bottom-center": { bottom: 30, left: "50%", transform: "translateX(-50%)" },
-    "bottom-right": { bottom: 30, right: 10, left: "auto", transform: "none" }
+    "bottom-left": { bottom: isBottom ? 6 : 30, left: 10, transform: "none" },
+    "bottom-center": { bottom: isBottom ? 6 : 30, left: "50%", transform: "translateX(-50%)" },
+    "bottom-right": { bottom: isBottom ? 6 : 30, right: 10, left: "auto", transform: "none" }
   };
 
   const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-left"];
@@ -167,14 +169,23 @@ export default function ProductPreviewModal_Glass({
 
   // Listen for watermark setting changes
   useEffect(() => {
-    const handleWatermarkChange = () => {
-      setShowWatermark(safeGetFromStorage("showWatermark", false));
+    const refreshWatermarkSettings = () => {
+      setShowWatermark(safeGetFromStorage("showWatermark", true));
       setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
       setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-left"));
     };
 
-    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
-    return () => window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("storage", refreshWatermarkSettings);
+    window.addEventListener("watermarkChanged", refreshWatermarkSettings);
+    window.addEventListener("watermarkTextChanged", refreshWatermarkSettings);
+    window.addEventListener("watermarkPositionChanged", refreshWatermarkSettings);
+
+    return () => {
+      window.removeEventListener("storage", refreshWatermarkSettings);
+      window.removeEventListener("watermarkChanged", refreshWatermarkSettings);
+      window.removeEventListener("watermarkTextChanged", refreshWatermarkSettings);
+      window.removeEventListener("watermarkPositionChanged", refreshWatermarkSettings);
+    };
   }, []);
 
   useEffect(() => {
@@ -212,6 +223,13 @@ export default function ProductPreviewModal_Glass({
   const isWhiteBg =
     product.imageBgColor?.toLowerCase() === "white" ||
     product.imageBgColor?.toLowerCase() === "#ffffff";
+
+  const cardBg = product.bgColor || currentTheme.styles.bgColor;
+  const isLightCardBg =
+    cardBg?.toLowerCase() === "white" ||
+    cardBg?.toLowerCase() === "#ffffff" ||
+    cardBg?.toLowerCase() === "#f8fafc" || // slate-50
+    cardBg?.toLowerCase() === "#f1f5f9"; // slate-100
 
   const badgeBg = isWhiteBg ? "#fff" : "#666666";
   const badgeText = isWhiteBg ? "#000" : "#fff";
@@ -359,6 +377,7 @@ export default function ProductPreviewModal_Glass({
               {/* White Card Container */}
               <div
                 style={{
+                  position: "relative",
                   background: "white",
                   padding: 0,
                   display: "flex",
@@ -368,229 +387,248 @@ export default function ProductPreviewModal_Glass({
                   overflow: "visible",
                 }}
               >
-                {/* Image Section */}
-                <div
-                  style={{
-                    backgroundColor: product.imageBgColor || "white",
-                    textAlign: "center",
-                    padding: 0,
-                    position: "relative",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    aspectRatio: product.cropAspectRatio || currentTheme.rendering.cropAspectRatio,
-                    width: "100%",
-                    overflow: "hidden",
-                  }}
-                  onClick={handleImageClick}
-                >
-                  <img
-                    src={imageUrl}
-                    alt={product.name}
+                {/* Product Card Core - Image and Info */}
+                <div style={{ position: "relative" }}>
+                  {/* Image Section */}
+                  <div
                     style={{
+                      backgroundColor: product.imageBgColor || "white",
+                      textAlign: "center",
+                      padding: 0,
+                      position: "relative",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      aspectRatio: product.cropAspectRatio || currentTheme.rendering.cropAspectRatio,
                       width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                      margin: "0 auto",
+                      overflow: "hidden",
                     }}
-                  />
-
-                  {(catalogueData.badge || product.badge) && (
-                    <div
+                    onClick={handleImageClick}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
                       style={{
-                        position: "absolute",
-                        top: 12,
-                        right: 12,
-                        backgroundColor: isWhiteBg
-                          ? "rgba(0, 0, 0, 0.35)"
-                          : "rgba(255, 255, 255, 0.50)",
-                        backdropFilter: "blur(20px) saturate(180%)",
-                        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                        color: isWhiteBg ? "rgba(255, 255, 255, 0.95)" : badgeText,
-                        fontSize: 13,
-                        fontWeight: "600",
-                        padding: "8px 14px",
-                        borderRadius: "999px",
-                        boxShadow: isWhiteBg
-                          ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
-                          : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
-                        border: isWhiteBg
-                          ? "1.5px solid rgba(255, 255, 255, 0.4)"
-                          : "1.5px solid rgba(255, 255, 255, 0.8)",
-                        letterSpacing: "0.5px",
-                        pointerEvents: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        margin: "0 auto",
                       }}
-                    >
-                      {(catalogueData.badge || product.badge).toUpperCase()}
-                    </div>
-                  )}
+                    />
 
-                  {/* Watermark - Adaptive color based on background */}
-                  {showWatermark && (
-                    <div
-                      style={{
-                        ...getGlassThemeWatermarkPosition(watermarkPosition),
-                        fontSize: "10px",
-                        letterSpacing: "0.3px",
-                        color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
-                      }}
-                    >
-                      {watermarkText}
-                    </div>
-                  )}
+                    {(catalogueData.badge || product.badge) && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          right: 12,
+                          backgroundColor: isWhiteBg
+                            ? "rgba(0, 0, 0, 0.35)"
+                            : "rgba(255, 255, 255, 0.50)",
+                          backdropFilter: "blur(20px) saturate(180%)",
+                          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                          color: isWhiteBg ? "rgba(255, 255, 255, 0.95)" : badgeText,
+                          fontSize: 13,
+                          fontWeight: "600",
+                          padding: "8px 14px",
+                          borderRadius: "999px",
+                          boxShadow: isWhiteBg
+                            ? "inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3)"
+                            : "inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)",
+                          border: isWhiteBg
+                            ? "1.5px solid rgba(255, 255, 255, 0.4)"
+                            : "1.5px solid rgba(255, 255, 255, 0.8)",
+                          letterSpacing: "0.5px",
+                          pointerEvents: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {(catalogueData.badge || product.badge).toUpperCase()}
+                      </div>
+                    )}
 
-                  {/* Out of Stock Bar */}
-                  {(isCurrentCatalogueOutOfStock || bothOut) && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%) rotate(-30deg)",
-                        width: "140%",
-                        backgroundColor: "rgba(220, 38, 38, 0.6)",
-                        color: "white",
-                        textAlign: "center",
-                        padding: "10px 0",
-                        fontSize: "18px",
-                        fontWeight: "bold",
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                        zIndex: 10,
-                        pointerEvents: "none"
-                      }}
-                    >
-                      OUT OF STOCK
-                    </div>
-                  )}
-                </div>
+                    {/* Watermark - Top and Center positions remain in image section */}
+                    {showWatermark && !watermarkPosition.startsWith('bottom') && (
+                      <div
+                        style={{
+                          ...getGlassThemeWatermarkPosition(watermarkPosition),
+                          fontSize: "10px",
+                          letterSpacing: "0.3px",
+                          color: isWhiteBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.4)"
+                        }}
+                      >
+                        {watermarkText}
+                      </div>
+                    )}
 
-                {/* Red Gradient Background */}
-                <div
-                  style={{
-                    backgroundImage: `linear-gradient(135deg, ${product.bgColor || currentTheme.styles.bgColor} 0%, ${darkenColor(product.bgColor || currentTheme.styles.bgColor, -40)} 50%, ${product.bgColor || currentTheme.styles.bgColor} 100%)`,
-                    backgroundSize: "400% 400%",
-                    width: "100%",
-                    padding: "8px",
-                    paddingTop: "0",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    position: "relative",
-                    overflow: "visible",
-                  }}
-                >
-                  {/* Decorative gradient overlay - minimal for glass effect */}
+                    {/* Out of Stock Bar */}
+                    {(isCurrentCatalogueOutOfStock || bothOut) && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%) rotate(-30deg)",
+                          width: "140%",
+                          backgroundColor: "rgba(220, 38, 38, 0.6)",
+                          color: "white",
+                          textAlign: "center",
+                          padding: "10px 0",
+                          fontSize: "18px",
+                          fontWeight: "bold",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                          zIndex: 10,
+                          pointerEvents: "none"
+                        }}
+                      >
+                        OUT OF STOCK
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Red Gradient Background */}
                   <div
                     style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: "radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.06) 0%, transparent 50%)",
-                      pointerEvents: "none",
-                      zIndex: 0,
-                    }}
-                  ></div>
-
-                  {/* Glass Morphism Content Box */}
-                  <div
-                    style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.28)",
-                      backdropFilter: "blur(25px) saturate(180%)",
-                      WebkitBackdropFilter: "blur(25px) saturate(180%)",
-                      padding: "12px 12px",
+                      backgroundImage: `linear-gradient(135deg, ${product.bgColor || currentTheme.styles.bgColor} 0%, ${darkenColor(product.bgColor || currentTheme.styles.bgColor, -40)} 50%, ${product.bgColor || currentTheme.styles.bgColor} 100%)`,
+                      backgroundSize: "400% 400%",
+                      width: "100%",
+                      padding: "8px",
+                      paddingTop: "0",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      border: "2px solid rgba(255, 255, 255, 0.8)",
-                      borderRadius: "14px",
-                      width: "calc(100% - 16px)",
-                      marginTop: "-30px",
-                      marginLeft: "16px",
-                      marginRight: "16px",
-                      marginBottom: "16px",
-                      boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.1)",
                       position: "relative",
-                      zIndex: 2,
+                      overflow: "visible",
                     }}
                   >
-                    {/* Product Name and Subtitle */}
-                    <div style={{ textAlign: "center", marginBottom: 8 }}>
-                      <p
-                        style={{
-                          fontWeight: "600",
-                          fontSize: 18,
-                          margin: "0 0 4px 0",
-                          color: product.fontColor || "#000000",
-                        }}
-                      >
-                        {product.name}
-                      </p>
-                      {product.subtitle && (
-                        <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: product.fontColor || "#000000" }}>
-                          ({product.subtitle})
+                    {/* Decorative gradient overlay - minimal for glass effect */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.06) 0%, transparent 50%)",
+                        pointerEvents: "none",
+                        zIndex: 0,
+                      }}
+                    ></div>
+
+                    {/* Glass Morphism Content Box */}
+                    <div
+                      style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.28)",
+                        backdropFilter: "blur(25px) saturate(180%)",
+                        WebkitBackdropFilter: "blur(25px) saturate(180%)",
+                        padding: "12px 12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        border: "2px solid rgba(255, 255, 255, 0.8)",
+                        borderRadius: "14px",
+                        width: "calc(100% - 16px)",
+                        marginTop: "-30px",
+                        marginLeft: "16px",
+                        marginRight: "16px",
+                        marginBottom: "16px",
+                        boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.1)",
+                        position: "relative",
+                        zIndex: 2,
+                      }}
+                    >
+                      {/* Product Name and Subtitle */}
+                      <div style={{ textAlign: "center", marginBottom: 8 }}>
+                        <p
+                          style={{
+                            fontWeight: "600",
+                            fontSize: "18px",
+                            margin: "0 0 4px 0",
+                            color: product.fontColor || currentTheme.styles.fontColor || "#000000",
+                          }}
+                        >
+                          {product.name}
                         </p>
-                      )}
-                    </div>
+                        {product.subtitle && (
+                          <p style={{ fontStyle: "italic", fontSize: "13px", margin: 0, color: product.fontColor || currentTheme.styles.fontColor || "#000000" }}>
+                            ({product.subtitle})
+                          </p>
+                        )}
+                      </div>
 
-                    {/* Fields - Aligned layout */}
-                    <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || "#000000", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
-                      {enabledFields.map((field) => {
-                        const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
-                        const hasValue = hasFieldValue(fieldValue);
+                      {/* Fields - Aligned layout */}
+                      <div style={{ flex: 1, marginBottom: 8, color: product.fontColor || currentTheme.styles.fontColor || "#000000", fontSize: "13px", width: "100%", paddingLeft: 20, paddingRight: 20 }}>
+                        {enabledFields.map((field) => {
+                          const fieldValue = catalogueData[field.key] !== undefined && catalogueData[field.key] !== null ? catalogueData[field.key] : (product[field.key] || "");
+                          const hasValue = hasFieldValue(fieldValue);
 
-                        const visibilityKey = `${field.key}Visible`;
-                        const isVisible = catalogueData[visibilityKey] !== false && product[visibilityKey] !== false;
+                          const visibilityKey = `${field.key}Visible`;
+                          const isVisible = catalogueData[visibilityKey] !== false && product[visibilityKey] !== false;
 
-                        if (!hasValue || !isVisible) return null;
+                          if (!hasValue || !isVisible) return null;
 
-                        const unitKey = `${field.key}Unit`;
-                        const unitValue = (catalogueData[unitKey] && catalogueData[unitKey] !== "") ? catalogueData[unitKey] : (product[unitKey] || "None");
-                        const unitDisplay = (field.unitsEnabled && unitValue !== "None") ? unitValue : "";
+                          const unitKey = `${field.key}Unit`;
+                          const unitValue = (catalogueData[unitKey] && catalogueData[unitKey] !== "") ? catalogueData[unitKey] : (product[unitKey] || "None");
+                          const unitDisplay = (field.unitsEnabled && unitValue !== "None") ? unitValue : "";
 
-                        return (
-                          <div key={field.key} style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                            <span style={{ fontWeight: "500", textAlign: "right", flex: 1 }}>{field.label}</span>
-                            <span style={{ fontWeight: "500" }}>:</span>
-                            <span style={{ textAlign: "left", flex: 1 }}>{fieldValue} {unitDisplay}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          return (
+                            <div key={field.key} style={{ marginBottom: 4, display: "flex", alignItems: "flex-start" }}>
+                              <span style={{ fontWeight: "500", width: "90px", flexShrink: 0 }}>{field.label}</span>
+                              <span style={{ fontWeight: "500" }}>:</span>
+                              <span style={{ textAlign: "left", marginLeft: "8px", flex: 1 }}>{fieldValue} {unitDisplay}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
 
-                    {/* Price Badge */}
-                    {hasPriceValue && (
-                      <div
-                        style={{
+                      {/* Price Badge */}
+                      {hasPriceValue && (
+                        <div
+                          style={{
                           backgroundColor: product.bgColor || currentTheme.styles.bgColor,
-                          color: product.fontColor || "white",
+                          color: product.fontColor || currentTheme.styles.fontColor || "white",
                           padding: "6px 16px",
                           textAlign: "center",
                           fontWeight: "600",
-                          fontSize: 16,
+                          fontSize: "16px",
                           borderRadius: "10px",
                           marginTop: 8,
                           width: "calc(100% - 32px)",
                           whiteSpace: "nowrap",
                           border: "1px solid rgba(0, 0, 0, 0.1)",
                         }}
+                        >
+                          {currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
+                            const config = getFieldConfig(priceField);
+                            const unitsEnabled = config ? config.unitsEnabled : true;
+                            if (!unitsEnabled) return "";
+
+                            const unit = (catalogueData[priceUnitField] && catalogueData[priceUnitField] !== "")
+                              ? catalogueData[priceUnitField]
+                              : (product[priceUnitField] || "/ piece");
+
+                            return unit !== "None" ? ` ${unit}` : "";
+                          })()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Watermark - Bottom positions moved to card bottom */}
+                    {showWatermark && (watermarkPosition || "").startsWith('bottom') && (
+                      <div
+                        style={{
+                          ...getGlassThemeWatermarkPosition(watermarkPosition),
+                          fontSize: "10px",
+                          letterSpacing: "0.3px",
+                          color: isLightCardBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.45)",
+                          zIndex: 30,
+                          bottom: 8,
+                        }}
                       >
-                        {currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
-                          const config = getFieldConfig(priceField);
-                          const unitsEnabled = config ? config.unitsEnabled : true;
-                          if (!unitsEnabled) return "";
-
-                          const unit = (catalogueData[priceUnitField] && catalogueData[priceUnitField] !== "")
-                            ? catalogueData[priceUnitField]
-                            : (product[priceUnitField] || "/ piece");
-
-                          return unit !== "None" ? ` ${unit}` : "";
-                        })()}
+                        {watermarkText}
                       </div>
                     )}
                   </div>
