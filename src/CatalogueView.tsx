@@ -1009,111 +1009,132 @@ useEffect(() => {
 </div>
 
      {/* Share Options Popup */}
-<div
-  className={`fixed inset-0 z-[100] transition duration-300 ${
-    showShareOptions ? "opacity-100" : "opacity-0 pointer-events-none"
-  }`}
->
-  {/* Backdrop */}
-  <div
-    className="absolute inset-0 z-0 bg-black/60 backdrop-blur-sm"
-    style={{
-      opacity: showShareOptions ? 1 : 0,
-      transition: "opacity 300ms ease",
-      pointerEvents: showShareOptions ? "auto" : "none",
-    }}
-    onClick={() => setShowShareOptions(false)}
-  ></div>
-
-  {/* Pop up Modal */}
-  <div
-    className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[360px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-white/40 dark:border-slate-800/40 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-10 ${
-      showShareOptions ? "scale-100 opacity-100 translate-y-[-50%]" : "scale-90 opacity-0 pointer-events-none translate-y-[-40%]"
-    }`}
-    onClick={(e) => e.stopPropagation()}
-  >
-    {/* Subtle Background Glow */}
-    <div className="absolute inset-0 overflow-hidden rounded-[3rem] pointer-events-none">
-      <div className="absolute top-[-20%] right-[-20%] w-1/2 h-1/2 bg-blue-500/10 blur-[60px] rounded-full"></div>
-      <div className="absolute bottom-[-20%] left-[-20%] w-1/2 h-1/2 bg-red-500/10 blur-[60px] rounded-full"></div>
-    </div>
-
-    <div className="relative px-6 pt-10 pb-12 overflow-hidden">
-      {/* Content */}
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-800/50 mb-6">
-          <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Ready to Share</span>
-        </div>
-
-        <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter leading-none px-2 break-words">
-          {catalogueLabel}
-        </h2>
-
-        <div className="flex items-center justify-center gap-2.5 mt-6">
-          <div className="flex -space-x-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-          <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-            {selected.length} {selected.length === 1 ? 'Product' : 'Products'}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 px-1">
-        <button
-          onClick={async () => {
-            setShowShareOptions(false);
-            await handleShare({
-              selected,
-              setProcessing,
-              setProcessingIndex,
-              setProcessingTotal,
-              folder: catalogueLabel,
-              mode: catalogueId,
-              products: allProducts,
-            });
-          }}
-          className="group relative flex flex-col items-center justify-center gap-4 p-6 rounded-[2.5rem] bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1.5 transition-all duration-300 active:scale-95"
-        >
-          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-600/20 group-hover:rotate-6 transition-transform">
-            <FiImage size={24} />
-          </div>
-          <div className="text-center">
-            <span className="block font-black text-slate-900 dark:text-white text-[13px] leading-tight tracking-tight">Images</span>
-            <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-1 block">Instant Chat</span>
-          </div>
-        </button>
-
-        <button
-          onClick={() => {
-            setShowShareOptions(false);
-            handleGeneratePDF('share');
-          }}
-          className="group relative flex flex-col items-center justify-center gap-4 p-6 rounded-[2.5rem] bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 hover:-translate-y-1.5 transition-all duration-300 active:scale-95"
-        >
-          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-red-600 text-white shadow-xl shadow-red-600/20 group-hover:-rotate-6 transition-transform">
-            <FaRegFilePdf size={24} />
-          </div>
-          <div className="text-center">
-            <span className="block font-black text-slate-900 dark:text-white text-[13px] leading-tight tracking-tight">PDF Doc</span>
-            <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-1 block">Professional</span>
-          </div>
-        </button>
-      </div>
-
-      <button
+<AnimatePresence>
+  {showShareOptions && (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
         onClick={() => setShowShareOptions(false)}
-        className="w-full mt-12 py-3 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em] hover:text-red-600 dark:hover:text-red-400 transition-colors"
+      />
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ type: "spring", damping: 25, stiffness: 400 }}
+        className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white dark:border-slate-800/50 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
       >
-        Dismiss
-      </button>
+        {/* Visual Decoration */}
+        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none" />
+
+        <div className="relative p-8 pt-12 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+            <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Ready to Share</span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="text-3xl font-black text-slate-900 dark:text-white mb-8 tracking-tight"
+          >
+            {catalogueLabel}
+          </motion.h2>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col items-center gap-4 mb-10"
+          >
+            <div className="flex -space-x-3 items-center">
+              {selected.slice(0, 3).map((id, i) => (
+                <div
+                  key={id}
+                  className="w-14 h-14 rounded-2xl border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 shadow-2xl overflow-hidden relative"
+                  style={{ zIndex: 3 - i }}
+                >
+                  <img src={imageMap[id]} alt="" className="w-full h-full object-cover" />
+                </div>
+              ))}
+              {selected.length > 3 && (
+                <div className="w-14 h-14 rounded-2xl border-4 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 shadow-2xl flex items-center justify-center text-xs font-black text-slate-500 z-0">
+                  +{selected.length - 3}
+                </div>
+              )}
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-[0.15em]">
+              {selected.length} {selected.length === 1 ? 'Product' : 'Products'} selected
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <motion.button
+              whileHover={{ y: -5, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={async () => {
+                setShowShareOptions(false);
+                await handleShare({
+                  selected,
+                  setProcessing,
+                  setProcessingIndex,
+                  setProcessingTotal,
+                  folder: catalogueLabel,
+                  mode: catalogueId,
+                  products: allProducts,
+                });
+              }}
+              className="group flex flex-col items-center gap-4 p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-2xl hover:shadow-blue-500/10"
+            >
+              <div className="w-16 h-16 flex items-center justify-center rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-600/30 group-hover:rotate-6 transition-transform">
+                <FiImage size={28} />
+              </div>
+              <div className="space-y-1">
+                <span className="block font-black text-slate-900 dark:text-white text-sm">Images</span>
+                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-widest">Share Now</span>
+              </div>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ y: -5, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setShowShareOptions(false);
+                handleGeneratePDF('share');
+              }}
+              className="group flex flex-col items-center gap-4 p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-2xl hover:shadow-rose-500/10"
+            >
+              <div className="w-16 h-16 flex items-center justify-center rounded-3xl bg-rose-600 text-white shadow-xl shadow-rose-600/30 group-hover:-rotate-6 transition-transform">
+                <FaRegFilePdf size={28} />
+              </div>
+              <div className="space-y-1">
+                <span className="block font-black text-slate-900 dark:text-white text-sm">PDF Doc</span>
+                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-widest">Formal</span>
+              </div>
+            </motion.button>
+          </div>
+
+          <button
+            onClick={() => setShowShareOptions(false)}
+            className="mt-10 mb-2 py-2 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[0.4em] hover:text-rose-500 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </motion.div>
     </div>
-  </div>
-</div>
+  )}
+</AnimatePresence>
 
     
 
