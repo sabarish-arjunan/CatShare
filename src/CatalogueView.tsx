@@ -1016,72 +1016,29 @@ useEffect(() => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={() => setShowShareOptions(false)}
       />
 
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        initial={{ scale: 0.95, opacity: 0, y: 10 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 400 }}
-        className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white dark:border-slate-800/50 overflow-hidden"
+        exit={{ scale: 0.95, opacity: 0, y: 10 }}
+        className="relative w-full max-w-[320px] bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Visual Decoration */}
-        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none" />
-
-        <div className="relative p-8 pt-12 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6"
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-            <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Ready to Share</span>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="text-3xl font-black text-slate-900 dark:text-white mb-8 tracking-tight"
-          >
-            {catalogueLabel}
-          </motion.h2>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-col items-center gap-4 mb-10"
-          >
-            <div className="flex -space-x-3 items-center">
-              {selected.slice(0, 3).map((id, i) => (
-                <div
-                  key={id}
-                  className="w-14 h-14 rounded-2xl border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 shadow-2xl overflow-hidden relative"
-                  style={{ zIndex: 3 - i }}
-                >
-                  <img src={imageMap[id]} alt="" className="w-full h-full object-cover" />
-                </div>
-              ))}
-              {selected.length > 3 && (
-                <div className="w-14 h-14 rounded-2xl border-4 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 shadow-2xl flex items-center justify-center text-xs font-black text-slate-500 z-0">
-                  +{selected.length - 3}
-                </div>
-              )}
-            </div>
-            <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-[0.15em]">
-              {selected.length} {selected.length === 1 ? 'Product' : 'Products'} selected
+        <div className="p-6">
+          <div className="text-center mb-6">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              Share Products
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+              {selected.length} {selected.length === 1 ? 'item' : 'items'} from {catalogueLabel}
             </p>
-          </motion.div>
+          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <motion.button
-              whileHover={{ y: -5, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div className="space-y-2">
+            <button
               onClick={async () => {
                 setShowShareOptions(false);
                 await handleShare({
@@ -1094,39 +1051,37 @@ useEffect(() => {
                   products: allProducts,
                 });
               }}
-              className="group flex flex-col items-center gap-4 p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-2xl hover:shadow-blue-500/10"
+              className="w-full flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
             >
-              <div className="w-16 h-16 flex items-center justify-center rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-600/30 group-hover:rotate-6 transition-transform">
-                <FiImage size={28} />
+              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-500 text-white shadow-sm group-active:scale-95 transition-transform">
+                <FiImage size={20} />
               </div>
-              <div className="space-y-1">
-                <span className="block font-black text-slate-900 dark:text-white text-sm">Images</span>
-                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-widest">Share Now</span>
+              <div className="text-left">
+                <span className="block font-bold text-slate-900 dark:text-white text-sm">Images</span>
+                <span className="block text-[10px] text-slate-400 font-medium">Instant chat sharing</span>
               </div>
-            </motion.button>
+            </button>
 
-            <motion.button
-              whileHover={{ y: -5, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={() => {
                 setShowShareOptions(false);
                 handleGeneratePDF('share');
               }}
-              className="group flex flex-col items-center gap-4 p-6 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-2xl hover:shadow-rose-500/10"
+              className="w-full flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700/50 group"
             >
-              <div className="w-16 h-16 flex items-center justify-center rounded-3xl bg-rose-600 text-white shadow-xl shadow-rose-600/30 group-hover:-rotate-6 transition-transform">
-                <FaRegFilePdf size={28} />
+              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500 text-white shadow-sm group-active:scale-95 transition-transform">
+                <FaRegFilePdf size={20} />
               </div>
-              <div className="space-y-1">
-                <span className="block font-black text-slate-900 dark:text-white text-sm">PDF Doc</span>
-                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-widest">Formal</span>
+              <div className="text-left">
+                <span className="block font-bold text-slate-900 dark:text-white text-sm">PDF Document</span>
+                <span className="block text-[10px] text-slate-400 font-medium">Professional catalog</span>
               </div>
-            </motion.button>
+            </button>
           </div>
 
           <button
             onClick={() => setShowShareOptions(false)}
-            className="mt-10 mb-2 py-2 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[0.4em] hover:text-rose-500 transition-colors"
+            className="mt-6 w-full py-2 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-widest hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
           >
             Cancel
           </button>
