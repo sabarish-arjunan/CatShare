@@ -1264,21 +1264,21 @@ export default function CreateProduct() {
                     {/* Glass Morphism Content Box */}
                     <div
                       style={{
-                        backgroundColor: "rgba(255, 255, 255, 0.28)",
-                        backdropFilter: "blur(25px) saturate(180%)",
-                        WebkitBackdropFilter: "blur(25px) saturate(180%)",
+                        backgroundColor: "rgba(255, 255, 255, 0.35)",
+                        backdropFilter: "blur(30px) saturate(200%)",
+                        WebkitBackdropFilter: "blur(30px) saturate(200%)",
                         padding: "12px 12px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        border: "2px solid rgba(255, 255, 255, 0.8)",
+                        border: "1.5px solid rgba(255, 255, 255, 0.9)",
                         borderRadius: "14px",
                         width: "calc(100% - 16px)",
                         marginTop: "-30px",
                         marginLeft: "16px",
                         marginRight: "16px",
                         marginBottom: "16px",
-                        boxShadow: "inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.1)",
+                        boxShadow: "inset 0 2px 6px rgba(255, 255, 255, 0.6), inset 0 -2px 6px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.12)",
                         position: "relative",
                         zIndex: 2,
                       }}
