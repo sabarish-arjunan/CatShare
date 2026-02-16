@@ -179,7 +179,7 @@ export async function renderProductToCanvasGlass(
 
   const baseHeight = imageSectionBaseHeight + detailsHeight;
   const cardMarginSides = 16;
-  const cardMarginBottom = 48;
+  const cardMarginBottom = 30;
 
   const canvasWidth = baseWidth * scale;
   const canvasHeight = (baseHeight + cardMarginBottom) * scale;
@@ -486,7 +486,7 @@ export async function renderProductToCanvasGlass(
     const imageWrapWidth = canvasWidth;
     const imageWrapHeight = baseWidth / cropAspectRatio * scale;
     const imageWrapOffsetTop = 0;
-    const padding = 2 * scale;
+    const padding = 5 * scale;
 
     let watermarkX = canvasWidth / 2;
     let watermarkY = imageWrapOffsetTop + imageWrapHeight - padding;
