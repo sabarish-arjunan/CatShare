@@ -497,6 +497,12 @@ export default function CreateProduct() {
     imageBgOverride?.toLowerCase() === "white" ||
     imageBgOverride?.toLowerCase() === "#ffffff";
 
+  const isLightCardBg =
+    overrideColor?.toLowerCase() === "white" ||
+    overrideColor?.toLowerCase() === "#ffffff" ||
+    overrideColor?.toLowerCase() === "#f8fafc" ||
+    overrideColor?.toLowerCase() === "#f1f5f9";
+
   const badgeBg = isWhiteBg ? "#fff" : "#000";
   const badgeText = isWhiteBg ? "#000" : "#fff";
   const badgeBorder = isWhiteBg
@@ -1344,14 +1350,15 @@ export default function CreateProduct() {
                   </div>
                 )}
                 {/* Watermark - Bottom positions moved to card bottom */}
-                {showWatermark && watermarkPosition.startsWith('bottom') && (
+                {showWatermark && (watermarkPosition || "").startsWith('bottom') && (
                   <div
                     style={{
                       ...getGlassThemeWatermarkPosition(watermarkPosition),
                       fontSize: "10px",
                       letterSpacing: "0.3px",
-                      color: "rgba(255, 255, 255, 0.45)",
-                      zIndex: 20,
+                      color: isLightCardBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.45)",
+                      zIndex: 30,
+                      bottom: 8,
                     }}
                   >
                     {watermarkText}

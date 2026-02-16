@@ -169,14 +169,23 @@ export default function ProductPreviewModal_Glass({
 
   // Listen for watermark setting changes
   useEffect(() => {
-    const handleWatermarkChange = () => {
-      setShowWatermark(safeGetFromStorage("showWatermark", false));
+    const refreshWatermarkSettings = () => {
+      setShowWatermark(safeGetFromStorage("showWatermark", true));
       setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
       setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-left"));
     };
 
-    window.addEventListener("watermarkTextChanged", handleWatermarkChange);
-    return () => window.removeEventListener("watermarkTextChanged", handleWatermarkChange);
+    window.addEventListener("storage", refreshWatermarkSettings);
+    window.addEventListener("watermarkChanged", refreshWatermarkSettings);
+    window.addEventListener("watermarkTextChanged", refreshWatermarkSettings);
+    window.addEventListener("watermarkPositionChanged", refreshWatermarkSettings);
+
+    return () => {
+      window.removeEventListener("storage", refreshWatermarkSettings);
+      window.removeEventListener("watermarkChanged", refreshWatermarkSettings);
+      window.removeEventListener("watermarkTextChanged", refreshWatermarkSettings);
+      window.removeEventListener("watermarkPositionChanged", refreshWatermarkSettings);
+    };
   }, []);
 
   useEffect(() => {
@@ -214,6 +223,13 @@ export default function ProductPreviewModal_Glass({
   const isWhiteBg =
     product.imageBgColor?.toLowerCase() === "white" ||
     product.imageBgColor?.toLowerCase() === "#ffffff";
+
+  const cardBg = product.bgColor || currentTheme.styles.bgColor;
+  const isLightCardBg =
+    cardBg?.toLowerCase() === "white" ||
+    cardBg?.toLowerCase() === "#ffffff" ||
+    cardBg?.toLowerCase() === "#f8fafc" || // slate-50
+    cardBg?.toLowerCase() === "#f1f5f9"; // slate-100
 
   const badgeBg = isWhiteBg ? "#fff" : "#666666";
   const badgeText = isWhiteBg ? "#000" : "#fff";
@@ -646,14 +662,17 @@ export default function ProductPreviewModal_Glass({
                   </div>
                 )}
                 {/* Watermark - Bottom positions moved to card bottom */}
-                {showWatermark && watermarkPosition.startsWith('bottom') && (
+                {showWatermark && (watermarkPosition || "").startsWith('bottom') && (
                   <div
                     style={{
                       ...getGlassThemeWatermarkPosition(watermarkPosition),
                       fontSize: "10px",
                       letterSpacing: "0.3px",
-                      color: "rgba(255, 255, 255, 0.45)",
-                      zIndex: 20,
+                      color: tab === "products"
+                        ? "rgba(0, 0, 0, 0.3)"
+                        : (isLightCardBg ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.45)"),
+                      zIndex: 30,
+                      bottom: tab === "products" ? 54 : 8, // Shift up if action buttons are present
                     }}
                   >
                     {watermarkText}
