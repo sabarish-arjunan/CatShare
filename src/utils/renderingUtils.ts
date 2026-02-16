@@ -101,7 +101,7 @@ export async function renderProductImageOnTheFly(
     // Get watermark settings
     const isWatermarkEnabled = safeGetFromStorage("showWatermark", true);
     const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
-    const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-center");
+    const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-left");
 
     // Build productData with all enabled fields dynamically
     const productData: any = {
@@ -183,7 +183,7 @@ export async function renderProductImageOnTheFly(
         {
           enabled: false,
           text: "",
-          position: "bottom-center",
+          position: "bottom-left",
         }
       );
 

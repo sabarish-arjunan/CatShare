@@ -291,10 +291,12 @@ export function migrateFromTwoCataloguesToOne(): void {
 /**
  * Migration: Ensure watermark is enabled by default for existing users
  * if they haven't explicitly set it or if it was the old default false.
+ * Also migrates watermark position from bottom-center to bottom-left.
  */
 export function migrateWatermarkDefault(): void {
   try {
     const showWatermark = localStorage.getItem("showWatermark");
+    const watermarkPosition = localStorage.getItem("watermarkPosition");
     const hasMigrated = localStorage.getItem("hasMigratedWatermarkDefault");
 
     if (!hasMigrated) {
@@ -304,10 +306,23 @@ export function migrateWatermarkDefault(): void {
         localStorage.setItem("showWatermark", "true");
         console.log("✅ Migrated watermark default to enabled");
       }
+
+      // Migrate position from bottom-center to bottom-left
+      if (watermarkPosition === null || watermarkPosition === '"bottom-center"' || watermarkPosition === 'bottom-center') {
+        localStorage.setItem("watermarkPosition", "bottom-left");
+        console.log("✅ Migrated watermark position to bottom-left");
+      }
+
       localStorage.setItem("hasMigratedWatermarkDefault", "true");
+    } else {
+      // Even if migrated once, if it's still bottom-center, migrate it (handling cases where it might have been reset or missed)
+      if (watermarkPosition === '"bottom-center"' || watermarkPosition === 'bottom-center') {
+        localStorage.setItem("watermarkPosition", "bottom-left");
+        console.log("✅ Forced migration of watermark position to bottom-left");
+      }
     }
   } catch (err) {
-    console.error("❌ Failed to migrate watermark default:", err);
+    console.error("❌ Failed to migrate watermark settings:", err);
   }
 }
 

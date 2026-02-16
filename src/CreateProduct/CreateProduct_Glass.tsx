@@ -49,7 +49,7 @@ const getWatermarkPositionStyles = (position) => {
     "bottom-right": { bottom: 10, right: 10, left: "auto", transform: "none" }
   };
 
-  const selectedPosition = positionMap[position] || positionMap["bottom-center"];
+  const selectedPosition = positionMap[position] || positionMap["bottom-left"];
   return { ...baseStyles, ...selectedPosition };
 };
 
@@ -77,7 +77,7 @@ const getGlassThemeWatermarkPosition = (position) => {
     "bottom-right": { bottom: 30, right: 10, left: "auto", transform: "none" }
   };
 
-  const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-center"];
+  const selectedPosition = glassPositionMap[position] || glassPositionMap["bottom-left"];
   return { ...baseStyles, ...selectedPosition };
 };
 
@@ -389,7 +389,7 @@ export default function CreateProduct() {
   });
 
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
-    return safeGetFromStorage("watermarkPosition", "bottom-center");
+    return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
 
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
@@ -407,17 +407,17 @@ export default function CreateProduct() {
     const handleStorageChange = () => {
       setShowWatermarkLocal(safeGetFromStorage("showWatermark", false));
       setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
-      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-left"));
     };
 
     const handleWatermarkChange = () => {
       setShowWatermarkLocal(safeGetFromStorage("showWatermark", false));
       setWatermarkText(safeGetFromStorage("watermarkText", "Created using CatShare"));
-      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-left"));
     };
 
     const handlePositionChange = () => {
-      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-center"));
+      setWatermarkPosition(safeGetFromStorage("watermarkPosition", "bottom-left"));
     };
 
     const handleWatermarkToggle = () => {

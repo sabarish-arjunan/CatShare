@@ -353,7 +353,7 @@ function AppWithBackHandler() {
       safeSetInStorage("watermarkText", "Created using CatShare");
     }
     if (watermarkPosition === null) {
-      safeSetInStorage("watermarkPosition", "bottom-center");
+      safeSetInStorage("watermarkPosition", "bottom-left");
     }
   }, []);
 
