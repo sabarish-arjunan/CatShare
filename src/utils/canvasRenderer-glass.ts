@@ -247,7 +247,8 @@ export async function renderProductToCanvasGlass(
   // Draw badge
   if (product.badge) {
     const isWhiteBg = isLightColor(imageBg);
-    const badgeTextColor = isWhiteBg ? '#ffffff' : '#000000';
+    // Match UI component logic: white text on white bg, otherwise use font color
+    const badgeTextColor = isWhiteBg ? '#ffffff' : options.fontColor;
 
     const badgeText_str = product.badge.toUpperCase();
     const badgeFontSize = Math.floor(13 * scale);
