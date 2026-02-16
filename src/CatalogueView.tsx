@@ -1025,23 +1025,26 @@ useEffect(() => {
     onClick={() => setShowShareOptions(false)}
   ></div>
 
-  {/* Bottom Sheet */}
+  {/* Pop up Modal */}
   <div
-    className={`absolute bottom-0 left-0 right-0 w-full max-w-xl mx-auto bg-white rounded-t-[2.5rem] shadow-2xl transition-transform duration-300 ease-out z-10 ${
-      showShareOptions ? "translate-y-0" : "translate-y-full"
+    className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-[2.5rem] shadow-2xl transition-all duration-300 z-10 ${
+      showShareOptions ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
     }`}
     onClick={(e) => e.stopPropagation()}
   >
-    <div className="px-6 pt-4 pb-10">
-      {/* Pull handle */}
-      <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8" />
-
+    <div className="px-6 pt-8 pb-10">
       {/* Content */}
       <div className="text-center mb-10">
-        <h3 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Share Catalogue</h3>
-        <p className="text-gray-500 text-sm font-medium">
-          {selected.length} {selected.length === 1 ? 'image' : 'images'} selected from <span className="font-bold text-gray-800 underline decoration-blue-500/30 underline-offset-4 tracking-tight">{catalogueLabel}</span>
-        </p>
+        <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-4">Share Catalogue</h3>
+        <h2 className="text-4xl font-black text-gray-900 mb-2 tracking-tighter leading-tight px-2">
+          {catalogueLabel}
+        </h2>
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
+            {selected.length} {selected.length === 1 ? 'Product' : 'Products'} Selected
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 px-2">
