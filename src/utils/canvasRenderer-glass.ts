@@ -400,6 +400,23 @@ export async function renderProductToCanvasGlass(
   ctx.fillStyle = textColor;
 
   const activeFields = allEnabledFields.filter(f => !!product[f.key]);
+
+  // Measure the longest label to align colons properly
+  let maxLabelWidth = 0;
+  activeFields.forEach(field => {
+    const visibilityKey = `${field.key}Visible`;
+    const isVisible = product[visibilityKey] !== false;
+    if (isVisible) {
+      const metrics = ctx.measureText(field.label);
+      maxLabelWidth = Math.max(maxLabelWidth, metrics.width);
+    }
+  });
+
+  const leftX = cardX + cardPadding + fieldPadding;
+  const colonX = leftX + maxLabelWidth + 6 * scale;
+  const valueX = colonX + 10 * scale;
+  const maxValueWidth = cardWidth - (valueX - cardX) - fieldPadding - 10 * scale;
+
   activeFields.forEach(field => {
     const visibilityKey = `${field.key}Visible`;
     const isVisible = product[visibilityKey] !== false;
@@ -412,17 +429,22 @@ export async function renderProductToCanvasGlass(
     const displayValue = unit && unit !== 'None' ? `${val} ${unit}` : `${val}`;
 
     const fieldLineY = currentY + renderFieldFontSize * 0.8;
-    const leftX = cardX + cardPadding + fieldPadding;
-    const labelWidth = 85 * scale;
-    const colonX = leftX + labelWidth;
-    const valueX = colonX + 10 * scale;
 
     ctx.textAlign = 'left';
     ctx.fillText(field.label, leftX, fieldLineY);
     ctx.fillText(':', colonX, fieldLineY);
-    ctx.fillText(displayValue, valueX, fieldLineY);
 
-    currentY += renderFieldLineHeight + 2 * scale;
+    // Check if value fits on the same line
+    const valueMetrics = ctx.measureText(displayValue);
+    if (valueMetrics.width > maxValueWidth) {
+      // Value is too long, put it on the next line
+      ctx.fillText(displayValue, leftX, fieldLineY + renderFieldLineHeight);
+      currentY += renderFieldLineHeight * 2 + 2 * scale;
+    } else {
+      // Value fits on same line
+      ctx.fillText(displayValue, valueX, fieldLineY);
+      currentY += renderFieldLineHeight + 2 * scale;
+    }
   });
 
   currentY += spacingAfterFields * scale;
