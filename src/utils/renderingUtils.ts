@@ -59,6 +59,10 @@ export async function renderProductImageOnTheFly(
   catalogueId?: string,
   themeId?: string
 ): Promise<string | null> {
+  const storedThemeId = themeId || localStorage.getItem("selectedTheme") || "classic";
+  const theme = getThemeById(storedThemeId);
+  const isGlassTheme = theme.styles.layout === "glass";
+
   try {
     if (!product.image && product.imagePath) {
       try {
@@ -81,10 +85,6 @@ export async function renderProductImageOnTheFly(
       catalogueData = { ...product, ...catData };
     }
 
-    // Get theme configuration
-    const storedThemeId = themeId || localStorage.getItem("selectedTheme") || "classic";
-    const theme = getThemeById(storedThemeId);
-
     const cropAspectRatio = product.cropAspectRatio || theme.rendering.cropAspectRatio;
     const baseWidth = theme.rendering.cardWidth;
 
@@ -98,8 +98,6 @@ export async function renderProductImageOnTheFly(
     const priceUnitField = catalogueId === "cat2" ? "price2Unit" : catalogueId === "cat1" ? "price1Unit" : "price1Unit";
     const price = catalogueData[priceField] || 0;
     const priceUnit = catalogueData[priceUnitField] || "/ piece";
-
-    // Get watermark settings
     const isWatermarkEnabled = safeGetFromStorage("showWatermark", true);
     const watermarkText = safeGetFromStorage("watermarkText", "Created using CatShare");
     const watermarkPosition = safeGetFromStorage("watermarkPosition", "bottom-left");
@@ -127,7 +125,6 @@ export async function renderProductImageOnTheFly(
     console.log(`🎨 On-the-fly rendering product: ${product.name || product.id}`);
     console.log(`🎨 Theme: ${storedThemeId}, Colors - BG: ${bgColor}, Font: ${fontColor}, Image BG: ${imageBg}`);
 
-    const isGlassTheme = theme.styles.layout === "glass";
     const renderOptions = {
       width: baseWidth,
       scale: 3,
