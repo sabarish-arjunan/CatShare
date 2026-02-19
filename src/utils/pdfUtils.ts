@@ -443,7 +443,6 @@ export async function sharePDF(blob: Blob, filename: string = "products.pdf", ti
         path: filePath,
         data: base64Data,
         directory: Directory.External,
-        encoding: "ascii", // Base64 is ASCII
       });
 
       // Get the file URI
