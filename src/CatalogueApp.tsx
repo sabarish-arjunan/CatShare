@@ -416,7 +416,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setProducts((prev) => prev.map((p) => (p.id === item.id ? item : p)));
   };
 
-  const handleRenderAllPNGs = async (forceRerender: boolean = true) => {
+  const handleRenderAllImages = async (forceRerender: boolean = true) => {
     const all = JSON.parse(localStorage.getItem("products") || "[]");
     if (all.length === 0) return;
 
@@ -517,7 +517,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
             flushSync(() => propSetRenderProgress?.(productIndex));
           }
 
-          console.log(`✅ Rendered PNGs for ${product.name} (${cats.length} catalogues)`);
+          console.log(`✅ Rendered images for ${product.name} (${cats.length} catalogues)`);
         } catch (err) {
           console.warn(`❌ Failed to render images for ${product.name}`, err);
         }
@@ -525,7 +525,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       propSetRenderResult?.({
         status: "success",
-        message: `PNG rendering completed for all products and catalogues${forceRerender ? ' (force re-rendered)' : ''}`,
+        message: `Image rendering completed for all products and catalogues`,
       });
       propSetIsRendering?.(false);
       window.dispatchEvent(new CustomEvent("renderComplete"));
@@ -1165,7 +1165,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         renderProgress={renderProgress}
         renderResult={renderResult}
         setRenderResult={setRenderResult}
-        handleRenderAllPNGs={handleRenderAllPNGs}
+        handleRenderAllImages={handleRenderAllImages}
       />
 
       {showTutorial && (

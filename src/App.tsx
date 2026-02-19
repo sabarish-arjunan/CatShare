@@ -63,7 +63,7 @@ function AppWithBackHandler() {
   const isNative = Capacitor.getPlatform() !== "web";
 
 
-  // Handle rendering PNGs with chunked processing to prevent UI freeze
+  // Handle rendering images with chunked processing to prevent UI freeze
   // Processes in small batches with UI yielding between chunks
   const handleRenderPNGs = useCallback(async (customProducts?: any[], showOverlay: boolean = true) => {
     const all = customProducts || safeGetFromStorage("products", []);
@@ -148,7 +148,7 @@ function AppWithBackHandler() {
                 renderedCount++;
               }
 
-              console.log(`✅ Rendered PNGs for ${product.name} (${catalogues.length} catalogues)`);
+              console.log(`✅ Rendered images for ${product.name} (${catalogues.length} catalogues)`);
 
               // Update progress after product completes
               const productIndex = Math.floor(renderedCount / catalogues.length);
@@ -182,7 +182,7 @@ function AppWithBackHandler() {
         setIsRendering(false);
         setRenderResult({
           status: "success",
-          message: `PNG rendering completed for ${all.length} products and ${catalogues.length} catalogues`,
+          message: `Image rendering completed for ${all.length} products and ${catalogues.length} catalogues`,
         });
       }
       console.log(`✅ Rendering complete`);

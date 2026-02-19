@@ -423,6 +423,13 @@ useEffect(() => {
         return;
       }
 
+      if (selected.length > 80) {
+        const confirmed = window.confirm(
+          `You have selected ${selected.length} products. Generating a PDF with more than 80 images may make the app unstable. Do you want to continue?`
+        );
+        if (!confirmed) return;
+      }
+
       setProcessing(true);
       setProcessingPhase("rendering");
       setProcessingTotal(selected.length);
@@ -1049,7 +1056,7 @@ useEffect(() => {
               </div>
               <div className="text-center">
                 <span className="block font-bold text-slate-900 dark:text-white text-xs">Images</span>
-                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Instant</span>
+                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-[0.1em] mt-1">Quick Share</span>
               </div>
             </button>
 
@@ -1065,7 +1072,7 @@ useEffect(() => {
               </div>
               <div className="text-center">
                 <span className="block font-bold text-slate-900 dark:text-white text-xs">PDF Doc</span>
-                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Professional</span>
+                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-[0.1em] mt-1">Client Ready</span>
               </div>
             </button>
           </div>

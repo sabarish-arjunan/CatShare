@@ -1,4 +1,4 @@
-# CatShare - Product Catalog Manager
+# CatShare - Catalog Maker
 # Allow all search engines to crawl and index the site
 
 User-agent: *
