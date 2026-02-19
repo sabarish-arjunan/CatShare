@@ -1162,7 +1162,7 @@ export default function CreateProduct() {
                   <div
                     style={{
                       backgroundColor: getLighterColor(overrideColor),
-                      color: fontColor,
+                      color: fontColor || "white",
                       padding: "10px",
                     }}
                   >
