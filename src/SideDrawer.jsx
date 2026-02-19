@@ -1309,7 +1309,7 @@ const exportProductsToCSV = (products) => {
 {showRenderConfirm && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
     <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
-      <p className="text-lg font-medium text-gray-800 mb-2">Render all product PNGs?</p>
+      <p className="text-lg font-medium text-gray-800 mb-2">Render all product images?</p>
 <p className="text-sm text-gray-600 mb-4">
   Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
 </p>
