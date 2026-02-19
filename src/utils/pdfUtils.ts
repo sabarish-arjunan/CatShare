@@ -1,8 +1,7 @@
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import { Share } from "@capacitor/share";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { FileSharer } from "@byteowls/capacitor-filesharer";
-import { jsPDF } from "jspdf";
 
 interface ProductWithImage {
   id: string | number;
@@ -46,7 +45,9 @@ interface PDFGenerationOptions {
 /**
  * Get dimensions of an image from base64 data
  */
-function getImageDimensions(base64Image: string): Promise<{ width: number; height: number }> {
+function getImageDimensions(
+  base64Image: string
+): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -62,36 +63,44 @@ function getImageDimensions(base64Image: string): Promise<{ width: number; heigh
 /**
  * Render text (especially currency symbols like ₹) to a high-resolution base64 image
  */
-function renderTextToImage(text: string, fontSize: number = 40, color: string = "#1d4ed8"): { dataUrl: string; width: number; height: number } {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+function renderTextToImage(
+  text: string,
+  fontSize: number = 40,
+  color: string = "#1d4ed8"
+): { dataUrl: string; width: number; height: number } {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
   if (!ctx) return { dataUrl: "", width: 0, height: 0 };
-  
+
   const font = `bold ${fontSize}px Arial, sans-serif`;
   ctx.font = font;
   const metrics = ctx.measureText(text);
-  
+
   const scale = 2;
   canvas.width = (metrics.width + 20) * scale;
-  canvas.height = (fontSize * 1.5) * scale;
-  
+  canvas.height = fontSize * 1.5 * scale;
+
   ctx.scale(scale, scale);
   ctx.font = font;
   ctx.fillStyle = color;
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = "middle";
   ctx.fillText(text, 10, (fontSize * 1.5) / 2);
-  
+
   return {
-    dataUrl: canvas.toDataURL('image/png'),
+    dataUrl: canvas.toDataURL("image/png"),
     width: metrics.width + 20,
-    height: fontSize * 1.5
+    height: fontSize * 1.5,
   };
 }
 
 // --- Helper Functions for Glass Theme ---
 
-const drawGlassBackground = (pdf: jsPDF, pageWidth: number, pageHeight: number, accentBlue: number[]) => {
-  // Soft gradient-like blobs
+const drawGlassBackground = (
+  pdf: jsPDF,
+  pageWidth: number,
+  pageHeight: number,
+  accentBlue: number[]
+) => {
   pdf.setFillColor(240, 249, 255); // Sky-50
   pdf.rect(0, 0, pageWidth, pageHeight, "F");
 
@@ -100,17 +109,16 @@ const drawGlassBackground = (pdf: jsPDF, pageWidth: number, pageHeight: number, 
     // @ts-ignore
     pdf.setGState(new pdf.GState({ opacity: 0.15 }));
   }
-  
-  // Abstract shapes in the background to show through the glass
+
   pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
   pdf.circle(pageWidth, 0, 80, "F");
-  
+
   pdf.setFillColor(147, 197, 253); // Blue-300
   pdf.circle(0, pageHeight / 2, 60, "F");
-  
+
   pdf.setFillColor(191, 219, 254); // Blue-200
   pdf.circle(pageWidth, pageHeight, 100, "F");
-  
+
   // @ts-ignore
   if (pdf.GState) {
     // @ts-ignore
@@ -118,8 +126,15 @@ const drawGlassBackground = (pdf: jsPDF, pageWidth: number, pageHeight: number, 
   }
 };
 
-const addHeader = (pdf: jsPDF, title: string, pageWidth: number, margin: number, accentBlue: number[], textDark: number[], textMuted: number[]) => {
-  // Glass bar background
+const addHeader = (
+  pdf: jsPDF,
+  title: string,
+  pageWidth: number,
+  margin: number,
+  accentBlue: number[],
+  textDark: number[],
+  textMuted: number[]
+) => {
   pdf.setFillColor(255, 255, 255);
   // @ts-ignore
   if (pdf.GState) {
@@ -127,8 +142,7 @@ const addHeader = (pdf: jsPDF, title: string, pageWidth: number, margin: number,
     pdf.setGState(new pdf.GState({ opacity: 0.7 }));
   }
   pdf.rect(0, 0, pageWidth, 30, "F");
-  
-  // Bottom border for glass bar
+
   // @ts-ignore
   if (pdf.GState) {
     // @ts-ignore
@@ -137,34 +151,39 @@ const addHeader = (pdf: jsPDF, title: string, pageWidth: number, margin: number,
   pdf.setDrawColor(255, 255, 255);
   pdf.setLineWidth(0.5);
   pdf.line(0, 30, pageWidth, 30);
-  
+
   // @ts-ignore
   if (pdf.GState) {
     // @ts-ignore
     pdf.setGState(new pdf.GState({ opacity: 1.0 }));
   }
 
-  // Branding / Accent line
   pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
   pdf.rect(margin, 10, 2, 12, "F");
 
-  // Title
   pdf.setTextColor(textDark[0], textDark[1], textDark[2]);
   pdf.setFont(undefined, "bold");
   pdf.setFontSize(22);
   pdf.text(title, margin + 5, 18);
 
-  // Date
   pdf.setFont(undefined, "normal");
   pdf.setFontSize(8);
   pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-  const dateStr = new Date().toLocaleDateString("en-US", { 
-    year: 'numeric', month: 'long', day: 'numeric' 
+  const dateStr = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
   pdf.text(dateStr.toUpperCase(), margin + 5, 23);
 };
 
-const addFooter = (pdf: jsPDF, pageNum: number, pageWidth: number, pageHeight: number, textMuted: number[]) => {
+const addFooter = (
+  pdf: jsPDF,
+  pageNum: number,
+  pageWidth: number,
+  pageHeight: number,
+  textMuted: number[]
+) => {
   // @ts-ignore
   if (pdf.GState) {
     // @ts-ignore
@@ -172,8 +191,13 @@ const addFooter = (pdf: jsPDF, pageNum: number, pageWidth: number, pageHeight: n
   }
   pdf.setFontSize(7);
   pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-  pdf.text(`CATSHARE OFFICIAL CATALOGUE • PAGE ${pageNum}`, pageWidth / 2, pageHeight - 10, { align: "center" });
-  
+  pdf.text(
+    `CATSHARE OFFICIAL CATALOGUE • PAGE ${pageNum}`,
+    pageWidth / 2,
+    pageHeight - 10,
+    { align: "center" }
+  );
+
   // @ts-ignore
   if (pdf.GState) {
     // @ts-ignore
@@ -204,14 +228,22 @@ export async function generateProductPDF(
   const pageHeight = pdf.internal.pageSize.getHeight();
   const margin = 12;
   const contentWidth = pageWidth - 2 * margin;
-  
+
   // Theme Colors
   const accentBlue = [59, 130, 246]; // #3b82f6
   const textDark = [15, 23, 42]; // Slate-900
   const textMuted = [100, 116, 139]; // Slate-500
 
   drawGlassBackground(pdf, pageWidth, pageHeight, accentBlue);
-  addHeader(pdf, catalogueName, pageWidth, margin, accentBlue, textDark, textMuted);
+  addHeader(
+    pdf,
+    catalogueName,
+    pageWidth,
+    margin,
+    accentBlue,
+    textDark,
+    textMuted
+  );
 
   let currentY = 40;
 
@@ -222,13 +254,21 @@ export async function generateProductPDF(
     if (currentY > pageHeight - 85) {
       pdf.addPage();
       drawGlassBackground(pdf, pageWidth, pageHeight, accentBlue);
-      addHeader(pdf, catalogueName, pageWidth, margin, accentBlue, textDark, textMuted);
+      addHeader(
+        pdf,
+        catalogueName,
+        pageWidth,
+        margin,
+        accentBlue,
+        textDark,
+        textMuted
+      );
       currentY = 40;
     }
 
     // --- Glass Product Card ---
     const cardHeight = 72;
-    
+
     // 1. Subtle card shadow (simulated)
     // @ts-ignore
     if (pdf.GState) {
@@ -236,7 +276,15 @@ export async function generateProductPDF(
       pdf.setGState(new pdf.GState({ opacity: 0.03 }));
     }
     pdf.setFillColor(0, 0, 0);
-    (pdf as any).roundedRect(margin + 1, currentY + 1, contentWidth, cardHeight, 4, 4, "F");
+    (pdf as any).roundedRect(
+      margin + 1,
+      currentY + 1,
+      contentWidth,
+      cardHeight,
+      4,
+      4,
+      "F"
+    );
 
     // 2. Glass Background
     // @ts-ignore
@@ -245,7 +293,15 @@ export async function generateProductPDF(
       pdf.setGState(new pdf.GState({ opacity: 0.6 }));
     }
     pdf.setFillColor(255, 255, 255);
-    (pdf as any).roundedRect(margin, currentY, contentWidth, cardHeight, 4, 4, "F");
+    (pdf as any).roundedRect(
+      margin,
+      currentY,
+      contentWidth,
+      cardHeight,
+      4,
+      4,
+      "F"
+    );
 
     // 3. Glass Highlight Border (Thin white)
     // @ts-ignore
@@ -255,7 +311,15 @@ export async function generateProductPDF(
     }
     pdf.setDrawColor(255, 255, 255);
     pdf.setLineWidth(0.4);
-    (pdf as any).roundedRect(margin, currentY, contentWidth, cardHeight, 4, 4, "S");
+    (pdf as any).roundedRect(
+      margin,
+      currentY,
+      contentWidth,
+      cardHeight,
+      4,
+      4,
+      "S"
+    );
 
     // Reset state
     // @ts-ignore
@@ -266,7 +330,7 @@ export async function generateProductPDF(
 
     // --- Content Layout ---
     let innerY = currentY + 8;
-    
+
     // Product Name Header
     pdf.setFontSize(13);
     pdf.setFont(undefined, "bold");
@@ -289,7 +353,15 @@ export async function generateProductPDF(
       // @ts-ignore
       pdf.setGState(new pdf.GState({ opacity: 0.1 }));
     }
-    (pdf as any).roundedRect(pageWidth - margin - 15, currentY + 4, 10, 6, 2, 2, "F");
+    (pdf as any).roundedRect(
+      pageWidth - margin - 15,
+      currentY + 4,
+      10,
+      6,
+      2,
+      2,
+      "F"
+    );
     // @ts-ignore
     if (pdf.GState) {
       // @ts-ignore
@@ -297,7 +369,9 @@ export async function generateProductPDF(
     }
     pdf.setFontSize(8);
     pdf.setTextColor(accentBlue[0], accentBlue[1], accentBlue[2]);
-    pdf.text(`#${i + 1}`, pageWidth - margin - 10, currentY + 8.5, { align: "center" });
+    pdf.text(`#${i + 1}`, pageWidth - margin - 10, currentY + 8.5, {
+      align: "center",
+    });
 
     innerY += 8;
 
@@ -310,7 +384,7 @@ export async function generateProductPDF(
         const imgDimensions = await getImageDimensions(product.image);
         const aspectRatio = imgDimensions.width / imgDimensions.height;
         imageHeight = imageWidth / aspectRatio;
-        
+
         if (imageHeight > 50) {
           imageHeight = 50;
           imageWidth = imageHeight * aspectRatio;
@@ -319,8 +393,15 @@ export async function generateProductPDF(
         // Image container (slight white background for the image itself)
         pdf.setFillColor(255, 255, 255);
         pdf.rect(margin + 8, innerY, imageWidth, imageHeight, "F");
-        
-        pdf.addImage(product.image, "JPEG", margin + 8, innerY, imageWidth, imageHeight);
+
+        pdf.addImage(
+          product.image,
+          "JPEG",
+          margin + 8,
+          innerY,
+          imageWidth,
+          imageHeight
+        );
       } catch (e) {
         console.warn("Image failed", e);
       }
@@ -329,25 +410,37 @@ export async function generateProductPDF(
     // --- Details ---
     const detailsX = margin + imageWidth + 16;
     const detailsMaxWidth = contentWidth - imageWidth - 24;
-    
-    const fieldKeys = ["field1", "field2", "field3", "field4", "field5", "field6", "field7", "field8", "field9", "field10"];
-    const activeFields = fieldKeys.filter(f => product[f]);
-    const useColumns = activeFields.length > 5;
-    const pRows = useColumns ? Math.ceil(activeFields.length / 2) : activeFields.length;
 
-    // Calculate total height of details for vertical centering
+    const fieldKeys = [
+      "field1",
+      "field2",
+      "field3",
+      "field4",
+      "field5",
+      "field6",
+      "field7",
+      "field8",
+      "field9",
+      "field10",
+    ];
+    const activeFields = fieldKeys.filter((f) => product[f]);
+    const useColumns = activeFields.length > 5;
+    const pRows = useColumns
+      ? Math.ceil(activeFields.length / 2)
+      : activeFields.length;
+
     let totalDetailsHeight = 0;
     if (activeFields.length > 0) {
       totalDetailsHeight += pRows * 6;
     }
     if (product.price) {
       if (activeFields.length > 0) {
-        totalDetailsHeight += 6 + 5; // Spacing + half of pill height (since priceY is center)
+        totalDetailsHeight += 6 + 5;
       } else {
-        totalDetailsHeight += 10; // Pill height
+        totalDetailsHeight += 10;
       }
     } else if (activeFields.length > 0) {
-      totalDetailsHeight -= 1.5; // Adjust for last row text baseline
+      totalDetailsHeight -= 1.5;
     }
 
     let detailsY = innerY;
@@ -363,9 +456,14 @@ export async function generateProductPDF(
       const val = product[fieldKey];
       const unit = product[`${fieldKey}Unit`] || "";
 
-      const isCol2 = useColumns && idx >= Math.ceil(activeFields.length / 2);
-      const fX = isCol2 ? detailsX + detailsMaxWidth / 2 + 4 : detailsX;
-      const fY = detailsY + (isCol2 ? idx - Math.ceil(activeFields.length / 2) : idx) * 6;
+      const isCol2 =
+        useColumns && idx >= Math.ceil(activeFields.length / 2);
+      const fX = isCol2
+        ? detailsX + detailsMaxWidth / 2 + 4
+        : detailsX;
+      const fY =
+        detailsY +
+        (isCol2 ? idx - Math.ceil(activeFields.length / 2) : idx) * 6;
 
       pdf.setFont(undefined, "bold");
       pdf.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
@@ -375,16 +473,22 @@ export async function generateProductPDF(
       pdf.setFont(undefined, "normal");
       pdf.setTextColor(textDark[0], textDark[1], textDark[2]);
       const lWidth = pdf.getTextWidth(labelText) + 3;
-      pdf.text(`${val}${unit && unit !== "None" ? " " + unit : ""}`, fX + lWidth, fY);
+      pdf.text(
+        `${val}${unit && unit !== "None" ? " " + unit : ""}`,
+        fX + lWidth,
+        fY
+      );
     }
 
     // --- Price (Floating Glass Label Style) ---
     if (product.price) {
-      const priceY = detailsY + (activeFields.length > 0 ? pRows * 6 + 6 : 0);
+      const priceY =
+        detailsY + (activeFields.length > 0 ? pRows * 6 + 6 : 0);
 
       const pUnit = product.priceUnit || "";
-      const pText = `PRICE : ${currencySymbol}${product.price}${pUnit ? " " + pUnit : ""}`.trim();
-      
+      const pText =
+        `PRICE : ${currencySymbol}${product.price}${pUnit ? " " + pUnit : ""}`.trim();
+
       // Price background pill
       pdf.setFillColor(accentBlue[0], accentBlue[1], accentBlue[2]);
       // @ts-ignore
@@ -392,7 +496,15 @@ export async function generateProductPDF(
         // @ts-ignore
         pdf.setGState(new pdf.GState({ opacity: 0.05 }));
       }
-      (pdf as any).roundedRect(detailsX - 2, priceY - 5, detailsMaxWidth, 10, 2, 2, "F");
+      (pdf as any).roundedRect(
+        detailsX - 2,
+        priceY - 5,
+        detailsMaxWidth,
+        10,
+        2,
+        2,
+        "F"
+      );
       // @ts-ignore
       if (pdf.GState) {
         // @ts-ignore
@@ -419,7 +531,10 @@ export async function generateProductPDF(
   return pdf.output("blob") as Blob;
 }
 
-export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
+export function downloadPDF(
+  blob: Blob,
+  filename: string = "products.pdf"
+) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -430,12 +545,16 @@ export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
   URL.revokeObjectURL(url);
 }
 
-export async function sharePDF(blob: Blob, filename: string = "products.pdf", title: string = "Share Products PDF") {
+export async function sharePDF(
+  blob: Blob,
+  filename: string = "products.pdf",
+  title: string = "Share Products PDF"
+) {
   try {
-    // 1. Convert blob to base64
+    // 1. Convert blob to base64 (without data URL prefix)
     const base64Data = await blobToBase64(blob);
 
-    // 2. Try sharing via FileSharer (more reliable for files on mobile)
+    // 2. Try FileSharer first (most reliable for files on mobile)
     try {
       console.log("📤 Attempting to share PDF via FileSharer...");
       await FileSharer.share({
@@ -447,16 +566,25 @@ export async function sharePDF(blob: Blob, filename: string = "products.pdf", ti
     } catch (shareErr) {
       console.warn("⚠️ FileSharer failed, trying Capacitor Share:", shareErr);
 
-      // 3. Fallback to Capacitor Share with a local file
+      // 3. Fallback: write to Cache dir and share via Capacitor Share
       try {
-        const filePath = `CatShare/${filename}`;
+        const folderPath = "CatShare";
+        const filePath = `${folderPath}/${filename}`;
 
-        // Write to cache directory (safer for sharing)
+        // Ensure the directory exists before writing
+        await Filesystem.mkdir({
+          path: folderPath,
+          directory: Directory.Cache,
+          recursive: true,
+        }).catch(() => {
+          // Ignore error — directory likely already exists
+        });
+
         await Filesystem.writeFile({
           path: filePath,
           data: base64Data,
           directory: Directory.Cache,
-          recursive: true
+          recursive: true,
         });
 
         const fileResult = await Filesystem.getUri({
@@ -467,7 +595,6 @@ export async function sharePDF(blob: Blob, filename: string = "products.pdf", ti
         if (fileResult.uri) {
           await Share.share({
             title,
-            // REMOVED: text field often overrides files on Android
             files: [fileResult.uri],
           });
           return true;
@@ -480,12 +607,16 @@ export async function sharePDF(blob: Blob, filename: string = "products.pdf", ti
     console.error("❌ PDF Share logic failed:", err);
   }
 
-  // 4. Final fallback: Browser download
+  // 4. Final fallback: trigger browser download
   console.log("📥 Falling back to browser download");
   downloadPDF(blob, filename);
   return false;
 }
 
+/**
+ * Converts a Blob to a base64 string (WITHOUT the data URL prefix).
+ * e.g. returns "JVBERi0x..." not "data:application/pdf;base64,JVBERi0x..."
+ */
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
