@@ -1056,7 +1056,7 @@ useEffect(() => {
               </div>
               <div className="text-center">
                 <span className="block font-bold text-slate-900 dark:text-white text-xs">Images</span>
-                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Instant</span>
+                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Quick Share</span>
               </div>
             </button>
 
@@ -1072,7 +1072,7 @@ useEffect(() => {
               </div>
               <div className="text-center">
                 <span className="block font-bold text-slate-900 dark:text-white text-xs">PDF Doc</span>
-                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Professional</span>
+                <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Client Ready</span>
               </div>
             </button>
           </div>
