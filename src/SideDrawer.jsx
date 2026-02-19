@@ -1273,10 +1273,10 @@ const exportProductsToCSV = (products) => {
         </p>
 
         {isGlassTheme && (
-          <div className="mt-3 p-3 bg-blue-50/60 border-l-4 border-blue-500 rounded-lg text-left backdrop-blur-md">
-            <p className="text-[11px] text-blue-900 leading-relaxed">
+          <div className="mt-3 p-3 bg-amber-50/70 border-l-4 border-amber-500 rounded-lg text-left backdrop-blur-md">
+            <p className="text-[11px] text-amber-900 leading-relaxed">
               <span className="font-bold flex items-center gap-1 mb-0.5">
-                <FiAlertCircle size={12} className="text-blue-600" />
+                <FiAlertCircle size={12} className="text-amber-600" />
                 Glass Theme Notice
               </span>
               Rendering with transparency effects takes slightly more time but produces premium quality images.
@@ -1319,10 +1319,10 @@ const exportProductsToCSV = (products) => {
 </p>
 
       {isGlassTheme && (
-        <div className="mb-4 p-3 bg-blue-50/60 border-l-4 border-blue-500 rounded-lg text-left backdrop-blur-md">
-          <p className="text-[11px] text-blue-900 leading-relaxed">
+        <div className="mb-4 p-3 bg-amber-50/70 border-l-4 border-amber-500 rounded-lg text-left backdrop-blur-md">
+          <p className="text-[11px] text-amber-900 leading-relaxed">
             <span className="font-bold flex items-center gap-1 mb-0.5">
-              <FiAlertCircle size={12} className="text-blue-600" />
+              <FiAlertCircle size={12} className="text-amber-600" />
               Glass Theme Notice
             </span>
             Rendering with transparency effects takes slightly more time but produces premium quality images.
