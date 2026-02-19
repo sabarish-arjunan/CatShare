@@ -48,6 +48,10 @@ const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 const [clickCountN, setClickCountN] = useState(0);
 const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
 const [allProductsCached, setAllProductsCached] = useState([]);
+const [showBackupPopup, setShowBackupPopup] = useState(false);
+const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
+const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
+const navigate = useNavigate();
   const { showToast } = useToast();
   const { currentTheme } = useTheme();
   const isGlassTheme = currentTheme?.styles?.layout === "glass";
