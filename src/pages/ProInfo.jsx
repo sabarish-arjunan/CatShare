@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdStar } from "react-icons/md";
+import { MdArrowBack, MdStar, MdOutlineHome } from "react-icons/md";
 
 export default function ProInfo() {
   const navigate = useNavigate();
@@ -28,7 +28,13 @@ export default function ProInfo() {
           <MdArrowBack size={24} />
         </button>
         <h1 className="text-xl font-bold flex-1 text-center">CatShare Pro</h1>
-        <div className="w-8"></div>
+        <button
+          onClick={() => navigate("/")}
+          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-700 hover:bg-gray-200 transition"
+          title="Go to Home"
+        >
+          <MdOutlineHome size={24} />
+        </button>
       </header>
 
       {/* Main Content */}

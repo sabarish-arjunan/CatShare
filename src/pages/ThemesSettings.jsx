@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack } from "react-icons/md";
+import { MdArrowBack, MdOutlineHome } from "react-icons/md";
 import { FiEdit3, FiPackage, FiArchive, FiCheckCircle, FiX } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import { getAllThemes } from "../config/themeConfig";
@@ -87,7 +87,13 @@ export default function ThemesSettings() {
           <h1 className="text-base sm:text-lg font-semibold sm:font-bold text-slate-900 dark:text-white leading-tight tracking-tight">Themes</h1>
           <span className="text-[8px] sm:text-[10px] font-semibold text-red-600 dark:text-red-400 uppercase tracking-[0.2em] ml-1">Appearance</span>
         </div>
-        <div className="w-10"></div>
+        <button
+          onClick={() => navigate("/")}
+          className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm border border-slate-200/50 dark:border-slate-700/50"
+          title="Go to Home"
+        >
+          <MdOutlineHome size={24} />
+        </button>
       </header>
 
       <main className="flex-1 overflow-y-auto px-3 sm:px-5 py-6 sm:py-8 pb-32 z-10">
