@@ -984,10 +984,7 @@ const exportProductsToCSV = (products) => {
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
 
-      setBackupResult({
-        status: "success",
-        message: `Catalogue restored successfully (${rebuilt.length} products).`,
-      });
+      showToast(`Catalogue restored successfully (${rebuilt.length} products).`, "success");
 
       // 🔄 Dispatch event to notify all components that field definitions have changed
       // This forces ProductPreviewModal and other components to reload field definitions
@@ -1034,10 +1031,7 @@ const exportProductsToCSV = (products) => {
       setShowRenderAfterRestore(true);
     } catch (err) {
       console.error("❌ Restore failed:", err);
-      setBackupResult({
-        status: "error",
-        message: "Restore failed: " + err.message,
-      });
+      showToast("Restore failed: " + err.message, "error");
     }
   };
 
