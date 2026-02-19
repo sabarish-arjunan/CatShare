@@ -84,22 +84,22 @@ export default function ThemesSettings() {
           <MdArrowBack size={22} />
         </button>
         <div className="flex flex-col flex-1 items-center">
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white leading-tight tracking-tight">Themes</h1>
-          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-[0.2em] ml-1">Appearance</span>
+          <h1 className="text-base sm:text-lg font-semibold sm:font-bold text-slate-900 dark:text-white leading-tight tracking-tight">Themes</h1>
+          <span className="text-[8px] sm:text-[10px] font-semibold text-red-600 dark:text-red-400 uppercase tracking-[0.2em] ml-1">Appearance</span>
         </div>
         <div className="w-10"></div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-5 py-8 pb-32 z-10">
-        <div className="max-w-xl mx-auto space-y-12">
+      <main className="flex-1 overflow-y-auto px-3 sm:px-5 py-6 sm:py-8 pb-32 z-10">
+        <div className="max-w-xl mx-auto space-y-8 sm:space-y-12">
           <div className="text-center space-y-3">
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Choose Style</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto font-medium">
+            <h2 className="text-xl sm:text-3xl font-bold sm:font-black text-slate-900 dark:text-white tracking-tighter">Choose Style</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mx-auto font-medium">
               Pick the perfect aesthetic to showcase your unique product catalog
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {themes.map((theme) => {
               const sampleProduct = theme.id === "classic" ? classicProduct : glassProduct;
               const isGlassTheme = theme.id === "glass";
@@ -110,29 +110,29 @@ export default function ThemesSettings() {
                   key={theme.id}
                   className={`group flex flex-col transition-all duration-500 rounded-[2.5rem] overflow-hidden border-2 ${
                     isExpanded
-                      ? "bg-white dark:bg-slate-900 border-red-500/20 shadow-2xl shadow-red-500/10 ring-1 ring-red-500/5 p-6"
-                      : "bg-white/40 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/50 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm p-4"
+                      ? "bg-white dark:bg-slate-900 border-red-500/20 shadow-2xl shadow-red-500/10 ring-1 ring-red-500/5 p-4 sm:p-6"
+                      : "bg-white/40 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/50 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm p-3 sm:p-4"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div
-                      className="flex items-center gap-4 cursor-pointer flex-1"
+                      className="flex items-center gap-2 sm:gap-4 cursor-pointer flex-1"
                       onClick={() => setExpandedThemeId(isExpanded ? null : theme.id)}
                     >
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
+                      <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
                         selectedThemeId === theme.id
                           ? "bg-red-600 text-white scale-110"
                           : "bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700"
                       }`}>
-                        <span className="text-sm font-black uppercase tracking-tighter">
+                        <span className="text-[10px] sm:text-sm font-bold sm:font-black uppercase tracking-tighter">
                           {theme.id === "classic" ? "CL" : "GL"}
                         </span>
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">{theme.name} Edition</h3>
+                        <h3 className="text-sm sm:text-lg font-semibold sm:font-bold text-slate-900 dark:text-white tracking-tight">{theme.name} Edition</h3>
                         <div className="flex items-center gap-2">
                           <span className={`w-2 h-2 rounded-full ${isGlassTheme ? "bg-blue-400" : "bg-emerald-400"}`}></span>
-                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest">
+                          <p className="text-[8px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-widest">
                             {isGlassTheme ? "Ultra Modern" : "Universal Clean"}
                           </p>
                         </div>
@@ -145,7 +145,7 @@ export default function ThemesSettings() {
                           e.stopPropagation();
                           handleThemeSelect(theme.id);
                         }}
-                        className={`px-5 py-2.5 rounded-xl font-black text-[11px] transition-all duration-300 active:scale-95 flex items-center gap-2 shadow-lg ${
+                        className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold sm:font-black text-[9px] sm:text-[11px] transition-all duration-300 active:scale-95 flex items-center gap-2 shadow-lg ${
                           selectedThemeId === theme.id
                             ? "bg-red-600 text-white shadow-red-500/30"
                             : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
@@ -452,48 +452,48 @@ export default function ThemesSettings() {
                       )}
                         </div>
 
-                        <div className="p-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm space-y-4">
-                          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                        <div className="p-4 sm:p-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm space-y-4">
+                          <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                             {theme.description}
                           </p>
                           <div className="pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
-                            <h4 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-4">Key Features</h4>
+                            <h4 className="text-[8px] sm:text-[10px] font-bold sm:font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-4">Key Features</h4>
                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               {isGlassTheme ? (
                                 <>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>Frosted Glass</span>
                                   </li>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>3D Depth Effect</span>
                                   </li>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>Vibrant Gradients</span>
                                   </li>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>Premium Polish</span>
                                   </li>
                                 </>
                               ) : (
                                 <>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>Minimalist Grid</span>
                                   </li>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>High Readability</span>
                                   </li>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>Fast Rendering</span>
                                   </li>
-                                  <li className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                                    <span className="w-5 h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">✓</span>
+                                  <li className="flex items-center gap-2 text-[9px] sm:text-[11px] font-semibold sm:font-bold text-slate-700 dark:text-slate-300">
+                                    <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-[6px] sm:text-[8px]">✓</span>
                                     <span>Custom Colors</span>
                                   </li>
                                 </>
@@ -514,11 +514,11 @@ export default function ThemesSettings() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-3xl rounded-full"></div>
               <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-3xl mb-2 text-3xl shadow-inner border border-amber-200/50">✨</div>
               <div className="space-y-2">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">More Themes Coming</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed px-4">We're crafting new breathtaking layouts to give your products the spotlight they deserve.</p>
+                <h3 className="text-base sm:text-xl font-bold sm:font-black text-slate-900 dark:text-white tracking-tight">More Themes Coming</h3>
+                <p className="text-[11px] sm:text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed px-2 sm:px-4">We're crafting new breathtaking layouts to give your products the spotlight they deserve.</p>
               </div>
               <div className="pt-2">
-                <span className="px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-[0.2em]">Stay Tuned</span>
+                <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[8px] sm:text-[10px] font-bold sm:font-black uppercase tracking-[0.2em]">Stay Tuned</span>
               </div>
             </div>
           </div>
