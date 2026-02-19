@@ -14,6 +14,7 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { APP_VERSION } from "./config/version";
 import { useToast } from "./context/ToastContext";
+import { useTheme } from "./context/ThemeContext";
 import { getCataloguesDefinition, setCataloguesDefinition, DEFAULT_CATALOGUES, getAllCatalogues, createLegacyResellCatalogueIfNeeded } from "./config/catalogueConfig";
 import { ensureProductsHaveStockFields } from "./utils/dataMigration";
 import { migrateProductToNewFormat } from "./config/fieldMigration";
@@ -54,6 +55,8 @@ const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
 const navigate = useNavigate();
 const { showToast } = useToast();
+  const { currentTheme } = useTheme();
+  const isGlassTheme = currentTheme?.styles?.layout === "glass";
 
   // Load all products asynchronously (avoid blocking render)
   useEffect(() => {
@@ -1265,9 +1268,21 @@ const exportProductsToCSV = (products) => {
           </p>
         </div>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 mb-2">
           Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
         </p>
+
+        {isGlassTheme && (
+          <div className="mt-3 p-3 bg-blue-50/60 border-l-4 border-blue-500 rounded-lg text-left backdrop-blur-md">
+            <p className="text-[11px] text-blue-900 leading-relaxed">
+              <span className="font-bold flex items-center gap-1 mb-0.5">
+                <FiAlertCircle size={12} className="text-blue-600" />
+                Glass Theme Notice
+              </span>
+              Rendering with transparency effects takes slightly more time but produces premium quality images.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center gap-4 pb-[env(safe-area-inset-bottom)]">
@@ -1302,6 +1317,18 @@ const exportProductsToCSV = (products) => {
 <p className="text-sm text-gray-600 mb-4">
   Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
 </p>
+
+      {isGlassTheme && (
+        <div className="mb-4 p-3 bg-blue-50/60 border-l-4 border-blue-500 rounded-lg text-left backdrop-blur-md">
+          <p className="text-[11px] text-blue-900 leading-relaxed">
+            <span className="font-bold flex items-center gap-1 mb-0.5">
+              <FiAlertCircle size={12} className="text-blue-600" />
+              Glass Theme Notice
+            </span>
+            Rendering with transparency effects takes slightly more time but produces premium quality images.
+          </p>
+        </div>
+      )}
 
       <div className="flex justify-center gap-4">
         <button
