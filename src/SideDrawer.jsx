@@ -418,23 +418,84 @@ const handleBackup = async () => {
     appVersion: APP_VERSION
   }, null, 2));
 
-  const blob = await zip.generateAsync({ type: "blob" });
-  const reader = new FileReader();
+  try {
+    const blob = await zip.generateAsync({
+      type: "blob",
+      compression: "DEFLATE",
+      compressionOptions: { level: 6 }
+    });
 
-  reader.onloadend = async () => {
-    const base64Data = reader.result.split(",")[1];
+    console.log(`✅ Backup ZIP created successfully. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
 
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
     const filename = `catalogue-backup-${timestamp}.zip`;
 
-    try {
-      await Filesystem.writeFile({
-        path: filename,
-        data: base64Data,
-        directory: Directory.Documents,
-      });
+    // MAX size for FileSharer base64 (around 10MB)
+    const MAX_FILESHARER_SIZE = 10 * 1024 * 1024;
 
+    try {
+      // For large backups, use direct download if possible or chunked base64
+      if (blob.size > 5 * 1024 * 1024) {
+        console.log(`📦 Backup is large (${(blob.size / 1024 / 1024).toFixed(2)}MB), using browser download fallback...`);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+
+        setBackupResult({
+          status: "success",
+          message: "Backup ZIP created and downloaded",
+        });
+        return;
+      }
+
+      // Convert to base64 safely in chunks for smaller/medium files
+      const arrayBuffer = await blob.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+      const base64Data = btoa(binary);
+
+      // Final check for base64 size limits
+      if (base64Data.length > MAX_FILESHARER_SIZE) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+
+        setBackupResult({
+          status: "success",
+          message: "Backup ZIP created and downloaded",
+        });
+        return;
+      }
+
+      // Try to save to filesystem first (for mobile persistence)
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data: base64Data,
+          directory: Directory.Documents,
+        });
+        console.log(`✅ Backup file written to Documents: ${filename}`);
+      } catch (writeErr) {
+        console.warn("⚠️ Could not write to filesystem, will still try to share:", writeErr.message);
+      }
+
+      // Share the file
       await FileSharer.share({
         filename,
         base64Data,
@@ -445,15 +506,30 @@ const handleBackup = async () => {
         status: "success",
         message: "Backup ZIP created and shared",
       });
-    } catch (err) {
+    } catch (shareErr) {
+      console.error("Backup share failed:", shareErr);
+      // Final fallback to browser download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+
       setBackupResult({
-        status: "error",
-        message: "Backup failed: " + err.message,
+        status: "success",
+        message: "Backup ZIP created and downloaded",
       });
     }
-  };
-
-  reader.readAsDataURL(blob);
+  } catch (genErr) {
+    console.error("Backup generation failed:", genErr);
+    setBackupResult({
+      status: "error",
+      message: "Backup failed: " + genErr.message,
+    });
+  }
 };
 
  
@@ -511,9 +587,25 @@ const exportProductsToCSV = (products) => {
   reader.onload = async (event) => {
     try {
       const zip = await JSZip.loadAsync(event.target.result);
-      const jsonFile = zip.file("catalogue-data.json");
 
-      if (!jsonFile) throw new Error("Missing catalogue-data.json in backup");
+      // Try to find catalogue-data.json at root first
+      let jsonFile = zip.file("catalogue-data.json");
+
+      // If not found at root, search for it in any subfolder (handles zipped folders)
+      if (!jsonFile) {
+        console.log("🔍 catalogue-data.json not found at root, searching subfolders...");
+        const allFiles = Object.keys(zip.files);
+        const match = allFiles.find(name => name.endsWith("catalogue-data.json"));
+        if (match) {
+          console.log(`✅ Found catalogue-data.json at: ${match}`);
+          jsonFile = zip.file(match);
+        }
+      }
+
+      if (!jsonFile) {
+        console.error("❌ ZIP contents:", Object.keys(zip.files));
+        throw new Error("Missing catalogue-data.json in backup");
+      }
 
       const jsonText = await jsonFile.async("text");
       const parsed = JSON.parse(jsonText);
@@ -886,6 +978,11 @@ const exportProductsToCSV = (products) => {
       ensureProductsHaveStockFields();
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+
+      setBackupResult({
+        status: "success",
+        message: `Catalogue restored successfully (${rebuilt.length} products).`,
+      });
 
       // 🔄 Dispatch event to notify all components that field definitions have changed
       // This forces ProductPreviewModal and other components to reload field definitions
