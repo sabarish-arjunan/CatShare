@@ -48,15 +48,13 @@ const [showRenderConfirm, setShowRenderConfirm] = useState(false);
 const [clickCountN, setClickCountN] = useState(0);
 const [showHiddenFeatures, setShowHiddenFeatures] = useState(false);
 const [allProductsCached, setAllProductsCached] = useState([]);
-const totalProducts = products.length;
-const estimatedSeconds = Math.ceil(totalProducts * 2); // assuming ~1.5s per image
-const [showBackupPopup, setShowBackupPopup] = useState(false);
-const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
-const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
-const navigate = useNavigate();
-const { showToast } = useToast();
+  const { showToast } = useToast();
   const { currentTheme } = useTheme();
   const isGlassTheme = currentTheme?.styles?.layout === "glass";
+
+  const totalProducts = products.length;
+  // Estimated rendering time: ~2s for standard, ~4s for glass theme per product
+  const estimatedSeconds = Math.ceil(totalProducts * (isGlassTheme ? 4 : 2));
 
   // Load all products asynchronously (avoid blocking render)
   useEffect(() => {
