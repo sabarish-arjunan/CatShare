@@ -430,17 +430,60 @@ export function downloadPDF(blob: Blob, filename: string = "products.pdf") {
 
 export async function sharePDF(blob: Blob, filename: string = "products.pdf", title: string = "Share Products PDF") {
   try {
-    const base64Data = await blobToBase64(blob);
+    // Write PDF to filesystem for mobile sharing
     try {
-      await Share.share({
-        title,
-        text: "Product Catalogue",
-        files: [`data:application/pdf;base64,${base64Data}`],
-        dialogTitle: title,
+      // Use a safe directory path
+      const filePath = `CatShare/${filename}`;
+
+      // Convert blob to base64 for writing to filesystem
+      const base64Data = await blobToBase64(blob);
+
+      // Write file to external directory (accessible to share APIs on mobile)
+      await Filesystem.writeFile({
+        path: filePath,
+        data: base64Data,
+        directory: Directory.External,
+        encoding: "ascii", // Base64 is ASCII
       });
-      return true;
-    } catch (err: any) {
-      if (err.name !== "AbortError") console.warn("Share failed", err);
+
+      // Get the file URI
+      const fileResult = await Filesystem.getUri({
+        path: filePath,
+        directory: Directory.External,
+      });
+
+      if (fileResult.uri) {
+        // Share using file URI (mobile-friendly)
+        try {
+          await Share.share({
+            title,
+            text: "Product Catalogue",
+            files: [fileResult.uri],
+            dialogTitle: title,
+          });
+          return true;
+        } catch (err: any) {
+          if (err.name !== "AbortError") console.warn("Share failed", err);
+          // Fall back to download if share is cancelled or fails
+          downloadPDF(blob, filename);
+          return false;
+        }
+      }
+    } catch (fileErr) {
+      console.warn("Failed to write PDF to filesystem", fileErr);
+      // Fall back to base64 data URI if filesystem write fails
+      try {
+        const base64Data = await blobToBase64(blob);
+        await Share.share({
+          title,
+          text: "Product Catalogue",
+          files: [`data:application/pdf;base64,${base64Data}`],
+          dialogTitle: title,
+        });
+        return true;
+      } catch (err: any) {
+        if (err.name !== "AbortError") console.warn("Share failed", err);
+      }
     }
   } catch (err) {
     console.warn("Share logic failed", err);
