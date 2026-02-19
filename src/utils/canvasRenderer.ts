@@ -483,6 +483,8 @@ export async function renderProductToCanvas(
   const colonX = fieldsLeftPadding + maxLabelWidth + 6 * scale; // Colon position aligned
   const valueX = colonX + 16 * scale; // Space after colon
 
+  const maxValueWidth = canvasWidth - valueX - 24 * scale;
+
   activeFields.forEach(field => {
     // Check if field should be visible
     const visibilityKey = `${field.key}Visible`;
@@ -498,8 +500,17 @@ export async function renderProductToCanvas(
     const unit = product[unitKey];
     const displayText = unit && unit !== 'None' ? `${val} ${unit}` : val;
 
-    ctx.fillText(displayText, valueX, currentY + renderFieldFontSize * 0.8);
-    currentY += renderFieldLineHeight + 2 * scale;
+    // Check if value fits on the same line
+    const valueMetrics = ctx.measureText(displayText);
+    if (valueMetrics.width > maxValueWidth) {
+      // Value is too long, put it on the next line
+      ctx.fillText(displayText, fieldsLeftPadding, currentY + renderFieldLineHeight + renderFieldFontSize * 0.8);
+      currentY += renderFieldLineHeight * 2 + 2 * scale;
+    } else {
+      // Value fits on same line
+      ctx.fillText(displayText, valueX, currentY + renderFieldFontSize * 0.8);
+      currentY += renderFieldLineHeight + 2 * scale;
+    }
   });
 
   currentY += spacingAfterFields * scale;

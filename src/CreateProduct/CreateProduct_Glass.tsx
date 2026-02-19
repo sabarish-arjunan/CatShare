@@ -1290,20 +1290,20 @@ export default function CreateProduct() {
                             fontWeight: "600",
                             fontSize: 18,
                             margin: "0 0 4px 0",
-                            color: fontColor,
+                            color: "white",
                           }}
                         >
                           {formData.name || "Product Name"}
                         </p>
                         {formData.subtitle && (
-                          <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: fontColor }}>
+                          <p style={{ fontStyle: "italic", fontSize: 13, margin: 0, color: "white" }}>
                             ({formData.subtitle})
                           </p>
                         )}
                       </div>
 
                       {/* Fields */}
-                      <div style={{ flex: 1, marginBottom: 8, color: fontColor, fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
+                      <div style={{ flex: 1, marginBottom: 8, color: fontColor || "white", fontSize: 13, width: "100%", paddingLeft: 20, paddingRight: 20 }}>
                         {getAllFields()
                           .filter(f => f.enabled && f.key.startsWith('field'))
                           .map(field => {

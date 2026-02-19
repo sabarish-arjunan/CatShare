@@ -1,5 +1,6 @@
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { renderProductToCanvas, canvasToBase64 } from "./canvasRenderer";
+import { renderProductToCanvasGlass } from "./canvasRenderer-glass";
 import { getCatalogueData } from "../config/catalogueProductUtils";
 import { safeGetFromStorage } from "./safeStorage";
 import { getAllFields } from "../config/fieldConfig";
@@ -126,22 +127,24 @@ export async function renderProductImageOnTheFly(
     console.log(`🎨 On-the-fly rendering product: ${product.name || product.id}`);
     console.log(`🎨 Theme: ${storedThemeId}, Colors - BG: ${bgColor}, Font: ${fontColor}, Image BG: ${imageBg}`);
 
-    const canvas = await renderProductToCanvas(
-      productData,
-      {
-        width: baseWidth,
-        scale: 3,
-        bgColor: bgColor,
-        imageBgColor: imageBg,
-        fontColor: fontColor,
-        backgroundColor: "#ffffff",
-      },
-      {
-        enabled: isWatermarkEnabled,
-        text: watermarkText,
-        position: watermarkPosition,
-      }
-    );
+    const isGlassTheme = theme.styles.layout === "glass";
+    const renderOptions = {
+      width: baseWidth,
+      scale: 3,
+      bgColor: bgColor,
+      imageBgColor: imageBg,
+      fontColor: fontColor,
+      backgroundColor: "#ffffff",
+    };
+    const watermarkOptions = {
+      enabled: isWatermarkEnabled,
+      text: watermarkText,
+      position: watermarkPosition,
+    };
+
+    const canvas = isGlassTheme
+      ? await renderProductToCanvasGlass(productData, renderOptions, watermarkOptions)
+      : await renderProductToCanvas(productData, renderOptions, watermarkOptions);
 
     const base64 = canvasToBase64(canvas);
     console.log(`✅ Product rendered on-the-fly successfully`);
@@ -170,22 +173,23 @@ export async function renderProductImageOnTheFly(
           fallbackProductData[unitKey] = product[unitKey] || "None";
         });
 
-      const fallbackCanvas = await renderProductToCanvas(
-        fallbackProductData,
-        {
-          width: 330,
-          scale: 3,
-          bgColor: product.bgColor || "#add8e6",
-          imageBgColor: product.imageBgColor || "white",
-          fontColor: product.fontColor || "white",
-          backgroundColor: "#ffffff",
-        },
-        {
-          enabled: false,
-          text: "",
-          position: "bottom-left",
-        }
-      );
+      const fallbackRenderOptions = {
+        width: 330,
+        scale: 3,
+        bgColor: product.bgColor || "#add8e6",
+        imageBgColor: product.imageBgColor || "white",
+        fontColor: product.fontColor || "white",
+        backgroundColor: "#ffffff",
+      };
+      const fallbackWatermarkOptions = {
+        enabled: false,
+        text: "",
+        position: "bottom-left",
+      };
+
+      const fallbackCanvas = isGlassTheme
+        ? await renderProductToCanvasGlass(fallbackProductData, fallbackRenderOptions, fallbackWatermarkOptions)
+        : await renderProductToCanvas(fallbackProductData, fallbackRenderOptions, fallbackWatermarkOptions);
 
       const fallbackBase64 = canvasToBase64(fallbackCanvas);
       console.log(`✅ Product rendered with fallback (no image)`);
