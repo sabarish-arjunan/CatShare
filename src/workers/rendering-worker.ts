@@ -1,5 +1,6 @@
 // Web Worker for background image rendering
 import { renderProductToCanvas, canvasToBase64 } from '../utils/canvasRenderer';
+import { renderProductToCanvasGlass } from '../utils/canvasRenderer-glass';
 
 interface RenderData {
   items: Array<{
@@ -11,6 +12,7 @@ interface RenderData {
   format?: 'png' | 'jpg' | 'jpeg';
   width?: number;
   height?: number;
+  themeId?: string;
   watermark?: {
     enabled: boolean;
     text: string;
@@ -52,10 +54,11 @@ self.onmessage = async (event: MessageEvent<MessageData>) => {
 };
 
 async function processRendering(renderData: RenderData): Promise<any> {
-  const { items, format = 'png', width = 1080, height = 1080, watermark } = renderData;
+  const { items, format = 'png', width = 1080, height = 1080, themeId = 'classic', watermark } = renderData;
 
-  console.log(`Worker: Processing ${items.length} items for ${format} at ${width}x${height}`);
+  console.log(`Worker: Processing ${items.length} items for ${format} at ${width}x${height} with theme: ${themeId}`);
 
+  const isGlassTheme = themeId === 'glass';
   const results = [];
   let successCount = 0;
 
@@ -63,7 +66,7 @@ async function processRendering(renderData: RenderData): Promise<any> {
     const item = items[i];
 
     try {
-      console.log(`Worker: Rendering item ${i + 1}/${items.length}: ${item.id}`);
+      console.log(`Worker: Rendering item ${i + 1}/${items.length}: ${item.id} with ${isGlassTheme ? 'Glass' : 'Classic'} theme`);
 
       // Prepare product data with mapped image path
       const imageUrl = item.imagePath || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -74,8 +77,7 @@ async function processRendering(renderData: RenderData): Promise<any> {
         ...item.renderConfig
       };
 
-      // Render the product to canvas
-      const canvas = await renderProductToCanvas(productToRender, {
+      const renderOptions = {
         width: width,
         height: width,
         scale: 1,
@@ -83,11 +85,18 @@ async function processRendering(renderData: RenderData): Promise<any> {
         imageBgColor: '#f5f5f5',
         fontColor: '#333333',
         backgroundColor: '#ffffff'
-      }, watermark || {
+      };
+
+      const watermarkOptions = watermark || {
         enabled: false, // Default to disabled if not provided
         text: '',
         position: 'bottom-center'
-      });
+      };
+
+      // Render the product to canvas using the correct theme
+      const canvas = isGlassTheme
+        ? await renderProductToCanvasGlass(productToRender, renderOptions, watermarkOptions)
+        : await renderProductToCanvas(productToRender, renderOptions, watermarkOptions);
 
       // Convert canvas to base64
       const base64 = canvasToBase64(canvas);
