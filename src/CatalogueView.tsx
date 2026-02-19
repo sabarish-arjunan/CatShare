@@ -423,6 +423,13 @@ useEffect(() => {
         return;
       }
 
+      if (selected.length > 80) {
+        const confirmed = window.confirm(
+          `You have selected ${selected.length} products. Generating a PDF with more than 80 images may make the app unstable. Do you want to continue?`
+        );
+        if (!confirmed) return;
+      }
+
       setProcessing(true);
       setProcessingPhase("rendering");
       setProcessingTotal(selected.length);
