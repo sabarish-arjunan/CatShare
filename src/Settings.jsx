@@ -49,8 +49,8 @@ export default function Settings({
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
-  // Handle render all PNGs
-  const handleRenderAllPNGs = () => {
+  // Handle render all images
+  const handleRenderAllImages = () => {
     window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
   };
 
@@ -316,7 +316,7 @@ export default function Settings({
           renderProgress={renderProgress}
           renderResult={null}
           setRenderResult={() => {}}
-          handleRenderAllPNGs={handleRenderAllPNGs}
+          handleRenderAllImages={handleRenderAllImages}
         />
       )}
     </div>

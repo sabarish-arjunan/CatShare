@@ -35,7 +35,7 @@ App Store Optimization (ASO) is the process of improving an app's visibility in 
 **File**: `index.html`
 
 ```html
-<meta property="og:title" content="CatShare - Product Catalog Manager">
+<meta property="og:title" content="CatShare - Catalog Maker">
 <meta property="og:description" content="...">
 <meta property="og:image" content="/logo-catalogue-share.svg">
 ```
@@ -292,7 +292,7 @@ Monitor these metrics to measure ASO success:
 
 ### Google Play Store
 1. **Short Description** (80 chars):
-   - "Product Catalog Manager for Ecommerce"
+   - "Catalog Maker for Ecommerce"
 
 2. **Full Description**:
    - Same as iOS but formatted for Android

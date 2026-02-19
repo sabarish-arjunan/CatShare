@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdCheck, MdAdd, MdClose } from "react-icons/md";
+import { MdArrowBack, MdCheck, MdAdd, MdClose, MdOutlineHome } from "react-icons/md";
 import { useToast } from "../context/ToastContext";
 import { getAllCurrencies } from "../utils/currencyUtils";
 
@@ -99,7 +99,13 @@ export default function CurrencySettings() {
           <MdArrowBack size={24} />
         </button>
         <h1 className="text-xl font-bold flex-1 text-center dark:text-white">Currency</h1>
-        <div className="w-8"></div>
+        <button
+          onClick={() => navigate("/")}
+          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          title="Go to Home"
+        >
+          <MdOutlineHome size={24} />
+        </button>
       </header>
 
       {/* Main Content */}

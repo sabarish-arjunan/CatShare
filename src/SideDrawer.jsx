@@ -39,7 +39,7 @@ export default function SideDrawer({
   renderProgress,
   renderResult,
   setRenderResult,
-  handleRenderAllPNGs,
+  handleRenderAllImages,
 }) {
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
@@ -984,10 +984,7 @@ const exportProductsToCSV = (products) => {
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
 
-      setBackupResult({
-        status: "success",
-        message: `Catalogue restored successfully (${rebuilt.length} products).`,
-      });
+      showToast(`Catalogue restored successfully (${rebuilt.length} products).`, "success");
 
       // 🔄 Dispatch event to notify all components that field definitions have changed
       // This forces ProductPreviewModal and other components to reload field definitions
@@ -1034,10 +1031,7 @@ const exportProductsToCSV = (products) => {
       setShowRenderAfterRestore(true);
     } catch (err) {
       console.error("❌ Restore failed:", err);
-      setBackupResult({
-        status: "error",
-        message: "Restore failed: " + err.message,
-      });
+      showToast("Restore failed: " + err.message, "error");
     }
   };
 
@@ -1292,7 +1286,7 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
             setShowRenderAfterRestore(false);
-            handleRenderAllPNGs(true);
+            handleRenderAllImages(true);
           }}
         >
           Continue
@@ -1315,7 +1309,7 @@ const exportProductsToCSV = (products) => {
 {showRenderConfirm && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
     <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
-      <p className="text-lg font-medium text-gray-800 mb-2">Render all product PNGs?</p>
+      <p className="text-lg font-medium text-gray-800 mb-2">Render all product images?</p>
 <p className="text-sm text-gray-600 mb-4">
   Estimated time: <span className="font-semibold">{estimatedSeconds}</span> sec for {totalProducts} products
 </p>
@@ -1338,7 +1332,7 @@ const exportProductsToCSV = (products) => {
           onClick={() => {
             setShowRenderConfirm(false);
             onClose();
-            setTimeout(() => handleRenderAllPNGs(true), 50);
+            setTimeout(() => handleRenderAllImages(true), 50);
           }}
         >
           Yes
@@ -1448,7 +1442,7 @@ const exportProductsToCSV = (products) => {
           imageMap={imageMap}
           setProducts={setProducts}
           onClose={() => setShowBulkEdit(false)}
-          triggerRender={handleRenderAllPNGs}
+          triggerRender={handleRenderAllImages}
         />
       )}
 

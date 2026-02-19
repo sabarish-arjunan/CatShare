@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack } from "react-icons/md";
+import { MdArrowBack, MdOutlineHome } from "react-icons/md";
 
 export default function AppearanceSettings({ darkMode = false, setDarkMode = (value) => {} }) {
   const navigate = useNavigate();
@@ -31,7 +31,13 @@ export default function AppearanceSettings({ darkMode = false, setDarkMode = (va
           <MdArrowBack size={24} />
         </button>
         <h1 className="text-xl font-bold flex-1 text-center dark:text-white">Appearance</h1>
-        <div className="w-8"></div>
+        <button
+          onClick={() => navigate("/")}
+          className="w-8 h-8 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          title="Go to Home"
+        >
+          <MdOutlineHome size={24} />
+        </button>
       </header>
 
       {/* Main Content */}
