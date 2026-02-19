@@ -39,7 +39,7 @@ export default function SideDrawer({
   renderProgress,
   renderResult,
   setRenderResult,
-  handleRenderAllPNGs,
+  handleRenderAllImages,
 }) {
   const [showCategories, setShowCategories] = useState(false);
    const [showMediaLibrary, setShowMediaLibrary] = useState(false);
@@ -1286,7 +1286,7 @@ const exportProductsToCSV = (products) => {
           className="px-5 py-2 rounded-full bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition text-sm"
           onClick={() => {
             setShowRenderAfterRestore(false);
-            handleRenderAllPNGs(true);
+            handleRenderAllImages(true);
           }}
         >
           Continue
@@ -1332,7 +1332,7 @@ const exportProductsToCSV = (products) => {
           onClick={() => {
             setShowRenderConfirm(false);
             onClose();
-            setTimeout(() => handleRenderAllPNGs(true), 50);
+            setTimeout(() => handleRenderAllImages(true), 50);
           }}
         >
           Yes
@@ -1442,7 +1442,7 @@ const exportProductsToCSV = (products) => {
           imageMap={imageMap}
           setProducts={setProducts}
           onClose={() => setShowBulkEdit(false)}
-          triggerRender={handleRenderAllPNGs}
+          triggerRender={handleRenderAllImages}
         />
       )}
 
