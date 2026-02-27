@@ -883,11 +883,6 @@ export default function ProductPreviewModal_Classic({
                 }}
               >
                 Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
-                  const config = getFieldConfig(priceField);
-                  // Price fields should always have units enabled unless explicitly disabled in config
-                  const unitsEnabled = config ? config.unitsEnabled : true;
-                  if (!unitsEnabled) return "";
-
                   const unit = (catalogueData[priceUnitField] && catalogueData[priceUnitField] !== "")
                     ? catalogueData[priceUnitField]
                     : (product[priceUnitField] || "/ piece");
