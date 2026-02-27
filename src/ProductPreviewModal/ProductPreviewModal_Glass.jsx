@@ -602,10 +602,6 @@ export default function ProductPreviewModal_Glass({
                         }}
                         >
                           {currencySymbol}{catalogueData[priceField] || product[priceField]}{(() => {
-                            const config = getFieldConfig(priceField);
-                            const unitsEnabled = config ? config.unitsEnabled : true;
-                            if (!unitsEnabled) return "";
-
                             const unit = (catalogueData[priceUnitField] && catalogueData[priceUnitField] !== "")
                               ? catalogueData[priceUnitField]
                               : (product[priceUnitField] || "/ piece");
