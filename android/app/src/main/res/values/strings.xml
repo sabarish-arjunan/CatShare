@@ -7,5 +7,5 @@
     <string name="app_description">CatShare - Share faster, sell quicker. Powerful mobile-first product catalog and inventory management app. Create, organize, and share product listings with customers across multiple channels. Features bulk editing, image rendering, multi-format export, and dual pricing support.</string>
     <string name="package_name">com.venuskids.catalogue</string>
     <string name="custom_url_scheme">com.venuskids.catalogue</string>
-    <string name="facebook_app_id">YOUR_META_APP_ID</string>
+    <string name="facebook_app_id">1366943418568478</string>
 </resources>
