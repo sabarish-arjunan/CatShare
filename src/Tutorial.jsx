@@ -834,66 +834,35 @@ export default function Tutorial({ onClose }) {
     {
       title: "When to Access This Tutorial",
       description:
-        "You can revisit this tutorial anytime to refresh your knowledge or learn features you might have missed.",
+        "You can access this tutorial anytime from the side menu bar.",
       icon: <RiSearchLine className="w-10 h-10 text-blue-600" />,
       visualElements: (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
-          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500 card-hover">
-            <button
-              onClick={() => setIsTemplatesCardExpanded(!isTemplatesCardExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
-            >
-              <p className="font-semibold text-sm text-gray-800">🎓 How to Access Tutorial</p>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <FiChevronDown
-                  className={`transition-transform duration-300 ${isTemplatesCardExpanded ? "rotate-180" : ""}`}
-                  size={16}
-                />
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
+            <p className="font-semibold text-sm text-gray-800 mb-3">📚 How to Access:</p>
+            <div className="text-xs text-gray-700 space-y-3">
+              <div className="flex gap-2">
+                <span className="font-medium text-blue-600">1.</span>
+                <div>
+                  <p className="font-medium">Open Side Menu</p>
+                  <p className="text-gray-600">Click the Menu button in the header</p>
+                </div>
               </div>
-            </button>
-            {isTemplatesCardExpanded && (
-              <div className="mt-3 animate-fadeIn space-y-2 text-xs text-gray-700">
-                <p>You can open this tutorial at any time from:</p>
-                <ul className="space-y-2 ml-3">
-                  <li><span className="font-medium">📌 First Time:</span> Automatically shown when you start CatShare</li>
-                  <li><span className="font-medium">⚙️ Settings Menu:</span> Click on the Menu button → Look for "Help" or "Tutorial" option</li>
-                  <li><span className="font-medium">❓ Question Mark Icon:</span> Usually found in the top navigation bar</li>
-                  <li><span className="font-medium">🎯 Contextual Help:</span> Click question marks next to specific features for targeted help</li>
-                </ul>
+              <div className="flex gap-2">
+                <span className="font-medium text-blue-600">2.</span>
+                <div>
+                  <p className="font-medium">Click "Tutorial"</p>
+                  <p className="text-gray-600">Find the Tutorial button in the menu</p>
+                </div>
               </div>
-            )}
-          </div>
-
-          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500 card-hover">
-            <button
-              onClick={() => setIsCustomizeFieldsCardExpanded(!isCustomizeFieldsCardExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
-            >
-              <p className="font-semibold text-sm text-green-800">💡 Best Time to Use</p>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <FiChevronDown
-                  className={`transition-transform duration-300 ${isCustomizeFieldsCardExpanded ? "rotate-180" : ""}`}
-                  size={16}
-                />
+              <div className="flex gap-2">
+                <span className="font-medium text-blue-600">3.</span>
+                <div>
+                  <p className="font-medium">Revisit Anytime</p>
+                  <p className="text-gray-600">Access it whenever you need a refresher</p>
+                </div>
               </div>
-            </button>
-            {isCustomizeFieldsCardExpanded && (
-              <div className="mt-3 animate-fadeIn space-y-2 text-xs text-green-700">
-                <ul className="space-y-2">
-                  <li>✓ Before setting up your first catalogue</li>
-                  <li>✓ When learning a new feature for the first time</li>
-                  <li>✓ If you're unsure how to use a particular tool</li>
-                  <li>✓ To refresh your memory on advanced features</li>
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
-            <p className="font-semibold text-sm text-amber-800 mb-2">💬 Need More Help?</p>
-            <p className="text-xs text-amber-700">
-              Don't hesitate to use the "Send Feedback" button to ask questions or report issues. Our team is here to help!
-            </p>
+            </div>
           </div>
         </div>
       ),
