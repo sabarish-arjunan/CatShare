@@ -191,6 +191,14 @@ export default function ThemesSettings() {
                             {isGlassTheme ? "Ultra Modern" : "Universal Clean"}
                           </p>
                         </div>
+                        {isGlassTheme && (
+                          <div className="flex items-center gap-1 mt-1 text-amber-600 dark:text-amber-400 animate-pulse">
+                            <MdWarning size={10} />
+                            <p className="text-[7px] sm:text-[9px] font-medium leading-tight">
+                              Modern look, requires more render time
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
