@@ -108,6 +108,12 @@ export default function Tutorial({ onClose }) {
   const [isAutoRenderExpanded, setIsAutoRenderExpanded] = useState(false);
   const [isManualRenderExpanded, setIsManualRenderExpanded] = useState(false);
   const [isProTipExpanded, setIsProTipExpanded] = useState(false);
+  const [isTemplatesCardExpanded, setIsTemplatesCardExpanded] = useState(true);
+  const [isCustomizeFieldsCardExpanded, setIsCustomizeFieldsCardExpanded] = useState(true);
+  const [isProTipFieldsCardExpanded, setIsProTipFieldsCardExpanded] = useState(true);
+  const [isCurrencyCardExpanded, setIsCurrencyCardExpanded] = useState(true);
+  const [isPriceUnitsCardExpanded, setIsPriceUnitsCardExpanded] = useState(true);
+  const [isWhereConfigureCardExpanded, setIsWhereConfigureCardExpanded] = useState(true);
 
   // Handle escape key to close tutorial
   useEffect(() => {
@@ -347,38 +353,81 @@ export default function Tutorial({ onClose }) {
       icon: <RiLayout4Line className="w-10 h-10 text-orange-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
-          <div className="p-3 bg-white rounded-lg border-l-4 border-orange-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">📋 What are Templates?</p>
-            <p className="text-xs text-gray-700">
-              Pre-configured field sets for different industries:
-            </p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3 mt-2">
-              <li>✓ Fashion & Apparel (Size, Color, Fit, etc.)</li>
-              <li>✓ Lifestyle & Personal Care</li>
-              <li>✓ Home & Furniture</li>
-              <li>✓ Electronics</li>
-              <li>✓ Hardware & Tools</li>
-              <li>✓ Custom/General Products</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-orange-500 card-hover">
+            <button
+              onClick={() => setIsTemplatesCardExpanded(!isTemplatesCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">📋 What are Templates?</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isTemplatesCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isTemplatesCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">
+                  Pre-configured field sets for different industries:
+                </p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ Fashion & Apparel (Size, Color, Fit, etc.)</li>
+                  <li>✓ Lifestyle & Personal Care</li>
+                  <li>✓ Home & Furniture</li>
+                  <li>✓ Electronics</li>
+                  <li>✓ Hardware & Tools</li>
+                  <li>✓ Custom/General Products</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">⚙️ Customize Fields</p>
-            <p className="text-xs text-gray-700 mb-2">In Settings → Product Fields, you can:</p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3">
-              <li>✓ Choose a template for your industry</li>
-              <li>✓ Enable/disable specific fields</li>
-              <li>✓ Rename field labels (e.g., "Size" → "Dimensions")</li>
-              <li>✓ Add custom fields (up to 10 custom fields)</li>
-              <li>✓ Configure units for fields (e.g., kg, pieces, etc.)</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500 card-hover">
+            <button
+              onClick={() => setIsCustomizeFieldsCardExpanded(!isCustomizeFieldsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">⚙️ Customize Fields</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isCustomizeFieldsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isCustomizeFieldsCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">In Settings → Product Fields, you can:</p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ Choose a template for your industry</li>
+                  <li>✓ Enable/disable specific fields</li>
+                  <li>✓ Rename field labels (e.g., "Size" → "Dimensions")</li>
+                  <li>✓ Add custom fields (up to 10 custom fields)</li>
+                  <li>✓ Configure units for fields (e.g., kg, pieces, etc.)</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
-            <p className="font-semibold text-sm text-green-800 mb-2">💡 Pro Tip:</p>
-            <p className="text-xs text-green-700">
-              Field changes apply to all products. Customize once, then add products knowing your structure is perfect!
-            </p>
+          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500 card-hover">
+            <button
+              onClick={() => setIsProTipFieldsCardExpanded(!isProTipFieldsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-green-800">💡 Pro Tip:</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isProTipFieldsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isProTipFieldsCardExpanded && (
+              <p className="text-xs text-green-700 mt-3 animate-fadeIn">
+                Field changes apply to all products. Customize once, then add products knowing your structure is perfect!
+              </p>
+            )}
           </div>
         </div>
       ),
@@ -390,33 +439,76 @@ export default function Tutorial({ onClose }) {
       icon: <RiExchangeDollarLine className="w-10 h-10 text-emerald-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
-          <div className="p-3 bg-white rounded-lg border-l-4 border-emerald-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">💱 Default Currency</p>
-            <p className="text-xs text-gray-700 mb-2">Choose your primary currency:</p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3">
-              <li>✓ 15+ standard currencies (USD, EUR, INR, GBP, etc.)</li>
-              <li>✓ Custom currency support (create your own symbol)</li>
-              <li>✓ Applied to all product prices</li>
-              <li>✓ Shows in rendered images automatically</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-emerald-500 card-hover">
+            <button
+              onClick={() => setIsCurrencyCardExpanded(!isCurrencyCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">💱 Default Currency</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isCurrencyCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isCurrencyCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">Choose your primary currency:</p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ 15+ standard currencies (USD, EUR, INR, GBP, etc.)</li>
+                  <li>✓ Custom currency support (create your own symbol)</li>
+                  <li>✓ Applied to all product prices</li>
+                  <li>✓ Shows in rendered images automatically</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">📦 Price Units</p>
-            <p className="text-xs text-gray-700 mb-2">Set available pricing options:</p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3">
-              <li>✓ Default: pieces, dozen, sets, kg</li>
-              <li>✓ Add custom units (boxes, bundles, etc.)</li>
-              <li>✓ Use different units per catalogue if needed</li>
-              <li>✓ Applies when adding/editing prices</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500 card-hover">
+            <button
+              onClick={() => setIsPriceUnitsCardExpanded(!isPriceUnitsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">📦 Price Units</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isPriceUnitsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isPriceUnitsCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">Set available pricing options:</p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ Default: pieces, dozen, sets, kg</li>
+                  <li>✓ Add custom units (boxes, bundles, etc.)</li>
+                  <li>✓ Use different units per catalogue if needed</li>
+                  <li>✓ Applies when adding/editing prices</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
-            <p className="font-semibold text-sm text-amber-800 mb-2">⚙️ Where to Configure</p>
-            <p className="text-xs text-amber-700">
-              Go to Settings → Currency/Price Units to change these settings. Changes apply instantly to all products and catalogues!
-            </p>
+          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500 card-hover">
+            <button
+              onClick={() => setIsWhereConfigureCardExpanded(!isWhereConfigureCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-amber-800">⚙️ Where to Configure</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isWhereConfigureCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isWhereConfigureCardExpanded && (
+              <p className="text-xs text-amber-700 mt-3 animate-fadeIn">
+                Go to Settings → Currency/Price Units to change these settings. Changes apply instantly to all products and catalogues!
+              </p>
+            )}
           </div>
         </div>
       ),
