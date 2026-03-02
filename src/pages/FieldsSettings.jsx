@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MdArrowBack, MdOutlineHome, MdSave, MdRefresh, MdDragIndicator, MdAdd, MdCheckCircle, MdInfoOutline, MdExpandMore, MdEdit, MdCheck, MdVisibility, MdVisibilityOff, MdToggleOn, MdToggleOff } from "react-icons/md";
 import { FiTrash2, FiSettings, FiBriefcase, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,11 +16,21 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export default function FieldsSettings() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const [definition, setDefinition] = useState(null);
   const [savedDefinition, setSavedDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
-  const [activeTab, setActiveTab] = useState("templates"); // "templates" or "fields"
+
+  const activeTab = searchParams.get("tab") || "templates";
+  const setActiveTab = (tab) => {
+    if (tab === "templates") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ tab });
+    }
+  };
+
   const [expandedKey, setExpandedKey] = useState(null);
   const [expandedTemplateCard, setExpandedTemplateCard] = useState(false);
   const [editingLabelKey, setEditingLabelKey] = useState(null);
@@ -439,7 +449,13 @@ export default function FieldsSettings() {
       <header className="px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/settings")}
+            onClick={() => {
+              if (activeTab === "fields") {
+                setActiveTab("templates");
+              } else {
+                navigate("/settings");
+              }
+            }}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <MdArrowBack size={24} className="text-gray-600 dark:text-gray-400" />
