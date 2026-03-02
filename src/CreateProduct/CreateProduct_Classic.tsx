@@ -1324,6 +1324,7 @@ export default function CreateProduct() {
                 Model Name
               </label>
               <input
+                id="product-name-input"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}

@@ -8,7 +8,7 @@ import CatalogueView from "./CatalogueView";
 import CataloguesList from "./CataloguesList";
 import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
-import Tutorial from "./Tutorial";
+import GuidedTutorial, { GuidanceStep } from "./GuidedTutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -22,8 +22,8 @@ import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
 declare global {
   interface Window {
     __catalogueAppState?: {
-      showTutorial: boolean;
-      setShowTutorial: React.Dispatch<React.SetStateAction<boolean>>;
+      showGuide: boolean;
+      setShowGuide: React.Dispatch<React.SetStateAction<boolean>>;
     };
     __sideDrawerState?: any;
   }
@@ -123,7 +123,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [currentGuideStep, setCurrentGuideStep] = useState<GuidanceStep>('click-plus-button');
   const [previewProduct, setPreviewProduct] = useState(null);
   const [previewList, setPreviewList] = useState([]);
   const [imageMap, setImageMap] = useState({});
@@ -135,6 +136,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [localIsRendering, setLocalIsRendering] = useState(false);
   const [localRenderProgress, setLocalRenderProgress] = useState(0);
   const [localRenderResult, setLocalRenderResult] = useState(null);
+
+  // Show guided tutorial on first app load when there are no products
+  useEffect(() => {
+    const hasSeenGuide = localStorage.getItem('catshare_guide_seen');
+    if (products.length === 0 && !hasSeenGuide) {
+      setShowGuide(true);
+      setCurrentGuideStep('click-plus-button');
+    }
+  }, []);
 
   // Use passed props if available, otherwise use local state
   const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
@@ -156,13 +166,13 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => window.removeEventListener("toggle-sort", toggleSort);
   }, []);
 
-  // Expose tutorial state globally for back button handlers
+  // Expose guide state globally for back button handlers
   useEffect(() => {
     window.__catalogueAppState = {
-      showTutorial,
-      setShowTutorial,
+      showGuide,
+      setShowGuide,
     };
-  }, [showTutorial]);
+  }, [showGuide]);
 
   const handleSort = (type) => {
     setSortBy(type);
@@ -1136,9 +1146,13 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       {tab === "products" && (
         <button
+          id="create-product-plus-btn"
           onClick={async () => {
             await Haptics.impact({ style: ImpactStyle.Medium });
             navigate("/create");
+            if (showGuide) {
+              setCurrentGuideStep('fill-product-name');
+            }
           }}
           className="fixed right-4 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-105 transition"
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
@@ -1155,8 +1169,9 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         setProducts={setProducts}
         setDeletedProducts={setDeletedProducts}
         selected={selected}
-        onShowTutorial={() => {
-          setShowTutorial(true);
+        onShowGuide={() => {
+          setShowGuide(true);
+          setCurrentGuideStep('click-plus-button');
           setMenuOpen(false);
         }}
         darkMode={darkMode}
@@ -1168,9 +1183,17 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         handleRenderAllImages={handleRenderAllImages}
       />
 
-      {showTutorial && (
-        <Tutorial onClose={() => setShowTutorial(false)} />
-      )}
+      <GuidedTutorial
+        isActive={showGuide}
+        currentStep={currentGuideStep}
+        onStepComplete={(nextStep) => {
+          setCurrentGuideStep(nextStep);
+        }}
+        onSkip={() => {
+          setShowGuide(false);
+          localStorage.setItem('catshare_guide_seen', 'true');
+        }}
+      />
 
       {showManageCatalogues && (
         <ManageCatalogues
