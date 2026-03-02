@@ -1218,6 +1218,7 @@ export default function CreateProduct() {
 
           {!imagePreview && (
             <button
+              id="product-image-upload"
               onClick={handleSelectImage}
               className="text-center text-gray-400 select-none hover:text-gray-300 transition-colors cursor-pointer"
             >
@@ -1485,7 +1486,7 @@ export default function CreateProduct() {
           )}
 
           {formSection === 'catalogue' && (
-            <>
+            <div id="product-details-section">
               {/* Catalogue Selector */}
               <div className="mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
                 <label className="block text-xs font-semibold mb-3 text-gray-600 dark:text-gray-400">Catalogues</label>
@@ -1652,12 +1653,13 @@ export default function CreateProduct() {
                   Enable this catalogue first
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {/* Save/Cancel Buttons */}
           <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
             <button
+              id="save-product-btn"
               onClick={saveAndNavigate}
               className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded w-full text-xs font-medium transition-colors"
             >

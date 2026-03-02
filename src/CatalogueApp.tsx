@@ -138,13 +138,31 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [localRenderResult, setLocalRenderResult] = useState(null);
 
   // Show guided tutorial on first app load when there are no products
+  // and manage guide step progression
   useEffect(() => {
     const hasSeenGuide = localStorage.getItem('catshare_guide_seen');
+    const savedGuideStep = localStorage.getItem('catshare_guide_step') as GuidanceStep | null;
+
     if (products.length === 0 && !hasSeenGuide) {
       setShowGuide(true);
       setCurrentGuideStep('click-plus-button');
+    } else if (products.length > 0 && showGuide && currentGuideStep === 'click-plus-button') {
+      // User successfully created first product, advance guide
+      setCurrentGuideStep('fill-product-name');
     }
-  }, []);
+
+    // Restore saved guide step if user returns before completing guide
+    if (showGuide && savedGuideStep && products.length > 0) {
+      setCurrentGuideStep(savedGuideStep);
+    }
+  }, [showGuide]);
+
+  // Persist guide step whenever it changes
+  useEffect(() => {
+    if (showGuide && currentGuideStep !== 'complete') {
+      localStorage.setItem('catshare_guide_step', currentGuideStep);
+    }
+  }, [currentGuideStep, showGuide]);
 
   // Use passed props if available, otherwise use local state
   const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
@@ -777,7 +795,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           }}>
             <Droppable droppableId="product-list">
               {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3 mt-4">
+                <div id="products-list-container" ref={provided.innerRef} {...provided.droppableProps} className="space-y-3 mt-4">
                   {visible.map((p, index) => (
                     <Draggable key={p.id} draggableId={p.id} index={index}>
                       {(provided) => (
@@ -1188,6 +1206,13 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         currentStep={currentGuideStep}
         onStepComplete={(nextStep) => {
           setCurrentGuideStep(nextStep);
+          localStorage.setItem('catshare_guide_step', nextStep);
+
+          // When completing the tutorial, mark as seen
+          if (nextStep === 'complete') {
+            localStorage.setItem('catshare_guide_seen', 'true');
+            setShowGuide(false);
+          }
         }}
         onSkip={() => {
           setShowGuide(false);
