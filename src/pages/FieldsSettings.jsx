@@ -21,13 +21,28 @@ export default function FieldsSettings() {
   const [definition, setDefinition] = useState(null);
   const [savedDefinition, setSavedDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
+  const [hasPushedTab, setHasPushedTab] = useState(false);
 
   const activeTab = searchParams.get("tab") || "templates";
+
+  useEffect(() => {
+    if (activeTab === "templates") {
+      setHasPushedTab(false);
+    }
+  }, [activeTab]);
+
   const setActiveTab = (tab) => {
+    if (tab === activeTab) return;
+
     if (tab === "templates") {
-      setSearchParams({});
+      if (hasPushedTab) {
+        navigate(-1);
+      } else {
+        setSearchParams({}, { replace: true });
+      }
     } else {
       setSearchParams({ tab });
+      setHasPushedTab(true);
     }
   };
 
