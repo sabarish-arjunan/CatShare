@@ -267,6 +267,7 @@ export default function EmptyStateIntro({ onCreateProduct }: EmptyStateIntroProp
           Create your first product in just a few seconds
         </p>
         <button
+          id="create-first-product-btn"
           onClick={onCreateProduct}
           className="inline-flex items-center gap-2 bg-gray-300 text-gray-700 font-semibold px-6 py-2 rounded-full hover:bg-gray-200 transition-colors shadow hover:shadow-md text-sm"
         >

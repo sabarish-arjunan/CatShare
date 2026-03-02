@@ -8,7 +8,7 @@ import CatalogueView from "./CatalogueView";
 import CataloguesList from "./CataloguesList";
 import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
-import Tutorial from "./Tutorial";
+import InteractiveTutorial from "./InteractiveTutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -124,6 +124,7 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [previewProduct, setPreviewProduct] = useState(null);
   const [previewList, setPreviewList] = useState([]);
   const [imageMap, setImageMap] = useState({});
@@ -135,6 +136,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [localIsRendering, setLocalIsRendering] = useState(false);
   const [localRenderProgress, setLocalRenderProgress] = useState(0);
   const [localRenderResult, setLocalRenderResult] = useState(null);
+
+  // Show tutorial on first app load when there are no products
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('catshare_tutorial_seen');
+    if (products.length === 0 && !hasSeenTutorial) {
+      setShowTutorial(true);
+    }
+  }, []);
 
   // Use passed props if available, otherwise use local state
   const isRendering = propIsRendering !== undefined ? propIsRendering : localIsRendering;
@@ -1169,7 +1178,19 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
       />
 
       {showTutorial && (
-        <Tutorial onClose={() => setShowTutorial(false)} />
+        <InteractiveTutorial
+          isVisible={showTutorial}
+          onComplete={() => {
+            setShowTutorial(false);
+            localStorage.setItem('catshare_tutorial_seen', 'true');
+          }}
+          onSkip={() => {
+            setShowTutorial(false);
+            localStorage.setItem('catshare_tutorial_seen', 'true');
+          }}
+          currentStep={tutorialStep}
+          onStepChange={setTutorialStep}
+        />
       )}
 
       {showManageCatalogues && (
