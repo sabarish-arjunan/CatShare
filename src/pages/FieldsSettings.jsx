@@ -591,36 +591,22 @@ export default function FieldsSettings() {
           </div>
         )}
 
-        {/* Modern Tabs */}
-        <div className="px-4 mt-4 shrink-0 -mx-4">
-          <div className="bg-gray-200 dark:bg-gray-800 p-1 rounded-2xl flex gap-1">
+
+        {/* Back button for configuration view */}
+        {searchParams.get("view") === "configure" && (
+          <div className="px-4 mt-4 shrink-0">
             <button
-              onClick={() => setActiveTab("templates")}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                activeTab === "templates"
-                  ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
+              onClick={() => setSearchParams({}, { replace: true })}
+              className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:opacity-80 transition-opacity"
             >
-              <FiBriefcase size={14} />
-              TEMPLATES
-            </button>
-            <button
-              onClick={() => setActiveTab("fields")}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                activeTab === "fields"
-                  ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              <FiSettings size={14} />
-              CONFIGURATION
+              <MdArrowBack size={18} />
+              Back to Templates
             </button>
           </div>
-        </div>
+        )}
 
         <AnimatePresence mode="wait">
-          {activeTab === "templates" ? (
+          {searchParams.get("view") !== "configure" ? (
             <motion.div
               key="templates-tab"
               initial={{ opacity: 0, x: -20 }}
@@ -641,7 +627,10 @@ export default function FieldsSettings() {
                 {INDUSTRY_PRESETS.map((preset) => (
                   <button
                     key={preset.name}
-                    onClick={() => updateIndustry(preset.name)}
+                    onClick={() => {
+                      updateIndustry(preset.name);
+                      setSearchParams({ industry: preset.name, view: "configure" });
+                    }}
                     className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
                       definition.industry === preset.name
                         ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
@@ -665,7 +654,10 @@ export default function FieldsSettings() {
                 ))}
 
                 <button
-                  onClick={() => updateIndustry("General Products (Custom)")}
+                  onClick={() => {
+                    updateIndustry("General Products (Custom)");
+                    setSearchParams({ industry: "General Products (Custom)", view: "configure" });
+                  }}
                   className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
                     definition.industry === "General Products (Custom)" || !definition.industry
                       ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
