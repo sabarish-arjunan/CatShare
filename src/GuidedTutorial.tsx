@@ -120,7 +120,7 @@ export default function GuidedTutorial({
     // Recheck position on scroll and resize
     window.addEventListener('scroll', updatePosition);
     window.addEventListener('resize', updatePosition);
-    
+
     // Also recheck periodically in case DOM changes
     const interval = setInterval(updatePosition, 500);
 
@@ -130,6 +130,29 @@ export default function GuidedTutorial({
       clearInterval(interval);
     };
   }, [guide.targetElementId]);
+
+  // Auto-advance step based on user actions
+  useEffect(() => {
+    if (!isActive || currentStep === 'complete') return;
+
+    // Handle product creation completion - advance from save-product step
+    const handleProductAdded = () => {
+      if (currentStep === 'save-product' || currentStep === 'fill-product-details') {
+        // Skip straight to render step when product is saved
+        onStepComplete('render-product');
+      } else if (currentStep === 'click-plus-button') {
+        // If somehow product is added while still on first step, advance
+        onStepComplete('fill-product-name');
+      }
+    };
+
+    // Listen for product-added event (fired from CreateProduct when saving)
+    window.addEventListener('product-added', handleProductAdded);
+
+    return () => {
+      window.removeEventListener('product-added', handleProductAdded);
+    };
+  }, [isActive, currentStep, onStepComplete]);
 
   if (!isActive || currentStep === 'complete') {
     return null;
