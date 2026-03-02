@@ -415,8 +415,8 @@ function AppWithBackHandler() {
       }
 
       // Check CatalogueApp modals
-      if (catalogueAppState?.showGuide) {
-        catalogueAppState.setShowGuide(false);
+      if (catalogueAppState?.showTutorial) {
+        catalogueAppState.setShowTutorial(false);
         return;
       }
 

@@ -32,7 +32,7 @@ export default function SideDrawer({
   setProducts,
   setDeletedProducts,
   selected,
-  onShowGuide,
+  onShowTutorial,
   darkMode,
   setDarkMode,
   isRendering,
@@ -1160,12 +1160,12 @@ const exportProductsToCSV = (products) => {
 
 <button
   onClick={() => {
-    onShowGuide();
+    onShowTutorial();
   }}
   className="w-full flex items-center gap-3 px-5 py-3 mb-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition shadow-sm"
 >
   <MdBook className="text-gray-500 text-[18px]" />
-  <span className="text-sm font-medium">Interactive Guide</span>
+  <span className="text-sm font-medium">Tutorial</span>
 </button>
 
 <div>
