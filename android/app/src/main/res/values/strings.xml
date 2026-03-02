@@ -8,4 +8,5 @@
     <string name="package_name">com.venuskids.catalogue</string>
     <string name="custom_url_scheme">com.venuskids.catalogue</string>
     <string name="facebook_app_id">1366943418568478</string>
+    <string name="facebook_client_token">ba86055b572eca39374c85a7a3c4411e</string>
 </resources>

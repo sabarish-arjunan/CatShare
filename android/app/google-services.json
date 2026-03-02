@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "787555935594",
+    "project_id": "catshare-official",
+    "storage_bucket": "catshare-official.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:787555935594:android:215af34babe7272daab113",
+        "android_client_info": {
+          "package_name": "com.catshare.official"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPM3e8-ubj--2ZIzurs6I-wBC9RFQjIlg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

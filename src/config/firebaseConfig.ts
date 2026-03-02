@@ -3,6 +3,7 @@ import { getMessaging, onMessage, getToken } from "firebase/messaging";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD5BOq_3xjUbbnKdF5KFFeOj6FmvV6nWJ8",
@@ -22,6 +23,10 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app);
 export const messaging = getMessaging(app);
+export const analytics = getAnalytics(app);
+
+// Log app open event
+logEvent(analytics, "app_open");
 
 // Register service worker for FCM on web
 export const registerServiceWorker = async () => {
@@ -34,7 +39,6 @@ export const registerServiceWorker = async () => {
       return registration;
     } catch (error) {
       console.warn('Service Worker registration failed (this is OK for development):', error);
-      // Service worker registration is optional - app will still work without it
       return null;
     }
   }
@@ -44,13 +48,11 @@ export const registerServiceWorker = async () => {
 // Request notification permission and get token
 export const requestNotificationPermission = async () => {
   try {
-    // Check if notifications are supported
     if (!('Notification' in window)) {
       console.log('Notifications not supported in this browser');
       return null;
     }
 
-    // Try to register service worker (optional)
     try {
       await registerServiceWorker();
     } catch (swError) {

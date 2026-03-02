@@ -14,7 +14,7 @@ const config: CapacitorConfig = {
       presentationOptions: ["badge", "sound", "alert"],
     },
     StatusBar: {
-      overlay: false, // Do not draw under the status bar; system reserves inset
+      overlay: false,
     },
     SplashScreen: {
       launchShowDuration: 0,
@@ -23,6 +23,9 @@ const config: CapacitorConfig = {
       iosSpinnerStyle: 'small',
       androidSpinnerStyle: 'large',
       spinnerColor: '#3b82f6',
+    },
+    FirebaseAnalytics: {
+      // No extra config needed here, it reads from google-services.json
     },
   },
 };

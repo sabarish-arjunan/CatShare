@@ -16,6 +16,7 @@ import { runMigrations } from "./utils/dataMigration";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { initializeFirebaseMessaging } from "./services/firebaseService";
 import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
+import { FirebaseAnalytics } from '@capacitor-firebase/analytics';
 
 import CatalogueApp from "./CatalogueApp";
 import CreateProduct from "./CreateProduct";
@@ -294,6 +295,14 @@ function AppWithBackHandler() {
       if (!localStorage.getItem("userId")) {
         localStorage.setItem("userId", `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
       }
+        try {
+        await FirebaseAnalytics.setEnabled({ enabled: true });
+        await FirebaseAnalytics.logEvent({ name: 'app_open' });
+        console.log('✅ Firebase Analytics initialized');
+      } catch (error) {
+        console.warn('⚠️ Firebase Analytics error:', error);
+      }
+
       await initializeFirebaseMessaging();
     };
     setupFirebase();
