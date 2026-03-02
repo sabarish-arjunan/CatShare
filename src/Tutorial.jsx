@@ -832,9 +832,76 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
+      title: "When to Access This Tutorial",
+      description:
+        "You can revisit this tutorial anytime to refresh your knowledge or learn features you might have missed.",
+      icon: <RiSearchLine className="w-10 h-10 text-blue-600" />,
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500 card-hover">
+            <button
+              onClick={() => setIsTemplatesCardExpanded(!isTemplatesCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">🎓 How to Access Tutorial</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isTemplatesCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isTemplatesCardExpanded && (
+              <div className="mt-3 animate-fadeIn space-y-2 text-xs text-gray-700">
+                <p>You can open this tutorial at any time from:</p>
+                <ul className="space-y-2 ml-3">
+                  <li><span className="font-medium">📌 First Time:</span> Automatically shown when you start CatShare</li>
+                  <li><span className="font-medium">⚙️ Settings Menu:</span> Click on the Menu button → Look for "Help" or "Tutorial" option</li>
+                  <li><span className="font-medium">❓ Question Mark Icon:</span> Usually found in the top navigation bar</li>
+                  <li><span className="font-medium">🎯 Contextual Help:</span> Click question marks next to specific features for targeted help</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500 card-hover">
+            <button
+              onClick={() => setIsCustomizeFieldsCardExpanded(!isCustomizeFieldsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-green-800">💡 Best Time to Use</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isCustomizeFieldsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isCustomizeFieldsCardExpanded && (
+              <div className="mt-3 animate-fadeIn space-y-2 text-xs text-green-700">
+                <ul className="space-y-2">
+                  <li>✓ Before setting up your first catalogue</li>
+                  <li>✓ When learning a new feature for the first time</li>
+                  <li>✓ If you're unsure how to use a particular tool</li>
+                  <li>✓ To refresh your memory on advanced features</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+            <p className="font-semibold text-sm text-amber-800 mb-2">💬 Need More Help?</p>
+            <p className="text-xs text-amber-700">
+              Don't hesitate to use the "Send Feedback" button to ask questions or report issues. Our team is here to help!
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "You're All Set!",
       description:
-        "You now know all the main features. Start creating products, customizing fields, managing catalogues with different pricing, and rendering professional catalogs!",
+        "Congratulations! You now know all the main features. Ready to create your first product catalogue?",
       icon: <RiCheckDoubleLine className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
@@ -849,6 +916,7 @@ export default function Tutorial({ onClose }) {
               💾 <span className="font-medium">Protect:</span> Backup your data regularly<br/>
               🚀 <span className="font-medium">Scale:</span> Manage multiple pricing models effortlessly!
             </p>
+            <p className="text-xs text-gray-700 font-semibold mt-4">Happy cataloguing! 🎉</p>
           </div>
         </div>
       ),
