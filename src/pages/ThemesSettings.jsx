@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdArrowBack, MdOutlineHome } from "react-icons/md";
+import { MdArrowBack, MdOutlineHome, MdWarning } from "react-icons/md";
 import { FiEdit3, FiPackage, FiArchive, FiCheckCircle, FiX } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import { getAllThemes } from "../config/themeConfig";
@@ -9,9 +9,58 @@ export default function ThemesSettings() {
   const navigate = useNavigate();
   const { selectedThemeId, setTheme } = useTheme();
   const [expandedThemeId, setExpandedThemeId] = useState(null);
+  const [initialThemeId] = useState(selectedThemeId);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [renderBoxVisible, setRenderBoxVisible] = useState(false);
+  const [showRenderConfirm, setShowRenderConfirm] = useState(false);
+  const renderBoxRef = useRef(null);
 
   // Get all available themes from theme config
   const themes = getAllThemes();
+
+  // Track changes to theme
+  useEffect(() => {
+    setHasChanges(selectedThemeId !== initialThemeId);
+  }, [selectedThemeId, initialThemeId]);
+
+  // Listen for render completion to reset changes
+  useEffect(() => {
+    const handleRenderComplete = () => {
+      setHasChanges(false);
+      setRenderBoxVisible(false);
+    };
+    window.addEventListener("renderComplete", handleRenderComplete);
+    return () => window.removeEventListener("renderComplete", handleRenderComplete);
+  }, []);
+
+  // Reset renderBoxVisible when render box is not shown
+  useEffect(() => {
+    if (!hasChanges) {
+      setRenderBoxVisible(false);
+    }
+  }, [hasChanges]);
+
+  // Track if Render All Images box is visible in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setRenderBoxVisible(entry.isIntersecting);
+      },
+      { threshold: 0.01 }
+    );
+
+    if (renderBoxRef.current) {
+      observer.observe(renderBoxRef.current);
+    }
+
+    return () => {
+      if (renderBoxRef.current) {
+        observer.unobserve(renderBoxRef.current);
+      } else {
+        observer.disconnect();
+      }
+    };
+  }, [renderBoxRef]);
 
   const handleThemeSelect = (themeId) => {
     setTheme(themeId);
@@ -104,6 +153,26 @@ export default function ThemesSettings() {
               Pick the perfect aesthetic to showcase your unique product catalog
             </p>
           </div>
+
+          {/* Render Images Box - Only visible when changes are made */}
+          {hasChanges && (
+            <div ref={renderBoxRef} className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-xs text-red-900 mb-3">
+                <span className="font-semibold">✓ Changes Detected</span>
+              </p>
+              <p className="text-xs text-red-800 mb-3">
+                You've changed your theme. Click below to render all images and apply this new theme to your shared images.
+              </p>
+              <button
+                onClick={() => {
+                  setShowRenderConfirm(true);
+                }}
+                className="w-full px-4 py-2 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium"
+              >
+                Render All Images
+              </button>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {themes.map((theme) => {
@@ -530,6 +599,66 @@ export default function ThemesSettings() {
           </div>
         </div>
       </main>
+
+      {/* Floating Render Button - Visible only when changes are detected and render box is not visible */}
+      {hasChanges && !renderBoxVisible && (
+        <div className="fixed bottom-6 right-6 z-40 group">
+          <button
+            onClick={() => {
+              setShowRenderConfirm(true);
+            }}
+            title="Theme changes won't appear on shared images until rendered"
+            className="px-4 py-3 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
+          >
+            <MdWarning size={18} />
+            <span>Render</span>
+          </button>
+          <div className="absolute bottom-full right-0 mb-2 bg-gray-800 text-white text-xs rounded-lg p-3 max-w-xs hidden group-hover:block pointer-events-none whitespace-normal">
+            <p className="font-semibold mb-1">Why render now?</p>
+            <p>Theme changes only appear on shared images after rendering. Previews update immediately, but shared content needs to be rendered.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Render Confirmation Modal */}
+      {showRenderConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-lg px-4">
+          <div className="backdrop-blur-xl bg-white/70 border border-white/40 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <p className="text-lg font-medium text-gray-800 mb-4">Render all product images?</p>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-left">
+              <p className="text-sm font-semibold text-red-900 mb-2">Why render now?</p>
+              <ul className="text-xs text-red-800 space-y-1">
+                <li>• Your theme changes won't appear on shared images until rendered</li>
+                <li>• Previews update immediately, but shared images need rendering</li>
+                <li>• This ensures customers see your updated theme</li>
+              </ul>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              This will apply your new theme to all your shared images.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                className="px-5 py-2 rounded-full bg-red-900 text-white font-medium shadow hover:bg-red-950 transition"
+                onClick={() => {
+                  setShowRenderConfirm(false);
+                  window.dispatchEvent(new CustomEvent("requestRenderAllPNGs"));
+                }}
+              >
+                Yes, Render
+              </button>
+              <button
+                className="px-5 py-2 rounded-full bg-gray-300 text-gray-800 font-medium shadow hover:bg-gray-400 transition"
+                onClick={() => setShowRenderConfirm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

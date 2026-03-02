@@ -288,7 +288,7 @@ export default function CreateProduct() {
   const MIN_HEIGHT = 120;
   const DRAG_RANGE = MAX_HEIGHT - MIN_HEIGHT;
 
-  const y = useMotionValue(DRAG_RANGE);
+  const y = useMotionValue(DRAG_RANGE * 0.5);
   const [isDragging, setIsDragging] = useState(false);
   const [formSection, setFormSection] = useState<'basic' | 'catalogue'>('basic');
   const scrollRef = useRef<HTMLDivElement>(null);

@@ -169,6 +169,15 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     setShowSortMenu(false);
   };
 
+  // Auto-show tutorial for new users after onboarding
+  useEffect(() => {
+    const shouldShowTutorial = localStorage.getItem('showTutorialOnInit');
+    if (shouldShowTutorial) {
+      setShowTutorial(true);
+      localStorage.removeItem('showTutorialOnInit');
+    }
+  }, []);
+
   useEffect(() => {
     const loadImages = async () => {
       const map = {};
