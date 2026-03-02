@@ -108,12 +108,12 @@ export default function Tutorial({ onClose }) {
   const [isAutoRenderExpanded, setIsAutoRenderExpanded] = useState(false);
   const [isManualRenderExpanded, setIsManualRenderExpanded] = useState(false);
   const [isProTipExpanded, setIsProTipExpanded] = useState(false);
-  const [isTemplatesCardExpanded, setIsTemplatesCardExpanded] = useState(true);
-  const [isCustomizeFieldsCardExpanded, setIsCustomizeFieldsCardExpanded] = useState(true);
-  const [isProTipFieldsCardExpanded, setIsProTipFieldsCardExpanded] = useState(true);
-  const [isCurrencyCardExpanded, setIsCurrencyCardExpanded] = useState(true);
-  const [isPriceUnitsCardExpanded, setIsPriceUnitsCardExpanded] = useState(true);
-  const [isWhereConfigureCardExpanded, setIsWhereConfigureCardExpanded] = useState(true);
+  const [isTemplatesCardExpanded, setIsTemplatesCardExpanded] = useState(false);
+  const [isCustomizeFieldsCardExpanded, setIsCustomizeFieldsCardExpanded] = useState(false);
+  const [isProTipFieldsCardExpanded, setIsProTipFieldsCardExpanded] = useState(false);
+  const [isCurrencyCardExpanded, setIsCurrencyCardExpanded] = useState(false);
+  const [isPriceUnitsCardExpanded, setIsPriceUnitsCardExpanded] = useState(false);
+  const [isWhereConfigureCardExpanded, setIsWhereConfigureCardExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
