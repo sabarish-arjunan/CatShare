@@ -137,6 +137,7 @@ export default function Welcome() {
       });
 
       safeSetInStorage('hasCompletedOnboarding', true);
+      safeSetInStorage('showTutorialOnInit', true);
 
       setStep('complete');
       setIsLoading(false);
