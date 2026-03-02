@@ -154,26 +154,6 @@ export default function ThemesSettings() {
             </p>
           </div>
 
-          {/* Render Images Box - Only visible when changes are made */}
-          {hasChanges && (
-            <div ref={renderBoxRef} className="p-4 bg-red-50 rounded-lg border border-red-200">
-              <p className="text-xs text-red-900 mb-3">
-                <span className="font-semibold">✓ Changes Detected</span>
-              </p>
-              <p className="text-xs text-red-800 mb-3">
-                You've changed your theme. Click below to render all images and apply this new theme to your shared images.
-              </p>
-              <button
-                onClick={() => {
-                  setShowRenderConfirm(true);
-                }}
-                className="w-full px-4 py-2 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium"
-              >
-                Render All Images
-              </button>
-            </div>
-          )}
-
           <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {themes.map((theme) => {
               const sampleProduct = theme.id === "classic" ? classicProduct : glassProduct;
@@ -583,6 +563,26 @@ export default function ThemesSettings() {
               );
             })}
           </div>
+
+          {/* Render Images Box - Moved here from above the grid */}
+          {hasChanges && (
+            <div ref={renderBoxRef} className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-xs text-red-900 mb-3">
+                <span className="font-semibold">✓ Changes Detected</span>
+              </p>
+              <p className="text-xs text-red-800 mb-3">
+                You've changed your theme. Click below to render all images and apply this new theme to your shared images.
+              </p>
+              <button
+                onClick={() => {
+                  setShowRenderConfirm(true);
+                }}
+                className="w-full px-4 py-2 bg-red-900 text-white text-sm rounded-lg hover:bg-red-950 transition font-medium"
+              >
+                Render All Images
+              </button>
+            </div>
+          )}
 
           <div className="relative group p-1 rounded-[2.5rem] bg-gradient-to-br from-amber-400 via-orange-500 to-red-600 shadow-2xl">
             <div className="bg-white dark:bg-slate-900 rounded-[2.4rem] p-8 space-y-5 text-center relative overflow-hidden">
