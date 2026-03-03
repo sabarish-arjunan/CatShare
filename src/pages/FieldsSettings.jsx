@@ -548,7 +548,7 @@ export default function FieldsSettings() {
               </p>
 
               <div className="grid grid-cols-1 gap-3">
-                {INDUSTRY_PRESETS.map((preset) => (
+                {INDUSTRY_PRESETS.filter(p => p.name !== (savedDefinition?.industry || "General Products (Custom)")).map((preset) => (
                   <button
                     key={preset.name}
                     onClick={() => {
@@ -577,26 +577,28 @@ export default function FieldsSettings() {
                   </button>
                 ))}
 
-                <button
-                  onClick={() => {
-                    updateIndustry("General Products (Custom)");
-                    setSearchParams({ industry: "General Products (Custom)", view: "configure" });
-                  }}
-                  className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
-                    definition.industry === "General Products (Custom)" || !definition.industry
-                      ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
-                      : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-blue-200 dark:hover:border-blue-900"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">📦</div>
-                    <div className="text-left">
-                      <span className="font-bold text-sm block">Custom / General</span>
-                      <span className="text-[10px] opacity-70">Flexible fields for any business</span>
+                {savedDefinition?.industry && savedDefinition.industry !== "General Products (Custom)" && (
+                  <button
+                    onClick={() => {
+                      updateIndustry("General Products (Custom)");
+                      setSearchParams({ industry: "General Products (Custom)", view: "configure" });
+                    }}
+                    className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
+                      definition.industry === "General Products (Custom)" || !definition.industry
+                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
+                        : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-blue-200 dark:hover:border-blue-900"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">📦</div>
+                      <div className="text-left">
+                        <span className="font-bold text-sm block">Custom / General</span>
+                        <span className="text-[10px] opacity-70">Flexible fields for any business</span>
+                      </div>
                     </div>
-                  </div>
-                  {(definition.industry === "General Products (Custom)" || !definition.industry) && <FiCheck className="text-white" size={20} />}
-                </button>
+                    {(definition.industry === "General Products (Custom)" || !definition.industry) && <FiCheck className="text-white" size={20} />}
+                  </button>
+                )}
               </div>
             </motion.div>
           ) : (
