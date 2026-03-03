@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { isProductEnabledForCatalogue, setProductEnabledForCatalogue } from "../config/catalogueProductUtils";
 
 interface AddProductsModalProps {
@@ -171,7 +171,7 @@ export default function AddProductsModal({
                       }`}
                       title={isEnabled ? "Hide product" : "Show product"}
                     >
-                      {isEnabled ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+                      {isEnabled ? <MdVisibility size={20} /> : <MdVisibilityOff size={20} />}
                     </button>
                   </div>
                 );
