@@ -113,10 +113,10 @@ export default function AddProductsModal({
             {filteredProducts.length > 0 && (
               <button
                 onClick={handleToggleAllProducts}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap ${
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap bg-gray-300 hover:bg-gray-400 ${
                   allFilteredEnabled
-                    ? "bg-rose-200 hover:bg-rose-300 text-rose-700"
-                    : "bg-emerald-200 hover:bg-emerald-300 text-emerald-700"
+                    ? "text-rose-700"
+                    : "text-emerald-700"
                 }`}
               >
                 {allFilteredEnabled ? "Hide All" : "Show All"}
