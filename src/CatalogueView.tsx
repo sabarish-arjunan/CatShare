@@ -93,7 +93,7 @@ export default React.memo(function CatalogueView({
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
-  const [showInfo, setShowInfo] = useState(false);
+  const [showInfo, setShowInfo] = useState(true);
   const [showAddProductsModal, setShowAddProductsModal] = useState(false);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
