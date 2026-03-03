@@ -33,6 +33,7 @@ import Welcome from "./pages/Welcome";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import Website from "./Website";
+import Tutorial from "./Tutorial";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ToastContainer";
 import RenderingOverlay from "./RenderingOverlay";
@@ -59,6 +60,7 @@ function AppWithBackHandler() {
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderingTotal, setRenderingTotal] = useState(0);
   const [renderResult, setRenderResult] = useState(null);
+  const [showTutorial, setShowTutorial] = useState(false);
   const renderResultTimeoutRef = useRef(null);
 
   const isNative = Capacitor.getPlatform() !== "web";
@@ -414,9 +416,9 @@ function AppWithBackHandler() {
         return;
       }
 
-      // Check CatalogueApp modals
-      if (catalogueAppState?.showTutorial) {
-        catalogueAppState.setShowTutorial(false);
+      // Check global tutorial modal
+      if (showTutorial) {
+        setShowTutorial(false);
         return;
       }
 
@@ -451,7 +453,7 @@ function AppWithBackHandler() {
       if (removeListener) removeListener();
       window.removeEventListener("catalogue-app-back-not-handled", handleCatalogueAppBackFallback);
     };
-  }, [location, navigate, isRendering]);
+  }, [location, navigate, isRendering, showTutorial]);
 
   // Listen for render request from watermark settings and other components
   // Auto-dismiss render result popup after 5 seconds
@@ -552,6 +554,10 @@ function AppWithBackHandler() {
         </div>
       )}
 
+      {showTutorial && (
+        <Tutorial onClose={() => setShowTutorial(false)} />
+      )}
+
       <Routes>
         <Route path="/welcome" element={<Welcome />} />
         <Route
@@ -572,6 +578,8 @@ function AppWithBackHandler() {
               setRenderingTotal={setRenderingTotal}
               renderResult={renderResult}
               setRenderResult={setRenderResult}
+              showTutorial={showTutorial}
+              setShowTutorial={setShowTutorial}
             />
           }
         />
@@ -603,6 +611,8 @@ function AppWithBackHandler() {
               setIsRendering={setIsRendering as any}
               renderProgress={renderProgress}
               setRenderProgress={setRenderProgress as any}
+              showTutorial={showTutorial}
+              setShowTutorial={setShowTutorial}
             />
           }
         />
