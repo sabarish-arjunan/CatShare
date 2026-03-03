@@ -487,7 +487,7 @@ export default function FieldsSettings() {
               className="w-full flex items-center justify-between hover:opacity-90 transition-opacity cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                <div className="text-2xl bg-white/20 dark:bg-white/10 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center">
+                <div className="text-2xl bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm">
                   {savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry ? "📦" :
                    savedDefinition.industry.includes("Fashion") ? "👕" :
                    savedDefinition.industry.includes("Lifestyle") ? "🧴" :
