@@ -1087,6 +1087,12 @@ export default function FieldsSettings() {
               These changes will affect the current product fields across all your catalogues. Please make sure you want to proceed with this modification.
             </p>
 
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-lg p-3 mb-6">
+              <p className="text-amber-800 dark:text-amber-200 text-xs font-semibold leading-relaxed">
+                ⚠️ <span className="font-bold">Render is mandatory</span> if any changes are made to see the changes reflected in your shareable images.
+              </p>
+            </div>
+
             <div className="space-y-3">
               <button
                 onClick={confirmSave}
