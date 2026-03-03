@@ -26,7 +26,6 @@ import {
 import { getFieldConfig, getAllFields } from "../config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
 import { getPriceUnits } from "../utils/priceUnitsUtils";
-import RatingModal from "../components/RatingModal";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -395,9 +394,6 @@ export default function CreateProduct() {
     return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
 
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [productCountForRating, setProductCountForRating] = useState(0);
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
 
@@ -1036,18 +1032,13 @@ export default function CreateProduct() {
           console.warn("⏱️ PNG render failed:", err);
         }
 
-        // Show rating modal or navigate
-        if (shouldShowRating) {
-          setProductCountForRating(totalProducts);
-          setShowRatingModal(true);
-          const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
-          const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
-          setPendingNavigation(navigationPath);
-        } else {
-          const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
-          const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
-          navigate(navigationPath);
-        }
+        // Navigate and show rating modal if applicable
+        const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+        const basePath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+        const navigationPath = shouldShowRating
+          ? `${basePath}${basePath.includes('?') ? '&' : '?'}showRating=true&productCount=${totalProducts}`
+          : basePath;
+        navigate(navigationPath);
       }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
@@ -1871,17 +1862,6 @@ export default function CreateProduct() {
         />
       )}
 
-      <RatingModal
-        isOpen={showRatingModal}
-        productCount={productCountForRating}
-        onClose={() => {
-          setShowRatingModal(false);
-          if (pendingNavigation) {
-            navigate(pendingNavigation);
-            setPendingNavigation(null);
-          }
-        }}
-      />
     </div>
   );
 }
