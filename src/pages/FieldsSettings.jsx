@@ -591,7 +591,15 @@ export default function FieldsSettings() {
             >
               <div className="space-y-3">
                 {definition.industry && (
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">{definition.industry}</h2>
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">
+                      {definition.industry.includes("Fashion") ? "👕" :
+                       definition.industry.includes("Lifestyle") ? "🧴" :
+                       definition.industry.includes("Home") ? "🏠" :
+                       definition.industry.includes("Electronics") ? "🎧" : "🛠️"}
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{definition.industry}</h2>
+                  </div>
                 )}
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex gap-3 items-start">
                   <MdInfoOutline className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" size={20} />
