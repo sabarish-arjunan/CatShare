@@ -828,7 +828,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "When to Access This Tutorial",
+      title: "Where to Access This Tutorial",
       description:
         "You can access this tutorial anytime from the side menu bar.",
       icon: <RiSearchLine className="w-10 h-10 text-blue-600" />,
