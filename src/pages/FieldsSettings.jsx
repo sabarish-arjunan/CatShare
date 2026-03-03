@@ -480,7 +480,7 @@ export default function FieldsSettings() {
 
       <main className="flex-1 overflow-y-auto px-4" ref={scrollContainerRef}>
         {/* Current Configuration Summary Card - Shows SAVED configuration */}
-        {savedDefinition && (
+        {savedDefinition && searchParams.get("view") !== "configure" && (
           <div className="mt-6 space-y-3">
             <div className="flex items-center gap-2 px-1">
               <FiSettings className="text-blue-600" size={14} />
