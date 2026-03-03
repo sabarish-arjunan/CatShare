@@ -104,7 +104,17 @@ export default React.memo(function CatalogueView({
     startX: 0,
     startY: 0,
     moved: false,
+    isLongPress: false,
   });
+
+  // Drag selection state
+  const dragSelectionRef = useRef({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    selectedDuringDrag: new Set(),
+  });
+
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const toolsMenuRef = useRef(null);
@@ -236,6 +246,83 @@ useEffect(() => {
     );
   }, []);
 
+  const getElementsInDragArea = useCallback((startX, startY, endX, endY) => {
+    const minX = Math.min(startX, endX);
+    const maxX = Math.max(startX, endX);
+    const minY = Math.min(startY, endY);
+    const maxY = Math.max(startY, endY);
+
+    const cards = document.querySelectorAll('[data-id]');
+    const elementsInArea = [];
+
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      // Check if card overlaps with drag area
+      if (
+        rect.left < maxX &&
+        rect.right > minX &&
+        rect.top < maxY &&
+        rect.bottom > minY
+      ) {
+        elementsInArea.push(card.getAttribute('data-id'));
+      }
+    });
+
+    return elementsInArea;
+  }, []);
+
+  const handleGridMouseDown = useCallback((e) => {
+    // Store initial state for drag detection
+    dragSelectionRef.current.startX = e.clientX;
+    dragSelectionRef.current.startY = e.clientY;
+    dragSelectionRef.current.isDragging = false;
+    let longPressTimer = null;
+    let hasEnteredSelectMode = selectMode;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = Math.abs(moveEvent.clientX - dragSelectionRef.current.startX);
+      const dy = Math.abs(moveEvent.clientY - dragSelectionRef.current.startY);
+
+      // Only start drag selection if moved more than 5px
+      if (dx > 5 || dy > 5) {
+        dragSelectionRef.current.isDragging = true;
+
+        // If we're now dragging and not yet in select mode, enter it
+        if (!hasEnteredSelectMode) {
+          hasEnteredSelectMode = true;
+          setSelectMode(true);
+          window.history.pushState({ select: true }, "");
+        }
+      }
+
+      if (dragSelectionRef.current.isDragging) {
+        const elementsInArea = getElementsInDragArea(
+          dragSelectionRef.current.startX,
+          dragSelectionRef.current.startY,
+          moveEvent.clientX,
+          moveEvent.clientY
+        );
+
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          elementsInArea.forEach((id) => newSelected.add(id));
+          return Array.from(newSelected);
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      clearTimeout(longPressTimer);
+      dragSelectionRef.current.isDragging = false;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [selectMode, getElementsInDragArea]);
+
+
   const visibleProducts = useMemo(() => {
   return filtered
     .filter((p) => {
@@ -264,6 +351,7 @@ useEffect(() => {
   // Memoized touch handlers for better performance
   const handleTouchStart = useCallback((e, id) => {
     touchStateRef.current.moved = false;
+    touchStateRef.current.isLongPress = false;
     const touch = e.touches?.[0] || e;
     touchStateRef.current.startX = touch.clientX;
     touchStateRef.current.startY = touch.clientY;
@@ -272,8 +360,9 @@ useEffect(() => {
       if (!touchStateRef.current.moved) {
         if (!selectMode) {
           window.history.pushState({ select: true }, "");
+          setSelectMode(true);
         }
-        setSelectMode(true);
+        touchStateRef.current.isLongPress = true;
         setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
       }
     }, 300);
@@ -283,17 +372,43 @@ useEffect(() => {
     const touch = e.touches?.[0] || e;
     const dx = Math.abs(touch.clientX - touchStateRef.current.startX);
     const dy = Math.abs(touch.clientY - touchStateRef.current.startY);
+
+    // If we haven't moved much yet, don't mark as moved
     if (dx > 10 || dy > 10) {
-      touchStateRef.current.moved = true;
-      clearTimeout(touchStateRef.current.touchTimer);
+      // If long press hasn't triggered yet, mark as moved to cancel it
+      if (!touchStateRef.current.isLongPress) {
+        touchStateRef.current.moved = true;
+        clearTimeout(touchStateRef.current.touchTimer);
+      } else {
+        // Long press is active, do drag selection
+        e.preventDefault?.();
+        const elementsInArea = getElementsInDragArea(
+          touchStateRef.current.startX,
+          touchStateRef.current.startY,
+          touch.clientX,
+          touch.clientY
+        );
+
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          elementsInArea.forEach((elemId) => newSelected.add(elemId));
+          return Array.from(newSelected);
+        });
+      }
     }
-  }, []);
+  }, [getElementsInDragArea]);
 
   const handleTouchEnd = useCallback(() => {
     clearTimeout(touchStateRef.current.touchTimer);
+    touchStateRef.current.isLongPress = false;
   }, []);
 
   const handleCardClick = useCallback((id) => {
+    // Don't toggle selection if we just finished dragging
+    if (dragSelectionRef.current.isDragging || touchStateRef.current.isLongPress) {
+      return;
+    }
+
     if (selectMode) {
       toggleSelection(id);
     } else {
@@ -1096,6 +1211,7 @@ useEffect(() => {
       <div
         id="capture-area"
         className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none"
+        onMouseDown={handleGridMouseDown}
       >
         {visibleProducts.map((p) => {
           const isSelected = selected.includes(p.id);
