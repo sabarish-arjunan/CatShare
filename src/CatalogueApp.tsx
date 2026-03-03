@@ -17,6 +17,7 @@ import { KeepAwake } from "@capacitor-community/keep-awake";
 import { MdInventory2 } from "react-icons/md";
 import { saveRenderedImage, deleteRenderedImageForProduct } from "./Save";
 import { getAllCatalogues, type Catalogue } from "./config/catalogueConfig";
+import RatingModal from "./components/RatingModal";
 
 declare global {
   interface Window {
@@ -45,6 +46,8 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [selectedCatalogueInCataloguesTab, setSelectedCatalogueInCataloguesTab] = useState<string | null>(null);
   const [showManageCatalogues, setShowManageCatalogues] = useState(false);
   const [renamingCatalogueIds, setRenamingCatalogueIds] = useState<Set<string>>(new Set());
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [productCountForRating, setProductCountForRating] = useState(0);
 
   // Listen for catalogue rename events
   useEffect(() => {
@@ -99,6 +102,23 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
 
       // Clean up the URL to remove the query parameters
       navigate("/?tab=catalogues", { replace: true });
+    }
+  }, [searchParams, navigate]);
+
+  // Handle rating modal query parameters - when returning from create product page
+  useEffect(() => {
+    const showRatingParam = searchParams.get("showRating");
+    const productCountParam = searchParams.get("productCount");
+
+    if (showRatingParam === "true" && productCountParam) {
+      setShowRatingModal(true);
+      setProductCountForRating(parseInt(productCountParam, 10));
+
+      // Clean up the URL to remove the query parameters
+      const baseUrl = searchParams.get("tab") === "catalogues" && searchParams.get("catalogue")
+        ? `/?tab=catalogues&catalogue=${searchParams.get("catalogue")}`
+        : "/";
+      navigate(baseUrl, { replace: true });
     }
   }, [searchParams, navigate]);
 
@@ -1184,6 +1204,14 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
           renamingCatalogueIds={renamingCatalogueIds}
         />
       )}
+
+      <RatingModal
+        isOpen={showRatingModal}
+        productCount={productCountForRating}
+        onClose={() => {
+          setShowRatingModal(false);
+        }}
+      />
     </div>
   );
 }
