@@ -113,7 +113,7 @@ export default function AddProductsModal({
             {filteredProducts.length > 0 && (
               <button
                 onClick={handleToggleAllProducts}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap bg-gray-300 hover:bg-gray-400 ${
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap bg-gray-100 hover:bg-gray-200 ${
                   allFilteredEnabled
                     ? "text-rose-700"
                     : "text-emerald-700"
