@@ -32,6 +32,23 @@ export default function RatingModal({ isOpen, onClose, productCount = 10 }: Rati
     setSubmitted(false);
   };
 
+  const getRatingMessage = (stars: number): string => {
+    switch (stars) {
+      case 1:
+        return "We're sorry to hear you're not satisfied. Your feedback helps us improve. Please share details on the Play Store to help us understand what went wrong.";
+      case 2:
+        return "Thank you for your honest feedback. We'd love to know what we can improve. Please share your thoughts on the Play Store.";
+      case 3:
+        return "Thanks for the feedback! We're working hard to make CatShare even better. Help us know how we can improve.";
+      case 4:
+        return "Great! We're glad you're enjoying CatShare. Your positive feedback motivates us. Share your experience on the Play Store!";
+      case 5:
+        return "Wow, thank you! We're thrilled you love CatShare. Your 5-star review on the Play Store means a lot to us!";
+      default:
+        return '';
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
@@ -84,10 +101,8 @@ export default function RatingModal({ isOpen, onClose, productCount = 10 }: Rati
 
         {/* Feedback Text */}
         {rating > 0 && (
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6">
-            {rating >= 4
-              ? "Thank you! We'd love to hear more about your experience."
-              : 'We appreciate your feedback. Help us improve!'}
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6 min-h-[60px] flex items-center justify-center">
+            {getRatingMessage(rating)}
           </p>
         )}
 
