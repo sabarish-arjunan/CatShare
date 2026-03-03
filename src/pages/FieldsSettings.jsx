@@ -481,13 +481,13 @@ export default function FieldsSettings() {
       <main className="flex-1 overflow-y-auto px-4" ref={scrollContainerRef}>
         {/* Current Configuration Summary Card - Shows SAVED configuration */}
         {savedDefinition && (
-          <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
+          <div className="mt-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-200 dark:border-blue-900/50 shadow-sm p-4">
             <button
               onClick={() => setSearchParams({ industry: savedDefinition.industry || "General Products (Custom)", view: "configure" })}
-              className="w-full flex items-center justify-between mb-4 hover:opacity-75 transition-opacity cursor-pointer"
+              className="w-full flex items-center justify-between hover:opacity-75 transition-opacity cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center">
+                <div className="text-2xl bg-blue-100 dark:bg-blue-900/40 w-12 h-12 rounded-xl flex items-center justify-center">
                   {savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry ? "📦" :
                    savedDefinition.industry.includes("Fashion") ? "👕" :
                    savedDefinition.industry.includes("Lifestyle") ? "🧴" :
@@ -495,19 +495,19 @@ export default function FieldsSettings() {
                    savedDefinition.industry.includes("Electronics") ? "🎧" : "🛠️"}
                 </div>
                 <div className="text-left flex-1">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Template</span>
+                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Active Template</span>
                   <div className="flex items-center gap-2">
                     <h2 className="text-base font-bold dark:text-white">
                       {savedDefinition.industry || "General Products (Custom)"}
                     </h2>
-                    <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                    <span className="inline-flex items-center justify-center bg-blue-600 dark:bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-bold">
                       {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length}
                     </span>
                   </div>
                 </div>
               </div>
               <motion.div
-                className="text-gray-400 shrink-0"
+                className="text-blue-600 dark:text-blue-400 shrink-0"
               >
                 <MdArrowBack size={20} style={{ transform: 'rotate(180deg)' }} />
               </motion.div>
