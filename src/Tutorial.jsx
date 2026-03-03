@@ -327,7 +327,7 @@ export default function Tutorial({ onClose }) {
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded text-xs">
                 <p className="font-semibold text-gray-700 mb-1">✏️ Edit Catalogue</p>
-                <p className="text-gray-600">Click edit to change name, pricing fields, and other settings for a catalogue.</p>
+                <p className="text-gray-600">Click edit to change name and other settings for a catalogue.</p>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded text-xs">
                 <p className="font-semibold text-gray-700 mb-1">🗑️ Delete Catalogue</p>
