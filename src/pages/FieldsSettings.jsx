@@ -449,7 +449,9 @@ export default function FieldsSettings() {
           </button>
           <div>
             <h1 className="text-xl font-bold tracking-tight">Product Fields</h1>
-            <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">Configuration</p>
+            <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">
+              {searchParams.get("view") === "configure" && definition.industry ? definition.industry : "Configuration"}
+            </p>
           </div>
         </div>
         
@@ -522,15 +524,6 @@ export default function FieldsSettings() {
         )}
 
 
-        {/* Industry display for configuration view */}
-        {searchParams.get("view") === "configure" && definition.industry && (
-          <div className="px-4 mt-4 shrink-0">
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-1">Configuring Template</p>
-              <p className="text-base font-bold text-gray-900 dark:text-white">{definition.industry}</p>
-            </div>
-          </div>
-        )}
 
         <AnimatePresence mode="wait">
           {searchParams.get("view") !== "configure" ? (
