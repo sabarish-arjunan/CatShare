@@ -173,7 +173,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Manage Products",
       description:
-        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle stock status for each catalogue independently.",
+        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle stock status for all catalogues.",
       icon: <RiLayout4Line className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
