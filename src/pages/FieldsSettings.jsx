@@ -481,37 +481,43 @@ export default function FieldsSettings() {
       <main className="flex-1 overflow-y-auto px-4" ref={scrollContainerRef}>
         {/* Current Configuration Summary Card - Shows SAVED configuration */}
         {savedDefinition && (
-          <div className="mt-4 bg-blue-600 dark:bg-blue-700 rounded-2xl border border-blue-500 dark:border-blue-800 shadow-lg shadow-blue-500/20 p-4">
-            <button
-              onClick={() => setSearchParams({ industry: savedDefinition.industry || "General Products (Custom)", view: "configure" })}
-              className="w-full flex items-center justify-between hover:opacity-90 transition-opacity cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="text-2xl bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm">
-                  {savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry ? "📦" :
-                   savedDefinition.industry.includes("Fashion") ? "👕" :
-                   savedDefinition.industry.includes("Lifestyle") ? "🧴" :
-                   savedDefinition.industry.includes("Home") ? "🏠" :
-                   savedDefinition.industry.includes("Electronics") ? "🎧" : "🛠️"}
-                </div>
-                <div className="text-left flex-1">
-                  <span className="text-[10px] font-bold text-blue-100/80 uppercase tracking-widest">Active Template</span>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-white">
-                      {savedDefinition.industry || "General Products (Custom)"}
-                    </h2>
-                    <span className="inline-flex items-center justify-center bg-white text-blue-600 px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm">
-                      {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length}
-                    </span>
+          <div className="mt-6 space-y-3">
+            <div className="flex items-center gap-2 px-1">
+              <FiSettings className="text-blue-600" size={14} />
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Current Configuration</h2>
+            </div>
+            <div className="bg-blue-600 dark:bg-blue-700 rounded-2xl border border-blue-500 dark:border-blue-800 shadow-lg shadow-blue-500/20 p-4">
+              <button
+                onClick={() => setSearchParams({ industry: savedDefinition.industry || "General Products (Custom)", view: "configure" })}
+                className="w-full flex items-center justify-between hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="text-2xl bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm">
+                    {savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry ? "📦" :
+                     savedDefinition.industry.includes("Fashion") ? "👕" :
+                     savedDefinition.industry.includes("Lifestyle") ? "🧴" :
+                     savedDefinition.industry.includes("Home") ? "🏠" :
+                     savedDefinition.industry.includes("Electronics") ? "🎧" : "🛠️"}
+                  </div>
+                  <div className="text-left flex-1">
+                    <span className="text-[10px] font-bold text-blue-100/80 uppercase tracking-widest">Active Template</span>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base font-bold text-white">
+                        {savedDefinition.industry || "General Products (Custom)"}
+                      </h2>
+                      <span className="inline-flex items-center justify-center bg-white text-blue-600 px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm">
+                        {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <motion.div
-                className="text-white shrink-0"
-              >
-                <MdArrowBack size={20} style={{ transform: 'rotate(180deg)' }} />
-              </motion.div>
-            </button>
+                <motion.div
+                  className="text-white shrink-0"
+                >
+                  <MdArrowBack size={20} style={{ transform: 'rotate(180deg)' }} />
+                </motion.div>
+              </button>
+            </div>
           </div>
         )}
 
@@ -536,16 +542,18 @@ export default function FieldsSettings() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="py-6 space-y-4"
+              className="py-8 space-y-4"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <FiBriefcase className="text-blue-500" />
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Industry Templates</h2>
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <FiBriefcase className="text-blue-500" />
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Available Templates</h2>
+                </div>
+
+                <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                  Choose a different template to quickly set up relevant fields. Selecting a template will overwrite your current configuration.
+                </p>
               </div>
-              
-              <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                Choose a template to quickly set up relevant fields for your business. Selecting a template will overwrite current labels.
-              </p>
 
               <div className="grid grid-cols-1 gap-3">
                 {INDUSTRY_PRESETS.filter(p => p.name !== (savedDefinition?.industry || "General Products (Custom)")).map((preset) => (
