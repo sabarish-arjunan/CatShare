@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiSettings, FiLoader } from "react-icons/fi";
+import { FiSettings, FiLoader, FiPlus } from "react-icons/fi";
 import { type Catalogue } from "./config/catalogueConfig";
 import { isProductEnabledForCatalogue } from "./config/catalogueProductUtils";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -204,6 +204,19 @@ export default React.memo(function CataloguesList({
           })}
         </div>
       )}
+
+      {/* Add Catalogue Button - Fixed in bottom right */}
+      <button
+        onClick={async () => {
+          await Haptics.impact({ style: ImpactStyle.Light });
+          onManageCatalogues();
+        }}
+        className="fixed bottom-28 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-3 shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2 active:scale-95 z-20"
+        title="Add new catalogue"
+      >
+        <FiPlus size={20} />
+        <span className="text-sm font-semibold hidden sm:inline">Add Catalogue</span>
+      </button>
     </>
   );
 });
