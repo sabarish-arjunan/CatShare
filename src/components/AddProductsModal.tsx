@@ -115,8 +115,8 @@ export default function AddProductsModal({
                 onClick={handleToggleAllProducts}
                 className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 whitespace-nowrap ${
                   allFilteredEnabled
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
                 }`}
               >
                 {allFilteredEnabled ? "Hide All" : "Show All"}
