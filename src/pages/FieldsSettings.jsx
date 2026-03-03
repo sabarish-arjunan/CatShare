@@ -1083,8 +1083,8 @@ export default function FieldsSettings() {
               Confirm Field Changes
             </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 text-center text-sm mb-6 leading-relaxed">
-              These changes will affect the current product fields across all your catalogues. Please make sure you want to proceed with this modification.
+            <p className="text-amber-700 dark:text-amber-200 text-center text-sm mb-6 leading-relaxed font-medium">
+              ⚠️ These changes will affect the current product fields across all your catalogues. Please make sure you want to proceed with this modification.
             </p>
 
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-lg p-3 mb-6">
