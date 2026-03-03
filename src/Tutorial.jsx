@@ -200,7 +200,7 @@ export default function Tutorial({ onClose }) {
                 <span>Move to shelf (can restore)</span>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
-                <div className="text-xs font-semibold text-gray-700 mb-2">Stock status per catalogue:</div>
+                <div className="text-xs font-semibold text-gray-700 mb-2">Stock status for all catalogues:</div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCatalogueStockState({...catalogueStockState, master: !catalogueStockState.master})}
@@ -223,7 +223,7 @@ export default function Tutorial({ onClose }) {
                   </button>
                   <span className="text-xs text-gray-600">- Custom catalogue (example)</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Each catalogue has independent stock status</p>
+                <p className="text-xs text-gray-500 mt-2">Setting a product to 'In Stock' applies to all catalogues</p>
               </div>
               <div className="p-3 bg-white border border-gray-300 rounded">
                 <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
