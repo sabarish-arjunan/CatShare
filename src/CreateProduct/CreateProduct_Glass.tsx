@@ -26,6 +26,7 @@ import {
 import { getFieldConfig, getAllFields } from "../config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
 import { getPriceUnits } from "../utils/priceUnitsUtils";
+import RatingModal from "../components/RatingModal";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -393,6 +394,10 @@ export default function CreateProduct() {
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
     return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
+
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [productCountForRating, setProductCountForRating] = useState(0);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
 
@@ -988,6 +993,20 @@ export default function CreateProduct() {
 
       window.dispatchEvent(new CustomEvent("product-added"));
 
+      // Check if we should show the rating modal
+      // Pattern: 10, 25 (10+15), 45 (25+20), 70 (45+25), 100 (70+30), etc.
+      const totalProducts = updated.length;
+      const isRatingMilestone = (count: number): boolean => {
+        let milestone = 10;
+        let increment = 15;
+        while (milestone < count) {
+          milestone += increment;
+          increment += 5;
+        }
+        return count === milestone;
+      };
+      const shouldShowRating = isRatingMilestone(totalProducts);
+
       setTimeout(async () => {
         try {
           const enabledCats = catalogues.filter(cat => isCatalogueEnabled(cat.id));
@@ -1017,9 +1036,18 @@ export default function CreateProduct() {
           console.warn("⏱️ PNG render failed:", err);
         }
 
-        const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
-        const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
-        navigate(navigationPath);
+        // Show rating modal or navigate
+        if (shouldShowRating) {
+          setProductCountForRating(totalProducts);
+          setShowRatingModal(true);
+          const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+          const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+          setPendingNavigation(navigationPath);
+        } else {
+          const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+          const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+          navigate(navigationPath);
+        }
       }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
@@ -1842,6 +1870,18 @@ export default function CreateProduct() {
           onClose={() => setShowColorPicker(false)}
         />
       )}
+
+      <RatingModal
+        isOpen={showRatingModal}
+        productCount={productCountForRating}
+        onClose={() => {
+          setShowRatingModal(false);
+          if (pendingNavigation) {
+            navigate(pendingNavigation);
+            setPendingNavigation(null);
+          }
+        }}
+      />
     </div>
   );
 }

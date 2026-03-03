@@ -26,6 +26,7 @@ import {
 import { getFieldConfig, getAllFields } from "../config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
 import { getPriceUnits } from "../utils/priceUnitsUtils";
+import RatingModal from "../components/RatingModal";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -363,6 +364,10 @@ export default function CreateProduct() {
   const [watermarkPosition, setWatermarkPosition] = useState(() => {
     return safeGetFromStorage("watermarkPosition", "bottom-left");
   });
+
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [productCountForRating, setProductCountForRating] = useState(0);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   const [currencySymbol, setCurrencySymbol] = useState(() => getCurrentCurrencySymbol());
 
@@ -932,6 +937,20 @@ export default function CreateProduct() {
 
       window.dispatchEvent(new CustomEvent("product-added"));
 
+      // Check if we should show the rating modal
+      // Pattern: 10, 25 (10+15), 45 (25+20), 70 (45+25), 100 (70+30), etc.
+      const totalProducts = updated.length;
+      const isRatingMilestone = (count: number): boolean => {
+        let milestone = 10;
+        let increment = 15;
+        while (milestone < count) {
+          milestone += increment;
+          increment += 5;
+        }
+        return count === milestone;
+      };
+      const shouldShowRating = isRatingMilestone(totalProducts);
+
       setTimeout(async () => {
         try {
           const enabledCats = catalogues.filter(cat => isCatalogueEnabled(cat.id));
@@ -961,9 +980,18 @@ export default function CreateProduct() {
           console.warn("⏱️ PNG render failed:", err);
         }
 
-        const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
-        const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
-        navigate(navigationPath);
+        // Show rating modal or navigate
+        if (shouldShowRating) {
+          setProductCountForRating(totalProducts);
+          setShowRatingModal(true);
+          const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+          const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+          setPendingNavigation(navigationPath);
+        } else {
+          const isCatalogueId = fromParam && catalogues.some((c) => c.id === fromParam);
+          const navigationPath = isCatalogueId ? `/?tab=catalogues&catalogue=${fromParam}` : "/";
+          navigate(navigationPath);
+        }
       }, 300);
     } catch (err) {
       showToast("Product save failed: " + err.message, "error");
@@ -1565,6 +1593,16 @@ export default function CreateProduct() {
               {/* Catalogue Details */}
               {isCatalogueEnabled(selectedCatalogue) && (
                 <div className="space-y-4 mb-5 pb-4 border-b border-gray-200 dark:border-gray-800">
+                  {/* Reminder Message */}
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" />
+                    </svg>
+                    <span className="text-xs text-blue-800 dark:text-blue-200">
+                      These fields can be customized in settings
+                    </span>
+                  </div>
+
                   {getAllFields()
                     .filter(f => f.enabled && f.key.startsWith('field'))
                     .map(field => {
@@ -1690,6 +1728,18 @@ export default function CreateProduct() {
           onClose={() => setShowColorPicker(false)}
         />
       )}
+
+      <RatingModal
+        isOpen={showRatingModal}
+        productCount={productCountForRating}
+        onClose={() => {
+          setShowRatingModal(false);
+          if (pendingNavigation) {
+            navigate(pendingNavigation);
+            setPendingNavigation(null);
+          }
+        }}
+      />
     </div>
   );
 }
