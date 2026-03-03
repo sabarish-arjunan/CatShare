@@ -1072,38 +1072,51 @@ export default function FieldsSettings() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-gray-200 dark:border-gray-800"
+            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-sm w-full p-7 border border-gray-200 dark:border-gray-800"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-              <MdInfoOutline className="text-blue-600 dark:text-blue-400" size={24} />
+            {/* Warning Icon */}
+            <div className="flex items-center justify-center w-14 h-14 mx-auto mb-5 bg-amber-100 dark:bg-amber-900/30 rounded-full">
+              <MdInfoOutline className="text-amber-600 dark:text-amber-400" size={28} />
             </div>
 
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-3">
               Confirm Field Changes
             </h2>
 
-            <p className="text-amber-700 dark:text-amber-200 text-center text-sm mb-6 leading-relaxed font-medium">
-              ⚠️ These changes will affect the current product fields across all your catalogues. Please make sure you want to proceed with this modification.
+            {/* Warning Message */}
+            <p className="text-gray-700 dark:text-gray-300 text-center text-sm mb-5 leading-relaxed">
+              These changes will affect the current product fields across all your catalogues.
             </p>
 
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-lg p-3 mb-6">
-              <p className="text-amber-800 dark:text-amber-200 text-xs font-semibold leading-relaxed">
-                ⚠️ <span className="font-bold">Render is mandatory</span> if any changes are made to see the changes reflected in your shareable images.
-              </p>
+            {/* Render Notice Box */}
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="text-xl mt-0.5">⚠️</span>
+                <div>
+                  <p className="text-amber-900 dark:text-amber-100 text-sm font-bold mb-1">
+                    Render is Mandatory
+                  </p>
+                  <p className="text-amber-800 dark:text-amber-200 text-xs leading-relaxed">
+                    You must render images again to see the changes reflected in your shareable products.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-3">
+            {/* Action Buttons */}
+            <div className="space-y-2.5">
               <button
                 onClick={confirmSave}
-                className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2"
+                className="w-full px-4 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
               >
                 <MdCheck size={20} />
                 Confirm & Save
               </button>
               <button
                 onClick={() => setShowSaveConfirmation(false)}
-                className="w-full px-4 py-3 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-xl transition-colors"
+                className="w-full px-4 py-3.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-xl transition-colors"
               >
                 Cancel
               </button>
