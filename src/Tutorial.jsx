@@ -21,6 +21,73 @@ const tutorialStyles = `
   .pulse-chevron {
     animation: colorPulse 1s ease-in-out infinite;
   }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes iconFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes progressGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+  }
+
+  @keyframes pulseScale {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .modal-content {
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  .tutorial-icon {
+    animation: scaleIn 0.5s ease-out;
+  }
+
+  .floating-icon {
+    animation: iconFloat 3s ease-in-out infinite;
+  }
+
+  .progress-bar-active {
+    animation: progressGlow 2s ease-in-out infinite;
+  }
+
+  .step-badge {
+    animation: pulseScale 2s ease-in-out infinite;
+  }
+
+  .button-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  }
 `;
 
 export default function Tutorial({ onClose }) {
@@ -41,6 +108,12 @@ export default function Tutorial({ onClose }) {
   const [isAutoRenderExpanded, setIsAutoRenderExpanded] = useState(false);
   const [isManualRenderExpanded, setIsManualRenderExpanded] = useState(false);
   const [isProTipExpanded, setIsProTipExpanded] = useState(false);
+  const [isTemplatesCardExpanded, setIsTemplatesCardExpanded] = useState(false);
+  const [isCustomizeFieldsCardExpanded, setIsCustomizeFieldsCardExpanded] = useState(false);
+  const [isProTipFieldsCardExpanded, setIsProTipFieldsCardExpanded] = useState(false);
+  const [isCurrencyCardExpanded, setIsCurrencyCardExpanded] = useState(false);
+  const [isPriceUnitsCardExpanded, setIsPriceUnitsCardExpanded] = useState(false);
+  const [isWhereConfigureCardExpanded, setIsWhereConfigureCardExpanded] = useState(false);
 
   // Handle escape key to close tutorial
   useEffect(() => {
@@ -106,18 +179,18 @@ export default function Tutorial({ onClose }) {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
             onClick={() => setIsProductControlsExpanded(!isProductControlsExpanded)}
-            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-blue-100 hover:text-blue-900 cursor-pointer transition"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left text-sm font-semibold text-gray-800 mb-2 hover:bg-blue-100 hover:shadow-md cursor-pointer transition-all duration-200 bg-blue-50 border border-blue-200 card-hover"
           >
-            <span>Product Controls:</span>
+            <span>⚙️ Product Controls:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
               <FiChevronDown
-                className={`transition-transform ${isProductControlsExpanded ? "rotate-180" : "pulse-chevron"}`}
+                className={`transition-transform duration-300 ${isProductControlsExpanded ? "rotate-180" : "pulse-chevron"}`}
                 size={18}
               />
             </div>
           </button>
           {isProductControlsExpanded && (
-            <div className="space-y-2">
+            <div className="space-y-2 animate-fadeIn">
               <div className="p-2 bg-white border border-gray-300 rounded text-xs flex items-center gap-2">
                 <FiEdit className="text-blue-600" size={16} />
                 <span>Modify product details</span>
@@ -236,18 +309,18 @@ export default function Tutorial({ onClose }) {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
           <button
             onClick={() => setIsCatalogueManagementExpanded(!isCatalogueManagementExpanded)}
-            className="w-full flex items-center justify-between px-3 py-2 -mx-3 rounded-md text-left text-sm font-semibold text-gray-700 mb-2 hover:bg-blue-100 hover:text-blue-900 cursor-pointer transition"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left text-sm font-semibold text-gray-800 mb-2 hover:bg-blue-100 hover:shadow-md cursor-pointer transition-all duration-200 bg-blue-50 border border-blue-200 card-hover"
           >
-            <span>Catalogue Management:</span>
+            <span>📋 Catalogue Management:</span>
             <div className="flex items-center gap-2 flex-shrink-0">
               <FiChevronDown
-                className={`transition-transform ${isCatalogueManagementExpanded ? "rotate-180" : "pulse-chevron"}`}
+                className={`transition-transform duration-300 ${isCatalogueManagementExpanded ? "rotate-180" : "pulse-chevron"}`}
                 size={18}
               />
             </div>
           </button>
           {isCatalogueManagementExpanded && (
-            <div className="space-y-2">
+            <div className="space-y-2 animate-fadeIn">
               <div className="p-2 bg-white border border-gray-300 rounded text-xs">
                 <p className="font-semibold text-gray-700 mb-1">📋 Master Catalogue (Default)</p>
                 <p className="text-gray-600">Always available. Cannot be deleted. Use for your primary pricing/channel.</p>
@@ -280,38 +353,81 @@ export default function Tutorial({ onClose }) {
       icon: <RiLayout4Line className="w-10 h-10 text-orange-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
-          <div className="p-3 bg-white rounded-lg border-l-4 border-orange-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">📋 What are Templates?</p>
-            <p className="text-xs text-gray-700">
-              Pre-configured field sets for different industries:
-            </p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3 mt-2">
-              <li>✓ Fashion & Apparel (Size, Color, Fit, etc.)</li>
-              <li>✓ Lifestyle & Personal Care</li>
-              <li>✓ Home & Furniture</li>
-              <li>✓ Electronics</li>
-              <li>✓ Hardware & Tools</li>
-              <li>✓ Custom/General Products</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-orange-500 card-hover">
+            <button
+              onClick={() => setIsTemplatesCardExpanded(!isTemplatesCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">📋 What are Templates?</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isTemplatesCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isTemplatesCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">
+                  Pre-configured field sets for different industries:
+                </p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ Fashion & Apparel (Size, Color, Fit, etc.)</li>
+                  <li>✓ Lifestyle & Personal Care</li>
+                  <li>✓ Home & Furniture</li>
+                  <li>✓ Electronics</li>
+                  <li>✓ Hardware & Tools</li>
+                  <li>✓ Custom/General Products</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">⚙️ Customize Fields</p>
-            <p className="text-xs text-gray-700 mb-2">In Settings → Product Fields, you can:</p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3">
-              <li>✓ Choose a template for your industry</li>
-              <li>✓ Enable/disable specific fields</li>
-              <li>✓ Rename field labels (e.g., "Size" → "Dimensions")</li>
-              <li>✓ Add custom fields (up to 10 custom fields)</li>
-              <li>✓ Configure units for fields (e.g., kg, pieces, etc.)</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500 card-hover">
+            <button
+              onClick={() => setIsCustomizeFieldsCardExpanded(!isCustomizeFieldsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">⚙️ Customize Fields</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isCustomizeFieldsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isCustomizeFieldsCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">In Settings → Product Fields, you can:</p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ Choose a template for your industry</li>
+                  <li>✓ Enable/disable specific fields</li>
+                  <li>✓ Rename field labels (e.g., "Size" → "Dimensions")</li>
+                  <li>✓ Add custom fields (up to 10 custom fields)</li>
+                  <li>✓ Configure units for fields (e.g., kg, pieces, etc.)</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500">
-            <p className="font-semibold text-sm text-green-800 mb-2">💡 Pro Tip:</p>
-            <p className="text-xs text-green-700">
-              Field changes apply to all products. Customize once, then add products knowing your structure is perfect!
-            </p>
+          <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-500 card-hover">
+            <button
+              onClick={() => setIsProTipFieldsCardExpanded(!isProTipFieldsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-green-800">💡 Pro Tip:</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isProTipFieldsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isProTipFieldsCardExpanded && (
+              <p className="text-xs text-green-700 mt-3 animate-fadeIn">
+                Field changes apply to all products. Customize once, then add products knowing your structure is perfect!
+              </p>
+            )}
           </div>
         </div>
       ),
@@ -323,33 +439,76 @@ export default function Tutorial({ onClose }) {
       icon: <RiExchangeDollarLine className="w-10 h-10 text-emerald-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 space-y-3">
-          <div className="p-3 bg-white rounded-lg border-l-4 border-emerald-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">💱 Default Currency</p>
-            <p className="text-xs text-gray-700 mb-2">Choose your primary currency:</p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3">
-              <li>✓ 15+ standard currencies (USD, EUR, INR, GBP, etc.)</li>
-              <li>✓ Custom currency support (create your own symbol)</li>
-              <li>✓ Applied to all product prices</li>
-              <li>✓ Shows in rendered images automatically</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-emerald-500 card-hover">
+            <button
+              onClick={() => setIsCurrencyCardExpanded(!isCurrencyCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">💱 Default Currency</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isCurrencyCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isCurrencyCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">Choose your primary currency:</p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ 15+ standard currencies (USD, EUR, INR, GBP, etc.)</li>
+                  <li>✓ Custom currency support (create your own symbol)</li>
+                  <li>✓ Applied to all product prices</li>
+                  <li>✓ Shows in rendered images automatically</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
-            <p className="font-semibold text-sm text-gray-800 mb-2">📦 Price Units</p>
-            <p className="text-xs text-gray-700 mb-2">Set available pricing options:</p>
-            <ul className="text-xs text-gray-600 space-y-1 ml-3">
-              <li>✓ Default: pieces, dozen, sets, kg</li>
-              <li>✓ Add custom units (boxes, bundles, etc.)</li>
-              <li>✓ Use different units per catalogue if needed</li>
-              <li>✓ Applies when adding/editing prices</li>
-            </ul>
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500 card-hover">
+            <button
+              onClick={() => setIsPriceUnitsCardExpanded(!isPriceUnitsCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-gray-800">📦 Price Units</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isPriceUnitsCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isPriceUnitsCardExpanded && (
+              <div className="mt-3 animate-fadeIn">
+                <p className="text-xs text-gray-700 mb-2">Set available pricing options:</p>
+                <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                  <li>✓ Default: pieces, dozen, sets, kg</li>
+                  <li>✓ Add custom units (boxes, bundles, etc.)</li>
+                  <li>✓ Use different units per catalogue if needed</li>
+                  <li>✓ Applies when adding/editing prices</li>
+                </ul>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
-            <p className="font-semibold text-sm text-amber-800 mb-2">⚙️ Where to Configure</p>
-            <p className="text-xs text-amber-700">
-              Go to Settings → Currency/Price Units to change these settings. Changes apply instantly to all products and catalogues!
-            </p>
+          <div className="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500 card-hover">
+            <button
+              onClick={() => setIsWhereConfigureCardExpanded(!isWhereConfigureCardExpanded)}
+              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-lg hover:opacity-80 transition-all duration-200"
+            >
+              <p className="font-semibold text-sm text-amber-800">⚙️ Where to Configure</p>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <FiChevronDown
+                  className={`transition-transform duration-300 ${isWhereConfigureCardExpanded ? "rotate-180" : ""}`}
+                  size={16}
+                />
+              </div>
+            </button>
+            {isWhereConfigureCardExpanded && (
+              <p className="text-xs text-amber-700 mt-3 animate-fadeIn">
+                Go to Settings → Currency/Price Units to change these settings. Changes apply instantly to all products and catalogues!
+              </p>
+            )}
           </div>
         </div>
       ),
@@ -366,21 +525,21 @@ export default function Tutorial({ onClose }) {
             <div className="p-3 bg-white rounded-lg border-l-4 border-blue-600">
               <button
                 onClick={() => setIsBackupExpanded(!isBackupExpanded)}
-                className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+                className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-blue-50 transition-all duration-200 hover:shadow-sm card-hover"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🛠️</span>
+                  <span className="text-lg animate-pulse">💾</span>
                   <p className="font-semibold text-sm text-gray-800">Backup</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <FiChevronDown
-                    className={`transition-transform ${isBackupExpanded ? "rotate-180" : ""}`}
+                    className={`transition-transform duration-300 ${isBackupExpanded ? "rotate-180" : ""}`}
                     size={16}
                   />
                 </div>
               </button>
               {isBackupExpanded && (
-                <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <div className="space-y-2 text-xs text-gray-700 mt-3 animate-fadeIn">
                   <p>
                     <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Backup" to create a complete backup of your entire catalogue.
                   </p>
@@ -404,21 +563,21 @@ export default function Tutorial({ onClose }) {
             <div className="p-3 bg-white rounded-lg border-l-4 border-green-600">
               <button
                 onClick={() => setIsRestoreExpanded(!isRestoreExpanded)}
-                className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+                className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200 hover:shadow-sm card-hover"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🛠️</span>
+                  <span className="text-lg animate-pulse">🔄</span>
                   <p className="font-semibold text-sm text-gray-800">Restore</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <FiChevronDown
-                    className={`transition-transform ${isRestoreExpanded ? "rotate-180" : ""}`}
+                    className={`transition-transform duration-300 ${isRestoreExpanded ? "rotate-180" : ""}`}
                     size={16}
                   />
                 </div>
               </button>
               {isRestoreExpanded && (
-                <div className="space-y-2 text-xs text-gray-700 mt-3">
+                <div className="space-y-2 text-xs text-gray-700 mt-3 animate-fadeIn">
                   <p>
                     <span className="font-medium">How it works:</span> Click "Backup & Restore" → Select "Restore" → Choose a backup ZIP file to recover your catalogue.
                   </p>
@@ -455,21 +614,21 @@ export default function Tutorial({ onClose }) {
           <div className="p-3 bg-white rounded-lg border-l-4 border-red-500">
             <button
               onClick={() => setIsShelfExpanded(!isShelfExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200 hover:shadow-sm card-hover"
             >
               <div className="flex items-center gap-2">
-                <MdInventory2 className="text-red-500 text-[18px]" />
+                <MdInventory2 className="text-red-500 text-[18px] animate-pulse" />
                 <p className="font-semibold text-sm text-gray-800">Shelf</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isShelfExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isShelfExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isShelfExpanded && (
-              <div className="space-y-2 text-xs text-gray-700 mt-3">
+              <div className="space-y-2 text-xs text-gray-700 mt-3 animate-fadeIn">
                 <p>
                   <span className="font-medium">What it is:</span> A recovery area for your deleted products.
                 </p>
@@ -492,21 +651,21 @@ export default function Tutorial({ onClose }) {
           <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
             <button
               onClick={() => setIsManageCategoriesExpanded(!isManageCategoriesExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-blue-50 transition-all duration-200 hover:shadow-sm card-hover"
             >
               <div className="flex items-center gap-2">
-                <span className="text-lg">🗂️</span>
+                <span className="text-lg animate-pulse">🗂️</span>
                 <p className="font-semibold text-sm text-gray-800">Manage Categories</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isManageCategoriesExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isManageCategoriesExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isManageCategoriesExpanded && (
-              <div className="space-y-2 text-xs text-gray-700 mt-3">
+              <div className="space-y-2 text-xs text-gray-700 mt-3 animate-fadeIn">
                 <p>
                   <span className="font-medium">What it is:</span> Organize products by creating custom categories.
                 </p>
@@ -526,21 +685,21 @@ export default function Tutorial({ onClose }) {
           <div className="p-3 bg-white rounded-lg border-l-4 border-purple-500">
             <button
               onClick={() => setIsBulkEditorExpanded(!isBulkEditorExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-purple-50 transition-all duration-200 hover:shadow-sm card-hover"
             >
               <div className="flex items-center gap-2">
-                <span className="text-lg">✏️</span>
+                <span className="text-lg animate-pulse">✏️</span>
                 <p className="font-semibold text-sm text-gray-800">Bulk Editor</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isBulkEditorExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isBulkEditorExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isBulkEditorExpanded && (
-              <div className="space-y-2 text-xs text-gray-700 mt-3">
+              <div className="space-y-2 text-xs text-gray-700 mt-3 animate-fadeIn">
                 <p>
                   <span className="font-medium">What it is:</span> Edit multiple products efficiently at once.
                 </p>
@@ -569,21 +728,21 @@ export default function Tutorial({ onClose }) {
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-400 space-y-3">
           {/* How It Works */}
-          <div className="bg-white rounded-lg p-3 border-l-4 border-yellow-500">
+          <div className="bg-white rounded-lg p-3 border-l-4 border-yellow-500 card-hover">
             <button
               onClick={() => setIsHowItWorksExpanded(!isHowItWorksExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-yellow-50 transition-all duration-200 -mx-3"
             >
               <p className="font-semibold text-sm text-gray-800">💾 What Render Does:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isHowItWorksExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isHowItWorksExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isHowItWorksExpanded && (
-              <div className="mt-3">
+              <div className="mt-3 animate-fadeIn">
                 <p className="text-xs text-gray-700 mb-2">
                   Generates professional product images for each catalogue with pricing, names, and details overlaid on each product image.
                 </p>
@@ -599,42 +758,42 @@ export default function Tutorial({ onClose }) {
           </div>
 
           {/* Auto Render Info */}
-          <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
+          <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-500 card-hover">
             <button
               onClick={() => setIsAutoRenderExpanded(!isAutoRenderExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-green-100 transition-all duration-200 -mx-3"
             >
               <p className="font-semibold text-sm text-gray-800">✅ Auto-Render (Automatic):</p>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isAutoRenderExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isAutoRenderExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isAutoRenderExpanded && (
-              <p className="text-xs text-gray-700 mt-3">
+              <p className="text-xs text-gray-700 mt-3 animate-fadeIn">
                 When you <span className="font-medium">Add or Edit</span> a single product, images render automatically for all catalogues.
               </p>
             )}
           </div>
 
           {/* Manual Render Required */}
-          <div className="bg-red-50 rounded-lg p-3 border-l-4 border-red-500">
+          <div className="bg-red-50 rounded-lg p-3 border-l-4 border-red-500 card-hover">
             <button
               onClick={() => setIsManualRenderExpanded(!isManualRenderExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-red-100 transition-all duration-200 -mx-3"
             >
               <p className="font-semibold text-sm text-gray-800">⚠️ Manual Render Required:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isManualRenderExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isManualRenderExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isManualRenderExpanded && (
-              <div className="mt-3">
+              <div className="mt-3 animate-fadeIn">
                 <p className="text-xs text-gray-700 mb-2">
                   You <span className="font-medium">MUST click "Render images"</span> from the side menu after:
                 </p>
@@ -650,21 +809,21 @@ export default function Tutorial({ onClose }) {
           </div>
 
           {/* Bottom Note */}
-          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500 card-hover">
             <button
               onClick={() => setIsProTipExpanded(!isProTipExpanded)}
-              className="w-full flex items-center justify-between text-left px-0 py-0 rounded-md hover:opacity-80 transition"
+              className="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-blue-100 transition-all duration-200 -mx-3"
             >
               <p className="font-semibold text-sm text-gray-800">💡 Pro tip:</p>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <FiChevronDown
-                  className={`transition-transform ${isProTipExpanded ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-300 ${isProTipExpanded ? "rotate-180" : ""}`}
                   size={16}
                 />
               </div>
             </button>
             {isProTipExpanded && (
-              <p className="text-xs text-gray-700 mt-3">
+              <p className="text-xs text-gray-700 mt-3 animate-fadeIn">
                 Always render images after bulk operations - it takes minutes to render everything at once instead of hours editing individually! Rendering happens for all catalogues automatically.
               </p>
             )}
@@ -673,9 +832,45 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
+      title: "When to Access This Tutorial",
+      description:
+        "You can access this tutorial anytime from the side menu bar.",
+      icon: <RiSearchLine className="w-10 h-10 text-blue-600" />,
+      visualElements: (
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+          <div className="p-3 bg-white rounded-lg border-l-4 border-blue-500">
+            <p className="font-semibold text-sm text-gray-800 mb-3">📚 How to Access:</p>
+            <div className="text-xs text-gray-700 space-y-3">
+              <div className="flex gap-2">
+                <span className="font-medium text-blue-600">1.</span>
+                <div>
+                  <p className="font-medium">Open Side Menu</p>
+                  <p className="text-gray-600">Click the Menu button in the header</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <span className="font-medium text-blue-600">2.</span>
+                <div>
+                  <p className="font-medium">Click "Tutorial"</p>
+                  <p className="text-gray-600">Find the Tutorial button in the menu</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <span className="font-medium text-blue-600">3.</span>
+                <div>
+                  <p className="font-medium">Revisit Anytime</p>
+                  <p className="text-gray-600">Access it whenever you need a refresher</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "You're All Set!",
       description:
-        "You now know all the main features. Start creating products, customizing fields, managing catalogues with different pricing, and rendering professional catalogs!",
+        "Congratulations! You now know all the main features. Ready to create your first product catalogue?",
       icon: <RiCheckDoubleLine className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-300">
@@ -690,6 +885,7 @@ export default function Tutorial({ onClose }) {
               💾 <span className="font-medium">Protect:</span> Backup your data regularly<br/>
               🚀 <span className="font-medium">Scale:</span> Manage multiple pricing models effortlessly!
             </p>
+            <p className="text-xs text-gray-700 font-semibold mt-4">Happy cataloguing! 🎉</p>
           </div>
         </div>
       ),
@@ -721,52 +917,70 @@ export default function Tutorial({ onClose }) {
         onClick={onClose}
       >
       <div
-        className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto"
+        className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500 transition"
+          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-red-500 hover:scale-110 transition-all duration-200"
         >
           ✕
         </button>
 
         {/* Progress bar */}
-        <div className="w-full h-1 bg-gradient-to-r from-gray-200 to-gray-100 rounded-full mb-6 overflow-hidden shadow-sm">
+        <div className="w-full h-1.5 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full mb-6 overflow-hidden shadow-sm">
           <div
-            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 rounded-full shadow-md"
+            className="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 transition-all duration-500 rounded-full progress-bar-active"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* Step icon and title */}
         <div className="text-center mb-6">
-          <div className="mb-3 flex justify-center">
-            {typeof step.icon === 'string' ? (
-              <div className="text-5xl">{step.icon}</div>
-            ) : (
-              step.icon
-            )}
+          <div className="mb-4 flex justify-center">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 tutorial-icon floating-icon">
+              {typeof step.icon === 'string' ? (
+                <div className="text-5xl">{step.icon}</div>
+              ) : (
+                step.icon
+              )}
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
             {step.title}
           </h2>
-          <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+          <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line font-medium">
             {step.description}
           </p>
         </div>
 
         {/* Visual elements */}
         {step.visualElements && (
-          <div className="mb-4">
+          <div className="mb-4 animate-fadeIn">
             {step.visualElements}
           </div>
         )}
 
         {/* Step counter */}
-        <div className="text-center text-xs text-gray-400 mb-6">
-          Step {currentStep + 1} of {steps.length}
+        <div className="text-center mb-6 flex items-center justify-center gap-2">
+          <div className="flex gap-1">
+            {Array.from({ length: steps.length }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === currentStep
+                    ? "w-6 bg-gradient-to-r from-blue-500 to-blue-600"
+                    : i < currentStep
+                    ? "w-2 bg-blue-400"
+                    : "w-2 bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-xs font-medium text-gray-500 ml-2">
+            {currentStep + 1}/{steps.length}
+          </span>
         </div>
 
         {/* Action buttons */}
@@ -774,25 +988,25 @@ export default function Tutorial({ onClose }) {
           <button
             onClick={handlePrev}
             disabled={currentStep === 0}
-            className={`flex-1 px-4 py-2 rounded-lg font-medium transition text-sm ${
+            className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all duration-200 text-sm button-hover ${
               currentStep === 0
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 active:scale-95"
             }`}
           >
-            Back
+            ← Back
           </button>
           <button
             onClick={onClose}
-            className="px-3 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition text-sm"
+            className="px-4 py-3 rounded-lg font-semibold bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300 transition-all duration-200 text-sm button-hover active:scale-95"
           >
             Exit
           </button>
           <button
             onClick={handleNext}
-            className="flex-1 px-4 py-2 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition text-sm"
+            className="flex-1 px-4 py-3 rounded-lg font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 text-sm button-hover active:scale-95 shadow-lg hover:shadow-xl"
           >
-            {currentStep === steps.length - 1 ? "Done" : "Next"}
+            {currentStep === steps.length - 1 ? "✓ Done" : "Next →"}
           </button>
         </div>
       </div>

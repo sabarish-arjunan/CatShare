@@ -21,33 +21,7 @@ export default function FieldsSettings() {
   const [definition, setDefinition] = useState(null);
   const [savedDefinition, setSavedDefinition] = useState(null);
   const [activePriceFields, setActivePriceFields] = useState([]);
-  const [hasPushedTab, setHasPushedTab] = useState(false);
-
-  const activeTab = searchParams.get("tab") || "templates";
-
-  useEffect(() => {
-    if (activeTab === "templates") {
-      setHasPushedTab(false);
-    }
-  }, [activeTab]);
-
-  const setActiveTab = (tab) => {
-    if (tab === activeTab) return;
-
-    if (tab === "templates") {
-      if (hasPushedTab) {
-        navigate(-1);
-      } else {
-        setSearchParams({}, { replace: true });
-      }
-    } else {
-      setSearchParams({ tab });
-      setHasPushedTab(true);
-    }
-  };
-
   const [expandedKey, setExpandedKey] = useState(null);
-  const [expandedTemplateCard, setExpandedTemplateCard] = useState(false);
   const [editingLabelKey, setEditingLabelKey] = useState(null);
   const [editingLabelValue, setEditingLabelValue] = useState("");
   const [priceUnits, setPriceUnits] = useState(() => {
@@ -106,8 +80,8 @@ export default function FieldsSettings() {
         setDefinition(newDefinition);
         setSavedDefinition(newDefinition);
 
-        // Switch to templates tab to show the restored template
-        setActiveTab("templates");
+        // Switch to templates view to show the restored template
+        setSearchParams({}, { replace: true });
 
         console.log(`✅ Auto-switched to restored template: ${template || 'Unknown'}`);
         showToast(`Template restored: ${template || 'Custom'}`, "success");
@@ -406,8 +380,6 @@ export default function FieldsSettings() {
     }
 
     setDefinition({ ...definition, industry, fields: newFields });
-    // Switch to fields tab after selecting template
-    setActiveTab("fields");
   };
 
   const toggleFieldEnabled = async (key) => {
@@ -465,8 +437,8 @@ export default function FieldsSettings() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
-              if (activeTab === "fields") {
-                setActiveTab("templates");
+              if (searchParams.get("view") === "configure") {
+                setSearchParams({}, { replace: true });
               } else {
                 navigate("/settings");
               }
@@ -511,8 +483,8 @@ export default function FieldsSettings() {
         {savedDefinition && (
           <div className="mt-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
             <button
-              onClick={() => setExpandedTemplateCard(!expandedTemplateCard)}
-              className="w-full flex items-center justify-between mb-4 hover:opacity-75 transition-opacity"
+              onClick={() => setSearchParams({ industry: savedDefinition.industry || "General Products (Custom)", view: "configure" })}
+              className="w-full flex items-center justify-between mb-4 hover:opacity-75 transition-opacity cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div className="text-2xl bg-gray-100 dark:bg-gray-800 w-12 h-12 rounded-xl flex items-center justify-center">
@@ -535,92 +507,30 @@ export default function FieldsSettings() {
                 </div>
               </div>
               <motion.div
-                animate={{ rotate: expandedTemplateCard ? 180 : 0 }}
                 className="text-gray-400 shrink-0"
               >
-                <MdExpandMore size={20} />
+                <MdArrowBack size={20} style={{ transform: 'rotate(180deg)' }} />
               </motion.div>
             </button>
-            <AnimatePresence>
-              {expandedTemplateCard && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden border-t border-gray-50 dark:border-gray-800"
-                >
-                  <div className="pt-4">
-                    {(savedDefinition.industry === "General Products (Custom)" || !savedDefinition.industry) ? (
-                      <div className="flex flex-col gap-3">
-                        <p className="text-xs text-gray-500 italic leading-relaxed">
-                          Custom template enabled. You can manually add and configure fields to match your specific business needs.
-                        </p>
-                        <button
-                          onClick={() => {
-                            setActiveTab("fields");
-                            if (definition.fields.filter(f => f.key.startsWith('field') && f.enabled).length === 0) {
-                              handleAddField();
-                            }
-                          }}
-                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all"
-                        >
-                          <MdAdd size={20} />
-                          Add / Configure Fields
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Active Fields</span>
-                        <div className="flex flex-wrap gap-2">
-                          {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).map(field => (
-                            <span key={field.key} className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                              <MdCheckCircle size={14} className="text-blue-600 dark:text-blue-400" />
-                              {field.label || "Untitled"}
-                            </span>
-                          ))}
-                          {savedDefinition.fields.filter(f => f.key.startsWith('field') && f.enabled).length === 0 && (
-                            <span className="text-xs text-gray-500 italic">No active fields</span>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         )}
 
-        {/* Modern Tabs */}
-        <div className="px-4 mt-4 shrink-0 -mx-4">
-          <div className="bg-gray-200 dark:bg-gray-800 p-1 rounded-2xl flex gap-1">
+
+        {/* Back button for configuration view */}
+        {searchParams.get("view") === "configure" && (
+          <div className="px-4 mt-4 shrink-0">
             <button
-              onClick={() => setActiveTab("templates")}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                activeTab === "templates"
-                  ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
+              onClick={() => setSearchParams({}, { replace: true })}
+              className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:opacity-80 transition-opacity"
             >
-              <FiBriefcase size={14} />
-              TEMPLATES
-            </button>
-            <button
-              onClick={() => setActiveTab("fields")}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                activeTab === "fields"
-                  ? "bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              <FiSettings size={14} />
-              CONFIGURATION
+              <MdArrowBack size={18} />
+              Back to Templates
             </button>
           </div>
-        </div>
+        )}
 
         <AnimatePresence mode="wait">
-          {activeTab === "templates" ? (
+          {searchParams.get("view") !== "configure" ? (
             <motion.div
               key="templates-tab"
               initial={{ opacity: 0, x: -20 }}
@@ -641,7 +551,10 @@ export default function FieldsSettings() {
                 {INDUSTRY_PRESETS.map((preset) => (
                   <button
                     key={preset.name}
-                    onClick={() => updateIndustry(preset.name)}
+                    onClick={() => {
+                      updateIndustry(preset.name);
+                      setSearchParams({ industry: preset.name, view: "configure" });
+                    }}
                     className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
                       definition.industry === preset.name
                         ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
@@ -665,7 +578,10 @@ export default function FieldsSettings() {
                 ))}
 
                 <button
-                  onClick={() => updateIndustry("General Products (Custom)")}
+                  onClick={() => {
+                    updateIndustry("General Products (Custom)");
+                    setSearchParams({ industry: "General Products (Custom)", view: "configure" });
+                  }}
                   className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${
                     definition.industry === "General Products (Custom)" || !definition.industry
                       ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20"
