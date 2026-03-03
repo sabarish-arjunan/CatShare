@@ -173,7 +173,7 @@ export default function Tutorial({ onClose }) {
     {
       title: "Manage Products",
       description:
-        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle stock status for each catalogue independently.",
+        "In the Products tab, you can edit, move to shelf, reorder by dragging, and toggle stock status for all catalogues.",
       icon: <RiLayout4Line className="w-10 h-10 text-green-600" />,
       visualElements: (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
@@ -200,7 +200,7 @@ export default function Tutorial({ onClose }) {
                 <span>Move to shelf (can restore)</span>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded space-y-2">
-                <div className="text-xs font-semibold text-gray-700 mb-2">Stock status per catalogue:</div>
+                <div className="text-xs font-semibold text-gray-700 mb-2">Stock status for all catalogues:</div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCatalogueStockState({...catalogueStockState, master: !catalogueStockState.master})}
@@ -223,7 +223,7 @@ export default function Tutorial({ onClose }) {
                   </button>
                   <span className="text-xs text-gray-600">- Custom catalogue (example)</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Each catalogue has independent stock status</p>
+                <p className="text-xs text-gray-500 mt-2">Setting a product to 'In Stock' applies to all catalogues</p>
               </div>
               <div className="p-3 bg-white border border-gray-300 rounded">
                 <div className="text-xs font-semibold text-gray-700 mb-2">Drag to reorder (try it!):</div>
@@ -275,11 +275,7 @@ export default function Tutorial({ onClose }) {
               </button>
               <button
                 onClick={() => setActiveTab("catalogues")}
-                className={`flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 ${
-                  activeTab === "catalogues"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-600 border border-gray-300"
-                }`}
+                className="flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 bg-blue-500 text-white"
               >
                 Catalogues
               </button>
@@ -331,7 +327,7 @@ export default function Tutorial({ onClose }) {
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded text-xs">
                 <p className="font-semibold text-gray-700 mb-1">✏️ Edit Catalogue</p>
-                <p className="text-gray-600">Click edit to change name, pricing fields, and other settings for a catalogue.</p>
+                <p className="text-gray-600">Click edit to change name and other settings for a catalogue.</p>
               </div>
               <div className="p-2 bg-white border border-gray-300 rounded text-xs">
                 <p className="font-semibold text-gray-700 mb-1">🗑️ Delete Catalogue</p>
@@ -832,7 +828,7 @@ export default function Tutorial({ onClose }) {
       ),
     },
     {
-      title: "When to Access This Tutorial",
+      title: "Where to Access This Tutorial",
       description:
         "You can access this tutorial anytime from the side menu bar.",
       icon: <RiSearchLine className="w-10 h-10 text-blue-600" />,
