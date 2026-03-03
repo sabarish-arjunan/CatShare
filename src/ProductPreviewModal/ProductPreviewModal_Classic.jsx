@@ -677,7 +677,7 @@ export default function ProductPreviewModal_Classic({
               drag="x"
               dragElastic={0.3}
               dragSnapToOrigin
-              dragTransition={{ bounceStiffness: 150, bounceDamping: 30 }}
+              dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
               onDragEnd={handleDragEnd}
               custom={direction}
               onClick={(e) => e.stopPropagation()}
@@ -695,7 +695,7 @@ export default function ProductPreviewModal_Classic({
               animate={{
                 x: 0,
                 opacity: 1,
-                transition: { type: "spring", damping: 45, stiffness: 400, mass: 1.2 }
+                transition: { type: "spring", damping: 32, stiffness: 800, mass: 0.5 }
               }}
               onAnimationComplete={() => {
                 // Calculate scale after animation completes using data attribute
@@ -715,7 +715,7 @@ export default function ProductPreviewModal_Classic({
               exit={(dir) => ({
                 x: dir < 0 ? 300 : -300,
                 opacity: 0,
-                transition: { type: "spring", damping: 45, stiffness: 400, mass: 1.2 }
+                transition: { type: "spring", damping: 32, stiffness: 800, mass: 0.5 }
               })}
           >
 
