@@ -462,13 +462,6 @@ export default function FieldsSettings() {
             <MdOutlineHome size={24} />
           </button>
           <button
-            onClick={handleReset}
-            className="w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-all"
-            title="Reset to defaults"
-          >
-            <MdRefresh size={22} />
-          </button>
-          <button
             onClick={handleSave}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-sm shadow-md active:scale-95 transition-all flex items-center gap-2"
           >
