@@ -105,6 +105,15 @@ export default React.memo(function CatalogueView({
     startY: 0,
     moved: false,
   });
+
+  // Drag selection state
+  const dragSelectionRef = useRef({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    selectedDuringDrag: new Set(),
+  });
+
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const toolsMenuRef = useRef(null);
@@ -236,6 +245,76 @@ useEffect(() => {
     );
   }, []);
 
+  const getElementsInDragArea = useCallback((startX, startY, endX, endY) => {
+    const minX = Math.min(startX, endX);
+    const maxX = Math.max(startX, endX);
+    const minY = Math.min(startY, endY);
+    const maxY = Math.max(startY, endY);
+
+    const cards = document.querySelectorAll('[data-id]');
+    const elementsInArea = [];
+
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      // Check if card overlaps with drag area
+      if (
+        rect.left < maxX &&
+        rect.right > minX &&
+        rect.top < maxY &&
+        rect.bottom > minY
+      ) {
+        elementsInArea.push(card.getAttribute('data-id'));
+      }
+    });
+
+    return elementsInArea;
+  }, []);
+
+  const handleGridMouseDown = useCallback((e) => {
+    // Only start drag selection if in select mode
+    if (!selectMode) return;
+
+    // Store initial state for drag detection
+    dragSelectionRef.current.startX = e.clientX;
+    dragSelectionRef.current.startY = e.clientY;
+    dragSelectionRef.current.isDragging = false;
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = Math.abs(moveEvent.clientX - dragSelectionRef.current.startX);
+      const dy = Math.abs(moveEvent.clientY - dragSelectionRef.current.startY);
+
+      // Only start drag selection if moved more than 5px
+      if (dx > 5 || dy > 5) {
+        dragSelectionRef.current.isDragging = true;
+      }
+
+      if (dragSelectionRef.current.isDragging) {
+        const elementsInArea = getElementsInDragArea(
+          dragSelectionRef.current.startX,
+          dragSelectionRef.current.startY,
+          moveEvent.clientX,
+          moveEvent.clientY
+        );
+
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          elementsInArea.forEach((id) => newSelected.add(id));
+          return Array.from(newSelected);
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      dragSelectionRef.current.isDragging = false;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [selectMode, getElementsInDragArea]);
+
+
   const visibleProducts = useMemo(() => {
   return filtered
     .filter((p) => {
@@ -294,6 +373,11 @@ useEffect(() => {
   }, []);
 
   const handleCardClick = useCallback((id) => {
+    // Don't toggle selection if we just finished dragging
+    if (dragSelectionRef.current.isDragging) {
+      return;
+    }
+
     if (selectMode) {
       toggleSelection(id);
     } else {
@@ -1096,6 +1180,7 @@ useEffect(() => {
       <div
         id="capture-area"
         className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none"
+        onMouseDown={handleGridMouseDown}
       >
         {visibleProducts.map((p) => {
           const isSelected = selected.includes(p.id);
