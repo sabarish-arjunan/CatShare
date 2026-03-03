@@ -274,8 +274,8 @@ export default function Tutorial({ onClose }) {
                 Products
               </button>
               <button
-                onClick={() => setActiveTab("catalogues")}
-                className="flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 bg-blue-500 text-white"
+                disabled
+                className="flex-1 px-2 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition min-w-0 bg-white text-gray-600 border border-gray-300"
               >
                 Catalogues
               </button>
