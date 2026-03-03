@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { isProductEnabledForCatalogue, setProductEnabledForCatalogue } from "../config/catalogueProductUtils";
 
 interface AddProductsModalProps {
@@ -163,13 +164,14 @@ export default function AddProductsModal({
                     {/* Toggle Button */}
                     <button
                       onClick={() => handleToggleProduct(product.id)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors flex-shrink-0 ${
+                      className={`p-2 rounded-lg transition-colors flex-shrink-0 flex items-center justify-center ${
                         isEnabled
-                          ? "bg-green-600 hover:bg-green-700 text-white"
-                          : "bg-gray-300 hover:bg-gray-400 text-gray-700"
+                          ? "bg-blue-100 hover:bg-blue-200 text-blue-600"
+                          : "bg-gray-200 hover:bg-gray-300 text-gray-500"
                       }`}
+                      title={isEnabled ? "Hide product" : "Show product"}
                     >
-                      {isEnabled ? "Show" : "Hide"}
+                      {isEnabled ? <FiEye size={18} /> : <FiEyeOff size={18} />}
                     </button>
                   </div>
                 );
