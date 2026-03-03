@@ -17,6 +17,8 @@ export default function Settings({
   setIsRendering = (value) => {},
   renderProgress = 0,
   setRenderProgress = (value) => {},
+  showTutorial = false,
+  setShowTutorial = (value) => {},
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showWatermark, setShowWatermark] = useState(() => {
@@ -309,7 +311,7 @@ export default function Settings({
           setProducts={setProducts}
           setDeletedProducts={setDeletedProducts}
           selected={[]}
-          onShowTutorial={() => {}}
+          onShowTutorial={() => setShowTutorial(true)}
           darkMode={darkMode}
           setDarkMode={setDarkMode}
           isRendering={isRendering}

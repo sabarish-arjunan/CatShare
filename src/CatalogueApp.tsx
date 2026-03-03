@@ -8,7 +8,6 @@ import CatalogueView from "./CatalogueView";
 import CataloguesList from "./CataloguesList";
 import ManageCatalogues from "./ManageCatalogues";
 import ProductPreviewModal from "./ProductPreviewModal";
-import Tutorial from "./Tutorial";
 import EmptyStateIntro from "./EmptyStateIntro";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -34,7 +33,7 @@ export function openPreviewHtml(id, tab = null) {
   window.dispatchEvent(evt);
 }
 
-export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderingTotal: propRenderingTotal, setRenderingTotal: propSetRenderingTotal, renderResult: propRenderResult, setRenderResult: propSetRenderResult }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderingTotal?: number; setRenderingTotal?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>> }) {
+export default function CatalogueApp({ products, setProducts, deletedProducts, setDeletedProducts, darkMode, setDarkMode, isRendering: propIsRendering, setIsRendering: propSetIsRendering, renderProgress: propRenderProgress, setRenderProgress: propSetRenderProgress, renderingTotal: propRenderingTotal, setRenderingTotal: propSetRenderingTotal, renderResult: propRenderResult, setRenderResult: propSetRenderResult, showTutorial, setShowTutorial }: { products: any[]; setProducts: React.Dispatch<React.SetStateAction<any[]>>; deletedProducts: any[]; setDeletedProducts: React.Dispatch<React.SetStateAction<any[]>>; darkMode: boolean; setDarkMode: React.Dispatch<React.SetStateAction<boolean>>; isRendering?: boolean; setIsRendering?: React.Dispatch<React.SetStateAction<boolean>>; renderProgress?: number; setRenderProgress?: React.Dispatch<React.SetStateAction<number>>; renderingTotal?: number; setRenderingTotal?: React.Dispatch<React.SetStateAction<number>>; renderResult?: any; setRenderResult?: React.Dispatch<React.SetStateAction<any>>; showTutorial?: boolean; setShowTutorial?: React.Dispatch<React.SetStateAction<boolean>> }) {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -123,7 +122,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
   const [previewProduct, setPreviewProduct] = useState(null);
   const [previewList, setPreviewList] = useState([]);
   const [imageMap, setImageMap] = useState({});
@@ -156,13 +154,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
     return () => window.removeEventListener("toggle-sort", toggleSort);
   }, []);
 
-  // Expose tutorial state globally for back button handlers
-  useEffect(() => {
-    window.__catalogueAppState = {
-      showTutorial,
-      setShowTutorial,
-    };
-  }, [showTutorial]);
 
   const handleSort = (type) => {
     setSortBy(type);
@@ -1176,10 +1167,6 @@ export default function CatalogueApp({ products, setProducts, deletedProducts, s
         setRenderResult={setRenderResult}
         handleRenderAllImages={handleRenderAllImages}
       />
-
-      {showTutorial && (
-        <Tutorial onClose={() => setShowTutorial(false)} />
-      )}
 
       {showManageCatalogues && (
         <ManageCatalogues
