@@ -522,9 +522,9 @@ export default function FieldsSettings() {
         )}
 
 
-        {/* Back button for configuration view */}
+        {/* Back button and industry display for configuration view */}
         {searchParams.get("view") === "configure" && (
-          <div className="px-4 mt-4 shrink-0">
+          <div className="px-4 mt-4 shrink-0 space-y-3">
             <button
               onClick={() => setSearchParams({}, { replace: true })}
               className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:opacity-80 transition-opacity"
@@ -532,6 +532,12 @@ export default function FieldsSettings() {
               <MdArrowBack size={18} />
               Back to Templates
             </button>
+            {definition.industry && (
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-1">Configuring Template</p>
+                <p className="text-base font-bold text-gray-900 dark:text-white">{definition.industry}</p>
+              </div>
+            )}
           </div>
         )}
 
