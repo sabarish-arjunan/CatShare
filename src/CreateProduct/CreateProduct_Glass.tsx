@@ -994,8 +994,18 @@ export default function CreateProduct() {
       window.dispatchEvent(new CustomEvent("product-added"));
 
       // Check if we should show the rating modal
+      // Pattern: 10, 25 (10+15), 45 (25+20), 70 (45+25), 100 (70+30), etc.
       const totalProducts = updated.length;
-      const shouldShowRating = totalProducts >= 10 && totalProducts % 5 === 0;
+      const isRatingMilestone = (count: number): boolean => {
+        let milestone = 10;
+        let increment = 15;
+        while (milestone < count) {
+          milestone += increment;
+          increment += 5;
+        }
+        return count === milestone;
+      };
+      const shouldShowRating = isRatingMilestone(totalProducts);
 
       setTimeout(async () => {
         try {
