@@ -4,6 +4,7 @@ import { MdArrowBack, MdWarning, MdOutlineHome } from "react-icons/md";
 import { MdCircle } from "react-icons/md";
 
 import { safeGetFromStorage, safeSetInStorage } from "../utils/safeStorage";
+import { logWatermarkApplied } from "../config/analyticsEvents";
 
 export default function WatermarkSettings() {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ export default function WatermarkSettings() {
   const handleWatermarkToggle = (value) => {
     setShowWatermark(value);
     safeSetInStorage("showWatermark", value);
+    logWatermarkApplied(value ? "enabled" : "disabled");
     window.dispatchEvent(new CustomEvent("watermarkChanged", { detail: { value } }));
   };
 
@@ -106,6 +108,7 @@ export default function WatermarkSettings() {
     }
     setWatermarkText(trimmedText);
     safeSetInStorage("watermarkText", trimmedText);
+    logWatermarkApplied("text_changed", { textLength: trimmedText.length });
     window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: trimmedText } }));
   };
 
@@ -114,12 +117,14 @@ export default function WatermarkSettings() {
     setWatermarkText(defaultText);
     setEditingWatermarkText(defaultText);
     safeSetInStorage("watermarkText", defaultText);
+    logWatermarkApplied("text_reset");
     window.dispatchEvent(new CustomEvent("watermarkTextChanged", { detail: { text: defaultText } }));
   };
 
   const handlePositionChange = (position) => {
     setWatermarkPosition(position);
     safeSetInStorage("watermarkPosition", position);
+    logWatermarkApplied("position_changed", { position });
     window.dispatchEvent(new CustomEvent("watermarkPositionChanged", { detail: { position } }));
   };
 

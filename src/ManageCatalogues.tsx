@@ -9,6 +9,7 @@ import {
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { deleteRenderedImagesFromFolder, renameRenderedImagesForCatalogue } from "./Save";
 import { FiX, FiPlus, FiEdit2, FiTrash2, FiImage, FiCheck, FiLoader } from "react-icons/fi";
+import { logCatalogueCreated, logCatalogueDeleted } from "./config/analyticsEvents";
 
 interface ManageCataloguesProps {
   onClose: () => void;
@@ -110,6 +111,8 @@ export default React.memo(function ManageCatalogues({
           setCatalogues(updated);
           onCataloguesChanged(updated);
 
+          logCatalogueCreated(newCatalogue.label, products.length);
+
           setShowAddForm(false);
           resetFormFields();
         } catch (storageErr) {
@@ -188,6 +191,8 @@ export default React.memo(function ManageCatalogues({
       setCatalogues(updated);
       onCataloguesChanged(updated);
 
+      logCatalogueCreated(newLabel);
+
       setShowEditForm(null);
       resetFormFields();
     } catch (err) {
@@ -213,6 +218,7 @@ export default React.memo(function ManageCatalogues({
         const updated = getAllCatalogues();
         setCatalogues(updated);
         onCataloguesChanged(updated);
+        logCatalogueDeleted(catalogue.label);
         setShowDeleteConfirm(null);
       } else {
         setFormError("Cannot delete default catalogues");

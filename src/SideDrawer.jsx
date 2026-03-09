@@ -22,7 +22,7 @@ import { applyBackupFieldAnalysis } from "./config/fieldConfig";
 import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 import { getCurrentCurrency } from "./utils/currencyUtils";
 import { getPriceUnits } from "./utils/priceUnitsUtils";
-import { logBackupCreated, logBackupRestored, logBackupSharedFileSharer, logBackupDownloaded } from "./config/analyticsEvents";
+import { logBackupCreated, logBackupRestored, logBackupSharedFileSharer, logBackupDownloaded, logCsvExported, logFileSharerError, logCategoryManaged } from "./config/analyticsEvents";
 
 
 export default function SideDrawer({
@@ -500,6 +500,7 @@ const handleBackup = async () => {
         });
       } catch (fileShareErr) {
         console.error("FileSharer failed:", fileShareErr.message);
+        logFileSharerError(fileShareErr.message);
         // Show dialog with retry/download options instead of silent fallback
         setShareErrorMessage(`Sharing via FileSharer failed. Would you like to download instead?`);
         setShareErrorBlob(blob);
@@ -566,6 +567,8 @@ const exportProductsToCSV = (products) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+
+  logCsvExported(products.length);
 };
 
 
@@ -1607,21 +1610,26 @@ function CategoryModal({ onClose }) {
     const c = newCat.trim();
     if (c && !categories.includes(c)) {
       save([...categories, c]);
+      logCategoryManaged("added", c);
       setNewCat("");
     }
   };
 
   const update = () => {
     const list = [...categories];
+    const oldName = categories[editIndex];
     list[editIndex] = editText.trim();
     save(list);
+    logCategoryManaged("edited", { oldName, newName: editText.trim() });
     setEditIndex(null);
     setEditText("");
   };
 
   const remove = (i) => {
+    const removedCat = categories[i];
     const list = categories.filter((_, idx) => idx !== i);
     save(list);
+    logCategoryManaged("deleted", removedCat);
   };
 
   const handleDragEnd = (result) => {
@@ -1630,6 +1638,7 @@ function CategoryModal({ onClose }) {
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
     save(reordered);
+    logCategoryManaged("reordered", { count: reordered.length });
   };
 
   return (

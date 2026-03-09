@@ -5,6 +5,7 @@ import { getCatalogueData, setCatalogueData, isProductEnabledForCatalogue } from
 import { getAllCatalogues } from "./config/catalogueConfig";
 import { getFieldConfig, getAllFields } from "./config/fieldConfig";
 import { getPriceUnits } from "./utils/priceUnitsUtils";
+import { logBulkEdit } from "./config/analyticsEvents";
 
 const getFieldOptions = (catalogueId, priceField, priceUnitField) => {
   const baseFields = [
@@ -364,6 +365,7 @@ useEffect(() => {
 
     localStorage.setItem("products", JSON.stringify(mergedData));
     setProducts(mergedData);
+    logBulkEdit(cleanData.length, selectedFields.length);
     setShowRenderPopup(true);
   } catch (err) {
     console.error("Save failed:", err);
