@@ -51,6 +51,11 @@ const [allProductsCached, setAllProductsCached] = useState([]);
 const [showBackupPopup, setShowBackupPopup] = useState(false);
 const [showRenderAfterRestore, setShowRenderAfterRestore] = useState(false);
 const [backupResult, setBackupResult] = useState(null); // { status: 'success'|'error', message: string }
+const [showShareErrorDialog, setShowShareErrorDialog] = useState(false);
+const [shareErrorMessage, setShareErrorMessage] = useState("");
+const [shareErrorBlob, setShareErrorBlob] = useState(null);
+const [shareErrorFilename, setShareErrorFilename] = useState("");
+const [shareErrorBase64, setShareErrorBase64] = useState(null);
 const navigate = useNavigate();
   const { showToast } = useToast();
   const { currentTheme } = useTheme();
@@ -436,30 +441,11 @@ const handleBackup = async () => {
     const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
     const filename = `catalogue-backup-${timestamp}.zip`;
 
-    // MAX size for FileSharer base64 (around 10MB)
-    const MAX_FILESHARER_SIZE = 10 * 1024 * 1024;
+    // MAX size for FileSharer base64 (around 10MB binary = ~13.3MB base64)
+    const MAX_FILESHARER_SIZE = 13 * 1024 * 1024;
 
     try {
-      // For large backups, use direct download if possible or chunked base64
-      if (blob.size > 5 * 1024 * 1024) {
-        console.log(`📦 Backup is large (${(blob.size / 1024 / 1024).toFixed(2)}MB), using browser download fallback...`);
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-
-        setBackupResult({
-          status: "success",
-          message: "Backup ZIP created and downloaded",
-        });
-        return;
-      }
-
-      // Convert to base64 safely in chunks for smaller/medium files
+      // Convert to base64 safely in chunks
       const arrayBuffer = await blob.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       let binary = '';
@@ -470,21 +456,14 @@ const handleBackup = async () => {
       }
       const base64Data = btoa(binary);
 
-      // Final check for base64 size limits
+      // Check if base64 would exceed FileSharer limits
       if (base64Data.length > MAX_FILESHARER_SIZE) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-
-        setBackupResult({
-          status: "success",
-          message: "Backup ZIP created and downloaded",
-        });
+        console.log(`⚠️ Backup base64 too large (${(base64Data.length / 1024 / 1024).toFixed(2)}MB base64), showing error dialog...`);
+        setShareErrorMessage(`Backup file is too large (${(blob.size / 1024 / 1024).toFixed(2)}MB). The maximum FileSharer limit is around 10MB. Would you like to download it instead?`);
+        setShareErrorBlob(blob);
+        setShareErrorFilename(filename);
+        setShareErrorBase64(null);
+        setShowShareErrorDialog(true);
         return;
       }
 
@@ -500,32 +479,33 @@ const handleBackup = async () => {
         console.warn("⚠️ Could not write to filesystem, will still try to share:", writeErr.message);
       }
 
-      // Share the file
-      await FileSharer.share({
-        filename,
-        base64Data,
-        contentType: "application/zip",
-      });
+      // Try to share the file via FileSharer
+      try {
+        await FileSharer.share({
+          filename,
+          base64Data,
+          contentType: "application/zip",
+        });
 
+        setBackupResult({
+          status: "success",
+          message: "Backup ZIP created and shared",
+        });
+      } catch (fileShareErr) {
+        console.error("FileSharer failed:", fileShareErr.message);
+        // Show dialog with retry/download options instead of silent fallback
+        setShareErrorMessage(`Sharing via FileSharer failed. Would you like to download instead?`);
+        setShareErrorBlob(blob);
+        setShareErrorFilename(filename);
+        setShareErrorBase64(base64Data);
+        setShowShareErrorDialog(true);
+      }
+    } catch (err) {
+      // Handle other errors (base64 conversion, filesystem write, etc.)
+      console.error("Backup process error:", err.message);
       setBackupResult({
-        status: "success",
-        message: "Backup ZIP created and shared",
-      });
-    } catch (shareErr) {
-      console.error("Backup share failed:", shareErr);
-      // Final fallback to browser download
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-
-      setBackupResult({
-        status: "success",
-        message: "Backup ZIP created and downloaded",
+        status: "error",
+        message: "Backup failed: " + err.message,
       });
     }
   } catch (genErr) {
@@ -1380,6 +1360,115 @@ const exportProductsToCSV = (products) => {
   </div>
 )}
 
+{showShareErrorDialog && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full text-center">
+      <div className="flex justify-center mb-4">
+        <FiAlertCircle className="w-12 h-12 text-amber-500" />
+      </div>
+
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">
+        Sharing Failed
+      </h2>
+
+      <p className="text-sm text-gray-600 mb-6">
+        {shareErrorMessage}
+      </p>
+
+      <div className="flex flex-col gap-3">
+        {shareErrorBase64 ? (
+          <>
+            <button
+              onClick={async () => {
+                // Retry FileSharer
+                try {
+                  await FileSharer.share({
+                    filename: shareErrorFilename,
+                    base64Data: shareErrorBase64,
+                    contentType: "application/zip",
+                  });
+
+                  setBackupResult({
+                    status: "success",
+                    message: "Backup ZIP created and shared",
+                  });
+                  setShowShareErrorDialog(false);
+                } catch (retryErr) {
+                  console.error("Retry failed:", retryErr.message);
+                  // Update message to show retry failed
+                  setShareErrorMessage("FileSharer still unavailable. Would you like to download instead?");
+                  setShareErrorBase64(null); // Disable retry button for future attempts
+                }
+              }}
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition font-medium text-sm"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => {
+                // Download as fallback
+                if (shareErrorBlob) {
+                  const url = URL.createObjectURL(shareErrorBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = shareErrorFilename;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  setTimeout(() => URL.revokeObjectURL(url), 100);
+
+                  setBackupResult({
+                    status: "success",
+                    message: "Backup ZIP created and downloaded",
+                  });
+                  setShowShareErrorDialog(false);
+                }
+              }}
+              className="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition font-medium text-sm"
+            >
+              Download Instead
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => {
+              // Download as fallback
+              if (shareErrorBlob) {
+                const url = URL.createObjectURL(shareErrorBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = shareErrorFilename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+
+                setBackupResult({
+                  status: "success",
+                  message: "Backup ZIP created and downloaded",
+                });
+                setShowShareErrorDialog(false);
+              }
+            }}
+            className="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition font-medium text-sm"
+          >
+            Download Instead
+          </button>
+        )}
+
+        <button
+          onClick={() => {
+            setShowShareErrorDialog(false);
+            setBackupResult(null);
+          }}
+          className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition font-medium text-sm"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
   {isRendering && (
     <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
