@@ -20,6 +20,223 @@ import BulkEdit from "./BulkEdit";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 import { generateProductPDF, downloadPDF, sharePDF } from "./utils/pdfUtils";
 
+const ProductCard = React.memo(({
+  p,
+  isSelected,
+  stockField,
+  showEdit,
+  showInfo,
+  currencySymbol,
+  imageMap,
+  catalogueId,
+  getLighterColor,
+  getProductCatalogueData,
+  onCardClick,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
+  onMouseUp,
+  onMouseLeave,
+}: any) => {
+  const catData = getProductCatalogueData(p);
+
+  return (
+    <div
+  data-id={p.id}
+  draggable={false}
+  onDragStart={(e) => e.preventDefault()}
+  className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200 ${
+    !p[stockField] ? "opacity-100" : ""
+  }`}
+  onClick={() => onCardClick(p.id)}
+  onTouchStart={(e) => onTouchStart(e, p.id)}
+  onTouchMove={onTouchMove}
+  onTouchEnd={onTouchEnd}
+  onMouseDown={(e) => onTouchStart(e, p.id)}
+  onMouseUp={onMouseUp}
+  onMouseLeave={onMouseLeave}
+>
+      <div className="relative aspect-square overflow-hidden bg-gray-100 group">
+        <img
+  src={imageMap[p.id]}
+  alt={p.name}
+  className="w-full h-full object-cover"
+  draggable={false}
+  onDragStart={(e) => e.preventDefault()}
+/>
+        {!p[stockField] && (
+          <div className="absolute top-1/2 left-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] bg-red-500 bg-opacity-60 text-white text-center py-0.5 shadow-md">
+            <span className="block text-sm font-bold tracking-wider">
+              OUT OF STOCK
+            </span>
+          </div>
+        )}
+
+        {showEdit && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const mainElement = document.querySelector('main');
+              if (mainElement) {
+                localStorage.setItem(`catalogueScroll-${catalogueId}`, mainElement.scrollTop.toString());
+              }
+              const evt = new CustomEvent("edit-product", {
+                detail: { id: p.id, catalogueId, fromCatalogue: catalogueId },
+              });
+              window.dispatchEvent(evt);
+            }}
+            className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200 z-10"
+            title="Edit product"
+          >
+            <FiEdit className="w-4 h-4 text-blue-600" />
+          </button>
+        )}
+
+        <AnimatePresence>
+          {isSelected && (
+            <>
+              <motion.div
+                key="overlay"
+                className="absolute inset-0 z-5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ backgroundColor: "black" }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center z-6">
+                <motion.div
+                  key="tick"
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-xl border border-white/40 backdrop-blur-sm"
+                  style={{
+                    backgroundColor: "rgba(19, 145, 67, 0.45)",
+                    userSelect: "none",
+                  }}
+                >
+                  <HiCheck className="text-green-100" style={{ fontSize: 30 }} />
+                </motion.div>
+              </div>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {showInfo && (
+        <div className="absolute top-1.5 left-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10">
+          {currencySymbol}{catData.price}
+        </div>
+      )}
+
+      {showInfo && (
+        <div
+          className="absolute bottom-0 left-0 w-full px-1 py-1 text-center font-medium text-white text-[11px] sm:text-[12px] md:text-[14px] truncate"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.45)",
+            backdropFilter: "blur(1px)",
+          }}
+        >
+          {p.name}
+        </div>
+      )}
+
+      {/* Share Preview Content - required for sharing */}
+      <div
+        className={`hidden full-detail-${p.id}`}
+        style={{
+          width: "100%", padding: 0, margin: 0,
+          overflow: "hidden", boxSizing: "border-box", backgroundColor: "#fff",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: p.imageBgColor || "white",
+            padding: "16px", textAlign: "center",
+            position: "relative",
+            boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          <img
+            src={imageMap[p.id]}
+            alt={p.name}
+            style={{ maxWidth: "100%", maxHeight: "300px", objectFit: "contain", margin: "0 auto" }}
+          />
+          {p.badge && (
+            <div style={{
+              position: "absolute", bottom: 8, right: 8,
+              backgroundColor: p.imageBgColor?.toLowerCase() === "white" ? "#fff" : "#000",
+              color: p.imageBgColor?.toLowerCase() === "white" ? "#000" : "#fff",
+              fontSize: 11, fontWeight: 400, padding: "4px 9px",
+              borderRadius: "20px", opacity: 0.98,
+              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+              border: `1.5px solid ${p.imageBgColor?.toLowerCase() === "white" ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)"}`,
+              letterSpacing: "0.3px", lineHeight: "1.4",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              {p.badge.toUpperCase()}
+            </div>
+          )}
+          {!p[stockField] && (
+            <div style={{
+              position: "absolute", top: "50%", left: "50%",
+              transform: "translate(-50%, -50%) rotate(-30deg)",
+              width: "140%", backgroundColor: "rgba(220, 38, 38, 0.6)",
+              color: "white", textAlign: "center", padding: "10px 0",
+              fontSize: "18px", fontWeight: "bold",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            }}>
+              OUT OF STOCK
+            </div>
+          )}
+        </div>
+
+        <div style={{
+          backgroundColor: getLighterColor(p.bgColor || "#add8e6"),
+          color: p.fontColor || "white", padding: "4px 8px", fontSize: 17,
+        }}>
+          <div style={{ textAlign: "center", marginBottom: 6 }}>
+            <p style={{ fontWeight: "normal", textShadow: "3px 3px 5px rgba(0,0,0,0.2)", fontSize: 28, margin: "0 0 3px 0" }}>
+              {p.name}
+            </p>
+            {p.subtitle && (
+              <p style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}>
+                ({p.subtitle})
+              </p>
+            )}
+          </div>
+          <div style={{ textAlign: "left", lineHeight: 1.4 }}>
+            {getAllFields()
+              .filter(f => f.enabled && f.key.startsWith('field'))
+              .map(field => {
+                const val = catData[field.key];
+                if (!val) return null;
+                const unit = catData[`${field.key}Unit`];
+                const displayUnit = unit && unit !== "None" ? unit : "";
+                return (
+                  <p key={field.key} style={{ margin: "2px 0" }}>
+                    &nbsp; {field.label}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;{val} {displayUnit}
+                  </p>
+                );
+              })}
+          </div>
+        </div>
+
+        <h2 style={{
+          backgroundColor: p.bgColor || "#add8e6",
+          color: p.fontColor || "white",
+          padding: "5px 8px", textAlign: "center",
+          fontWeight: "normal", fontSize: 19, margin: 0, lineHeight: 1.2,
+        }}>
+          Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{catData.price}{" "}{catData.priceUnit}
+        </h2>
+      </div>
+    </div>
+  );
+});
+
 interface CatalogueViewProps {
   filtered: any[];
   allProducts: any[];
@@ -52,7 +269,7 @@ export default React.memo(function CatalogueView({
   onBack,
 }: CatalogueViewProps) {
   // Helper function to get catalogue-specific data for a product
-  const getProductCatalogueData = (product) => {
+  const getProductCatalogueData = useCallback((product) => {
     if (!catalogueId) return product; // Fallback to product if no catalogueId
     const catData = getCatalogueData(product, catalogueId);
 
@@ -77,8 +294,8 @@ export default React.memo(function CatalogueView({
     }
 
     return result;
-  };
-
+  }, [catalogueId, priceField, priceUnitField]);
+  
   const [stockFilter, setStockFilter] = useState(["in", "out"]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [allCategories, setAllCategories] = useState([]);
@@ -100,12 +317,15 @@ export default React.memo(function CatalogueView({
 
   // Touch state - moved to useRef for better performance
   const touchStateRef = useRef({
-    touchTimer: null,
-    startX: 0,
-    startY: 0,
-    moved: false,
-    isLongPress: false,
-  });
+  touchTimer: null,
+  startX: 0,
+  startY: 0,
+  lastX: 0,
+  lastY: 0,
+  lastMoveTime: 0,
+  moved: false,
+  isLongPress: false,
+});
 
   // Drag selection state
   const dragSelectionRef = useRef({
@@ -241,10 +461,14 @@ useEffect(() => {
 
 
   const toggleSelection = useCallback((id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  }, []);
+  setSelected((prev) => {
+    const isRemoving = prev.includes(id);
+    try {
+      Haptics.impact({ style: isRemoving ? ImpactStyle.Light : ImpactStyle.Medium });
+    } catch {}
+    return isRemoving ? prev.filter((x) => x !== id) : [...prev, id];
+  });
+}, []);
 
   const getElementsInDragArea = useCallback((startX, startY, endX, endY) => {
     const minX = Math.min(startX, endX);
@@ -350,58 +574,69 @@ useEffect(() => {
 
   // Memoized touch handlers for better performance
   const handleTouchStart = useCallback((e, id) => {
-    touchStateRef.current.moved = false;
-    touchStateRef.current.isLongPress = false;
-    const touch = e.touches?.[0] || e;
-    touchStateRef.current.startX = touch.clientX;
-    touchStateRef.current.startY = touch.clientY;
+  touchStateRef.current.moved = false;
+  touchStateRef.current.isLongPress = false;
+  const touch = e.touches?.[0] || e;
+  touchStateRef.current.startX = touch.clientX;
+  touchStateRef.current.startY = touch.clientY;
+  touchStateRef.current.lastX = touch.clientX;
+  touchStateRef.current.lastY = touch.clientY;
+  touchStateRef.current.lastMoveTime = Date.now();
 
-    touchStateRef.current.touchTimer = setTimeout(() => {
-      if (!touchStateRef.current.moved) {
-        if (!selectMode) {
-          window.history.pushState({ select: true }, "");
-          setSelectMode(true);
-        }
-        touchStateRef.current.isLongPress = true;
-        setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  touchStateRef.current.touchTimer = setTimeout(() => {
+    if (!touchStateRef.current.moved) {
+      if (!selectMode) {
+        window.history.pushState({ select: true }, "");
+        setSelectMode(true);
       }
-    }, 300);
-  }, [selectMode]);
-
-  const handleTouchMove = useCallback((e) => {
-    const touch = e.touches?.[0] || e;
-    const dx = Math.abs(touch.clientX - touchStateRef.current.startX);
-    const dy = Math.abs(touch.clientY - touchStateRef.current.startY);
-
-    // If we haven't moved much yet, don't mark as moved
-    if (dx > 10 || dy > 10) {
-      // If long press hasn't triggered yet, mark as moved to cancel it
-      if (!touchStateRef.current.isLongPress) {
-        touchStateRef.current.moved = true;
-        clearTimeout(touchStateRef.current.touchTimer);
-      } else {
-        // Long press is active, do drag selection
-        e.preventDefault?.();
-        const elementsInArea = getElementsInDragArea(
-          touchStateRef.current.startX,
-          touchStateRef.current.startY,
-          touch.clientX,
-          touch.clientY
-        );
-
-        setSelected((prev) => {
-          const newSelected = new Set(prev);
-          elementsInArea.forEach((elemId) => newSelected.add(elemId));
-          return Array.from(newSelected);
-        });
-      }
+      touchStateRef.current.isLongPress = true;
+      setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      try { Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
     }
-  }, [getElementsInDragArea]);
+  }, 600);
+}, [selectMode]);
 
-  const handleTouchEnd = useCallback(() => {
+const handleTouchMove = useCallback((e) => {
+  const touch = e.touches?.[0] || e;
+  const now = Date.now();
+
+  const dx = Math.abs(touch.clientX - touchStateRef.current.startX);
+  const dy = Math.abs(touch.clientY - touchStateRef.current.startY);
+
+  const timeDelta = now - (touchStateRef.current.lastMoveTime || now);
+  const stepDx = Math.abs(touch.clientX - (touchStateRef.current.lastX || touch.clientX));
+  const stepDy = Math.abs(touch.clientY - (touchStateRef.current.lastY || touch.clientY));
+  const velocity = timeDelta > 0 ? (stepDx + stepDy) / timeDelta : 0;
+
+  touchStateRef.current.lastX = touch.clientX;
+  touchStateRef.current.lastY = touch.clientY;
+  touchStateRef.current.lastMoveTime = now;
+
+  // Cancel long press if: distance > 4px OR velocity > 0.1px/ms
+  if (!touchStateRef.current.isLongPress && (dx > 4 || dy > 4 || velocity > 0.1)) {
+    touchStateRef.current.moved = true;
     clearTimeout(touchStateRef.current.touchTimer);
-    touchStateRef.current.isLongPress = false;
-  }, []);
+  } else if (touchStateRef.current.isLongPress) {
+    // Already in long press — do drag selection
+    e.preventDefault?.();
+    const elementsInArea = getElementsInDragArea(
+      touchStateRef.current.startX,
+      touchStateRef.current.startY,
+      touch.clientX,
+      touch.clientY
+    );
+    setSelected((prev) => {
+      const newSelected = new Set(prev);
+      elementsInArea.forEach((elemId) => newSelected.add(elemId));
+      return Array.from(newSelected);
+    });
+  }
+}, [getElementsInDragArea]);
+
+const handleTouchEnd = useCallback(() => {
+  clearTimeout(touchStateRef.current.touchTimer);
+  touchStateRef.current.isLongPress = false;
+}, []);
 
   const handleCardClick = useCallback((id) => {
     // Don't toggle selection if we just finished dragging
@@ -1213,274 +1448,27 @@ useEffect(() => {
         className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 select-none"
         onMouseDown={handleGridMouseDown}
       >
-        {visibleProducts.map((p) => {
-          const isSelected = selected.includes(p.id);
-          return (
-            <div
-              key={p.id}
-              data-id={p.id}
-              className={`share-card bg-white rounded-sm shadow-sm overflow-hidden relative cursor-pointer transition-all duration-200 ${
-                !p[stockField] ? "opacity-100" : ""
-              }`}
-              onClick={() => handleCardClick(p.id)}
-onTouchStart={(e) => handleTouchStart(e, p.id)}
-onTouchEnd={handleTouchEnd}
-onMouseDown={(e) => handleTouchStart(e, p.id)}
-onMouseUp={handleTouchEnd}
-onMouseLeave={handleTouchEnd}
-
-            >
-              <div className="relative aspect-square overflow-hidden bg-gray-100 group">
-                <img
-                  src={imageMap[p.id]}
-                  alt={p.name}
-                  className="w-full h-full object-cover"
-                />
-                {!p[stockField] && (
-                  <div className="absolute top-1/2 left-1/2 w-[140%] -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] bg-red-500 bg-opacity-60 text-white text-center py-0.5 shadow-md">
-                    <span className="block text-sm font-bold tracking-wider">
-                      OUT OF STOCK
-                    </span>
-                  </div>
-                )}
-
-                {/* Edit Icon Button */}
-                {showEdit && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Save scroll position before navigating - use window scroll
-                      const mainElement = document.querySelector('main');
-                      if (mainElement) {
-                        localStorage.setItem(`catalogueScroll-${catalogueId}`, mainElement.scrollTop.toString());
-                      }
-                      const evt = new CustomEvent("edit-product", { detail: { id: p.id, catalogueId, fromCatalogue: catalogueId } });
-                      window.dispatchEvent(evt);
-                    }}
-                    className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200 z-10"
-                    title="Edit product"
-                  >
-                    <FiEdit className="w-4 h-4 text-blue-600" />
-                  </button>
-                )}
-
-
-<AnimatePresence>
-  {isSelected && (
-    <>
-      {/* Gray overlay with fade-out */}
-      <motion.div
-        key="overlay"
-        className="absolute inset-0 z-5"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        style={{ backgroundColor: "black" }}
-      />
-
-      {/* Tick animation */}
-      <div className="absolute inset-0 flex items-center justify-center z-6">
-        <motion.div
-          key="tick"
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.6, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="w-12 h-12 rounded-full flex items-center justify-center shadow-xl border border-white/40 backdrop-blur-sm"
-          style={{
-            backgroundColor: "rgba(19, 145, 67, 0.45)",
-            userSelect: "none",
-          }}
-        >
-          <HiCheck className="text-green-100" style={{ fontSize: 30 }} />
-        </motion.div>
-      </div>
-    </>
-  )}
-</AnimatePresence>
-
-                              </div>
-
-{/* Price Badge Over Image */}
-{showInfo && (
-<div
-  className="absolute top-1.5 left-1.5 bg-red-800 text-white text-[11px] font-medium px-2 py-0.45 rounded-full shadow-md tracking-wide z-10"
->
-  {currencySymbol}{getProductCatalogueData(p).price}
-</div>
-)}
-
-
-{/* Name Below Image */}
-{showInfo && (
-<div
-  className="absolute bottom-0 left-0 w-full px-1 py-1 text-center font-medium text-white text-[11px] sm:text-[12px] md:text-[14px] truncate"
-  style={{
-    backgroundColor: "rgba(0, 0, 0, 0.45)", // consistent overlay
-    backdropFilter: "blur(1px)",
-  }}
->
-  {p.name}
-</div>
-)}
-
-             
-
-              {/* Share Preview Content */}
-              <div
-                className={`hidden full-detail-${p.id}`}
-                style={{
-                  width: "100%",
-                  padding: 0,
-                  margin: 0,
-                  overflow: "hidden",
-    boxSizing: "border-box",
-    backgroundColor: "#fff",
-                }}
-              >
-                <div
-                  style={{
-                    backgroundColor: p.imageBgColor || "white",
-                    padding: "16px",
-                    textAlign: "center",
-                    position: "relative",
-                    boxShadow: "0 12px 15px -6px rgba(0, 0, 0, 0.4  )", // ⬅️ shadow BELOW
-                  }}
-                >
-                  <img
-      src={imageMap[p.id]}
-      alt={p.name}
-      style={{
-        maxWidth: "100%",
-        maxHeight: "300px",
-        objectFit: "contain",
-        margin: "0 auto",
-                    }}
-                  />
-                  {p.badge && (
-  <div
-    style={{
-      position: "absolute",
-      bottom: 8,
-      right: 8,
-      backgroundColor:
-        p.imageBgColor?.toLowerCase() === "white" ? "#fff" : "#000",
-      color:
-        p.imageBgColor?.toLowerCase() === "white" ? "#000" : "#fff",
-      fontSize: 11,
-      fontWeight: 400,
-      padding: "4px 9px",
-      borderRadius: "20px",
-      opacity: 0.98,
-      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-      border: `1.5px solid ${
-        p.imageBgColor?.toLowerCase() === "white"
-          ? "rgba(0,0,0,0.4)"
-          : "rgba(255,255,255,0.4)"
-      }`,
-      letterSpacing: "0.3px",
-      lineHeight: "1.4",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
-    {p.badge.toUpperCase()}
-  </div>
-)}
-
-
-                  {!p[stockField] && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%) rotate(-30deg)",
-                        width: "140%",
-                        backgroundColor: "rgba(220, 38, 38, 0.6)",
-                        color: "white",
-                        textAlign: "center",
-                        padding: "10px 0",
-                        fontSize: "18px",
-                        fontWeight: "bold",
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                      }}
-                    >
-                      OUT OF STOCK
-                    </div>
-                  )}
-                </div>
-
-                <div
-                  style={{
-                    backgroundColor: getLighterColor(p.bgColor || "#add8e6"),
-                    color: p.fontColor || "white",
-                    padding: "4px 8px",
-                    fontSize: 17,
-                  }}
-                >
-                  <div style={{ textAlign: "center", marginBottom: 6 }}>
-                    <p
-                      style={{
-                        fontWeight: "normal",
-                        textShadow: "3px 3px 5px rgba(0,0,0,0.2)",
-                        fontSize: 28,
-                        margin: "0 0 3px 0",
-                      }}
-                    >
-                      {p.name}
-                    </p>
-                    {p.subtitle && (
-                      <p
-                        style={{ fontStyle: "italic", fontSize: 18, margin: "0 0 0 0" }}
-                      >
-                        ({p.subtitle})
-                      </p>
-                    )}
-                  </div>
-
-                  <div style={{ textAlign: "left", lineHeight: 1.4 }}>
-                    {getAllFields()
-                      .filter(f => f.enabled && f.key.startsWith('field'))
-                      .map(field => {
-                        const catData = getProductCatalogueData(p);
-                        const val = catData[field.key];
-                        if (!val) return null;
-                        const unit = catData[`${field.key}Unit`];
-                        const displayUnit = unit && unit !== "None" ? unit : "";
-
-                        return (
-                          <p key={field.key} style={{ margin: "2px 0" }}>
-                            &nbsp; {field.label}
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                            &nbsp;&nbsp;{val} {displayUnit}
-                          </p>
-                        );
-                      })}
-                  </div>
-                </div>
-
-                <h2
-                  style={{
-                    backgroundColor: p.bgColor || "#add8e6",
-                    color: p.fontColor || "white",
-                    padding: "5px 8px",
-                    textAlign: "center",
-                    fontWeight: "normal",
-                    fontSize: 19,
-                    margin: 0,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Price&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;{currencySymbol}{getProductCatalogueData(p).price}{" "}
-                  {getProductCatalogueData(p).priceUnit}
-                </h2>
-              </div>
-            </div>
-          );
-        })}
+        {visibleProducts.map((p) => (
+  <ProductCard
+    key={p.id}
+    p={p}
+    isSelected={selected.includes(p.id)}
+    stockField={stockField}
+    showEdit={showEdit}
+    showInfo={showInfo}
+    currencySymbol={currencySymbol}
+    imageMap={imageMap}
+    catalogueId={catalogueId}
+    getLighterColor={getLighterColor}
+    getProductCatalogueData={getProductCatalogueData}
+    onCardClick={handleCardClick}
+    onTouchStart={handleTouchStart}
+    onTouchMove={handleTouchMove}
+    onTouchEnd={handleTouchEnd}
+    onMouseUp={handleTouchEnd}
+    onMouseLeave={handleTouchEnd}
+  />
+))}
       </div>
       {processing && (
   <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">

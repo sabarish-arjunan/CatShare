@@ -4,7 +4,7 @@ import { analytics } from "./firebaseConfig";
 // Event name constants - prevents typos and centralizes event naming
 export const ANALYTICS_EVENTS = {
   // Product Management
-  PRODUCT_ADDED: "product_added",
+  PRODUCT_ADDED: "product_created",
   PRODUCT_EDITED: "product_edited",
   PRODUCT_DELETED: "product_deleted",
   BULK_EDIT: "bulk_edit",

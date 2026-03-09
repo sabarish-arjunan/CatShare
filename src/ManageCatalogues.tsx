@@ -111,7 +111,8 @@ export default React.memo(function ManageCatalogues({
           setCatalogues(updated);
           onCataloguesChanged(updated);
 
-          logCatalogueCreated(newCatalogue.label, products.length);
+          // Log catalogue creation event with the new catalogue name
+          logCatalogueCreated(newCatalogue.label);
 
           setShowAddForm(false);
           resetFormFields();

@@ -1564,102 +1564,69 @@ const restoreFromDetectedBackup = async (backupFile) => {
 )}
 
 {showBackupPopup && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-  onClick={() => setShowBackupPopup(false)}
-  data-backup-popup="true"
+  <div
+    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+    onClick={() => setShowBackupPopup(false)}
+    data-backup-popup="true"
   >
-    <div className="bg-white/80 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs text-center"
-    onClick={(e) => e.stopPropagation()}
+    <div
+      className="bg-white/80 border border-white/50 backdrop-blur-xl shadow-2xl rounded-2xl p-6 w-full max-w-xs text-center"
+      onClick={(e) => e.stopPropagation()}
     >
       <h2 className="text-lg font-semibold text-gray-800 mb-4">Backup & Restore</h2>
 
-      {!showBrowseForBackup ? (
-        <>
-          <div className="flex justify-center items-center gap-8 mb-4">
-            {/* Backup */}
-            <button
-              onClick={() => {
-                setShowBackupPopup(false);
-                handleBackup();
-              }}
-              className="flex flex-col items-center justify-center hover:text-gray-700 transition"
-            >
-              <div className="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center text-2xl shadow-md">
-                📦
-              </div>
-              <span className="text-xs font-medium text-gray-700 mt-2">Backup & Share</span>
-            </button>
-
-            {/* Restore */}
-            <button
-              onClick={() => setShowBrowseForBackup(true)}
-              className="flex flex-col items-center justify-center hover:text-gray-700 transition"
-            >
-              <div className="w-12 h-12 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center text-2xl shadow-md">
-                📂
-              </div>
-              <span className="text-xs font-medium text-gray-700 mt-2">Restore</span>
-            </button>
+      <div className="flex justify-center items-center gap-8 mb-4">
+        {/* Backup */}
+        <button
+          onClick={() => {
+            setShowBackupPopup(false);
+            handleBackup();
+          }}
+          className="flex flex-col items-center justify-center hover:text-gray-700 transition"
+        >
+          <div className="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center text-2xl shadow-md">
+            📦
           </div>
+          <span className="text-xs font-medium text-gray-700 mt-2">Backup & Share</span>
+        </button>
 
-          <button
-            onClick={() => setShowBackupPopup(false)}
-            className="mt-1 text-sm text-gray-500 hover:text-red-500 transition"
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <>
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Select Backup</h3>
-
-          {isLoadingBackups ? (
-            <div className="text-sm text-gray-600 py-4">Loading backups...</div>
-          ) : detectedBackups.length > 0 ? (
-            <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
-              {detectedBackups.map((backup) => (
-                <button
-                  key={backup.name}
-                  onClick={() => restoreFromDetectedBackup(backup)}
-                  className="w-full text-left p-3 bg-gray-100 hover:bg-blue-100 rounded-lg transition text-sm text-gray-700 hover:text-blue-700"
-                >
-                  <div className="font-medium truncate">{backup.name}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {backup.size ? `${(backup.size / 1024 / 1024).toFixed(2)} MB` : 'Size unknown'}
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-gray-600 py-4 mb-3">
-              No backups found in Documents > CatShare
-            </div>
-          )}
-
-          <div className="space-y-2 mb-3">
-            <label className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium cursor-pointer">
-              <span>📁 Browse Other Location</span>
-              <input
-                type="file"
-                accept=".zip,application/zip"
-                className="hidden"
-                onChange={(e) => {
-                  setShowBackupPopup(false);
-                  setShowBrowseForBackup(false);
-                  handleRestore(e);
-                }}
-              />
-            </label>
+        {/* Restore */}
+        <button
+          onClick={() => {
+            const input = document.getElementById("catshare-backup-file-input");
+            if (input) {
+              input.click();
+            }
+          }}
+          className="flex flex-col items-center justify-center hover:text-gray-700 transition"
+        >
+          <div className="w-12 h-12 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center text-2xl shadow-md">
+            📂
           </div>
+          <span className="text-xs font-medium text-gray-700 mt-2">Restore</span>
+        </button>
+      </div>
 
-          <button
-            onClick={() => setShowBrowseForBackup(false)}
-            className="w-full text-sm text-gray-500 hover:text-red-500 transition"
-          >
-            Back
-          </button>
-        </>
-      )}
+      {/* Hidden file input that opens the system file manager.
+          On Android this will typically default to Documents > CatShare
+          because that's where backups are written. */}
+      <input
+        id="catshare-backup-file-input"
+        type="file"
+        accept=".zip,application/zip"
+        className="hidden"
+        onChange={(e) => {
+          setShowBackupPopup(false);
+          handleRestore(e);
+        }}
+      />
+
+      <button
+        onClick={() => setShowBackupPopup(false)}
+        className="mt-1 text-sm text-gray-500 hover:text-red-500 transition"
+      >
+        Cancel
+      </button>
     </div>
   </div>
 )}

@@ -26,6 +26,7 @@ import {
 import { getFieldConfig, getAllFields } from "../config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "../utils/currencyUtils";
 import { getPriceUnits } from "../utils/priceUnitsUtils";
+import { logProductAdded } from "../config/analyticsEvents";
 
 // Helper function to get CSS styles based on watermark position
 const getWatermarkPositionStyles = (position) => {
@@ -925,11 +926,17 @@ export default function CreateProduct() {
 
     try {
       const all = JSON.parse(localStorage.getItem("products") || "[]");
+      const isNewProduct = !editingId;
       const updated = editingId
         ? all.map((p) => (p.id === editingId ? newItem : p))
         : [...all, newItem];
 
       localStorage.setItem("products", JSON.stringify(updated));
+
+      // Fire custom analytics event when a new product is created
+      if (isNewProduct) {
+        logProductAdded(updated.length);
+      }
 
       window.dispatchEvent(new CustomEvent("product-added"));
 

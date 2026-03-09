@@ -174,42 +174,41 @@ useEffect(() => {
 }, [filtered, stockFilter, categoryFilter, search, catalogueId, stockField]);
 
 
-  let touchTimer = null;
-  let startX = 0;
-  let startY = 0;
-  let moved = false;
+const touchTimer = useRef(null);
+const startX = useRef(0);
+const startY = useRef(0);
+const moved = useRef(false);
 
-  const handleTouchStart = (e, id) => {
-    moved = false;
-    const touch = e.touches?.[0] || e;
-    startX = touch.clientX;
-    startY = touch.clientY;
+const handleTouchStart = (e, id) => {
+  moved.current = false;
+  const touch = e.touches?.[0] || e;
+  startX.current = touch.clientX;
+  startY.current = touch.clientY;
 
-    touchTimer = setTimeout(() => {
-      if (!moved) {
-        if (!selectMode) {
-  window.history.pushState({ select: true }, ""); // Push fake screen only once
-}
-setSelectMode(true);
-setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
-
-        }
-    }, 300);
-  };
-
-  const handleTouchMove = (e) => {
-    const touch = e.touches?.[0] || e;
-    const dx = Math.abs(touch.clientX - startX);
-    const dy = Math.abs(touch.clientY - startY);
-    if (dx > 10 || dy > 10) {
-      moved = true;
-      clearTimeout(touchTimer);
+  touchTimer.current = setTimeout(() => {
+    if (!moved.current) {
+      if (!selectMode) {
+        window.history.pushState({ select: true }, "");
+      }
+      setSelectMode(true);
+      setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
     }
-  };
+  }, 500);
+};
 
-  const handleTouchEnd = () => {
-    clearTimeout(touchTimer);
-  };
+const handleTouchMove = (e) => {
+  const touch = e.touches?.[0] || e;
+  const dx = Math.abs(touch.clientX - startX.current);
+  const dy = Math.abs(touch.clientY - startY.current);
+  if (dx > 6 || dy > 6) {
+    moved.current = true;
+    clearTimeout(touchTimer.current);
+  }
+};
+
+const handleTouchEnd = () => {
+  clearTimeout(touchTimer.current);
+};
 
   const handleCardClick = (id) => {
     if (selectMode) {
