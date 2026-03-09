@@ -57,6 +57,9 @@ const [shareErrorMessage, setShareErrorMessage] = useState("");
 const [shareErrorBlob, setShareErrorBlob] = useState(null);
 const [shareErrorFilename, setShareErrorFilename] = useState("");
 const [shareErrorBase64, setShareErrorBase64] = useState(null);
+const [detectedBackups, setDetectedBackups] = useState([]);
+const [showBrowseForBackup, setShowBrowseForBackup] = useState(false);
+const [isLoadingBackups, setIsLoadingBackups] = useState(false);
 const navigate = useNavigate();
   const { showToast } = useToast();
   const { currentTheme } = useTheme();
@@ -78,6 +81,21 @@ const navigate = useNavigate();
       }
     }, 0);
   }, []);
+
+  // Load detected backups when backup popup is opened
+  useEffect(() => {
+    if (showBackupPopup) {
+      setIsLoadingBackups(true);
+      listCatShareBackups().then(backups => {
+        setDetectedBackups(backups);
+        setIsLoadingBackups(false);
+      }).catch(err => {
+        console.error("Error loading backups:", err);
+        setDetectedBackups([]);
+        setIsLoadingBackups(false);
+      });
+    }
+  }, [showBackupPopup]);
 
   // Expose all modal states globally for back button handlers
   useEffect(() => {
@@ -267,6 +285,31 @@ const navigate = useNavigate();
   } catch (err) {
     console.error("Download rendered images failed:", err);
     showToast("Failed to download rendered images: " + err.message, "error");
+  }
+};
+
+// Helper function to list backup files from Documents/CatShare folder
+const listCatShareBackups = async () => {
+  try {
+    const files = await Filesystem.readdir({
+      path: "CatShare",
+      directory: Directory.Documents,
+    });
+
+    // Filter only ZIP files
+    const backupFiles = files.files
+      .filter(file => file.name.endsWith('.zip') && file.name.startsWith('catalogue-backup-'))
+      .sort((a, b) => {
+        // Sort by modification time (newest first)
+        const timeA = parseInt(a.name.match(/\d{12}/)?.[0] || 0);
+        const timeB = parseInt(b.name.match(/\d{12}/)?.[0] || 0);
+        return timeB - timeA;
+      });
+
+    return backupFiles;
+  } catch (err) {
+    console.log("ℹ️ CatShare folder not found or empty:", err.message);
+    return [];
   }
 };
 
@@ -473,12 +516,28 @@ const handleBackup = async () => {
 
       // Try to save to filesystem first (for mobile persistence)
       try {
+        // Create CatShare folder in Documents if it doesn't exist
+        try {
+          await Filesystem.mkdir({
+            path: "CatShare",
+            directory: Directory.Documents,
+            recursive: true,
+          });
+          console.log(`✅ CatShare folder ensured in Documents`);
+        } catch (mkdirErr) {
+          // Folder might already exist, which is fine
+          if (!mkdirErr.message?.includes("Directory already exists")) {
+            console.warn("⚠️ Failed to create CatShare folder:", mkdirErr.message);
+          }
+        }
+
+        // Write backup to CatShare folder
         await Filesystem.writeFile({
-          path: filename,
+          path: `CatShare/${filename}`,
           data: base64Data,
           directory: Directory.Documents,
         });
-        console.log(`✅ Backup file written to Documents: ${filename}`);
+        console.log(`✅ Backup file written to Documents > CatShare: ${filename}`);
       } catch (writeErr) {
         console.warn("⚠️ Could not write to filesystem, will still try to share:", writeErr.message);
       }
@@ -1031,6 +1090,321 @@ const exportProductsToCSV = (products) => {
   reader.readAsArrayBuffer(file);
 };
 
+// Function to restore from a detected backup file in CatShare folder
+const restoreFromDetectedBackup = async (backupFile) => {
+  try {
+    const fileData = await Filesystem.readFile({
+      path: `CatShare/${backupFile.name}`,
+      directory: Directory.Documents,
+    });
+
+    // Convert base64 string to Blob
+    const binaryString = atob(fileData.data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Create a File object from the bytes
+    const file = new File([bytes], backupFile.name, { type: "application/zip" });
+
+    // Create a FileReader and trigger the restore logic
+    const reader = new FileReader();
+
+    reader.onload = async (event) => {
+      try {
+        const zip = await JSZip.loadAsync(event.target.result);
+
+        // Try to find catalogue-data.json at root first
+        let jsonFile = zip.file("catalogue-data.json");
+
+        // If not found at root, search for it in any subfolder
+        if (!jsonFile) {
+          console.log("🔍 catalogue-data.json not found at root, searching subfolders...");
+          const allFiles = Object.keys(zip.files);
+          const match = allFiles.find(name => name.endsWith("catalogue-data.json"));
+          if (match) {
+            console.log(`✅ Found catalogue-data.json at: ${match}`);
+            jsonFile = zip.file(match);
+          }
+        }
+
+        if (!jsonFile) {
+          console.error("❌ ZIP contents:", Object.keys(zip.files));
+          throw new Error("Missing catalogue-data.json in backup");
+        }
+
+        const jsonText = await jsonFile.async("text");
+        const parsed = JSON.parse(jsonText);
+
+        // Check if this is a v3 backup
+        const isV3Backup = parsed.version === 3 && parsed.metadata;
+
+        // Validate backup format
+        if (!parsed.products || !Array.isArray(parsed.products)) {
+          throw new Error("Invalid backup format: missing products array");
+        }
+
+        // Determine field definition to use
+        let backupFieldDef = null;
+
+        if (parsed.fieldsDefinition) {
+          console.log("✅ Found fieldsDefinition in backup - using original field labels and configuration");
+
+          const defaultDef = getCataloguesDefinition ? safeGetFromStorage('fieldsDefinition', null) : null;
+          if (parsed.fieldsDefinition.fields && !parsed.fieldsDefinition.fields.some(f => f.key === 'price1' && f.unitOptions?.length > 0)) {
+            parsed.fieldsDefinition.fields = parsed.fieldsDefinition.fields.map(f => {
+              if (f.key === 'price1' && (!f.unitOptions || f.unitOptions.length === 0)) {
+                return {
+                  ...f,
+                  unitsEnabled: true,
+                  unitOptions: ['/ piece', '/ dozen', '/ set'],
+                  defaultUnit: '/ piece'
+                };
+              }
+              return f;
+            });
+          }
+          backupFieldDef = parsed.fieldsDefinition;
+        } else {
+          console.log("🔎 Analyzing original backup fields BEFORE migration (old backup format - v1)...");
+          applyBackupFieldAnalysis(parsed.products, true);
+          backupFieldDef = safeGetFromStorage('fieldsDefinition', null);
+          console.log("✅ Original backup fields analyzed and auto-detected");
+        }
+
+        const rebuilt = await Promise.all(
+          parsed.products.map(async (p) => {
+            let imageRestored = false;
+
+            if (p.imageFilename && p.imagePath) {
+              const imgFile = zip.file(`images/${p.imageFilename}`);
+              if (imgFile) {
+                const base64 = await imgFile.async("base64");
+
+                try {
+                  await Filesystem.writeFile({
+                    path: p.imagePath,
+                    data: base64,
+                    directory: Directory.Data,
+                    recursive: true,
+                  });
+                  imageRestored = true;
+                  console.log(`📸 Image restored from file for "${p.name}": ${p.imagePath}`);
+                } catch (err) {
+                  console.warn(`❌ Image write failed for "${p.name}":`, p.imagePath, err);
+                }
+              } else {
+                console.warn(`⚠️ Image file not found in ZIP for "${p.name}": images/${p.imageFilename}`);
+              }
+            }
+
+            if (!imageRestored && p.image && typeof p.image === 'string') {
+              console.log(`📸 Keeping base64 image for "${p.name}" (${(p.image.length / 1024).toFixed(1)} KB)`);
+            }
+
+            const clean = { ...p };
+            delete clean.imageBase64;
+            delete clean.imageFilename;
+
+            const migrated = migrateProductToNewFormat(clean);
+
+            if (!migrated.badge && migrated.catalogueData) {
+              for (const catId in migrated.catalogueData) {
+                if (migrated.catalogueData[catId]?.badge) {
+                  migrated.badge = migrated.catalogueData[catId].badge;
+                  break;
+                }
+              }
+            }
+
+            return migrated;
+          })
+        );
+
+        console.log("🗑️ Clearing old data to free up maximum space...");
+        console.log(`📦 Backup format: v${parsed.version}${isV3Backup ? ' (comprehensive)' : ''}`);
+
+        const preservedSettings = {
+          hasCompletedOnboarding: safeGetFromStorage('hasCompletedOnboarding', false),
+          darkMode: safeGetFromStorage('darkMode', false),
+          showWatermark: isV3Backup && parsed.metadata?.watermarkSettings
+            ? parsed.metadata.watermarkSettings.showWatermark
+            : safeGetFromStorage('showWatermark', true),
+          watermarkText: isV3Backup && parsed.metadata?.watermarkSettings
+            ? parsed.metadata.watermarkSettings.watermarkText
+            : safeGetFromStorage('watermarkText', 'Created using CatShare'),
+          watermarkPosition: isV3Backup && parsed.metadata?.watermarkSettings
+            ? parsed.metadata.watermarkSettings.watermarkPosition
+            : safeGetFromStorage('watermarkPosition', 'bottom-left'),
+          fieldsDefinition: backupFieldDef,
+          userId: localStorage.getItem('userId'),
+        };
+
+        if (isV3Backup && parsed.metadata?.currencySettings) {
+          if (parsed.metadata.currencySettings.defaultCurrency) {
+            preservedSettings.defaultCurrency = parsed.metadata.currencySettings.defaultCurrency;
+          }
+          if (parsed.metadata.currencySettings.customCurrencies && Object.keys(parsed.metadata.currencySettings.customCurrencies).length > 0) {
+            preservedSettings.customCurrencies = parsed.metadata.currencySettings.customCurrencies;
+          }
+        }
+
+        if (isV3Backup && parsed.metadata?.priceUnits && Array.isArray(parsed.metadata.priceUnits) && parsed.metadata.priceUnits.length > 0) {
+          preservedSettings.priceFieldUnits = parsed.metadata.priceUnits;
+        }
+
+        localStorage.clear();
+        Object.entries(preservedSettings).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+          }
+        });
+
+        const cleanedProducts = rebuilt.map(p => {
+          const clean = { ...p };
+          delete clean.image;
+          delete clean.imageBase64;
+          delete clean.imageData;
+          delete clean.imageFilename;
+          delete clean.renderedImages;
+          return clean;
+        });
+
+        console.log(`📦 Products to save: ${cleanedProducts.length}`);
+        console.log(`📊 Data size: ${JSON.stringify(cleanedProducts).length / 1024}KB`);
+
+        let productsToUse = cleanedProducts;
+
+        try {
+          localStorage.setItem("products", JSON.stringify(cleanedProducts));
+          console.log("✅ Products saved successfully");
+        } catch (err) {
+          console.error("❌ Failed to save products:", err.message);
+          if (err.name === "QuotaExceededError") {
+            console.warn("⚠️ Data still too large, limiting to 50 products...");
+            productsToUse = cleanedProducts.slice(0, 50);
+            localStorage.setItem("products", JSON.stringify(productsToUse));
+            alert("⚠️ Restore limited to first 50 products due to storage quota. You can restore more products later by importing additional backups.");
+          } else {
+            throw err;
+          }
+        }
+
+        setProducts(productsToUse);
+
+        try {
+          if (parsed.categories && Array.isArray(parsed.categories)) {
+            localStorage.setItem("categories", JSON.stringify(parsed.categories));
+          } else {
+            const categories = Array.from(
+              new Set(
+                rebuilt.flatMap((p) =>
+                  Array.isArray(p.category) ? p.category : [p.category]
+                )
+              )
+            ).filter(Boolean);
+            localStorage.setItem("categories", JSON.stringify(categories));
+          }
+        } catch (catErr) {
+          console.warn("⚠️ Could not save categories:", catErr.message);
+        }
+
+        if (Array.isArray(parsed.deleted) && parsed.deleted.length > 0) {
+          console.log(`📂 Restoring ${parsed.deleted.length} deleted products (shelf items)...`);
+
+          const restoredDeleted = await Promise.all(
+            parsed.deleted.map(async (p) => {
+              if (p.imageFilename && p.imagePath) {
+                const imgFile = zip.file(`images/${p.imageFilename}`);
+                if (imgFile) {
+                  try {
+                    const base64 = await imgFile.async("base64");
+                    await Filesystem.writeFile({
+                      path: p.imagePath,
+                      data: base64,
+                      directory: Directory.Data,
+                      recursive: true,
+                    });
+                    console.log(`✅ Image restored for deleted product "${p.name}"`);
+                  } catch (err) {
+                    console.warn("Image write failed for deleted product:", p.imagePath);
+                  }
+                }
+              }
+
+              const clean = { ...p };
+              delete clean.imageBase64;
+              delete clean.imageFilename;
+              const migrated = migrateProductToNewFormat(clean);
+              return migrated;
+            })
+          );
+
+          try {
+            localStorage.setItem("deletedProducts", JSON.stringify(restoredDeleted));
+            setDeletedProducts(restoredDeleted);
+            console.log(`✅ Restored ${restoredDeleted.length} shelf items successfully`);
+          } catch (err) {
+            console.warn("⚠️ Could not save deleted products (shelf items):", err.message);
+          }
+        }
+
+        if (parsed.cataloguesDefinition) {
+          setCataloguesDefinition(parsed.cataloguesDefinition);
+          console.log("✅ Restored catalogues definition from backup");
+        } else {
+          const currentCatalogues = getCataloguesDefinition();
+          if (!currentCatalogues || currentCatalogues.catalogues.length === 0) {
+            setCataloguesDefinition({
+              version: 1,
+              catalogues: DEFAULT_CATALOGUES,
+              lastUpdated: Date.now(),
+            });
+            console.log("⚠️ Old backup detected - using default catalogues");
+          } else {
+            console.log("ℹ️ Using existing catalogue configuration");
+          }
+        }
+
+        createLegacyResellCatalogueIfNeeded(rebuilt);
+        ensureProductsHaveStockFields();
+
+        console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
+        logBackupRestored(file.size);
+
+        showToast(`Catalogue restored successfully (${rebuilt.length} products).`, "success");
+
+        const templateName = backupFieldDef?.industry || 'General Products (Custom)';
+        window.dispatchEvent(new CustomEvent("fieldDefinitionsChanged", {
+          detail: {
+            newDefinition: backupFieldDef,
+            template: templateName,
+            isBackupRestore: true
+          }
+        }));
+        console.log(`🔄 Dispatched fieldDefinitionsChanged event - Template: ${templateName}`);
+
+        setShowRenderAfterRestore(true);
+        setShowBrowseForBackup(false);
+      } catch (err) {
+        console.error("❌ Restore failed:", err);
+        showToast("Restore failed: " + err.message, "error");
+      }
+    };
+
+    reader.onerror = (err) => {
+      console.error("Error reading file:", err);
+      showToast("Failed to read backup file", "error");
+    };
+
+    reader.readAsArrayBuffer(file);
+  } catch (err) {
+    console.error("Error restoring from detected backup:", err);
+    showToast("Failed to restore backup: " + err.message, "error");
+  }
+};
+
   return (
     <>
       <div
@@ -1198,45 +1572,92 @@ const exportProductsToCSV = (products) => {
     >
       <h2 className="text-lg font-semibold text-gray-800 mb-4">Backup & Restore</h2>
 
-      <div className="flex justify-center items-center gap-8 mb-4">
-        {/* Backup */}
-        <button
-          onClick={() => {
-            setShowBackupPopup(false);
-            handleBackup();
-          }}
-          className="flex flex-col items-center justify-center hover:text-gray-700 transition"
-        >
-          <div className="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center text-2xl shadow-md">
-            📦
-          </div>
-          <span className="text-xs font-medium text-gray-700 mt-2">Backup & Share</span>
-        </button>
+      {!showBrowseForBackup ? (
+        <>
+          <div className="flex justify-center items-center gap-8 mb-4">
+            {/* Backup */}
+            <button
+              onClick={() => {
+                setShowBackupPopup(false);
+                handleBackup();
+              }}
+              className="flex flex-col items-center justify-center hover:text-gray-700 transition"
+            >
+              <div className="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center text-2xl shadow-md">
+                📦
+              </div>
+              <span className="text-xs font-medium text-gray-700 mt-2">Backup & Share</span>
+            </button>
 
-        {/* Restore */}
-        <label className="flex flex-col items-center justify-center cursor-pointer hover:text-gray-700 transition">
-          <div className="w-12 h-12 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center text-2xl shadow-md">
-            📂
+            {/* Restore */}
+            <button
+              onClick={() => setShowBrowseForBackup(true)}
+              className="flex flex-col items-center justify-center hover:text-gray-700 transition"
+            >
+              <div className="w-12 h-12 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center text-2xl shadow-md">
+                📂
+              </div>
+              <span className="text-xs font-medium text-gray-700 mt-2">Restore</span>
+            </button>
           </div>
-          <span className="text-xs font-medium text-gray-700 mt-2">Restore</span>
-          <input
-            type="file"
-            accept=".zip,application/zip"
-            className="hidden"
-            onChange={(e) => {
-              setShowBackupPopup(false);
-              handleRestore(e);
-            }}
-          />
-        </label>
-      </div>
 
-      <button
-        onClick={() => setShowBackupPopup(false)}
-        className="mt-1 text-sm text-gray-500 hover:text-red-500 transition"
-      >
-        Cancel
-      </button>
+          <button
+            onClick={() => setShowBackupPopup(false)}
+            className="mt-1 text-sm text-gray-500 hover:text-red-500 transition"
+          >
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <h3 className="text-sm font-medium text-gray-700 mb-3">Select Backup</h3>
+
+          {isLoadingBackups ? (
+            <div className="text-sm text-gray-600 py-4">Loading backups...</div>
+          ) : detectedBackups.length > 0 ? (
+            <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+              {detectedBackups.map((backup) => (
+                <button
+                  key={backup.name}
+                  onClick={() => restoreFromDetectedBackup(backup)}
+                  className="w-full text-left p-3 bg-gray-100 hover:bg-blue-100 rounded-lg transition text-sm text-gray-700 hover:text-blue-700"
+                >
+                  <div className="font-medium truncate">{backup.name}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {backup.size ? `${(backup.size / 1024 / 1024).toFixed(2)} MB` : 'Size unknown'}
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-600 py-4 mb-3">
+              No backups found in Documents > CatShare
+            </div>
+          )}
+
+          <div className="space-y-2 mb-3">
+            <label className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium cursor-pointer">
+              <span>📁 Browse Other Location</span>
+              <input
+                type="file"
+                accept=".zip,application/zip"
+                className="hidden"
+                onChange={(e) => {
+                  setShowBrowseForBackup(false);
+                  handleRestore(e);
+                }}
+              />
+            </label>
+          </div>
+
+          <button
+            onClick={() => setShowBrowseForBackup(false)}
+            className="w-full text-sm text-gray-500 hover:text-red-500 transition"
+          >
+            Back
+          </button>
+        </>
+      )}
     </div>
   </div>
 )}
