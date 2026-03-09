@@ -1224,10 +1224,8 @@ useEffect(() => {
               }`}
               onClick={() => handleCardClick(p.id)}
 onTouchStart={(e) => handleTouchStart(e, p.id)}
-onTouchMove={handleTouchMove}
 onTouchEnd={handleTouchEnd}
 onMouseDown={(e) => handleTouchStart(e, p.id)}
-onMouseMove={handleTouchMove}
 onMouseUp={handleTouchEnd}
 onMouseLeave={handleTouchEnd}
 
@@ -1266,6 +1264,41 @@ onMouseLeave={handleTouchEnd}
                   </button>
                 )}
 
+
+<AnimatePresence>
+  {isSelected && (
+    <>
+      {/* Gray overlay with fade-out */}
+      <motion.div
+        key="overlay"
+        className="absolute inset-0 z-5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.5 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        style={{ backgroundColor: "black" }}
+      />
+
+      {/* Tick animation */}
+      <div className="absolute inset-0 flex items-center justify-center z-6">
+        <motion.div
+          key="tick"
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.6, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="w-12 h-12 rounded-full flex items-center justify-center shadow-xl border border-white/40 backdrop-blur-sm"
+          style={{
+            backgroundColor: "rgba(19, 145, 67, 0.45)",
+            userSelect: "none",
+          }}
+        >
+          <HiCheck className="text-green-100" style={{ fontSize: 30 }} />
+        </motion.div>
+      </div>
+    </>
+  )}
+</AnimatePresence>
 
                               </div>
 
