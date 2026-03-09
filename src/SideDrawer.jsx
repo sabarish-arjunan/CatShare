@@ -1386,6 +1386,7 @@ const restoreFromDetectedBackup = async (backupFile) => {
         console.log(`🔄 Dispatched fieldDefinitionsChanged event - Template: ${templateName}`);
 
         setShowRenderAfterRestore(true);
+        setShowBackupPopup(false);
         setShowBrowseForBackup(false);
       } catch (err) {
         console.error("❌ Restore failed:", err);
@@ -1643,6 +1644,7 @@ const restoreFromDetectedBackup = async (backupFile) => {
                 accept=".zip,application/zip"
                 className="hidden"
                 onChange={(e) => {
+                  setShowBackupPopup(false);
                   setShowBrowseForBackup(false);
                   handleRestore(e);
                 }}
