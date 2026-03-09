@@ -22,6 +22,7 @@ import { applyBackupFieldAnalysis } from "./config/fieldConfig";
 import { safeGetFromStorage, safeSetInStorage } from "./utils/safeStorage";
 import { getCurrentCurrency } from "./utils/currencyUtils";
 import { getPriceUnits } from "./utils/priceUnitsUtils";
+import { logBackupCreated, logBackupRestored, logBackupSharedFileSharer, logBackupDownloaded } from "./config/analyticsEvents";
 
 
 export default function SideDrawer({
@@ -437,6 +438,9 @@ const handleBackup = async () => {
 
     console.log(`✅ Backup ZIP created successfully. Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`);
 
+    // Track backup creation
+    logBackupCreated(blob.size);
+
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-T:.]/g, "").slice(0, 12);
     const filename = `catalogue-backup-${timestamp}.zip`;
@@ -486,6 +490,9 @@ const handleBackup = async () => {
           base64Data,
           contentType: "application/zip",
         });
+
+        // Track successful FileSharer share
+        logBackupSharedFileSharer(blob.size);
 
         setBackupResult({
           status: "success",
@@ -964,6 +971,9 @@ const exportProductsToCSV = (products) => {
 
       console.log(`✅ Backup restored successfully - ${rebuilt.length} products restored`);
 
+      // Track backup restoration
+      logBackupRestored(file.size);
+
       showToast(`Catalogue restored successfully (${rebuilt.length} products).`, "success");
 
       // 🔄 Dispatch event to notify all components that field definitions have changed
@@ -1417,6 +1427,9 @@ const exportProductsToCSV = (products) => {
                   document.body.removeChild(link);
                   setTimeout(() => URL.revokeObjectURL(url), 100);
 
+                  // Track backup download
+                  logBackupDownloaded(shareErrorBlob.size);
+
                   setBackupResult({
                     status: "success",
                     message: "Backup ZIP created and downloaded",
@@ -1442,6 +1455,9 @@ const exportProductsToCSV = (products) => {
                 link.click();
                 document.body.removeChild(link);
                 setTimeout(() => URL.revokeObjectURL(url), 100);
+
+                // Track backup download
+                logBackupDownloaded(shareErrorBlob.size);
 
                 setBackupResult({
                   status: "success",

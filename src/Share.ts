@@ -2,6 +2,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { getRenderedImage } from "./utils/renderingUtils";
 import { safeGetFromStorage } from "./utils/safeStorage";
+import { logRenderStarted, logRenderCompleted, logShareInitiated, logShareCompleted } from "./config/analyticsEvents";
 
 interface HandleShareParams {
   selected: any[];
@@ -112,6 +113,9 @@ export async function handleShare({
   if (needsRendering.length > 0) {
     console.log(`🎨 Share.ts: ${needsRendering.length} products need rendering`);
 
+    // Track render start
+    logRenderStarted(needsRendering.length === 1 ? "single" : "all");
+
     // Show the modal and set initial state
     console.log(`📊 Share.ts: Setting initial state - processing=true, index=0, total=${needsRendering.length}`);
     setProcessing(true);
@@ -150,6 +154,9 @@ export async function handleShare({
 
     // Wait for rendering to complete
     await completionPromise;
+
+    // Track render completion
+    logRenderCompleted(needsRendering.length === 1 ? "single" : "all", true);
 
     console.log("✅ Rendering complete, proceeding with sharing...");
 
@@ -243,6 +250,9 @@ export async function handleShare({
       console.log(`   [${idx + 1}] ${uri.substring(0, 100)}${uri.length > 100 ? '...' : ''}`);
     });
 
+    // Track share initiation
+    logShareInitiated(`native_${targetFolder.toLowerCase()}`);
+
     // Try native Share API first (works on mobile)
     try {
       await Share.share({
@@ -252,6 +262,9 @@ export async function handleShare({
 
       console.log("✅ Share successful!", fileUris.length, "products");
       console.log(`\n📊 Summary: Successfully shared ${fileUris.length} out of ${selected.length} selected products`);
+
+      // Track share completion
+      logShareCompleted(`native_${targetFolder.toLowerCase()}`, true);
     } catch (nativeShareErr) {
       console.warn("⚠️ Native Share API failed, attempting fallback...", nativeShareErr);
 
@@ -274,6 +287,8 @@ export async function handleShare({
                 text: `Sharing ${fileUris.length} product${fileUris.length > 1 ? 's' : ''}`,
               });
               console.log("✅ Web Share API successful!");
+              // Track web share completion
+              logShareCompleted("web_api", true);
             } else {
               throw new Error('Web Share API cannot share files');
             }
@@ -285,6 +300,8 @@ export async function handleShare({
               url: window.location.href,
             });
             console.log("✅ Web Share API successful (URL fallback)!");
+            // Track web share completion
+            logShareCompleted("web_api_url", true);
           }
         } catch (webShareErr) {
           console.warn("⚠️ Web Share API also failed, trying download fallback...", webShareErr);
