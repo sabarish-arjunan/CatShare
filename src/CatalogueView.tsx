@@ -1224,10 +1224,8 @@ useEffect(() => {
               }`}
               onClick={() => handleCardClick(p.id)}
 onTouchStart={(e) => handleTouchStart(e, p.id)}
-onTouchMove={handleTouchMove}
 onTouchEnd={handleTouchEnd}
 onMouseDown={(e) => handleTouchStart(e, p.id)}
-onMouseMove={handleTouchMove}
 onMouseUp={handleTouchEnd}
 onMouseLeave={handleTouchEnd}
 
@@ -1265,6 +1263,7 @@ onMouseLeave={handleTouchEnd}
                     <FiEdit className="w-4 h-4 text-blue-600" />
                   </button>
                 )}
+
 
 <AnimatePresence>
   {isSelected && (
