@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { MdOutlineHome } from "react-icons/md";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { logThemeChanged } from "./config/analyticsEvents";
 import SideDrawer from "./SideDrawer";
 
 export default function Settings({
@@ -42,6 +43,7 @@ export default function Settings({
   const handleDarkModeToggle = (value) => {
     setLocalDarkMode(value);
     setDarkMode(value);
+    logThemeChanged(value ? "dark" : "light");
   };
 
   // Handle watermark toggle
