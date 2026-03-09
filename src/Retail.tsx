@@ -14,6 +14,7 @@ import { useToast } from "./context/ToastContext";
 import { getFieldConfig } from "./config/fieldConfig";
 import { getCurrentCurrencySymbol, onCurrencyChange } from "./utils/currencyUtils";
 import { getPriceUnits } from "./utils/priceUnitsUtils";
+import { logProductAdded, logProductEdited, logProductDeleted } from "./config/analyticsEvents";
 
 export default function Retail({ products = [] }) {
   const navigate = useNavigate();
@@ -348,6 +349,9 @@ export default function Retail({ products = [] }) {
     setRetailProducts((prev) => [...copies, ...prev]);
     setShowPullModal(false);
 
+    // Track product import
+    logProductAdded(copies.length);
+
     // Imported copies come from the global products list already, so no need to sync.
   };
 
@@ -359,6 +363,7 @@ export default function Retail({ products = [] }) {
     } catch (err) {
       console.warn('Failed to sync edited product to global products', err);
     }
+    logProductEdited(editingId);
     setEditingId(null);
     setEditingProduct(null);
   };
@@ -383,6 +388,7 @@ export default function Retail({ products = [] }) {
     } catch (err) {
       console.warn('Failed to add new retail product to global products', err);
     }
+    logProductAdded();
     setEditingId(p.id);
     setEditingProduct(p);
   };
@@ -607,6 +613,7 @@ export default function Retail({ products = [] }) {
                     } catch (err) {
                       console.warn('Failed to remove product from global products', err);
                     }
+                    logProductDeleted(p.id);
                   }} className="w-8 h-8 bg-white/90 hover:bg-white rounded flex items-center justify-center shadow text-sm text-red-600 hover:text-red-800 transition-colors" title="Delete product">🗑️</button>
                 </div>
               </div>

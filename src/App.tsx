@@ -297,12 +297,28 @@ function AppWithBackHandler() {
       if (!localStorage.getItem("userId")) {
         localStorage.setItem("userId", `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
       }
+
+      // Initialize Capacitor Firebase Analytics for mobile
+      if (isNative) {
         try {
-        await FirebaseAnalytics.setEnabled({ enabled: true });
-        await FirebaseAnalytics.logEvent({ name: 'app_open' });
-        console.log('✅ Firebase Analytics initialized');
-      } catch (error) {
-        console.warn('⚠️ Firebase Analytics error:', error);
+          await FirebaseAnalytics.setEnabled({ enabled: true });
+          await FirebaseAnalytics.logEvent({ name: 'app_open' });
+
+          // Expose FirebaseAnalytics to window for use by analyticsEvents.ts
+          (window as any).FirebaseAnalytics = {
+            logEvent: async (options: { name: string; parameters: Record<string, any> }) => {
+              try {
+                await FirebaseAnalytics.logEvent(options);
+              } catch (error) {
+                console.error('Error logging event to Capacitor:', error);
+              }
+            }
+          };
+
+          console.log('✅ Firebase Analytics initialized on mobile');
+        } catch (error) {
+          console.warn('⚠️ Firebase Analytics error on mobile:', error);
+        }
       }
 
       await initializeFirebaseMessaging();
